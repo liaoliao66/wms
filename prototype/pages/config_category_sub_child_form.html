@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>添加子类 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="config_category" data-title="添加子类" data-breadcrumb="基础配置 / 添加二级子类">
+  <div id="main-content"><div data-wms-modal data-modal-back="config_category.html" data-modal-size="lg">
+    <div class="wms-modal-form wms-warehouse-form">
+      <div class="md:col-span-2"><h3 class="wms-form-section-title">子类信息 · 二级</h3></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700">分类编码</label><input type="text" value="系统生成" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 父级分类</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>办公电脑 (ZC-GD-001)</option></select></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 分类名称</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 计量单位</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>台</option><option>个</option><option>箱</option><option>套</option></select></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 归还</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>需要</option><option>不需要</option></select></div><div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700">借用周期（天）</label><input type="number" value="90" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+      <div class=" md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">备注</label><textarea rows="3" placeholder="0/500" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+      
+    </div>
+    <div class="wms-modal-footer"><a href="config_category.html" class="wms-btn wms-btn-secondary">取消</a><button type="button" class="wms-btn wms-btn-primary">确定</button></div>
+  </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

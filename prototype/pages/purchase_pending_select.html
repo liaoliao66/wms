@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>选择待采物资 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="purchase_pending_list" data-title="选择待采物资" data-breadcrumb="采购管理 / 选择">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="purchase_pending_list.html" data-modal-size="xl">
+      <div class="wms-modal-toolbar">
+        <p class="text-sm text-slate-500">从待采清单勾选物资，确认后进入采购申请</p>
+        <div class="relative shrink-0 w-[280px]">
+    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+    <input type="search" data-wms-list-search placeholder="计划单号、物资编码、名称…" class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-9 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+    <button type="button" data-wms-list-search-clear class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" title="清空"><i class="fa-solid fa-xmark text-xs"></i></button>
+  </div>
+      </div>
+      <div class="wms-modal-table-wrap"><table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr><th class="w-10 px-4 py-3"><input type="checkbox" class="rounded border-slate-300" /></th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划单号</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划名称</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划类型</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">规格型号</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资大类</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资子类</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计量单位</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划需求数量</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">需求日期</th></tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/80">
+      <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" checked /></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">JH202606080003</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">应急防汛物资</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-rose-50 text-rose-700 ring-rose-600/20">急件计划</span></td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">XF-00102</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">防汛沙袋</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">50×80cm</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">耗材</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">防汛物资</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">条</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">500</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2026-06-12</td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80">
+      <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" checked /></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">JH202606080003</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">应急防汛物资</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-rose-50 text-rose-700 ring-rose-600/20">急件计划</span></td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">XF-00105</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">抽水泵</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">QZ10-15</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">类资产</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">防汛设备</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">台</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">5</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2026-06-12</td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80">
+      <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" /></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">JH202606070001</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">六月设备配件</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-rose-50 text-rose-700 ring-rose-600/20">急件计划</span></td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">GD001001-001</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">抓斗</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">455</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">资产-固定资产</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">设备-配件</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">个</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">10</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2026-06-15</td>
+    </tr></tbody></table></div>
+      <div class="wms-modal-footer">
+        <a href="purchase_pending_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <a href="purchase_pending_apply.html" class="wms-btn wms-btn-primary">确定</a>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

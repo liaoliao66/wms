@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>使用地点 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="config_location_list" data-title="使用地点" data-breadcrumb="基础配置 / 使用地点">
+  <div id="main-content">
+    <div data-wms-list-page data-wms-location-page>
+      <div class="mb-4 flex flex-wrap gap-2" data-wms-list-region-tabs><button type="button" class="wms-list-region-tab rounded-xl px-4 py-2 text-sm font-medium bg-slate-900 text-white" data-wms-list-region="work">作业区</button><button type="button" class="wms-list-region-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-list-region="office">办公区</button></div>
+      <div class="mb-3 flex w-full flex-nowrap items-center justify-end gap-2 overflow-x-auto" data-wms-list-toolbar><label class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">
+    <span class="text-slate-500 shrink-0">状态</span>
+    <select class="border-0 bg-transparent py-0.5 pr-6 text-sm font-medium text-slate-800 outline-none focus:ring-0" data-wms-list-filter="enabled">
+      <option value="全部" selected>全部</option><option value="启用">启用</option><option value="停用">停用</option>
+    </select>
+  </label><div class="relative shrink-0 w-[280px]">
+    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+    <input type="search" data-wms-list-search placeholder="地点名称" class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-9 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+    <button type="button" data-wms-list-search-clear class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" title="清空"><i class="fa-solid fa-xmark text-xs"></i></button>
+  </div><button type="button" class="hidden shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-100" data-wms-list-reset><i class="fa-solid fa-rotate-left text-xs"></i>重置</button></div><div class="mb-4" data-wms-list-add-row><a href="config_location_form.html?mode=major&region=work" class="inline-flex shrink-0 items-center justify-center gap-2 min-w-[96px] rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-slate-800 transition whitespace-nowrap" data-wms-location-add><i class="fa-solid fa-plus text-xs"></i>新增</a></div>
+      <div class="card overflow-hidden rounded-2xl bg-white shadow-sm" data-wms-list-card>
+        <div class="overflow-x-auto wms-modal-table-wrap" data-wms-list-table-wrap>
+          <table class="min-w-full wms-data-table">
+            <thead class="bg-slate-50/80"><tr>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">地点编码</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">地点名称</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">状态</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">创建人</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">创建时间</th>
+              <th class="wms-col-actions px-3 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th>
+            </tr></thead>
+            <tbody data-wms-list-tbody data-wms-location-tbody><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-wms-location-row data-location-code="001" data-location-region="work" data-location-name="1号楼" data-location-enabled="1" data-list-search="001 1号楼" data-list-filter-enabled="启用" data-wms-location-parent-row data-location-has-children="0">
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex items-center gap-0.5 font-mono text-xs text-slate-500"><span class="mr-1 inline-block w-5"></span>1</span></td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 font-mono text-xs whitespace-nowrap">001</td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">1号楼</td>
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap"><label class="wms-toggle"><input type="checkbox" data-wms-location-enabled data-location-code="001" checked /><span class="wms-toggle-track"></span></label></td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">Admin</td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">2026-06-01 09:00</td>
+    <td class="wms-col-actions px-3 py-3.5 text-right text-sm whitespace-nowrap"><a href="config_location_form.html?mode=child&parent=001&parentName=1%E5%8F%B7%E6%A5%BC&region=work" class="hover:underline">添加子类</a>&nbsp;&nbsp;<a href="config_location_form.html?code=001&mode=view" class="hover:underline">查看</a>&nbsp;&nbsp;<a href="config_location_form.html?code=001&mode=edit" class="hover:underline">编辑</a>&nbsp;&nbsp;<button type="button" class="text-rose-600 hover:underline" data-wms-location-delete data-location-code="001">删除</button></td>
+  </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-wms-location-row data-location-code="002" data-location-region="work" data-location-name="2号楼" data-location-enabled="1" data-list-search="002 2号楼" data-list-filter-enabled="启用" data-wms-location-parent-row data-location-has-children="0">
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex items-center gap-0.5 font-mono text-xs text-slate-500"><span class="mr-1 inline-block w-5"></span>2</span></td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 font-mono text-xs whitespace-nowrap">002</td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2号楼</td>
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap"><label class="wms-toggle"><input type="checkbox" data-wms-location-enabled data-location-code="002" checked /><span class="wms-toggle-track"></span></label></td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">Admin</td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">2026-06-02 10:15</td>
+    <td class="wms-col-actions px-3 py-3.5 text-right text-sm whitespace-nowrap"><a href="config_location_form.html?mode=child&parent=002&parentName=2%E5%8F%B7%E6%A5%BC&region=work" class="hover:underline">添加子类</a>&nbsp;&nbsp;<a href="config_location_form.html?code=002&mode=view" class="hover:underline">查看</a>&nbsp;&nbsp;<a href="config_location_form.html?code=002&mode=edit" class="hover:underline">编辑</a>&nbsp;&nbsp;<button type="button" class="text-rose-600 hover:underline" data-wms-location-delete data-location-code="002">删除</button></td>
+  </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-wms-location-row data-location-code="003" data-location-region="work" data-location-name="3号楼" data-location-enabled="1" data-list-search="003 3号楼" data-list-filter-enabled="启用" data-wms-location-parent-row data-location-has-children="1">
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex items-center gap-0.5 font-mono text-xs text-slate-500"><button type="button" class="wms-location-tree-toggle is-expanded mr-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-100" data-wms-location-tree-toggle data-location-code="003" aria-label="收起"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>3</span></td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 font-mono text-xs whitespace-nowrap">003</td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">3号楼</td>
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap"><label class="wms-toggle"><input type="checkbox" data-wms-location-enabled data-location-code="003" checked /><span class="wms-toggle-track"></span></label></td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">Admin</td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">2026-06-03 11:20</td>
+    <td class="wms-col-actions px-3 py-3.5 text-right text-sm whitespace-nowrap"><a href="config_location_form.html?mode=child&parent=003&parentName=3%E5%8F%B7%E6%A5%BC&region=work" class="hover:underline">添加子类</a>&nbsp;&nbsp;<a href="config_location_form.html?code=003&mode=view" class="hover:underline">查看</a>&nbsp;&nbsp;<a href="config_location_form.html?code=003&mode=edit" class="hover:underline">编辑</a>&nbsp;&nbsp;<button type="button" class="text-rose-600 hover:underline" data-wms-location-delete data-location-code="003">删除</button></td>
+  </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-wms-location-row data-location-code="003001" data-location-region="work" data-location-name="1层" data-location-enabled="1" data-list-search="003001 1层" data-list-filter-enabled="启用" data-wms-location-child data-location-parent="003">
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex items-center gap-0.5 font-mono text-xs text-slate-500"><span class="mr-1 inline-block w-5"></span>3.1</span></td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 font-mono text-xs whitespace-nowrap"><span class="pl-6">003001</span></td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="pl-6">1层</span></td>
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap"><label class="wms-toggle"><input type="checkbox" data-wms-location-enabled data-location-code="003001" checked /><span class="wms-toggle-track"></span></label></td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">—</td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">—</td>
+    <td class="wms-col-actions px-3 py-3.5 text-right text-sm whitespace-nowrap"><a href="config_location_form.html?code=003001&mode=view" class="hover:underline">查看</a>&nbsp;&nbsp;<a href="config_location_form.html?code=003001&mode=edit" class="hover:underline">编辑</a>&nbsp;&nbsp;<button type="button" class="text-rose-600 hover:underline" data-wms-location-delete data-location-code="003001">删除</button></td>
+  </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-wms-location-row data-location-code="101" data-location-region="office" data-location-name="行政楼" data-location-enabled="1" data-list-search="101 行政楼" data-list-filter-enabled="启用" data-wms-location-parent-row data-location-has-children="1">
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex items-center gap-0.5 font-mono text-xs text-slate-500"><button type="button" class="wms-location-tree-toggle is-expanded mr-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-100" data-wms-location-tree-toggle data-location-code="101" aria-label="收起"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>1</span></td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 font-mono text-xs whitespace-nowrap">101</td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">行政楼</td>
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap"><label class="wms-toggle"><input type="checkbox" data-wms-location-enabled data-location-code="101" checked /><span class="wms-toggle-track"></span></label></td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">Admin</td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">2026-06-05 09:00</td>
+    <td class="wms-col-actions px-3 py-3.5 text-right text-sm whitespace-nowrap"><a href="config_location_form.html?mode=child&parent=101&parentName=%E8%A1%8C%E6%94%BF%E6%A5%BC&region=office" class="hover:underline">添加子类</a>&nbsp;&nbsp;<a href="config_location_form.html?code=101&mode=view" class="hover:underline">查看</a>&nbsp;&nbsp;<a href="config_location_form.html?code=101&mode=edit" class="hover:underline">编辑</a>&nbsp;&nbsp;<button type="button" class="text-rose-600 hover:underline" data-wms-location-delete data-location-code="101">删除</button></td>
+  </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-wms-location-row data-location-code="101001" data-location-region="office" data-location-name="2层" data-location-enabled="1" data-list-search="101001 2层" data-list-filter-enabled="启用" data-wms-location-child data-location-parent="101">
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex items-center gap-0.5 font-mono text-xs text-slate-500"><span class="mr-1 inline-block w-5"></span>1.1</span></td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 font-mono text-xs whitespace-nowrap"><span class="pl-6">101001</span></td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="pl-6">2层</span></td>
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap"><label class="wms-toggle"><input type="checkbox" data-wms-location-enabled data-location-code="101001" checked /><span class="wms-toggle-track"></span></label></td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">—</td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">—</td>
+    <td class="wms-col-actions px-3 py-3.5 text-right text-sm whitespace-nowrap"><a href="config_location_form.html?code=101001&mode=view" class="hover:underline">查看</a>&nbsp;&nbsp;<a href="config_location_form.html?code=101001&mode=edit" class="hover:underline">编辑</a>&nbsp;&nbsp;<button type="button" class="text-rose-600 hover:underline" data-wms-location-delete data-location-code="101001">删除</button></td>
+  </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-wms-location-row data-location-code="102" data-location-region="office" data-location-name="会议室楼" data-location-enabled="0" data-list-search="102 会议室楼" data-list-filter-enabled="停用" data-wms-location-parent-row data-location-has-children="0">
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex items-center gap-0.5 font-mono text-xs text-slate-500"><span class="mr-1 inline-block w-5"></span>2</span></td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 font-mono text-xs whitespace-nowrap">102</td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">会议室楼</td>
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap"><label class="wms-toggle"><input type="checkbox" data-wms-location-enabled data-location-code="102" /><span class="wms-toggle-track"></span></label></td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">Admin</td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">2026-06-06 14:00</td>
+    <td class="wms-col-actions px-3 py-3.5 text-right text-sm whitespace-nowrap"><a href="config_location_form.html?mode=child&parent=102&parentName=%E4%BC%9A%E8%AE%AE%E5%AE%A4%E6%A5%BC&region=office" class="hover:underline">添加子类</a>&nbsp;&nbsp;<a href="config_location_form.html?code=102&mode=view" class="hover:underline">查看</a>&nbsp;&nbsp;<a href="config_location_form.html?code=102&mode=edit" class="hover:underline">编辑</a>&nbsp;&nbsp;<button type="button" class="text-rose-600 hover:underline" data-wms-location-delete data-location-code="102">删除</button></td>
+  </tr></tbody>
+          </table>
+        </div>
+        <div class="hidden py-16 text-center" data-wms-list-empty>
+    <i class="fa-solid fa-inbox mb-3 text-3xl text-slate-300"></i>
+    <p class="text-sm text-slate-500">无匹配数据，请调整筛选条件</p>
+  </div>
+        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 text-sm text-slate-500">
+    <span data-wms-list-count>共 7 条</span>
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="flex gap-1"><span class="rounded-lg bg-slate-900 px-3 py-1 text-white">1</span></div>
+      <span class="text-slate-400">10 条/页</span>
+    </div>
+  </div>
+      </div>
+    </div>
+    <div id="wms-location-toast" class="wms-qr-toast hidden" role="status"></div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

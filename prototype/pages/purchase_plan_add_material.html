@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>添加物资 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="purchase_plan_apply" data-title="添加物资" data-breadcrumb="采购管理 / 添加采购明细">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="purchase_plan_form.html" data-modal-size="lg">
+      <div class="wms-modal-toolbar">
+        <p class="text-sm text-slate-500">选择计划采购明细</p>
+        <div class="relative shrink-0 w-[280px]">
+    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+    <input type="search" data-wms-list-search placeholder="搜索物资编码、名称…" class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-9 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+    <button type="button" data-wms-list-search-clear class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" title="清空"><i class="fa-solid fa-xmark text-xs"></i></button>
+  </div>
+      </div>
+      <div class="wms-modal-table-wrap"><table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr><th class="w-10 px-4 py-3"><input type="checkbox" class="rounded border-slate-300" /></th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划数量</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">参考单价</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计量单位</th></tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/80">
+      <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" checked /></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">GC-10001</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">螺纹钢 Φ12</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">100</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">¥ 3,800/吨</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">吨</td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80">
+      <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" checked /></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">HC-00089</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">打印纸 A4</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">200</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">¥ 120</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">箱</td>
+    </tr></tbody></table></div>
+      <div class="wms-modal-footer">
+        <a href="purchase_plan_form.html" class="wms-btn wms-btn-secondary">取消</a>
+        <a href="purchase_plan_form.html" class="wms-btn wms-btn-primary">确认选择</a>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

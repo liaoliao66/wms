@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>供货详情 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_acceptance_list" data-title="供货详情" data-breadcrumb="物资管理 / 查看供货">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="warehouse_acceptance_list.html" data-modal-size="lg" data-wms-acceptance-supply>
+      <div class="wms-acceptance-detail">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">供货信息</h3></div>
+        <div class="md:col-span-2 wms-supply-info-grid overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm"><tbody>
+      <tr><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资供货单号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="supplyNo">GH2025001</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">供应商名称</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="supplier">科尼</td></tr>
+      <tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资编码</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="code">GD001001-001</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资名称</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="name">抓斗</td></tr>
+      <tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资大类</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="major">资产-固定资产</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资子类</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="minor">设备-配件</td></tr>
+      <tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">规格型号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="spec">455</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">计量单位</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="unit">个</td></tr>
+      <tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">需求数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="required">10</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">待供货数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="pending">0</td></tr>
+      <tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">已供货数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="supplied">10</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">供应商状态</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="supplierStatus"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">正常</span></td></tr>
+    </tbody></table>
+  </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">验收进度</h3></div>
+        <dl class="grid gap-4 sm:grid-cols-2 text-sm">
+          <div><dt class="text-slate-500">需求数量</dt><dd class="mt-1 text-slate-800" data-accept-field="required">10</dd></div>
+          <div><dt class="text-slate-500">已验收数量</dt><dd class="mt-1 text-slate-800" data-accept-field="accepted">10</dd></div>
+          <div><dt class="text-slate-500">合格数量</dt><dd class="mt-1 text-slate-800" data-accept-field="qualified">10</dd></div>
+          <div><dt class="text-slate-500">不合格数量</dt><dd class="mt-1 text-slate-800" data-accept-field="unqualified">0</dd></div>
+        </dl>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="warehouse_acceptance_list.html" class="wms-btn wms-btn-secondary">关闭</a>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

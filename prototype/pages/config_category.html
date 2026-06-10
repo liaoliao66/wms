@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>分类管理 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="config_category" data-title="分类管理" data-breadcrumb="基础配置 / 分类管理">
+  <div id="main-content"><div class="wms-category-layout">
+    <aside class="wms-category-tree card rounded-2xl bg-white p-4">
+      <div class="mb-3 text-sm font-semibold text-slate-900">物资大类</div>
+      <ul class="wms-tree space-y-0.5 text-sm" data-wms-category-tree>
+        <li>
+          <button type="button" class="wms-tree-node wms-tree-node--group w-full flex items-center gap-2 rounded-lg px-2 py-2 text-left font-medium text-slate-700 hover:bg-slate-50" data-group="asset">
+            <i class="fa-solid fa-chevron-down w-3 text-[10px] text-slate-400"></i>
+            <i class="fa-regular fa-folder-open text-slate-400"></i><span>资产类</span>
+          </button>
+          <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2">
+            <li><button type="button" class="wms-tree-node wms-tree-node--major is-active w-full flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-blue-600 bg-blue-50/80" data-major="fixed" data-panel="fixed"><i class="fa-regular fa-file text-blue-400"></i><span>固定资产</span></button></li>
+            <li><button type="button" class="wms-tree-node wms-tree-node--major w-full flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-slate-600 hover:bg-slate-50" data-major="like" data-panel="like"><i class="fa-regular fa-file text-slate-400"></i><span>类资产</span></button></li>
+          </ul>
+        </li>
+        <li class="mt-2">
+          <button type="button" class="wms-tree-node wms-tree-node--group w-full flex items-center gap-2 rounded-lg px-2 py-2 text-left font-medium text-slate-700 hover:bg-slate-50" data-group="consumable">
+            <i class="fa-solid fa-chevron-down w-3 text-[10px] text-slate-400"></i>
+            <i class="fa-regular fa-folder-open text-slate-400"></i><span>耗材类</span>
+          </button>
+          <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2">
+            <li><button type="button" class="wms-tree-node wms-tree-node--major w-full flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left text-slate-600 hover:bg-slate-50" data-major="bg" data-panel="consumable"><span class="flex items-center gap-2"><i class="fa-regular fa-file text-slate-400"></i><span>办公耗材</span></span><span class="wms-category-tree-actions hidden items-center gap-1"><a href="config_category_major_consumable_form.html" class="text-blue-500 hover:text-blue-700" title="编辑" onclick="event.stopPropagation()"><i class="fa-regular fa-pen-to-square text-xs"></i></a><button type="button" class="text-blue-500 hover:text-blue-700" title="删除" onclick="event.stopPropagation()"><i class="fa-regular fa-trash-can text-xs"></i></button></span></button></li>
+            <li><button type="button" class="wms-tree-node wms-tree-node--major w-full flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-slate-600 hover:bg-slate-50" data-major="sc" data-panel="consumable"><i class="fa-regular fa-file text-slate-400"></i><span>生产耗材</span></button></li>
+            <li><button type="button" class="wms-tree-node wms-tree-node--major w-full flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-slate-600 hover:bg-slate-50" data-major="lb" data-panel="consumable"><i class="fa-regular fa-file text-slate-400"></i><span>劳保耗材</span></button></li>
+          </ul>
+        </li>
+      </ul>
+      <a href="config_category_major_consumable_form.html" class="mt-4 flex h-8 w-8 items-center justify-center rounded-lg border border-dashed border-slate-300 text-slate-400 hover:border-slate-400 hover:text-slate-600" title="新增耗材大类"><i class="fa-solid fa-plus text-xs"></i></a>
+    </aside>
+    <div class="wms-category-main card rounded-2xl bg-white p-5 min-w-0">
+      <h3 class="mb-3 text-sm font-semibold text-slate-900">物资子类</h3>
+      <div class="mb-3 flex w-full flex-nowrap items-center justify-end gap-2 overflow-x-auto" data-wms-list-toolbar>
+        <div class="relative shrink-0 w-[280px]">
+    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+    <input type="search" data-wms-category-search placeholder="分类编码、分类名称" class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-9 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+    <button type="button" data-wms-category-search-clear class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" title="清空"><i class="fa-solid fa-xmark text-xs"></i></button>
+  </div>
+      </div>
+      <div class="mb-4"><a href="config_category_sub_fixed.html" class="inline-flex shrink-0 items-center justify-center gap-2 min-w-[96px] rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-slate-800 transition whitespace-nowrap" data-wms-category-add><i class="fa-solid fa-plus text-xs"></i>新增</a></div>
+      <div data-wms-category-panel="fixed"><div class="wms-category-detail mb-4 pb-4 border-b border-slate-200">
+    <h3 class="text-base font-semibold text-slate-900 mb-3" data-wms-category-title>固定资产（ZC-GD）</h3>
+    <dl class="flex flex-wrap gap-x-8 gap-y-2 text-sm"><div class="flex gap-2"><dt class="text-slate-500 shrink-0">归还：</dt><dd class="text-slate-800">需要</dd></div></dl>
+  </div><div class="wms-modal-table-wrap overflow-x-auto"><table class="min-w-full text-sm wms-data-table"><thead class="bg-slate-50/90"><tr><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">分类编码</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">分类名称</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计量单位</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">备注</th><th class="wms-col-actions px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/80 ">
+      <td class="px-3 py-3 text-sm whitespace-nowrap"><span class="text-slate-500">➖</span> <span class="ml-1">1</span></td>
+      <td class="px-3 py-3 font-mono text-xs text-slate-700 whitespace-nowrap">ZC-GD-001</td>
+      <td class="px-3 py-3 text-sm text-slate-700 whitespace-nowrap">办公电脑</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="wms-col-actions px-3 py-3 text-right text-sm whitespace-nowrap"><a href="config_category_sub_child_form.html" class="mr-2 hover:underline">添加子类</a><a href="config_category_sub_fixed_view.html" class="mr-2 hover:underline">查看</a><a href="config_category_sub_fixed.html" class="mr-2 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline">删除</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80 bg-slate-50/60">
+      <td class="px-3 py-3 text-sm whitespace-nowrap"><span class="pl-4 text-slate-600">1.1</span></td>
+      <td class="px-3 py-3 font-mono text-xs text-slate-700 whitespace-nowrap">ZC-GD-001001</td>
+      <td class="px-3 py-3 text-sm text-slate-700 whitespace-nowrap">一体机</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">台</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="wms-col-actions px-3 py-3 text-right text-sm whitespace-nowrap"><a href="config_category_sub_fixed_view.html" class="mr-2 hover:underline">查看</a><a href="config_category_sub_fixed.html" class="mr-2 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline">删除</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80 bg-slate-50/60">
+      <td class="px-3 py-3 text-sm whitespace-nowrap"><span class="pl-4 text-slate-600">1.2</span></td>
+      <td class="px-3 py-3 font-mono text-xs text-slate-700 whitespace-nowrap">ZC-GD-001002</td>
+      <td class="px-3 py-3 text-sm text-slate-700 whitespace-nowrap">笔记本</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">台</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="wms-col-actions px-3 py-3 text-right text-sm whitespace-nowrap"><a href="config_category_sub_fixed_view.html" class="mr-2 hover:underline">查看</a><a href="config_category_sub_fixed.html" class="mr-2 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline">删除</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80 ">
+      <td class="px-3 py-3 text-sm whitespace-nowrap"><span class="text-slate-500">➕</span> <span class="ml-1">2</span></td>
+      <td class="px-3 py-3 font-mono text-xs text-slate-700 whitespace-nowrap">ZC-GD-002</td>
+      <td class="px-3 py-3 text-sm text-slate-700 whitespace-nowrap">设备配件</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="wms-col-actions px-3 py-3 text-right text-sm whitespace-nowrap"><a href="config_category_sub_child_form.html" class="mr-2 hover:underline">添加子类</a><a href="config_category_sub_fixed_view.html" class="mr-2 hover:underline">查看</a><a href="config_category_sub_fixed.html" class="mr-2 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline">删除</a></td>
+    </tr></tbody></table></div></div>
+      <div class="hidden" data-wms-category-panel="like"><div class="wms-category-detail mb-4 pb-4 border-b border-slate-200">
+    <h3 class="text-base font-semibold text-slate-900 mb-3" data-wms-category-title>类资产（LA-ZC）</h3>
+    <dl class="flex flex-wrap gap-x-8 gap-y-2 text-sm"><div class="flex gap-2"><dt class="text-slate-500 shrink-0">归还：</dt><dd class="text-slate-800">需要</dd></div><div class="flex gap-2"><dt class="text-slate-500 shrink-0">库存下限：</dt><dd class="text-slate-800">需要</dd></div><div class="flex gap-2"><dt class="text-slate-500 shrink-0">库存上限：</dt><dd class="text-slate-800">需要</dd></div></dl>
+  </div><div class="wms-modal-table-wrap overflow-x-auto"><table class="min-w-full text-sm wms-data-table"><thead class="bg-slate-50/90"><tr><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">分类编码</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">分类名称</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计量单位</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">备注</th><th class="wms-col-actions px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/80 ">
+      <td class="px-3 py-3 text-sm whitespace-nowrap"><span class="text-slate-500">➖</span> <span class="ml-1">1</span></td>
+      <td class="px-3 py-3 font-mono text-xs text-slate-700 whitespace-nowrap">LA-ZC-001</td>
+      <td class="px-3 py-3 text-sm text-slate-700 whitespace-nowrap">电动工具</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="wms-col-actions px-3 py-3 text-right text-sm whitespace-nowrap"><a href="config_category_sub_child_form.html" class="mr-2 hover:underline">添加子类</a><a href="config_category_sub_like_view.html" class="mr-2 hover:underline">查看</a><a href="config_category_sub_like.html" class="mr-2 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline">删除</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80 bg-slate-50/60">
+      <td class="px-3 py-3 text-sm whitespace-nowrap"><span class="pl-4 text-slate-600">1.1</span></td>
+      <td class="px-3 py-3 font-mono text-xs text-slate-700 whitespace-nowrap">LA-ZC-001001</td>
+      <td class="px-3 py-3 text-sm text-slate-700 whitespace-nowrap">电钻</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">台</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="wms-col-actions px-3 py-3 text-right text-sm whitespace-nowrap"><a href="config_category_sub_like_view.html" class="mr-2 hover:underline">查看</a><a href="config_category_sub_like.html" class="mr-2 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline">删除</a></td>
+    </tr></tbody></table></div></div>
+      <div class="hidden" data-wms-category-panel="consumable"><div class="wms-category-detail mb-4 pb-4 border-b border-slate-200">
+    <h3 class="text-base font-semibold text-slate-900 mb-3" data-wms-category-title>办公耗材（HC-BG）</h3>
+    <dl class="flex flex-wrap gap-x-8 gap-y-2 text-sm"><div class="flex gap-2"><dt class="text-slate-500 shrink-0">归还：</dt><dd class="text-slate-800">需要</dd></div><div class="flex gap-2"><dt class="text-slate-500 shrink-0">库存下限：</dt><dd class="text-slate-800">需要</dd></div><div class="flex gap-2"><dt class="text-slate-500 shrink-0">库存上限：</dt><dd class="text-slate-800">需要</dd></div><div class="flex gap-2"><dt class="text-slate-500 shrink-0">安全库存：</dt><dd class="text-slate-800">需要</dd></div></dl>
+  </div><div class="wms-modal-table-wrap overflow-x-auto"><table class="min-w-full text-sm wms-data-table"><thead class="bg-slate-50/90"><tr><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">分类编码</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">分类名称</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计量单位</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">库存下限</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">库存上限</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">安全库存</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">备注</th><th class="wms-col-actions px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/80 ">
+      <td class="px-3 py-3 text-sm whitespace-nowrap"><span class="text-slate-500">➖</span> <span class="ml-1">1</span></td>
+      <td class="px-3 py-3 font-mono text-xs text-slate-700 whitespace-nowrap">HC-BG-001</td>
+      <td class="px-3 py-3 text-sm text-slate-700 whitespace-nowrap">办公电脑</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="wms-col-actions px-3 py-3 text-right text-sm whitespace-nowrap"><a href="config_category_sub_child_form.html" class="mr-2 hover:underline">添加子类</a><a href="config_category_sub_consumable_view.html" class="mr-2 hover:underline">查看</a><a href="config_category_sub_consumable.html" class="mr-2 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline">删除</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80 bg-slate-50/60">
+      <td class="px-3 py-3 text-sm whitespace-nowrap"><span class="pl-4 text-slate-600">1.1</span></td>
+      <td class="px-3 py-3 font-mono text-xs text-slate-700 whitespace-nowrap">HC-BG-001001</td>
+      <td class="px-3 py-3 text-sm text-slate-700 whitespace-nowrap">一体机</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">台</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="wms-col-actions px-3 py-3 text-right text-sm whitespace-nowrap"><a href="config_category_sub_consumable_view.html" class="mr-2 hover:underline">查看</a><a href="config_category_sub_consumable.html" class="mr-2 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline">删除</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80 bg-slate-50/60">
+      <td class="px-3 py-3 text-sm whitespace-nowrap"><span class="pl-4 text-slate-600">1.2</span></td>
+      <td class="px-3 py-3 font-mono text-xs text-slate-700 whitespace-nowrap">HC-BG-001002</td>
+      <td class="px-3 py-3 text-sm text-slate-700 whitespace-nowrap">打印纸 A4</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">箱</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="wms-col-actions px-3 py-3 text-right text-sm whitespace-nowrap"><a href="config_category_sub_consumable_view.html" class="mr-2 hover:underline">查看</a><a href="config_category_sub_consumable.html" class="mr-2 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline">删除</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80 ">
+      <td class="px-3 py-3 text-sm whitespace-nowrap"><span class="text-slate-500">➕</span> <span class="ml-1">2</span></td>
+      <td class="px-3 py-3 font-mono text-xs text-slate-700 whitespace-nowrap">HC-BG-002</td>
+      <td class="px-3 py-3 text-sm text-slate-700 whitespace-nowrap">办公文具</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">—</td>
+      <td class="wms-col-actions px-3 py-3 text-right text-sm whitespace-nowrap"><a href="config_category_sub_child_form.html" class="mr-2 hover:underline">添加子类</a><a href="config_category_sub_consumable_view.html" class="mr-2 hover:underline">查看</a><a href="config_category_sub_consumable.html" class="mr-2 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline">删除</a></td>
+    </tr></tbody></table></div></div>
+    </div>
+  </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

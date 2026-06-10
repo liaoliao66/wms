@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>归还成功 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_return_list" data-title="归还成功" data-breadcrumb="物资管理 / 归还成功">
+  <div id="main-content">
+    <div class="mx-auto max-w-2xl" data-wms-return-success>
+      <div class="card rounded-2xl bg-white p-8 text-center">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><i class="fa-solid fa-check text-2xl"></i></div>
+        <h2 class="text-xl font-semibold text-slate-900" data-return-success-title>归还成功</h2>
+        <p class="mt-2 text-sm text-slate-500" data-return-success-desc>归还单号 HK202606090001 · 领用单 LY202606010003</p>
+        <dl class="mt-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-left text-sm sm:grid-cols-2">
+          <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 font-medium text-slate-900" data-return-success-name>工程测量仪</dd></div>
+          <div><dt class="text-slate-500">实物状态</dt><dd class="mt-1 text-slate-800" data-return-success-condition>完好</dd></div>
+          <div><dt class="text-slate-500">回库货位</dt><dd class="mt-1 text-slate-800" data-return-success-location>主仓库 / B区</dd></div>
+          <div><dt class="text-slate-500">借用人</dt><dd class="mt-1 text-slate-800" data-return-success-borrower>张三</dd></div>
+        </dl>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a href="ledger_transaction.html" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-right-left"></i> 出入库记录</a>
+          <a href="warehouse_return_list.html" class="text-sm text-slate-500 hover:text-slate-900">返回归还列表</a>
+        </div>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

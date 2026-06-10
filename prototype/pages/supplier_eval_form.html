@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新增评价 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="supplier_eval_list" data-title="新增评价" data-breadcrumb="供应商管理 / 新增评价">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="supplier_eval_list.html" data-modal-size="md">
+      <div class="wms-modal-form"><div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 供应商</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>华建物资有限公司</option><option>鄂东办公用品</option></select></div><div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 质量得分</label><input type="number" value="90" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div><div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 交付得分</label><input type="number" value="88" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div><div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 服务得分</label><input type="number" value="92" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div><div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">评价说明</label><textarea rows="3" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div><div class="md:col-span-2"><a href="supplier_eval_add_supplier.html" class="text-sm font-medium text-slate-900 hover:underline"><i class="fa-solid fa-plus mr-1"></i>快速添加供应商</a></div></div>
+      <div class="wms-modal-footer">
+        <a href="supplier_eval_list.html" class="wms-btn wms-btn-secondary">取消</a><button type="button" class="wms-btn wms-btn-primary">保存</button><button type="button" class="wms-btn wms-btn-primary">确定</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

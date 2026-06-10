@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>类资产退货 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_refund_list" data-title="类资产退货" data-breadcrumb="物资管理 / 类资产退货">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="warehouse_refund_list.html" data-modal-size="xl" data-wms-refund-form data-refund-scene="post_inbound" data-refund-material-type="like">
+      <div class="wms-modal-form wms-warehouse-form wms-refund-form">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">来源信息</h3></div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm"><tbody><tr><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">供货单号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="supplyNo">GH202605280002</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">供应商</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="supplier">华建物资有限公司</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">联系人</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="contact">陈经理</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">联系电话</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="phone">138 8888 8821</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">验收单号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="acceptNo">—</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">入库单号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="inboundNo">RK202606020015</td></tr></tbody></table>
+  </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">物资信息</h3></div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm"><tbody><tr><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资编码</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="code">DL-00234</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资名称</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="name">电缆 YJV-3×2.5</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资大类</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="major">资产-类资产</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资子类</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="minor">电气材料</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">规格型号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="spec">3×2.5mm²</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">计量单位</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="unit">m</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">已入库数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="inboundQty">100</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">已退数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="refundedQty">100</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">待退数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="pendingQty"><span class="font-semibold text-slate-900">0</span></td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">退货场景</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="sceneLabel"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">在库</span></td></tr></tbody></table>
+  </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">退货信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">退货单号</label><input type="text" value="TH202606030001" readonly data-refund-field="refundNo" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 退货日期</label><input type="date" value="2026-06-03" data-refund-field="refundDate" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 退货原因</label><select data-refund-field="refundReason" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled>请选择</option><option selected>质量问题</option><option>多供</option><option>规格不符</option><option>其他</option></select></div>
+        <div class="md:col-span-2" data-wms-refund-locations>
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <h4 class="text-sm font-semibold text-slate-800">扣减货位</h4>
+      <button type="button" class="text-sm font-medium text-slate-700 hover:underline" data-refund-loc-add>添加</button>
+    </div>
+    <div data-refund-loc-list><div class="refund-loc-row mb-3 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_100px_auto] sm:items-end" data-refund-loc-row>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600"><span class="text-rose-500">*</span> 仓库</label><select data-refund-warehouse class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>主仓库</option><option>辅仓库</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600">货架</label><select data-refund-shelf class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>CK001001-HJ001</option><option>CK001001-HJ002</option><option>CK001001-HJ003</option><option>CK001001-HJ101</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600">架层</label><select data-refund-level class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>1层</option><option>2层</option><option>3层</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600"><span class="text-rose-500">*</span> 数量</label><input type="number" min="1" data-refund-qty placeholder="请输入" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+    <span class="w-10"></span>
+  </div></div>
+    <p class="mt-2 text-xs text-slate-500">从指定货位扣减库存后退至供应商；各行数量之和不超过待退数量 <strong data-refund-pending-qty-display>—</strong></p>
+  </div>
+        <div class="md:col-span-2 rounded-xl border border-amber-100 bg-amber-50/50 p-4">
+    <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-screwdriver-wrench text-amber-600"></i> 在库类资产按货位扣减</div>
+    <p class="text-xs text-slate-600">从指定货位扣减库存后退至供应商；支持分批退货。</p>
+  </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">其他信息</h3></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">退货说明</label><textarea rows="3" placeholder="0/500" data-refund-field="remark" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200">规格不符，全量退供应商</textarea></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">退货照片</label><div class="wms-photo-upload">
+    <button type="button" class="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50">
+      <i class="fa-solid fa-plus text-lg"></i>
+      <span class="mt-1 text-xs">上传图片</span>
+    </button>
+    <p class="mt-2 text-xs text-slate-400">支持 .jpg .jpeg .png，单个文件不能超过 100MB</p>
+  </div></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 经办人</label><select data-refund-field="operator" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled>请选择</option><option selected>张仓管</option><option>李仓管</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 经办部门</label><select data-refund-field="department" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled>请选择</option><option selected>物资管理部</option><option>设备部</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="warehouse_refund_list.html" class="wms-btn wms-btn-secondary" data-refund-back-link>取消</a>
+        <button type="button" class="wms-btn wms-btn-primary" data-refund-submit>确定</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

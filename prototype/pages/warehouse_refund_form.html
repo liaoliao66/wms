@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新增退货 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_refund_list" data-title="新增退货" data-breadcrumb="物资管理 / 新增退货">
+  <div id="main-content">
+    <div class="mb-4"><a href="warehouse_refund_list.html" class="text-sm text-slate-500 hover:text-slate-900"><i class="fa-solid fa-arrow-left mr-1"></i>返回</a></div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <a href="warehouse_refund_list.html" class="card flex items-start gap-4 rounded-2xl bg-white p-5 hover:ring-1 hover:ring-slate-200 transition">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid fa-list-check"></i></div>
+      <div><div class="font-semibold text-slate-900">从待退货任务</div><p class="mt-1 text-sm text-slate-500">推荐：验收不合格审核通过后自动生成待退任务</p></div>
+      <i class="fa-solid fa-chevron-right ml-auto text-slate-300 text-xs mt-1"></i>
+    </a>
+    <a href="warehouse_refund_pre_form.html?refundKey=GH2025004-YS02-TH" class="card flex items-start gap-4 rounded-2xl bg-white p-5 hover:ring-1 hover:ring-slate-200 transition">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid fa-clipboard-check"></i></div>
+      <div><div class="font-semibold text-slate-900">验收不合格退货</div><p class="mt-1 text-sm text-slate-500">示例：螺丝刀验收不合格退供应商</p></div>
+      <i class="fa-solid fa-chevron-right ml-auto text-slate-300 text-xs mt-1"></i>
+    </a>
+    <a href="warehouse_refund_consumable_form.html?refundKey=RK202509002-TH01" class="card flex items-start gap-4 rounded-2xl bg-white p-5 hover:ring-1 hover:ring-slate-200 transition">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid fa-boxes-stacked"></i></div>
+      <div><div class="font-semibold text-slate-900">在库耗材退货</div><p class="mt-1 text-sm text-slate-500">示例：安全帽在库退供应商</p></div>
+      <i class="fa-solid fa-chevron-right ml-auto text-slate-300 text-xs mt-1"></i>
+    </a></div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

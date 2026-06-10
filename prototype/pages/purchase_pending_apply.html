@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>采购申请 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="purchase_pending_list" data-title="采购申请" data-breadcrumb="采购管理 / 待采申请">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="purchase_pending_list.html" data-modal-size="xl">
+      <div class="wms-modal-form wms-purchase-form">
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">申请单号</label><input type="text" value="系统自动生成" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">采购总额（元）</label><input type="text" value="20000.00" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交人</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>张三</option><option selected>李四</option><option>王五</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交部门</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>采购部</option><option>设备部</option><option>工程部</option></select></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">备注</label><textarea rows="2" placeholder="请输入备注" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+        <div class="md:col-span-2">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">附件</label>
+          <div class="wms-upload-zone">
+            <i class="fa-solid fa-cloud-arrow-up text-lg text-slate-400"></i>
+            <p class="mt-2 text-sm text-slate-600">点击或拖拽上传附件</p>
+            <p class="mt-1 text-xs text-slate-400">支持 .rar .zip .doc .docx .pdf，单个文件不超过 500MB</p>
+          </div>
+        </div>
+        <div class="wms-purchase-section md:col-span-2">
+    <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+      <span class="text-sm font-semibold text-slate-900">采购明细</span>
+      <a href="purchase_pending_select.html" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-plus text-[10px]"></i> 添加</a>
+    </div>
+    <div class="wms-purchase-material-table wms-modal-table-wrap rounded-xl border border-slate-200">
+      <table class="min-w-full text-sm wms-data-table"><thead class="bg-slate-50/90 sticky top-0"><tr><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">规格型号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资大类</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资子类</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计量单位</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">参考单价（元）</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划数量</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">采购数量</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">说明</th><th class="wms-col-actions px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/60"><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">1</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">XF-00102</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">防汛沙袋</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">50×80cm</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">耗材</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">防汛物资</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">条</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="text" value="12.00" class="w-24 rounded-lg border border-slate-200 px-2 py-1 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">500</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="text" value="500" class="w-16 rounded-lg border border-slate-200 px-2 py-1 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="text" value="" class="w-24 rounded-lg border border-slate-200 px-2 py-1 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td><td class="wms-col-actions px-3 py-2.5 text-right text-sm whitespace-nowrap"><button type="button" class="text-sm text-slate-600 hover:text-rose-600 hover:underline">删除</button></td></tr><tr class="border-t border-slate-100 hover:bg-slate-50/60"><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">2</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">XF-00105</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">抽水泵</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">QZ10-15</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">类资产</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">防汛设备</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">台</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="text" value="2800.00" class="w-24 rounded-lg border border-slate-200 px-2 py-1 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">5</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="text" value="5" class="w-16 rounded-lg border border-slate-200 px-2 py-1 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="text" value="" class="w-24 rounded-lg border border-slate-200 px-2 py-1 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td><td class="wms-col-actions px-3 py-2.5 text-right text-sm whitespace-nowrap"><button type="button" class="text-sm text-slate-600 hover:text-rose-600 hover:underline">删除</button></td></tr></tbody></table>
+    </div>
+  </div>
+        <div class="md:col-span-2">
+          <label class="mb-2 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 采购方式</label>
+          <div class="wms-radio-group">
+            <label class="wms-radio-option"><input type="radio" name="purchase-method" /><span>询价</span></label>
+            <label class="wms-radio-option"><input type="radio" name="purchase-method" checked /><span>直采</span></label>
+            <label class="wms-radio-option"><input type="radio" name="purchase-method" /><span>招标</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="purchase_pending_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-secondary">保存</button>
+        <button type="button" class="wms-btn wms-btn-primary">确定</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

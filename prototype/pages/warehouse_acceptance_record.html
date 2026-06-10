@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>验收记录 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_acceptance_list" data-title="验收记录" data-breadcrumb="物资管理 / 验收记录">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="warehouse_acceptance_list.html" data-modal-size="xl" data-wms-acceptance-record data-accept-supply-no="GH2025003">
+      <p class="mb-4 text-sm text-slate-500">供货单 <span class="font-mono font-medium text-slate-800" data-accept-field="supplyNo">GH2025003</span> 的验收记录，按添加时间降序</p>
+      <div class="card overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-x-auto wms-modal-table-wrap"><table class="min-w-full wms-data-table"><thead class="bg-slate-50/80"><tr><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">验收单号</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">本批次供货数量</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">合格数量</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">不合格数量</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资供货单号</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">供应商名称</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">验收日期</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">仓库验收人员</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划验收人员</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">审批状态</th><th class="wms-col-actions px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody data-accept-records-tbody><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-search="1 gh2025003-ys01 30 30 0 gh2025003 河南蒲瑞 2025-11-20 张仓管 王工 审核中"><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">1</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">GH2025003-YS01</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">30</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">30</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">0</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">GH2025003</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">河南蒲瑞</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2025-11-20</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">张仓管</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">王工</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">审核中</span></td><td class="wms-col-actions px-4 py-3.5 text-slate-900 text-right text-sm whitespace-nowrap"><a href="warehouse_acceptance_record_detail.html?no=GH2025003-YS01&back=warehouse_acceptance_record.html%3Fno%3DGH2025003%26back%3Dwarehouse_acceptance_list.html" class="mr-2 hover:underline">查看</a><a href="#" class="hover:underline">审核</a></td></tr></tbody></table></div>
+      </div>
+      <div class="wms-modal-footer mt-4">
+        <a href="warehouse_acceptance_list.html" class="wms-btn wms-btn-secondary">关闭</a>
+        <a href="warehouse_acceptance_form.html?no=GH2025003&back=warehouse_acceptance_list.html" class="wms-btn wms-btn-primary">新增验收</a>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

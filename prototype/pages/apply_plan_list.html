@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>物资计划 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="apply_plan_list" data-title="物资计划" data-breadcrumb="物资申请 / 物资计划">
+  <div id="main-content">
+    <div data-wms-list-page>
+      <p class="mb-4 text-sm text-slate-500">编制物资需求计划，支持一般计划与急件计划</p>
+      <div class="mb-4 flex flex-wrap gap-2" data-wms-list-tabs><button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-slate-900 text-white" data-wms-list-tab="全部">全部</button><button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-list-tab="草稿">草稿</button><button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-list-tab="审核中">审核中</button><button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-list-tab="已通过">已通过</button></div>
+      <div class="mb-3 flex w-full flex-nowrap items-center justify-end gap-2 overflow-x-auto" data-wms-list-toolbar><label class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">
+    <span class="text-slate-500 shrink-0">计划类型</span>
+    <select class="border-0 bg-transparent py-0.5 pr-6 text-sm font-medium text-slate-800 outline-none focus:ring-0" data-wms-list-filter="planType">
+      <option value="全部" selected>全部</option><option value="一般计划">一般计划</option><option value="急件计划">急件计划</option>
+    </select>
+  </label><div class="relative shrink-0 w-[280px]">
+    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+    <input type="search" data-wms-list-search placeholder="计划单号、计划名称" class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-9 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+    <button type="button" data-wms-list-search-clear class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" title="清空"><i class="fa-solid fa-xmark text-xs"></i></button>
+  </div><button type="button" class="hidden shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-100" data-wms-list-reset><i class="fa-solid fa-rotate-left text-xs"></i>重置</button></div><div class="mb-4" data-wms-list-add-row><a href="apply_plan_form.html" class="inline-flex shrink-0 items-center justify-center gap-2 min-w-[96px] rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-slate-800 transition whitespace-nowrap"><i class="fa-solid fa-plus text-xs"></i>新增</a></div>
+      <div class="card overflow-hidden rounded-2xl bg-white shadow-sm" data-wms-list-card>
+        <div class="overflow-x-auto wms-modal-table-wrap" data-wms-list-table-wrap><table class="min-w-full wms-data-table"><thead class="bg-slate-50/80"><tr><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划单号</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划名称</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划类型</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">最早需求日</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">审批状态</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">创建时间</th><th class="wms-col-actions px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody data-wms-list-tbody><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-search="jh202606090001 六月办公物资计划 一般计划 2026-06-20 审核通过 2026-06-05" data-list-tab="已通过" data-list-filter-planType="一般计划"><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">JH202606090001</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">六月办公物资计划</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">一般计划</span></td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2026-06-20</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">审核通过</span></td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2026-06-05</td><td class="wms-col-actions px-4 py-3.5 text-slate-900 text-right text-sm whitespace-nowrap"><a href="apply_plan_form.html" class="mr-3 hover:underline">查看</a><a href="#" class="text-slate-400">审核</a></td></tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-search="jh202606080003 应急防汛物资 急件计划 2026-06-10 审核中 2026-06-08" data-list-tab="审核中" data-list-filter-planType="急件计划"><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">JH202606080003</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">应急防汛物资</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-rose-50 text-rose-700 ring-rose-600/20">急件计划</span></td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2026-06-10</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">审核中</span></td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2026-06-08</td><td class="wms-col-actions px-4 py-3.5 text-slate-900 text-right text-sm whitespace-nowrap"><a href="apply_plan_form.html" class="mr-3 hover:underline">查看</a><a href="#" class="text-slate-400">审核</a></td></tr></tbody></table></div>
+        <div class="hidden py-16 text-center" data-wms-list-empty>
+    <i class="fa-solid fa-inbox mb-3 text-3xl text-slate-300"></i>
+    <p class="text-sm text-slate-500">无匹配数据，请调整筛选条件</p>
+  </div>
+        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 text-sm text-slate-500">
+    <span data-wms-list-count>共 2 条</span>
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="flex gap-1"><span class="rounded-lg bg-slate-900 px-3 py-1 text-white">1</span></div>
+      <span class="text-slate-400">10 条/页</span>
+    </div>
+  </div>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

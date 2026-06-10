@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>归还作废 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_return_list" data-title="归还作废" data-breadcrumb="物资管理 / 归还作废">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="warehouse_return_list.html" data-modal-size="lg" data-wms-return-scrap-form data-return-key="LY202605200008-LA-00331">
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">待还信息</h3></div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm"><tbody><tr><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">领用单号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="requisitionNo">LY202605200008</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">出库单号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="outboundNo">LY202605200008-CK001</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">借用人</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="borrower">王工</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">借用人部门</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="borrowerDept">工程部</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">出库日期</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="outboundDate">2026-05-20</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">应还日期</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="dueDate">2026-06-20 <span class="text-xs text-amber-600">（原 2026-06-05）</span></td></tr></tbody></table>
+  </div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm"><tbody><tr><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">资产编码</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="assetCode">LA-00331</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资编码</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="code">LA-00330</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资名称</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="name">铝合金梯</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资大类</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="major">资产-类资产</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">规格型号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="spec">3m</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">计量单位</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="unit">架</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">出库数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="outboundQty">1</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">已还数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="returnedQty">0</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">待还数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="pendingQty"><span class="font-semibold text-slate-900">1</span></td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资子类</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="minor">登高工具</td></tr></tbody></table>
+  </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">作废信息</h3></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 作废原因</label><select data-return-scrap-field="reason" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>丢失</option><option>损毁无法修复</option><option>被盗</option><option>其他</option></select></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 说明</label><textarea rows="4" placeholder="请说明作废原因及处理情况" data-return-scrap-field="remark" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+        <div class="md:col-span-2 rounded-xl border border-rose-100 bg-rose-50/50 p-4 text-xs text-slate-600">作废后待还记录关闭，资产不再回库；固定资产标记灭失，类资产扣减借出账面。</div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="warehouse_return_list.html" class="wms-btn wms-btn-secondary" data-return-back-link>取消</a>
+        <button type="button" class="wms-btn wms-btn-primary bg-rose-600 hover:bg-rose-700" data-return-scrap-submit>确认作废</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

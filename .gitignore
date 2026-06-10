@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment & secrets
+.env
+.env.*
+*.pem
+credentials.json
+
+# OS & IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build / cache
+dist/
+build/
+.cache/
+*.log
+
+# Axure temp (optional)
+**/axure/.cache/

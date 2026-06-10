@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>添加物资 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="apply_requisition_list" data-title="添加物资" data-breadcrumb="物资申请 / 添加领用物资">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="apply_requisition_form.html" data-modal-size="lg">
+      <div class="wms-modal-toolbar">
+        <p class="text-sm text-slate-500">选择领用物资（仅启用物资，显示可用库存）</p>
+        <div class="relative shrink-0 w-[280px]">
+    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+    <input type="search" data-wms-list-search placeholder="搜索物资编码、名称…" class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-9 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+    <button type="button" data-wms-list-search-clear class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" title="清空"><i class="fa-solid fa-xmark text-xs"></i></button>
+  </div>
+      </div>
+      <div class="wms-modal-table-wrap"><table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr><th class="w-10 px-4 py-3"><input type="checkbox" class="rounded border-slate-300" /></th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">类型</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">可用库存</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">仓库</th></tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/80">
+      <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" checked /></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">HC-00089</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">打印纸 A4</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">耗材</span></td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">170</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">主仓库/A区</td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80">
+      <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" checked /></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">LA-00456</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">电钻</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">类资产</span></td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">6</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">主仓库/B区</td>
+    </tr></tbody></table></div>
+      <div class="wms-modal-footer">
+        <a href="apply_requisition_form.html" class="wms-btn wms-btn-secondary">取消</a>
+        <a href="apply_requisition_form.html" class="wms-btn wms-btn-primary">确认选择</a>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

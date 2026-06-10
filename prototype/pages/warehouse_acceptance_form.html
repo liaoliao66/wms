@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>物资验收 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_acceptance_list" data-title="物资验收" data-breadcrumb="物资管理 / 执行验收">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="warehouse_acceptance_list.html" data-modal-size="xl" data-wms-acceptance-supply>
+      <div class="wms-modal-form wms-warehouse-form wms-acceptance-form">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">供货信息</h3></div>
+        <div class="md:col-span-2 wms-supply-info-grid overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm"><tbody>
+      <tr><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资供货单号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="supplyNo">GH2025001</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">供应商名称</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="supplier">科尼</td></tr>
+      <tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资编码</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="code">GD001001-001</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资名称</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="name">抓斗</td></tr>
+      <tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资大类</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="major">资产-固定资产</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资子类</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="minor">设备-配件</td></tr>
+      <tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">规格型号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="spec">455</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">计量单位</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="unit">个</td></tr>
+      <tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">需求数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="required">10</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">待供货数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="pending">0</td></tr>
+      <tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">已供货数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="supplied">10</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">供应商状态</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="supplierStatus"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">正常</span></td></tr>
+    </tbody></table>
+  </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">验收信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">验收单号</label><input type="text" value="GH2025001-YS01" readonly data-accept-field="recordNo" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 批次单号</label><input type="text" value="1" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 本批次供货数量</label><input type="number" placeholder="请输入" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 验收日期</label><input type="date" value="2025-11-29" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div class="md:col-span-2 flex flex-wrap items-end gap-3">
+          <div class="min-w-[200px] flex-1"><label class="mb-1.5 block text-sm font-medium text-slate-700">验收标准</label><input type="text" value="设备-配件验收标准" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+          <a href="config_acceptance_standard.html" class="mb-0.5 inline-flex items-center rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">查看</a>
+        </div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 仓库验收人员</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>张仓管</option><option>李仓管</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 计划验收人员</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>王工</option><option>赵工</option></select></div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">合格物资</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 本批次合格数量</label><input type="number" placeholder="请输入" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">附件</label><div class="wms-upload-zone">
+    <i class="fa-solid fa-cloud-arrow-up text-lg text-slate-400"></i>
+    <p class="mt-2 text-sm text-slate-600">上传文件</p>
+    <p class="mt-1 text-xs text-slate-400">支持 .rar .zip .doc .docx .pdf，单个文件不能超过 500MB</p>
+  </div></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">照片</label><div class="wms-photo-upload">
+    <button type="button" class="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50">
+      <i class="fa-solid fa-plus text-lg"></i>
+      <span class="mt-1 text-xs">上传图片</span>
+    </button>
+    <p class="mt-2 text-xs text-slate-400">支持 .jpg .jpeg .png，单个文件不能超过 100MB</p>
+  </div></div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">不合格物资</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">本批次不合格数量</label><input type="number" value="0" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">不合格说明</label><textarea rows="3" placeholder="0/500" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">处理方式</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>退货</option><option>换货</option><option>让步接收</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">处理截止日期</label><input type="date" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">附件</label><div class="wms-upload-zone">
+    <i class="fa-solid fa-cloud-arrow-up text-lg text-slate-400"></i>
+    <p class="mt-2 text-sm text-slate-600">上传文件</p>
+    <p class="mt-1 text-xs text-slate-400">支持 .rar .zip .doc .docx .pdf，单个文件不能超过 500MB</p>
+  </div></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">照片</label><div class="wms-photo-upload">
+    <button type="button" class="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50">
+      <i class="fa-solid fa-plus text-lg"></i>
+      <span class="mt-1 text-xs">上传图片</span>
+    </button>
+    <p class="mt-2 text-xs text-slate-400">支持 .jpg .jpeg .png，单个文件不能超过 100MB</p>
+  </div></div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">其他</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交人</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>张仓管</option><option>李仓管</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交部门</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>物资管理部</option><option>设备部</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="warehouse_acceptance_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-secondary">保存</button>
+        <button type="button" class="wms-btn wms-btn-primary">确定</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>查看物资 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="config_material_catalog" data-title="查看物资" data-breadcrumb="基础配置 / 查看物资">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="config_material_catalog.html" data-modal-size="xl">
+      <div class="space-y-6 p-1">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-semibold text-slate-900">电钻</h2>
+            <p class="mt-0.5 text-sm text-slate-500 font-mono">LA-00456 · <span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">类资产</span> <span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">启用</span></p>
+          </div>
+          <a href="config_material_form.html?code=LA-00456&mode=edit" class="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-pen text-xs"></i>编辑</a>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h3 class="mb-3 text-sm font-semibold text-slate-800">基础信息</h3>
+          <dl class="grid gap-x-6 gap-y-3 sm:grid-cols-2 text-sm">
+            <div><dt class="text-slate-500">所属分类</dt><dd class="mt-0.5 font-mono text-xs text-slate-800">LA-ZC-001001 · 电钻</dd></div>
+            <div><dt class="text-slate-500">物资大类 / 子类</dt><dd class="mt-0.5">资产-类资产 / 电钻</dd></div>
+            <div><dt class="text-slate-500">规格型号</dt><dd class="mt-0.5">工业级</dd></div>
+            <div><dt class="text-slate-500">主 / 辅计量单位</dt><dd class="mt-0.5">台 / —</dd></div>
+            <div><dt class="text-slate-500">参考单价</dt><dd class="mt-0.5">¥ 680.00</dd></div>
+          </dl>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h3 class="mb-1 text-sm font-semibold text-slate-800">业务规则 <span class="font-normal text-slate-400">（默认继承分类，可覆盖）</span></h3>
+          <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 py-2.5 text-sm">
+      <span class="text-slate-500">归还</span>
+      <span class="text-right"><span class="text-sm text-slate-800">需要</span> <span class="ml-1 text-xs text-slate-400">继承</span></span>
+    </div>
+          <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 py-2.5 text-sm">
+      <span class="text-slate-500">借用周期</span>
+      <span class="text-right"><span class="text-sm text-slate-800">15天</span> <span class="ml-1 text-xs text-slate-400">继承</span></span>
+    </div>
+          <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 py-2.5 text-sm">
+      <span class="text-slate-500">安全库存</span>
+      <span class="text-right"><span class="text-sm text-slate-800">10</span> <span class="ml-1 text-xs text-slate-400">继承</span></span>
+    </div>
+          <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 py-2.5 text-sm">
+      <span class="text-slate-500">库存下限</span>
+      <span class="text-right"><span class="text-sm text-slate-800">5</span> <span class="ml-1 text-xs text-slate-400">继承</span></span>
+    </div>
+          <div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 py-2.5 text-sm">
+      <span class="text-slate-500">库存上限</span>
+      <span class="text-right"><span class="text-sm text-slate-800">20</span> <span class="ml-1 text-xs text-slate-400">继承</span></span>
+    </div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h3 class="mb-3 text-sm font-semibold text-slate-800">库存快照 <span class="font-normal text-slate-400">（只读）</span></h3>
+          <div class="grid gap-3 sm:grid-cols-4">
+            <div class="rounded-xl bg-slate-50 px-4 py-3"><p class="text-xs text-slate-500">当前库存</p><p class="mt-1 text-xl font-semibold text-slate-900">8</p></div>
+            <div class="rounded-xl bg-slate-50 px-4 py-3"><p class="text-xs text-slate-500">可用库存</p><p class="mt-1 text-xl font-semibold text-emerald-700">6</p></div>
+            <div class="rounded-xl bg-slate-50 px-4 py-3"><p class="text-xs text-slate-500">锁定库存</p><p class="mt-1 text-xl font-semibold text-slate-700">2</p></div>
+            <div class="rounded-xl bg-amber-50 px-4 py-3"><p class="text-xs text-amber-700">预警状态</p><p class="mt-1 text-sm font-medium text-amber-800">正常</p></div>
+          </div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h3 class="mb-3 text-sm font-semibold text-slate-800">关联引用</h3>
+          <div class="overflow-x-auto rounded-xl ring-1 ring-slate-100"><table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+            <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">类型</th>
+            <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">单号</th>
+            <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">名称</th>
+            <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">数量</th>
+            <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">日期</th>
+          </tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">计划</span></td><td class="px-3 py-2.5 text-sm font-mono text-xs">JH202606070002</td><td class="px-3 py-2.5 text-sm">六月电动工具补充</td><td class="px-3 py-2.5 text-sm">5</td><td class="px-3 py-2.5 text-sm text-slate-500">2026-06-08</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">采购</span></td><td class="px-3 py-2.5 text-sm font-mono text-xs">CG202606050012</td><td class="px-3 py-2.5 text-sm">电钻直采</td><td class="px-3 py-2.5 text-sm">3</td><td class="px-3 py-2.5 text-sm text-slate-500">2026-06-05</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="config_material_catalog.html" class="wms-btn wms-btn-secondary">返回列表</a>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

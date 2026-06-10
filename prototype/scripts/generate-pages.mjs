@@ -1,0 +1,4382 @@
+#!/usr/bin/env node
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const pagesDir = path.join(__dirname, '..', 'pages');
+
+const head = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{TITLE}} · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>`;
+
+const tail = `
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>`;
+
+function page(id, title, breadcrumb, body) {
+  return `${head.replace('{{TITLE}}', title)}
+<body data-page="${id}" data-title="${title}" data-breadcrumb="${breadcrumb}">
+  <div id="main-content">${body}</div>${tail}`;
+}
+
+const badge = (t, type) => {
+  const m = {
+    success: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+    warning: 'bg-amber-50 text-amber-700 ring-amber-600/20',
+    danger: 'bg-rose-50 text-rose-700 ring-rose-600/20',
+    info: 'bg-slate-100 text-slate-700 ring-slate-600/10',
+  };
+  return `<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${m[type]}">${t}</span>`;
+};
+
+function actionTh(pad = 'px-3 py-3') {
+  return `<th class="wms-col-actions ${pad} text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th>`;
+}
+
+function actionTd(content, pad = 'px-3 py-3.5') {
+  return `<td class="wms-col-actions ${pad} text-right text-sm whitespace-nowrap">${content}</td>`;
+}
+
+/** 物资分类树（与分类管理一致，用于清单筛选与子类联动） */
+const MATERIAL_CATEGORY_TREE = [
+  {
+    group: '资产类',
+    majors: [
+      {
+        label: '固定资产', code: 'ZC-GD',
+        minors: [
+          { label: '办公电脑', items: ['一体机', '笔记本'] },
+          { label: '设备-配件', items: ['抓斗', '料斗', '钢丝绳'] },
+        ],
+      },
+      {
+        label: '类资产', code: 'LA-ZC',
+        minors: [
+          { label: '电动工具', items: ['电钻', '扳手', '螺丝刀'] },
+          { label: '防汛设备', items: ['抽水泵'] },
+        ],
+      },
+    ],
+  },
+  {
+    group: '耗材类',
+    majors: [
+      {
+        label: '办公耗材', code: 'HC-BG',
+        minors: [
+          { label: '办公用纸', items: ['打印纸 A4'] },
+          { label: '办公文具', items: [] },
+        ],
+      },
+      {
+        label: '生产耗材', code: 'HC-SC',
+        minors: [
+          { label: '设备-配件', items: ['润滑油'] },
+        ],
+      },
+      {
+        label: '劳保耗材', code: 'HC-LB',
+        minors: [
+          { label: '安全防护', items: ['安全帽'] },
+        ],
+      },
+    ],
+  },
+];
+
+function materialMajorOptions() {
+  return ['资产-固定资产', '资产-类资产', '耗材-办公耗材', '耗材-生产耗材', '耗材-劳保耗材'];
+}
+
+function materialMinorOptionsByMajor(major) {
+  for (const g of MATERIAL_CATEGORY_TREE) {
+    for (const m of g.majors) {
+      const majorVal = g.group === '耗材类' ? `耗材-${m.label}` : `资产-${m.label}`;
+      if (majorVal === major) return m.minors.map(sub => sub.label);
+    }
+  }
+  return ['设备-配件'];
+}
+
+/** 分类叶子节点（继承默认值来源） */
+const MATERIAL_CATEGORY_LEAVES = [
+  { code: 'ZC-GD-002', name: '设备-配件', major: '资产-固定资产', type: 'fixed', unit: '个', auxUnit: '箱', returnNeed: '需要', borrowMax: 30 },
+  { code: 'ZC-GD-001001', name: '一体机', major: '资产-固定资产', type: 'fixed', unit: '台', auxUnit: '—', returnNeed: '需要', borrowMax: 30 },
+  { code: 'ZC-GD-001002', name: '笔记本', major: '资产-固定资产', type: 'fixed', unit: '台', auxUnit: '—', returnNeed: '需要', borrowMax: 30 },
+  { code: 'LA-ZC-001001', name: '电钻', major: '资产-类资产', type: 'like', unit: '台', auxUnit: '—', returnNeed: '需要', borrowMax: 15, safeStock: 10, minStock: 5, maxStock: 20 },
+  { code: 'LA-ZC-001', name: '电动工具', major: '资产-类资产', type: 'like', unit: '台', auxUnit: '—', returnNeed: '需要', borrowMax: 15, safeStock: 8, minStock: 3, maxStock: 15 },
+  { code: 'LA-ZC-002', name: '抽水泵', major: '资产-类资产', type: 'like', unit: '台', auxUnit: '—', returnNeed: '需要', borrowMax: 7, safeStock: 5, minStock: 2, maxStock: 10 },
+  { code: 'HC-BG-001002', name: '打印纸 A4', major: '耗材-办公耗材', type: 'consumable', unit: '箱', auxUnit: '—', safeStock: 100, minStock: 50, maxStock: 300 },
+  { code: 'HC-BG-001', name: '办公用纸', major: '耗材-办公耗材', type: 'consumable', unit: '箱', auxUnit: '—', safeStock: 80, minStock: 40, maxStock: 200 },
+  { code: 'HC-BG-002', name: '办公文具', major: '耗材-办公耗材', type: 'consumable', unit: '个', auxUnit: '—', safeStock: 50, minStock: 20, maxStock: 150 },
+  { code: 'HC-SC-001', name: '设备-配件', major: '耗材-生产耗材', type: 'consumable', unit: '桶', auxUnit: '箱', safeStock: 50, minStock: 20, maxStock: 200 },
+  { code: 'HC-LB-001', name: '安全帽', major: '耗材-劳保耗材', type: 'consumable', unit: '个', auxUnit: '—', safeStock: 200, minStock: 100, maxStock: 500 },
+];
+
+const MEASUREMENT_UNITS = [
+  { code: 'DW202606004', label: '个', symbol: '个' },
+  { code: 'DW202606002', label: '台', symbol: '台' },
+  { code: 'DW202606003', label: '米', symbol: 'm' },
+  { code: 'DW202606001', label: '桶', symbol: '桶' },
+  { code: 'DW202606005', label: '箱', symbol: '箱' },
+];
+
+function materialTypeBadge(type) {
+  const map = { fixed: ['固定资产', 'info'], like: ['类资产', 'warning'], consumable: ['耗材', 'success'] };
+  const [t, c] = map[type] || ['—', 'info'];
+  return badge(t, c);
+}
+
+function materialMajorsForType(type) {
+  if (type === 'fixed') return ['资产-固定资产'];
+  if (type === 'like') return ['资产-类资产'];
+  return ['耗材-办公耗材', '耗材-生产耗材', '耗材-劳保耗材'];
+}
+
+function materialTypeTabs(selected = 'fixed', { disabled = false } = {}) {
+  const types = [['fixed', '固定资产'], ['like', '类资产'], ['consumable', '耗材']];
+  return `<div class="md:col-span-2" data-wms-material-type-tabs>
+    <label class="mb-1.5 block text-sm font-medium text-slate-700">${!disabled ? '<span class="text-rose-500">*</span> ' : ''}物资类型</label>
+    <div class="flex flex-wrap gap-2">${types.map(([id, label]) =>
+      `<button type="button" class="wms-material-type-tab rounded-xl px-4 py-2 text-sm font-medium ${selected === id ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'}" data-wms-material-type-tab="${id}"${disabled ? ' disabled' : ''}>${label}</button>`
+    ).join('')}</div>
+  </div>`;
+}
+
+function materialMajorSelect(selectedMajor, matType, { readonly = false } = {}) {
+  const majors = materialMajorsForType(matType);
+  const cls = readonly
+    ? 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600'
+    : 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const placeholder = !readonly && !selectedMajor
+    ? '<option value="" disabled selected>请选择</option>'
+    : '';
+  return `<div><label class="mb-1.5 block text-sm font-medium text-slate-700">${!readonly ? '<span class="text-rose-500">*</span> ' : ''}物资大类</label>
+    <select class="${cls}" data-wms-material-major${readonly ? ' disabled' : ''} required>${placeholder}${majors.map(m => `<option value="${m}"${selectedMajor === m ? ' selected' : ''}>${m}</option>`).join('')}</select></div>`;
+}
+
+function materialMinorSelect(selectedMinor, major, { readonly = false } = {}) {
+  const minors = materialMinorOptionsByMajor(major || materialMajorsForType('fixed')[0]);
+  const cls = readonly
+    ? 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600'
+    : 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const placeholder = !readonly && !selectedMinor
+    ? '<option value="" disabled selected>请选择</option>'
+    : '';
+  return `<div><label class="mb-1.5 block text-sm font-medium text-slate-700">${!readonly ? '<span class="text-rose-500">*</span> ' : ''}物资子类</label>
+    <select class="${cls}" data-wms-material-minor${readonly ? ' disabled' : ''} required>${placeholder}${minors.map(m => `<option value="${m}"${selectedMinor === m ? ' selected' : ''}>${m}</option>`).join('')}</select></div>`;
+}
+
+function materialCategorySelect(selectedCode, { disabled = false, filterType = null } = {}) {
+  const leaves = filterType
+    ? MATERIAL_CATEGORY_LEAVES.filter(l => l.type === filterType)
+    : MATERIAL_CATEGORY_LEAVES;
+  const groups = {};
+  leaves.forEach(l => {
+    if (!groups[l.major]) groups[l.major] = [];
+    groups[l.major].push(l);
+  });
+  const cls = disabled
+    ? 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600'
+    : 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const hasSelection = selectedCode && leaves.some(l => l.code === selectedCode);
+  const placeholder = !disabled && !hasSelection
+    ? '<option value="" disabled selected>请选择分类叶子节点</option>'
+    : '';
+  return `<select data-wms-material-category class="${cls}"${disabled ? ' disabled' : ''} required>
+    ${placeholder}${Object.entries(groups).map(([g, groupLeaves]) =>
+      `<optgroup label="${g}" data-wms-cat-group="${groupLeaves[0]?.type || ''}">${groupLeaves.map(l =>
+        `<option value="${l.code}" data-type="${l.type}" data-major="${l.major}" data-minor="${l.name}" data-unit="${l.unit}" data-aux="${l.auxUnit || '—'}" data-return="${l.returnNeed || ''}" data-borrow-max="${l.borrowMax || ''}" data-safe="${l.safeStock ?? ''}" data-min="${l.minStock ?? ''}" data-max="${l.maxStock ?? ''}"${selectedCode === l.code ? ' selected' : ''}>${l.name}（${l.code}）</option>`
+      ).join('')}</optgroup>`
+    ).join('')}
+  </select>`;
+}
+
+function unitSelect(fieldName, selected, { disabled = false, required = false } = {}) {
+  const cls = disabled
+    ? 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600'
+    : 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const req = required && !disabled ? '<span class="text-rose-500">*</span> ' : '';
+  const hasVal = selected && selected !== '—';
+  const placeholder = !disabled && !hasVal ? '<option value="" disabled selected>请选择</option>' : '';
+  return `<div><label class="mb-1.5 block text-sm font-medium text-slate-700">${req}${fieldName}</label>
+    <select data-wms-material-unit="${fieldName}" class="${cls}"${disabled ? ' disabled' : ''}${required && !disabled ? ' required' : ''}>
+      ${placeholder}${MEASUREMENT_UNITS.map(u => `<option value="${u.code}" data-symbol="${u.symbol}"${selected === u.symbol || selected === u.code ? ' selected' : ''}>${u.label}（${u.code}）</option>`).join('')}
+      <option value="—" data-symbol="—"${selected === '—' ? ' selected' : ''}>—</option>
+    </select></div>`;
+}
+
+function materialInheritHint(categoryCode) {
+  const leaf = MATERIAL_CATEGORY_LEAVES.find(l => l.code === categoryCode) || MATERIAL_CATEGORY_LEAVES[0];
+  const parts = [`分类 ${leaf.code} · ${leaf.name}`];
+  if (leaf.returnNeed) parts.push(`归还=${leaf.returnNeed}`);
+  if (leaf.borrowMax) parts.push(`借用周期≤${leaf.borrowMax}天`);
+  if (leaf.safeStock !== undefined) parts.push(`安全库存=${leaf.safeStock}`);
+  return `<p class="md:col-span-2 rounded-lg border border-sky-100 bg-sky-50/80 px-3 py-2 text-xs text-sky-900" data-wms-inherit-hint>
+    <i class="fa-solid fa-link mr-1 opacity-70"></i>继承自分类：${parts.join(' · ')}。下方字段可覆盖，<button type="button" class="font-medium underline hover:text-sky-700" data-wms-restore-inherit>恢复继承</button>
+  </p>`;
+}
+
+function materialCategoryPathCounts() {
+  const counts = { '': MATERIAL_CATALOG_ROWS.length };
+  MATERIAL_CATALOG_ROWS.forEach(r => {
+    const parts = (r.categoryPath || '').split(' / ');
+    let acc = '';
+    parts.forEach((p, i) => {
+      acc = i ? `${acc} / ${p}` : p;
+      counts[acc] = (counts[acc] || 0) + 1;
+    });
+  });
+  return counts;
+}
+
+function materialMajorType(label) {
+  if (label === '固定资产') return 'fixed';
+  if (label === '类资产') return 'like';
+  return 'consumable';
+}
+
+function materialCatalogSidebarTree() {
+  const counts = materialCategoryPathCounts();
+  const esc = (s) => String(s).replace(/"/g, '&quot;');
+  const countBadge = (path) => {
+    const n = counts[path] ?? 0;
+    return `<span class="wms-material-tree-count${n ? '' : ' wms-material-tree-count--zero'}">${n}</span>`;
+  };
+
+  const renderLeaf = (path, label, matType) =>
+    `<li data-wms-material-tree-item data-wms-filter-path="${esc(path)}"><button type="button" class="wms-tree-node wms-tree-node--leaf w-full flex items-center justify-between gap-2 rounded-lg py-1 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="${esc(path)}" data-material-type="${matType}" data-wms-filter-label="${esc(label)}"><span class="truncate">${label}</span>${countBadge(path)}</button></li>`;
+
+  const renderSub = (majorPath, sub, matType) => {
+    const subPath = `${majorPath} / ${sub.label}`;
+    const items = sub.items || [];
+    if (!items.length) {
+      return `<li data-wms-material-tree-item data-wms-filter-path="${esc(subPath)}"><button type="button" class="wms-tree-node wms-tree-node--minor w-full flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="${esc(subPath)}" data-material-type="${matType}" data-wms-filter-label="${esc(sub.label)}"><span class="flex min-w-0 items-center gap-2"><i class="fa-regular fa-file shrink-0 text-xs text-slate-400"></i><span class="truncate">${sub.label}</span></span>${countBadge(subPath)}</button></li>`;
+    }
+    const children = items.map(item => renderLeaf(`${subPath} / ${item}`, item, matType)).join('');
+    return `<li data-wms-material-tree-branch data-wms-material-tree-item data-wms-filter-path="${esc(subPath)}" data-wms-filter-expanded="false">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--minor wms-tree-node--branch flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="${esc(subPath)}" data-material-type="${matType}" data-wms-filter-label="${esc(sub.label)}"><span class="truncate">${sub.label}</span>${countBadge(subPath)}</button>
+      </div>
+      <ul class="ml-5 mt-0.5 hidden space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children>${children}</ul>
+    </li>`;
+  };
+
+  const renderMajor = (groupLabel, major) => {
+    const majorPath = `${groupLabel} / ${major.label}`;
+    const matType = materialMajorType(major.label);
+    const children = major.minors.map(sub => renderSub(majorPath, sub, matType)).join('');
+    return `<li data-wms-material-tree-branch data-wms-material-tree-item data-wms-filter-path="${esc(majorPath)}" data-wms-filter-expanded="false">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--major flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-1.5 text-left text-sm font-medium text-slate-800 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="${esc(majorPath)}" data-material-type="${matType}" data-wms-filter-label="${esc(major.label)}"><span class="flex min-w-0 items-center gap-2"><i class="fa-regular fa-file shrink-0 text-xs text-slate-400"></i><span class="truncate">${major.label}</span></span>${countBadge(majorPath)}</button>
+      </div>
+      <ul class="ml-5 mt-0.5 hidden space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children>${children}</ul>
+    </li>`;
+  };
+
+  const groupType = (group) => (group === '资产类' ? 'asset' : 'consumable');
+  const treeHtml = MATERIAL_CATEGORY_TREE.map(g => `
+    <li class="mt-1" data-wms-material-tree-branch data-wms-material-tree-group data-wms-filter-path="${esc(g.group)}" data-wms-filter-expanded="true">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle is-expanded flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="收起"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--group flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="${esc(g.group)}" data-material-type="${groupType(g.group)}" data-wms-filter-label="${esc(g.group)}"><span class="flex min-w-0 items-center gap-2"><i class="fa-regular fa-folder-open shrink-0 text-slate-400"></i><span class="truncate">${g.group}</span></span>${countBadge(g.group)}</button>
+      </div>
+      <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children>${g.majors.map(m => renderMajor(g.group, m)).join('')}</ul>
+    </li>`).join('');
+
+  return `<aside class="wms-material-tree card rounded-2xl bg-white p-4" data-wms-material-sidebar data-wms-filter-value="" data-material-type="all">
+    <div class="mb-3 text-sm font-semibold text-slate-900">物资分类</div>
+    <div class="relative mb-3">
+      <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
+      <input type="search" data-wms-material-tree-search placeholder="搜索分类…" class="w-full rounded-lg border border-slate-200 py-2 pl-8 pr-8 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+      <button type="button" data-wms-material-tree-search-clear class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" title="清空"><i class="fa-solid fa-xmark text-xs"></i></button>
+    </div>
+    <div class="wms-material-tree-scroll">
+      <ul class="wms-tree space-y-0.5 text-sm" data-wms-material-tree>
+        <li data-wms-material-tree-item data-wms-filter-path="">
+          <button type="button" class="wms-tree-node wms-tree-node--all is-active w-full flex items-center justify-between gap-2 rounded-lg px-2 py-2 text-left text-sm font-medium text-slate-800 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="" data-material-type="all" data-wms-filter-label="全部物资"><span>全部物资</span>${countBadge('')}</button>
+        </li>
+        ${treeHtml}
+      </ul>
+      <p class="hidden py-6 text-center text-sm text-slate-400" data-wms-material-tree-empty>无匹配分类</p>
+    </div>
+  </aside>`;
+}
+
+function assetQrImg(assetCode, size = 128) {
+  const data = encodeURIComponent(`wms://asset/${assetCode}`);
+  return `<img src="https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${data}" width="${size}" height="${size}" alt="资产二维码 ${assetCode}" class="wms-qr-image" loading="lazy" />`;
+}
+
+const SHELF_SAMPLES = {
+  'CK001001-HJ001': { code: 'CK001001-HJ001', name: '1号货架', warehouse: '1号仓库', zone: 'A区', location: '1号仓库 / A区', inboundWarehouse: '主仓库', inboundShelf: 'CK001001-HJ001', status: '启用', enabled: true },
+  'CK001001-HJ002': { code: 'CK001001-HJ002', name: '2号货架', warehouse: '1号仓库', zone: 'A区', location: '1号仓库 / A区', inboundWarehouse: '主仓库', inboundShelf: 'CK001001-HJ002', status: '启用', enabled: true },
+  'CK001001-HJ003': { code: 'CK001001-HJ003', name: '3号货架', warehouse: '1号仓库', zone: 'A区', location: '1号仓库 / A区', inboundWarehouse: '主仓库', inboundShelf: 'CK001001-HJ003', status: '启用', enabled: true },
+  'CK001001-HJ004': { code: 'CK001001-HJ004', name: '4号货架（停用）', warehouse: '1号仓库', zone: 'A区', location: '1号仓库 / A区', status: '停用', enabled: false },
+  'CK001001-HJ101': { code: 'CK001001-HJ101', name: 'B区1号货架', warehouse: '1号仓库', zone: 'B区', location: '1号仓库 / B区', inboundWarehouse: '主仓库', inboundShelf: 'CK001001-HJ101', status: '启用', enabled: true },
+};
+
+function locationQrImg(shelfCode, size = 128) {
+  const data = encodeURIComponent(`wms://loc/${shelfCode}`);
+  return `<img src="https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${data}" width="${size}" height="${size}" alt="货位二维码 ${shelfCode}" class="wms-qr-image wms-loc-qr-image" loading="lazy" />`;
+}
+
+function locationQrLabel(shelf) {
+  return `<div class="wms-qr-label wms-loc-qr-label">
+    <div class="wms-qr-label-code">${locationQrImg(shelf.code, 96)}</div>
+    <div class="wms-qr-label-meta">
+      <div class="font-mono text-xs font-semibold text-slate-900">${shelf.code}</div>
+      <div class="text-xs text-slate-600">${shelf.name}</div>
+      <div class="text-[10px] text-slate-400">${shelf.location}</div>
+    </div>
+  </div>`;
+}
+
+function shelfQrcodeModal(backHref, shelf) {
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="md">
+      <div class="wms-qr-fullscreen text-center">
+        <div class="mx-auto inline-block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          ${locationQrImg(shelf.code, 200)}
+          <div class="mt-4 font-mono text-sm font-semibold text-slate-900" data-shelf-field="code">${shelf.code}</div>
+          <div class="mt-1 text-sm text-slate-600" data-shelf-field="name">${shelf.name}</div>
+          <div class="mt-0.5 text-xs text-slate-400" data-shelf-field="location">${shelf.location}</div>
+        </div>
+        <p class="mt-4 text-xs text-slate-500">扫码解析：<code class="rounded bg-slate-100 px-1.5 py-0.5" data-shelf-uri>wms://loc/${shelf.code}</code></p>
+        <p class="mt-2 text-xs text-amber-700">货位码仅用于物理位置定位，不可替代固定资产资产码</p>
+        <div class="mt-6 border-t border-slate-100 pt-6 text-left">
+          <h4 class="mb-3 text-sm font-semibold text-slate-900">打印标签预览（40×60mm）</h4>
+          <div class="flex justify-center wms-loc-qr-label-wrap">${locationQrLabel(shelf)}</div>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">关闭</a>
+        <button type="button" class="wms-btn wms-btn-secondary wms-loc-qr-print" data-shelf-code="${shelf.code}"><i class="fa-solid fa-print mr-1"></i>打印</button>
+        <button type="button" class="wms-btn wms-btn-primary wms-loc-qr-download-single" data-shelf-code="${shelf.code}"><i class="fa-solid fa-download mr-1"></i>下载 PNG</button>
+      </div>
+    </div>`;
+}
+
+function assetQrLabel(assetCode, name, location) {
+  return `<div class="wms-qr-label">
+    <div class="wms-qr-label-code">${assetQrImg(assetCode, 96)}</div>
+    <div class="wms-qr-label-meta">
+      <div class="font-mono text-xs font-semibold text-slate-900">${assetCode}</div>
+      <div class="mt-0.5 text-xs text-slate-600">${name}</div>
+      <div class="mt-0.5 text-[10px] text-slate-400">${location}</div>
+    </div>
+  </div>`;
+}
+
+const FIXED_ASSET_LEDGER_ROWS = [
+  { code: 'ZC202606001', materialCode: 'BG-00201', name: '笔记本电脑', category: '固定资产', qty: '1', location: '主仓库/B区/B-03', status: '在库', time: '2026-06-09 11:20' },
+  { code: 'ZC202606002', materialCode: 'BG-00201', name: '笔记本电脑', category: '固定资产', qty: '1', location: '主仓库/B区/B-03', status: '在库', time: '2026-06-09 11:20' },
+  { code: 'ZC202605012', materialCode: 'GC-20001', name: '工程测量仪', category: '固定资产', qty: '1', location: '主仓库/B区/B-01', status: '借出', time: '2026-06-01 09:00' },
+];
+
+function ledgerWarehousePage() {
+  const fixedRows = FIXED_ASSET_LEDGER_ROWS.map((r, i) => {
+    const statusBadge = r.status === '在库' ? badge('在库', 'success') : badge('借出', 'warning');
+    const actions = `<a href="ledger_asset_detail.html?code=${r.code}" class="mr-2 hover:underline">查看</a><a href="ledger_asset_qrcode.html?code=${r.code}" class="mr-2 hover:underline">二维码</a><button type="button" class="wms-qr-download-single hover:underline" data-asset-code="${r.code}">下载</button>`;
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-ledger-row data-is-fixed="true">
+      <td class="px-4 py-3.5"><input type="checkbox" class="wms-ledger-check rounded border-slate-300" data-asset-code="${r.code}" checked /></td>
+      <td class="px-4 py-3.5 font-mono text-xs">${r.code}</td>
+      <td class="px-4 py-3.5">${r.name}</td>
+      <td class="px-4 py-3.5">${badge('固定资产', 'info')}</td>
+      <td class="px-4 py-3.5">${r.qty}</td>
+      <td class="px-4 py-3.5">${r.location}</td>
+      <td class="px-4 py-3.5">${statusBadge}</td>
+      <td class="px-4 py-3.5 text-slate-500">${r.time}</td>
+      ${actionTd(actions, 'px-4 py-3.5')}
+    </tr>`;
+  }).join('');
+  const otherRows = [
+    ['HC-00089', '打印纸 A4', badge('耗材', 'info'), '186', '主仓库/A区/A-02', badge('在库', 'success'), '2026-06-08 16:00'],
+    ['LA-00456', '电钻', badge('类资产', 'info'), '8', '主仓库/A区/A-02', badge('在库', 'success'), '2026-06-07 09:15'],
+  ].map(r => `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-ledger-row data-is-fixed="false">
+      <td class="px-4 py-3.5"><input type="checkbox" class="wms-ledger-check rounded border-slate-300" disabled title="仅固定资产支持资产二维码" /></td>
+      <td class="px-4 py-3.5 font-mono text-xs">${r[0]}</td>
+      <td class="px-4 py-3.5">${r[1]}</td>
+      <td class="px-4 py-3.5">${r[2]}</td>
+      <td class="px-4 py-3.5">${r[3]}</td>
+      <td class="px-4 py-3.5">${r[4]}</td>
+      <td class="px-4 py-3.5">${r[5]}</td>
+      <td class="px-4 py-3.5 text-slate-500">${r[6]}</td>
+      ${actionTd('<a href="#" class="hover:underline">查看</a><span class="ml-2 text-slate-300" title="非固定资产无专属资产码">—</span>', 'px-4 py-3.5')}
+    </tr>`).join('');
+  return `
+    <p class="mb-4 text-sm text-slate-500">按仓库树形结构查看库存；<strong class="font-medium text-slate-700">固定资产</strong>一物一码，可查看/下载专属资产二维码</p>
+    <div class="mb-4 flex flex-wrap items-center gap-3">
+      <select class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"><option>全部大类</option><option selected>固定资产</option><option>类资产</option><option>耗材</option></select>
+      <div class="relative flex-1 min-w-[200px] max-w-md">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+        <input type="search" placeholder="资产编码、物资编码、名称…" class="w-full rounded-xl border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-slate-400" />
+      </div>
+      <button class="rounded-xl bg-white px-3 py-2 text-sm ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-filter mr-1"></i>筛选</button>
+      <button type="button" id="wms-ledger-batch-qr" class="ml-auto inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-qrcode text-xs"></i>批量下载资产二维码</button>
+    </div>
+    <div class="wms-ledger-layout grid gap-4 lg:grid-cols-12">
+      <div class="card rounded-2xl bg-white p-4 lg:col-span-3">
+        <h3 class="mb-3 px-2 text-xs font-semibold uppercase tracking-wide text-slate-400">仓库目录</h3>
+        <ul class="space-y-0.5 text-sm">
+          <li><button type="button" class="flex w-full items-center gap-2 rounded-xl bg-slate-900 px-3 py-2 text-left text-white"><i class="fa-solid fa-warehouse w-4"></i>主仓库</button></li>
+          <li class="pl-4"><button type="button" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-slate-700 hover:bg-slate-50"><i class="fa-solid fa-folder-open w-4 text-slate-400"></i>A区 · 通用物资</button></li>
+          <li class="pl-8"><button type="button" class="w-full rounded-lg px-3 py-1.5 text-left text-slate-600 hover:bg-slate-50">A-01 货架</button></li>
+          <li class="pl-8"><button type="button" class="w-full rounded-lg bg-slate-100 px-3 py-1.5 text-left font-medium text-slate-900">A-02 货架</button></li>
+          <li class="pl-4"><button type="button" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-slate-700 hover:bg-slate-50"><i class="fa-solid fa-folder-open w-4 text-slate-400"></i>B区 · 设备</button></li>
+          <li><button type="button" class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-slate-700 hover:bg-slate-50"><i class="fa-solid fa-warehouse w-4 text-slate-400"></i>辅仓库</button></li>
+        </ul>
+      </div>
+      <div class="card overflow-hidden rounded-2xl bg-white lg:col-span-9" data-wms-ledger-panel>
+        <div class="overflow-x-auto wms-modal-table-wrap">
+          <table class="min-w-full text-sm wms-data-table">
+            <thead class="bg-slate-50/80">
+              <tr>
+                <th class="w-10 px-4 py-3"><input type="checkbox" id="wms-ledger-check-all" class="rounded border-slate-300" title="全选固定资产" /></th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">资产/物资编码</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">物资名称</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">大类</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">数量</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">货位</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">状态</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">变动时间</th>
+                ${actionTh('px-4 py-3')}
+              </tr>
+            </thead>
+            <tbody>${fixedRows}${otherRows}</tbody>
+          </table>
+        </div>
+        <div class="flex items-center justify-between border-t border-slate-100 px-4 py-3 text-sm text-slate-500">
+          <span>共 248 条 · 已选 <span id="wms-ledger-selected-count">3</span> 条固定资产</span>
+          <div class="flex gap-1"><span class="rounded-lg bg-slate-900 px-3 py-1 text-white">1</span><span class="rounded-lg px-3 py-1 hover:bg-slate-100">2</span><span class="rounded-lg px-3 py-1 hover:bg-slate-100">…</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="wms-qr-toast" class="wms-qr-toast hidden" role="status"></div>`;
+}
+
+function assetDetailModal(backHref, asset) {
+  const statusBadge = asset.status === '在库' ? badge('在库', 'success') : badge('借出', 'warning');
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg">
+      <div class="wms-asset-detail">
+        <dl class="grid gap-4 sm:grid-cols-2 text-sm mb-6">
+          <div><dt class="text-slate-500">资产编码</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-asset-field="code">${asset.code}</dd></div>
+          <div><dt class="text-slate-500">物资编码</dt><dd class="mt-1 font-mono text-slate-800" data-asset-field="materialCode">${asset.materialCode}</dd></div>
+          <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 text-slate-900" data-asset-field="name">${asset.name}</dd></div>
+          <div><dt class="text-slate-500">大类</dt><dd class="mt-1">${badge('固定资产', 'info')}</dd></div>
+          <div><dt class="text-slate-500">货位</dt><dd class="mt-1 text-slate-800" data-asset-field="location">${asset.location}</dd></div>
+          <div><dt class="text-slate-500">状态</dt><dd class="mt-1">${statusBadge}</dd></div>
+          <div><dt class="text-slate-500">入库时间</dt><dd class="mt-1 text-slate-800">${asset.time}</dd></div>
+          <div><dt class="text-slate-500">二维码内容</dt><dd class="mt-1 font-mono text-xs text-slate-500">wms://asset/${asset.code}</dd></div>
+        </dl>
+        <div class="wms-qr-preview-card">
+          <h4 class="mb-4 text-sm font-semibold text-slate-900">专属资产二维码</h4>
+          <div class="flex flex-wrap items-start gap-8">
+            <div class="rounded-xl border border-slate-200 bg-white p-4">${assetQrImg(asset.code, 160)}</div>
+            <div class="flex-1 min-w-[200px] space-y-3">
+              ${assetQrLabel(asset.code, asset.name, asset.location)}
+              <p class="text-xs text-slate-500">贴码后可通过出库、归还等现场作业扫码识别；码内容不随状态变化，扫码后展示当前在库/借出状态。</p>
+              <div class="flex flex-wrap gap-2 pt-1">
+                <button type="button" class="wms-btn wms-btn-primary wms-qr-download-single" data-asset-code="${asset.code}"><i class="fa-solid fa-download mr-1"></i>下载 PNG</button>
+                <button type="button" class="wms-btn wms-btn-secondary"><i class="fa-solid fa-print mr-1"></i>打印标签</button>
+                <a href="ledger_asset_qrcode.html?code=${asset.code}" class="wms-btn wms-btn-secondary">全屏查看</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">关闭</a>
+      </div>
+    </div>`;
+}
+
+const TRANSACTION_SAMPLES = {
+  RK202606090012: {
+    no: 'RK202606090012', type: '入库', typeKey: 'inbound', materialCode: 'HC-00128', materialName: '安全帽',
+    category: '耗材', qty: '200', unit: '顶', warehouse: '主仓库/A区', location: 'A-01',
+    time: '2026-06-09 14:32', operator: '张仓管', relatedNo: 'YS202606090018', relatedLabel: '验收单号',
+    sourceHref: 'warehouse_inbound_form.html', remark: '批量入库',
+  },
+  CK202606090008: {
+    no: 'CK202606090008', type: '出库', typeKey: 'outbound', materialCode: 'ZC202606001', materialName: '笔记本电脑',
+    category: '固定资产', qty: '1', unit: '台', warehouse: '主仓库/B区', location: 'B-03',
+    time: '2026-06-09 11:20', operator: '李仓管', relatedNo: 'LY202606070002', relatedLabel: '领用单号',
+    recipient: '王工', assetCode: 'ZC202606001', sourceHref: 'warehouse_outbound_fixed_form.html', remark: '—',
+  },
+  HK202606090003: {
+    no: 'HK202606090003', type: '归还', typeKey: 'return', materialCode: 'LA-00456', materialName: '电钻',
+    category: '类资产', qty: '1', unit: '台', warehouse: '主仓库/A区', location: 'A-02',
+    time: '2026-06-08 16:45', operator: '王工', relatedNo: 'LY202605200008', relatedLabel: '领用单号',
+    returnStatus: '完好', sourceHref: 'warehouse_return_like_form.html', remark: '按时归还',
+  },
+  TH202606030001: {
+    no: 'TH202606030001', type: '退货', typeKey: 'refund', materialCode: 'DL-00234', materialName: '电缆 YJV-3×2.5',
+    category: '类资产', qty: '100', unit: 'm', warehouse: '主仓库/A区', location: 'A-01',
+    time: '2026-06-03 10:15', operator: '张仓管', relatedNo: 'GH202605280002', relatedLabel: '供货单号',
+    supplier: '华建物资有限公司', refundReason: '质量问题', sourceHref: 'warehouse_refund_like_form.html?refundKey=TH202606030001&mode=view', remark: '规格不符退供应商',
+  },
+};
+
+function transactionTypeBadge(type) {
+  const map = { 入库: 'success', 出库: 'warning', 归还: 'info', 退货: 'danger' };
+  return badge(type, map[type] || 'info');
+}
+
+function transactionDetailModal(backHref, tx) {
+  const sourceHrefMap = { inbound: 'warehouse_inbound_form.html', outbound: 'warehouse_outbound_fixed_form.html', return: 'warehouse_return_fixed_form.html', refund: 'warehouse_refund_pre_form.html' };
+  const sourceHref = tx.sourceHref || sourceHrefMap[tx.typeKey] || '#';
+  const sourceLabelMap = { inbound: '查看入库单', outbound: '查看出库单', return: '查看归还单', refund: '查看退货单' };
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg">
+      <div class="wms-transaction-detail">
+        <dl class="grid gap-4 sm:grid-cols-2 text-sm">
+          <div><dt class="text-slate-500">流水单号</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-tx-field="no">${tx.no}</dd></div>
+          <div><dt class="text-slate-500">操作类型</dt><dd class="mt-1" data-tx-field="type">${transactionTypeBadge(tx.type)}</dd></div>
+          <div><dt class="text-slate-500">物资编码</dt><dd class="mt-1 font-mono text-slate-800" data-tx-field="materialCode">${tx.materialCode}</dd></div>
+          <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 text-slate-900" data-tx-field="materialName">${tx.materialName}</dd></div>
+          <div><dt class="text-slate-500">物资大类</dt><dd class="mt-1" data-tx-field="category">${badge(tx.category, 'info')}</dd></div>
+          <div><dt class="text-slate-500">数量</dt><dd class="mt-1 text-slate-800" data-tx-field="qty">${tx.qty} ${tx.unit || ''}</dd></div>
+          <div><dt class="text-slate-500">仓库</dt><dd class="mt-1 text-slate-800" data-tx-field="warehouse">${tx.warehouse}</dd></div>
+          <div><dt class="text-slate-500">货位</dt><dd class="mt-1 text-slate-800" data-tx-field="location">${tx.location || '—'}</dd></div>
+          <div><dt class="text-slate-500">操作时间</dt><dd class="mt-1 text-slate-800" data-tx-field="time">${tx.time}</dd></div>
+          <div><dt class="text-slate-500">操作人</dt><dd class="mt-1 text-slate-800" data-tx-field="operator">${tx.operator}</dd></div>
+          <div><dt class="text-slate-500" data-tx-label="related">${tx.relatedLabel || '关联单号'}</dt><dd class="mt-1 font-mono text-slate-800" data-tx-field="relatedNo">${tx.relatedNo || '—'}</dd></div>
+          <div data-tx-row="supplier"><dt class="text-slate-500">供应商</dt><dd class="mt-1 text-slate-800" data-tx-field="supplier">${tx.supplier || '—'}</dd></div>
+          <div data-tx-row="refundReason"><dt class="text-slate-500">退货原因</dt><dd class="mt-1 text-slate-800" data-tx-field="refundReason">${tx.refundReason || '—'}</dd></div>
+          <div data-tx-row="recipient"><dt class="text-slate-500">领用人</dt><dd class="mt-1 text-slate-800" data-tx-field="recipient">${tx.recipient || '—'}</dd></div>
+          <div data-tx-row="assetCode"><dt class="text-slate-500">资产编码</dt><dd class="mt-1 font-mono text-slate-800" data-tx-field="assetCode">${tx.assetCode || '—'}</dd></div>
+          <div data-tx-row="returnStatus"><dt class="text-slate-500">归还状态</dt><dd class="mt-1" data-tx-field="returnStatus">${tx.returnStatus ? badge(tx.returnStatus, 'success') : '—'}</dd></div>
+          <div class="sm:col-span-2"><dt class="text-slate-500">备注</dt><dd class="mt-1 text-slate-700" data-tx-field="remark">${tx.remark || '—'}</dd></div>
+        </dl>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">关闭</a>
+        <a href="${sourceHref}" class="wms-btn wms-btn-primary" data-tx-source-link>${sourceLabelMap[tx.typeKey] || '查看源单据'}</a>
+      </div>
+    </div>`;
+}
+
+function ledgerTransactionPage() {
+  const rows = [
+    { no: 'RK202606090012', cells: ['RK202606090012', badge('入库', 'success'), 'HC-00128', '安全帽', '200', '主仓库/A区', '2026-06-09 14:32', '张仓管'] },
+    { no: 'CK202606090008', cells: ['CK202606090008', badge('出库', 'warning'), 'ZC202606001', '笔记本电脑', '1', '主仓库/B区', '2026-06-09 11:20', '李仓管'] },
+    { no: 'HK202606090003', cells: ['HK202606090003', badge('归还', 'info'), 'LA-00456', '电钻', '1', '主仓库/A区', '2026-06-08 16:45', '王工'] },
+    { no: 'TH202606030001', cells: ['TH202606030001', badge('退货', 'danger'), 'DL-00234', '电缆 YJV-3×2.5', '100', '主仓库/A区', '2026-06-03 10:15', '张仓管'] },
+  ];
+  const th = ['单号', '类型', '物资编码', '物资名称', '数量', '仓库', '操作时间', '操作人'].map(c =>
+    `<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">${c}</th>`
+  ).join('') + actionTh('px-4 py-3');
+  const trFiltered = rows.map(r => {
+    const type = stripCellText(r.cells[1]);
+    const search = r.cells.map(stripCellText).join(' ').toLowerCase();
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-search="${search}" data-list-tab="${type}">${r.cells.map(c => `<td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('')}${actionTd(`<a href="ledger_transaction_detail.html?no=${r.no}" class="hover:underline">查看</a>`, 'px-4 py-3.5 text-slate-900')}</tr>`;
+  }).join('');
+  return `
+    <div data-wms-list-page>
+      <p class="mb-4 text-sm text-slate-500">物资出入库操作流水，按操作时间降序</p>
+      ${pageTabs(['全部', '入库', '出库', '归还', '退货'])}
+      ${pageToolbar({
+    searchPlaceholder: '单号、物资编码、物资名称',
+    secondary: [{ label: '导出 Excel', icon: 'fa-solid fa-file-export' }],
+    filters: [{ label: '操作时间', key: 'time', options: ['全部', '近7天', '近30天'] }],
+  })}
+      <div class="card overflow-hidden rounded-2xl bg-white shadow-sm" data-wms-list-card>
+        <div class="overflow-x-auto wms-modal-table-wrap" data-wms-list-table-wrap><table class="min-w-full wms-data-table"><thead class="bg-slate-50/80"><tr>${th}</tr></thead><tbody data-wms-list-tbody>${trFiltered}</tbody></table></div>
+        ${listEmptyState()}
+        ${listTableFooter(rows.length)}
+      </div>
+    </div>`;
+}
+
+function assetQrcodeModal(backHref, asset) {
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="md">
+      <div class="wms-qr-fullscreen text-center">
+        <div class="mx-auto inline-block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          ${assetQrImg(asset.code, 200)}
+          <div class="mt-4 font-mono text-sm font-semibold text-slate-900" data-asset-field="code">${asset.code}</div>
+          <div class="mt-1 text-sm text-slate-600" data-asset-field="name">${asset.name}</div>
+          <div class="mt-0.5 text-xs text-slate-400" data-asset-field="location">${asset.location}</div>
+        </div>
+        <p class="mt-4 text-xs text-slate-500">扫码解析：<code class="rounded bg-slate-100 px-1.5 py-0.5">wms://asset/${asset.code}</code></p>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">关闭</a>
+        <button type="button" class="wms-btn wms-btn-secondary"><i class="fa-solid fa-print mr-1"></i>打印</button>
+        <button type="button" class="wms-btn wms-btn-primary wms-qr-download-single" data-asset-code="${asset.code}"><i class="fa-solid fa-download mr-1"></i>下载 PNG</button>
+      </div>
+    </div>`;
+}
+
+function inboundSuccessPage() {
+  const codes = ['ZC202606090001', 'ZC202606090002', 'ZC202606090003'];
+  return `
+    <div class="mx-auto max-w-3xl" data-wms-inbound-success>
+      <div class="card rounded-2xl bg-white p-8 text-center">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><i class="fa-solid fa-check text-2xl"></i></div>
+        <h2 class="text-xl font-semibold text-slate-900" data-inbound-success-title>入库成功 · 已生成 3 个资产编码</h2>
+        <p class="mt-2 text-sm text-slate-500" data-inbound-success-desc>入库单号 RK202606090018 · 验收单 GH2025001-YS01 · 货位 主仓库</p>
+        <div class="mt-8 grid gap-4 sm:grid-cols-3" data-inbound-success-qr-grid>${codes.map(c => `<div class="rounded-xl border border-slate-200 p-4">${assetQrLabel(c, '抓斗', '主仓库')}</div>`).join('')}</div>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <button type="button" id="wms-inbound-batch-qr" class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-800" data-codes="${codes.join(',')}"><i class="fa-solid fa-file-zipper"></i> 下载本批标签 ZIP</button>
+          <button type="button" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-print"></i> 打印标签</button>
+          <a href="ledger_warehouse.html" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-warehouse"></i> 前往仓库台账</a>
+          <a href="warehouse_inbound_list.html" class="text-sm text-slate-500 hover:text-slate-900">返回入库列表</a>
+        </div>
+      </div>
+    </div>
+    <div id="wms-qr-toast" class="wms-qr-toast hidden" role="status"></div>`;
+}
+
+const USAGE_LOCATION_REGIONS = [
+  { id: 'work', label: '作业区' },
+  { id: 'office', label: '办公区' },
+];
+
+const USAGE_LOCATION_TREE = [
+  { code: '001', name: '1号楼', region: 'work', serial: '1', enabled: true, creator: 'Admin', createdAt: '2026-06-01 09:00', remark: '', children: [] },
+  { code: '002', name: '2号楼', region: 'work', serial: '2', enabled: true, creator: 'Admin', createdAt: '2026-06-02 10:15', remark: '', children: [] },
+  {
+    code: '003', name: '3号楼', region: 'work', serial: '3', enabled: true, creator: 'Admin', createdAt: '2026-06-03 11:20', expanded: true, remark: '', children: [
+      { code: '003001', name: '1层', region: 'work', serial: '3.1', parentCode: '003', parentName: '3号楼', enabled: true, creator: '—', createdAt: '—', remark: '' },
+    ],
+  },
+  {
+    code: '101', name: '行政楼', region: 'office', serial: '1', enabled: true, creator: 'Admin', createdAt: '2026-06-05 09:00', remark: '', children: [
+      { code: '101001', name: '2层', region: 'office', serial: '1.1', parentCode: '101', parentName: '行政楼', enabled: true, creator: '—', createdAt: '—', remark: '' },
+    ],
+  },
+  { code: '102', name: '会议室楼', region: 'office', serial: '2', enabled: false, creator: 'Admin', createdAt: '2026-06-06 14:00', remark: '', children: [] },
+];
+
+function locationRegionLabel(id) {
+  return USAGE_LOCATION_REGIONS.find(r => r.id === id)?.label || id;
+}
+
+function locationToggleInput(enabled = true, code = '') {
+  return `<label class="wms-toggle"><input type="checkbox" data-wms-location-enabled data-location-code="${code}"${enabled ? ' checked' : ''} /><span class="wms-toggle-track"></span></label>`;
+}
+
+function locationRowActions(node, isChild = false) {
+  const view = `<a href="config_location_form.html?code=${node.code}&mode=view" class="hover:underline">查看</a>`;
+  const edit = `<a href="config_location_form.html?code=${node.code}&mode=edit" class="hover:underline">编辑</a>`;
+  const del = `<button type="button" class="text-rose-600 hover:underline" data-wms-location-delete data-location-code="${node.code}">删除</button>`;
+  if (isChild) return `${view}&nbsp;&nbsp;${edit}&nbsp;&nbsp;${del}`;
+  const addChild = `<a href="config_location_form.html?mode=child&parent=${node.code}&parentName=${encodeURIComponent(node.name)}&region=${node.region}" class="hover:underline">添加子类</a>`;
+  return `${addChild}&nbsp;&nbsp;${view}&nbsp;&nbsp;${edit}&nbsp;&nbsp;${del}`;
+}
+
+function locationTreeRow(node, { isChild = false, parentExpanded = true } = {}) {
+  const hasChildren = !isChild && node.children?.length > 0;
+  const expanded = node.expanded !== false;
+  const toggle = hasChildren
+    ? `<button type="button" class="wms-location-tree-toggle${expanded ? ' is-expanded' : ''} mr-1 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-100" data-wms-location-tree-toggle data-location-code="${node.code}" aria-label="${expanded ? '收起' : '展开'}"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>`
+    : `<span class="mr-1 inline-block w-5"></span>`;
+  const serialCell = `<span class="inline-flex items-center gap-0.5 font-mono text-xs text-slate-500">${toggle}${node.serial}</span>`;
+  const childHidden = isChild && !parentExpanded ? ' hidden' : '';
+  const childAttr = isChild ? ` data-wms-location-child data-location-parent="${node.parentCode}"` : ` data-wms-location-parent-row data-location-has-children="${hasChildren ? '1' : '0'}"`;
+  const statusCell = isChild && !node.enabled ? locationToggleInput(false, node.code) : locationToggleInput(node.enabled !== false, node.code);
+  const enabledLabel = node.enabled !== false ? '启用' : '停用';
+  const searchText = `${node.code} ${node.name}`.toLowerCase();
+  return `<tr class="border-t border-slate-100 hover:bg-slate-50/80${childHidden}" data-wms-list-row data-wms-location-row data-location-code="${node.code}" data-location-region="${node.region}" data-location-name="${node.name}" data-location-enabled="${node.enabled !== false ? '1' : '0'}" data-list-search="${searchText}" data-list-filter-enabled="${enabledLabel}"${childAttr}>
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap">${serialCell}</td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 font-mono text-xs whitespace-nowrap">${isChild ? `<span class="pl-6">${node.code}</span>` : node.code}</td>
+    <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${isChild ? `<span class="pl-6">${node.name}</span>` : node.name}</td>
+    <td class="px-4 py-3.5 text-sm whitespace-nowrap">${statusCell}</td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">${node.creator || '—'}</td>
+    <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">${node.createdAt || '—'}</td>
+    ${actionTd(locationRowActions(node, isChild))}
+  </tr>`;
+}
+
+function locationListPage() {
+  const regionTabs = `<div class="mb-4 flex flex-wrap gap-2" data-wms-list-region-tabs>${USAGE_LOCATION_REGIONS.map((r, i) =>
+    `<button type="button" class="wms-list-region-tab rounded-xl px-4 py-2 text-sm font-medium ${i === 0 ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'}" data-wms-list-region="${r.id}">${r.label}</button>`
+  ).join('')}</div>`;
+  const rows = USAGE_LOCATION_TREE.flatMap(node => {
+    const parentRows = [locationTreeRow(node)];
+    const childRows = (node.children || []).map(child => locationTreeRow(child, { isChild: true, parentExpanded: node.expanded !== false }));
+    return [...parentRows, ...childRows];
+  }).join('');
+  const total = USAGE_LOCATION_TREE.reduce((n, node) => n + 1 + (node.children?.length || 0), 0);
+  return `
+    <div data-wms-list-page data-wms-location-page>
+      ${regionTabs}
+      ${listPageActions({
+    searchPlaceholder: '地点名称',
+    filters: [{ label: '状态', key: 'enabled', options: ['全部', '启用', '停用'] }],
+    addBtn: true,
+    addHref: 'config_location_form.html?mode=major&region=work',
+    addAttrs: 'data-wms-location-add',
+  })}
+      <div class="card overflow-hidden rounded-2xl bg-white shadow-sm" data-wms-list-card>
+        <div class="overflow-x-auto wms-modal-table-wrap" data-wms-list-table-wrap>
+          <table class="min-w-full wms-data-table">
+            <thead class="bg-slate-50/80"><tr>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">地点编码</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">地点名称</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">状态</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">创建人</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">创建时间</th>
+              ${actionTh()}
+            </tr></thead>
+            <tbody data-wms-list-tbody data-wms-location-tbody>${rows}</tbody>
+          </table>
+        </div>
+        ${listEmptyState()}
+        ${listTableFooter(total)}
+      </div>
+    </div>
+    <div id="wms-location-toast" class="wms-qr-toast hidden" role="status"></div>`;
+}
+
+function locationFormPage(options = {}) {
+  const { backHref = 'config_location_list.html', mode = 'major', sample = null } = options;
+  const s = sample || { code: '系统自动生成', name: '', region: '作业区', parentName: '', remark: '', enabled: true };
+  const isView = mode === 'view';
+  const isEdit = mode === 'edit';
+  const isChild = mode === 'child' || Boolean(s.parentCode || s.parentName);
+  const ro = isView;
+  const inputCls = ro
+    ? 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600'
+    : 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const title = isView ? '查看使用地点' : isEdit ? '编辑使用地点' : isChild ? '添加子级地点' : '新增使用地点';
+  const regionOpts = USAGE_LOCATION_REGIONS.map(r => ({
+    label: r.label,
+    selected: (s.region === r.label || s.region === r.id),
+  }));
+  const fields = [];
+  if (isChild) {
+    fields.push(`<div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 所属父级</label><input type="text" readonly class="${inputCls}" value="${s.parentName || ''}" data-wms-location-parent-name /></div>`);
+  } else {
+    const regionReadonly = isEdit || isView;
+    if (regionReadonly) {
+      fields.push(`<div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 所属区域</label><input type="text" readonly class="${inputCls}" value="${typeof s.region === 'string' && !s.region.includes('区') ? locationRegionLabel(s.region) : s.region}" /></div>`);
+    } else {
+      fields.push(`<div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 所属区域</label><select class="${inputCls}" data-wms-location-region required>${regionOpts.map(o => `<option${o.selected ? ' selected' : ''}>${o.label}</option>`).join('')}</select></div>`);
+    }
+  }
+  fields.push(`<div><label class="mb-1.5 block text-sm font-medium text-slate-700">地点编码</label><input type="text" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" value="${s.code || '系统自动生成'}" /></div>`);
+  fields.push(`<div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 地点名称</label><input type="text"${ro ? ' readonly' : ' placeholder="请输入"'} class="${ro ? 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600' : inputCls}" value="${s.name || ''}" data-wms-location-name${ro ? '' : ' required'} /></div>`);
+  fields.push(`<div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">备注</label><textarea rows="3" placeholder="0/500"${ro ? ' readonly' : ''} class="${ro ? 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600' : inputCls}" data-wms-location-remark>${s.remark || ''}</textarea></div>`);
+  if (!isView) {
+    fields.push(`<div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">启用</label><label class="wms-toggle"><input type="checkbox" data-wms-location-form-enabled${s.enabled !== false ? ' checked' : ''} /><span class="wms-toggle-track"></span></label></div>`);
+  } else {
+    fields.push(`<div><label class="mb-1.5 block text-sm font-medium text-slate-700">启用</label><span class="text-sm text-slate-800">${s.enabled !== false ? '是' : '否'}</span></div>`);
+  }
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="md">
+      <div class="wms-modal-form" data-wms-location-form data-location-mode="${mode}" data-location-child="${isChild ? '1' : '0'}">
+        ${fields.join('')}
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">${isView ? '关闭' : '取消'}</a>
+        ${isView ? '' : '<button type="button" class="wms-btn wms-btn-primary" data-wms-location-save>确定</button>'}
+      </div>
+    </div>`;
+}
+
+function stripCellText(html) {
+  return String(html).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function filterSelect(label, key, options = ['全部'], { selected = '全部' } = {}) {
+  return `<label class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">
+    <span class="text-slate-500 shrink-0">${label}</span>
+    <select class="border-0 bg-transparent py-0.5 pr-6 text-sm font-medium text-slate-800 outline-none focus:ring-0" data-wms-list-filter="${key}">
+      ${options.map(o => `<option value="${o}"${o === selected ? ' selected' : ''}>${o}</option>`).join('')}
+    </select>
+  </label>`;
+}
+
+function primaryAddBtn(href = '#', attrs = '') {
+  return `<a href="${href}" class="inline-flex shrink-0 items-center justify-center gap-2 min-w-[96px] rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-slate-800 transition whitespace-nowrap"${attrs ? ` ${attrs}` : ''}><i class="fa-solid fa-plus text-xs"></i>新增</a>`;
+}
+
+function secondaryBtn(label, { icon = '', attrs = '' } = {}) {
+  return `<button type="button" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"${attrs ? ` ${attrs}` : ''}>${icon ? `<i class="${icon} text-xs text-slate-400"></i>` : ''}${label}</button>`;
+}
+
+function pageTabs(tabs, { attr = 'data-wms-list-tab' } = {}) {
+  if (!tabs?.length) return '';
+  return `<div class="mb-4 flex flex-wrap gap-2" data-wms-list-tabs>${tabs.map((t, i) =>
+    `<button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium ${i === 0 ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'}" ${attr}="${t}">${t}</button>`
+  ).join('')}</div>`;
+}
+
+function listSearchInput(placeholder = '请输入关键字') {
+  return `<div class="relative shrink-0 w-[280px]">
+    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+    <input type="search" data-wms-list-search placeholder="${placeholder}" class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-9 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+    <button type="button" data-wms-list-search-clear class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" title="清空"><i class="fa-solid fa-xmark text-xs"></i></button>
+  </div>`;
+}
+
+function listAddRow(cfg = {}) {
+  if (!cfg.addBtn && !cfg.addHref) return '';
+  return `<div class="mb-4" data-wms-list-add-row>${primaryAddBtn(cfg.addHref || '#', cfg.addAttrs || '')}</div>`;
+}
+
+function pageToolbar(cfg = {}) {
+  const filterList = (cfg.filters || []).map(f => filterSelect(f.label, f.key, f.options)).join('');
+  const secondary = (cfg.secondary || []).map(s => typeof s === 'string' ? s : secondaryBtn(s.label, s)).join('');
+  const reset = '<button type="button" class="hidden shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-100" data-wms-list-reset><i class="fa-solid fa-rotate-left text-xs"></i>重置</button>';
+  const search = cfg.search !== false ? listSearchInput(cfg.searchPlaceholder || '请输入关键字') : '';
+  const hasToolbar = search || filterList || secondary;
+  if (!hasToolbar) return '';
+  const mb = cfg.addBtn || cfg.addHref ? 'mb-3' : 'mb-4';
+  return `<div class="${mb} flex w-full flex-nowrap items-center justify-end gap-2 overflow-x-auto" data-wms-list-toolbar>${filterList}${search}${reset}${secondary}</div>`;
+}
+
+function listPageActions(cfg = {}) {
+  return `${pageToolbar(cfg)}${listAddRow(cfg)}`;
+}
+
+function listEmptyState() {
+  return `<div class="hidden py-16 text-center" data-wms-list-empty>
+    <i class="fa-solid fa-inbox mb-3 text-3xl text-slate-300"></i>
+    <p class="text-sm text-slate-500">无匹配数据，请调整筛选条件</p>
+  </div>`;
+}
+
+function listTableFooter(total) {
+  return `<div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 text-sm text-slate-500">
+    <span data-wms-list-count>共 ${total} 条</span>
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="flex gap-1"><span class="rounded-lg bg-slate-900 px-3 py-1 text-white">1</span></div>
+      <span class="text-slate-400">10 条/页</span>
+    </div>
+  </div>`;
+}
+
+function listPage(cfg) {
+  const tabs = pageTabs(cfg.tabs);
+  const actions = listPageActions({
+    searchPlaceholder: cfg.searchPlaceholder,
+    search: cfg.search,
+    filters: cfg.filters,
+    addBtn: cfg.addBtn,
+    addHref: cfg.addHref,
+    addAttrs: cfg.addAttrs,
+    secondary: cfg.secondary,
+  });
+  const th = cfg.columns.map(c => `<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('') + (cfg.hideActions ? '' : actionTh('px-4 py-3'));
+  const tr = cfg.rows.map((r) => {
+    const cells = Array.isArray(r) ? r : (r.cells || r);
+    const rawTab = cfg.tabColumn !== undefined ? stripCellText(cells[cfg.tabColumn]) : '';
+    const tabVal = cfg.tabColumn !== undefined
+      ? (cfg.tabMap?.[rawTab] || rawTab)
+      : (Array.isArray(r) ? '' : (r.tab || ''));
+    const filterAttrs = (cfg.filters || []).map(f => {
+      const raw = f.column !== undefined ? stripCellText(cells[f.column]) : '';
+      const val = f.map?.[raw] || raw || '全部';
+      return ` data-list-filter-${f.key}="${val}"`;
+    }).join('');
+    const searchText = cells.map(stripCellText).join(' ').toLowerCase().replace(/"/g, '');
+    const rowActions = Array.isArray(r) ? null : r.actions;
+    const actCell = cfg.hideActions ? '' : actionTd(rowActions || cfg.actions || '<a href="#" class="hover:underline">查看</a>', 'px-4 py-3.5 text-slate-900');
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-search="${searchText}" data-list-tab="${tabVal}"${filterAttrs}>${cells.map(c => `<td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('')}${actCell}</tr>`;
+  }).join('');
+  const header = cfg.desc ? `<p class="mb-4 text-sm text-slate-500">${cfg.desc}</p>` : '';
+  return `
+    <div data-wms-list-page>
+      ${header}
+      ${tabs}
+      ${actions}
+      <div class="card overflow-hidden rounded-2xl bg-white shadow-sm" data-wms-list-card>
+        <div class="overflow-x-auto wms-modal-table-wrap" data-wms-list-table-wrap><table class="min-w-full wms-data-table"><thead class="bg-slate-50/80"><tr>${th}</tr></thead><tbody data-wms-list-tbody>${tr}</tbody></table></div>
+        ${listEmptyState()}
+        ${listTableFooter(cfg.rows.length)}
+      </div>
+    </div>`;
+}
+
+function selectPicker(id, title, breadcrumb, backHref, cfg) {
+  const confirmHref = cfg.confirmHref || backHref;
+  const th = `<th class="w-10 px-4 py-3"><input type="checkbox" class="rounded border-slate-300" /></th>` +
+    cfg.columns.map(c => `<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('');
+  const tr = cfg.rows.map((cells, i) =>
+    `<tr class="border-t border-slate-100 hover:bg-slate-50/80">
+      <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300"${i < (cfg.checkedCount ?? 2) ? ' checked' : ''} /></td>
+      ${cells.map(c => `<td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('')}
+    </tr>`
+  ).join('');
+  return page(id, title, breadcrumb, `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="${cfg.modalSize || 'lg'}">
+      <div class="wms-modal-toolbar">
+        <p class="text-sm text-slate-500">${cfg.heading || title}</p>
+        ${listSearchInput(cfg.searchPlaceholder || '搜索物资编码、名称…')}
+      </div>
+      <div class="wms-modal-table-wrap"><table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>${th}</tr></thead><tbody>${tr}</tbody></table></div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a>
+        <a href="${confirmHref}" class="wms-btn wms-btn-primary">${cfg.confirmLabel || '确认选择'}</a>
+      </div>
+    </div>`);
+}
+
+function listToolbar(cfg = {}) {
+  return `<div class="mb-4 flex flex-wrap items-center gap-3">
+    <div class="relative flex-1 min-w-[200px] max-w-sm">
+      <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+      <input type="search" placeholder="${cfg.placeholder || '请输入关键字'}" class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+    </div>
+    ${cfg.filter ? `<button class="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50">${cfg.filter} <i class="fa-solid fa-chevron-down text-xs text-slate-400"></i></button>` : ''}
+    ${cfg.extra || ''}
+  </div>`;
+}
+
+function warehouseShelfToolbar() {
+  return `<div class="mb-3 flex w-full flex-nowrap items-center justify-end gap-2 overflow-x-auto" data-wms-shelf-filters>
+      <label class="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">
+      <span class="text-slate-500 shrink-0">状态</span>
+      <select class="border-0 bg-transparent py-0.5 pr-6 text-sm font-medium text-slate-800 outline-none focus:ring-0" data-wms-filter="status">
+        <option value="all" selected>全部</option>
+        <option value="enabled">启用</option>
+        <option value="disabled">停用</option>
+      </select>
+    </label>
+    <label class="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">
+      <span class="text-slate-500 shrink-0">负责人</span>
+      <select class="border-0 bg-transparent py-0.5 pr-6 text-sm font-medium text-slate-800 outline-none focus:ring-0" data-wms-filter="owner">
+        <option value="all" selected>全部</option>
+        <option value="李四">李四</option>
+        <option value="王五">王五</option>
+        <option value="张飞">张飞</option>
+      </select>
+    </label>
+    <label class="inline-flex items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">
+      <span class="text-slate-500 shrink-0">层数</span>
+      <select class="border-0 bg-transparent py-0.5 pr-6 text-sm font-medium text-slate-800 outline-none focus:ring-0" data-wms-filter="layers">
+        <option value="all" selected>全部</option>
+        <option value="6-8">6–8 层</option>
+        <option value="9-10">9–10 层</option>
+      </select>
+    </label>
+    <button type="button" class="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-filter-reset><i class="fa-solid fa-rotate-left text-xs"></i> 重置</button>
+    <div class="relative shrink-0 w-[280px]">
+      <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+      <input type="search" placeholder="货架编码、货架名称…" class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+    </div>
+  </div>`;
+}
+
+function purchasePendingListPage() {
+  const cols = ['序号', '计划单号', '计划名称', '计划类型', '物资编码', '物资名称', '状态', '规格型号', '物资大类', '物资子类', '填报人', '填报部门', '申请日期', '计量单位', '计划需求数量', '申请数量', '申请日期', '采购数量', '采购方式', '采购日期'];
+  const th = cols.map(c => `<th class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('') +
+    actionTh();
+  const dash = '<span class="text-slate-400">—</span>';
+  const rows = [
+    ['1', 'JJJH202510001', '日常采购', '一般计划', 'GD001001-001', '抓斗', '待申请', '454', '资产-固定资产', '设备-配件', '李四', '设备部', '2026-05-04', '个', '10', dash, dash, dash, dash, dash,
+      '<a href="#" class="mr-2 hover:underline">查看</a><a href="purchase_pending_apply.html" class="font-medium hover:underline">申请</a>'],
+    ['2', 'JJJH202510002', '日常采购', '一般计划', 'GD001001-002', '料斗', '待申请', '454', '资产-固定资产', '设备-配件', '李四', '设备部', '2026-05-04', '个', '10', dash, dash, dash, dash, dash,
+      '<a href="#" class="mr-2 hover:underline">查看</a><a href="purchase_pending_apply.html" class="font-medium hover:underline">申请</a>'],
+    ['3', 'JJJH202510005', '日常采购', '一般计划', 'GD001001-005', '钢丝绳', '待采购', '454', '耗材-生成耗材', '设备-配件', '李四', '维保部', '2026-05-04', 'm', '10', dash, dash, dash, dash, dash,
+      '<a href="#" class="hover:underline">查看</a>'],
+  ];
+  const tr = rows.map(r => {
+    const actions = r.pop();
+    const status = r[6];
+    const planType = r[3];
+    const search = r.map(stripCellText).join(' ').toLowerCase();
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-tab="${status}" data-list-search="${search}" data-list-filter-planType="${planType}">${r.map(c => `<td class="px-3 py-3.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('')}${actionTd(actions)}</tr>`;
+  }).join('');
+  return `
+    <div data-wms-list-page>
+      <p class="mb-4 text-sm text-slate-500">急件计划审核通过后，形成待采物资记录；按审核通过时间降序</p>
+      ${pageTabs(['全部', '待申请', '待采购', '已采购', '已拒绝'])}
+      ${pageToolbar({
+    searchPlaceholder: '计划单号、物资编码、物资名称',
+    filters: [{ label: '计划类型', key: 'planType', options: ['全部', '一般计划', '急件计划'] }],
+  })}
+      <div class="card overflow-hidden rounded-2xl bg-white shadow-sm" data-wms-list-card>
+        <div class="overflow-x-auto wms-modal-table-wrap" data-wms-list-table-wrap><table class="min-w-full text-sm wms-data-table"><thead class="bg-slate-50/80"><tr>${th}</tr></thead><tbody data-wms-list-tbody>${tr}</tbody></table></div>
+        ${listEmptyState()}
+        ${listTableFooter(rows.length)}
+      </div>
+    </div>`;
+}
+
+const purchaseMaterialRows = {
+  pending: [
+    ['1', 'XF-00102', '防汛沙袋', '50×80cm', '耗材', '防汛物资', '条', '12.00', '500', '500', ''],
+    ['2', 'XF-00105', '抽水泵', 'QZ10-15', '类资产', '防汛设备', '台', '2800.00', '5', '5', ''],
+  ],
+  default: [
+    ['1', 'GD001001-001', '抓斗', '455', '资产-固定资产', '设备-配件', '个', '1000.00', '10', '10', ''],
+    ['2', 'GD001001-002', '料斗', '455', '资产-固定资产', '设备-配件', '个', '1000.00', '20', '20', ''],
+  ],
+};
+
+function purchaseExecuteHref(method, mode) {
+  const map = {
+    直采: 'purchase_execute_direct.html',
+    直接: 'purchase_execute_direct.html',
+    询价: 'purchase_execute_inquiry.html',
+    招标: 'purchase_execute_bid.html',
+  };
+  const base = map[method] || map['直采'];
+  return mode ? `${base}?mode=${encodeURIComponent(mode)}` : base;
+}
+
+function purchaseExecuteRowActions(method, scenario) {
+  if (scenario === 'pending') {
+    return `<a href="${purchaseExecuteHref(method, 'view')}" class="mr-2 hover:underline">查看</a><a href="${purchaseExecuteHref(method)}" class="mr-2 hover:underline">采购</a><button type="button" class="hover:underline" data-wms-purchase-execute-submit-audit>发起审核</button>`;
+  }
+  if (scenario === 'auditing') {
+    return `<a href="${purchaseExecuteHref(method, 'view')}" class="mr-2 hover:underline">查看</a><a href="${purchaseExecuteHref(method, 'audit')}" class="hover:underline">审核</a>`;
+  }
+  return `<a href="${purchaseExecuteHref(method, 'view')}" class="hover:underline">查看</a>`;
+}
+
+const EXECUTE_MATERIAL_ROWS = [
+  { seq: 1, expanded: true, code: 'GD001001-001', name: '抓斗', spec: '455', major: '资产-固定资产', minor: '设备-配件', unit: '个', refPrice: '1000.00', qty: '10', total: '1000.00' },
+  { seq: 2, expanded: false, code: 'GD001001-002', name: '料斗', spec: '455', major: '资产-固定资产', minor: '设备-配件', unit: '个', refPrice: '1000.00', qty: '20', total: '2000.00' },
+];
+
+function purchaseExecuteInput(placeholder = '请输入', width = 'w-full') {
+  return `<input type="text" placeholder="${placeholder}" class="${width} min-w-[72px] rounded border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" />`;
+}
+
+function purchaseExecuteSelect(placeholder = '请选择') {
+  return `<select class="min-w-[120px] rounded border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200"><option value="" disabled selected>${placeholder}</option><option>华建物资有限公司</option><option>鄂东办公用品</option></select>`;
+}
+
+function purchaseExecuteUpload(hint) {
+  return `<div class="wms-upload-zone">
+    <i class="fa-solid fa-cloud-arrow-up text-lg text-slate-400"></i>
+    <p class="mt-2 text-sm text-slate-600">上传文件</p>
+    <p class="mt-1 text-xs text-slate-400">${hint}</p>
+  </div>`;
+}
+
+function purchaseExecuteApplyInfo(method) {
+  return `<div class="md:col-span-2 wms-execute-apply-info overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm">
+      <tbody>
+        <tr>
+          <td class="w-32 bg-slate-50 px-4 py-2.5 font-medium text-slate-500">申请单号</td>
+          <td class="px-4 py-2.5 text-slate-800">CG202510001</td>
+          <td class="w-32 bg-slate-50 px-4 py-2.5 font-medium text-slate-500">采购方式</td>
+          <td class="px-4 py-2.5 text-slate-800">${method}</td>
+        </tr>
+        <tr class="border-t border-slate-200">
+          <td class="bg-slate-50 px-4 py-2.5 font-medium text-slate-500">参考总额（元）</td>
+          <td class="px-4 py-2.5 text-slate-800" colspan="3">100.00</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>`;
+}
+
+function purchaseExecuteQuoteNested(mode, colSpan) {
+  const directExtra = mode === 'direct'
+    ? `<th class="px-3 py-2 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">报价单</th>
+       <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">是否中选</th>
+       <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">中选说明</th>`
+    : '';
+  const directCells = mode === 'direct'
+    ? `<td class="px-3 py-2 whitespace-nowrap"><button type="button" class="text-sm text-sky-600 hover:underline">上传</button></td>
+       <td class="px-3 py-2 whitespace-nowrap">${purchaseExecuteSelect('请选择')}</td>
+       <td class="px-3 py-2 whitespace-nowrap">${purchaseExecuteInput('请输入')}</td>`
+    : '';
+  const rowActions = mode === 'direct'
+    ? ''
+    : `<td class="px-3 py-2 text-right text-sm whitespace-nowrap"><a href="#" class="mr-2 text-sky-600 hover:underline">编辑</a><button type="button" class="text-rose-600 hover:underline">删除</button></td>`;
+  const actionThCell = mode === 'direct' ? '' : actionTh('px-3 py-2');
+  const quoteRows = [1, 2].map((n, i) => `<tr class="border-t border-slate-100">
+      <td class="px-3 py-2 text-sm text-slate-600 whitespace-nowrap">${n}</td>
+      <td class="px-3 py-2 whitespace-nowrap">${purchaseExecuteSelect()}</td>
+      <td class="px-3 py-2 whitespace-nowrap">${purchaseExecuteInput()}</td>
+      <td class="px-3 py-2 whitespace-nowrap">${purchaseExecuteInput()}</td>
+      <td class="px-3 py-2 whitespace-nowrap">${purchaseExecuteInput()}</td>
+      <td class="px-3 py-2 text-sm text-slate-700 whitespace-nowrap">100.00</td>
+      <td class="px-3 py-2 whitespace-nowrap">${purchaseExecuteInput()}</td>
+      ${directCells}
+      ${rowActions}
+    </tr>`).join('');
+  return `<tr class="wms-execute-quote-nested-row bg-slate-50/50">
+    <td colspan="${colSpan}" class="p-0">
+      <div class="border-t border-slate-200 px-3 py-2">
+        <table class="min-w-full text-sm wms-data-table wms-execute-quote-nested rounded-lg border border-slate-200 bg-white">
+          <thead class="bg-slate-50/90">
+            <tr>
+              <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">序号</th>
+              <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">供应商名称</th>
+              <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 单价（元）</th>
+              <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">运费（元）</th>
+              <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">采购数量</th>
+              <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">小计金额（元）</th>
+              <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">交货周期（天）</th>
+              ${directExtra}
+              ${actionThCell}
+            </tr>
+          </thead>
+          <tbody>${quoteRows}</tbody>
+        </table>
+      </div>
+    </td>
+  </tr>`;
+}
+
+function purchaseExecuteQuoteSection(mode) {
+  const isDirect = mode === 'direct';
+  const mainCols = isDirect
+    ? ['序号', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '计量单位', '参考单价（元）', '采购数量', '采购总额（元）']
+    : ['序号', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '计量单位'];
+  const th = mainCols.map(c => `<th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('')
+    + (isDirect ? '' : actionTh('px-3 py-2.5'));
+  const colSpan = mainCols.length + (isDirect ? 0 : 1);
+  const tr = EXECUTE_MATERIAL_ROWS.map((r) => {
+    const seq = `<span class="text-slate-400">${r.expanded ? '➖' : '➕'}</span> <span class="ml-1 text-slate-600">${r.seq}</span>`;
+    const cells = [
+      seq,
+      `<span class="font-mono text-xs">${r.code}</span>`,
+      r.name, r.spec, r.major, r.minor, r.unit,
+    ];
+    if (isDirect) {
+      cells.push(r.refPrice, r.qty, r.total);
+    }
+    const dataCells = cells.map(c => `<td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('');
+    const actionCell = isDirect ? '' : actionTd('<a href="#" class="text-sky-600 hover:underline">报价</a>', 'px-3 py-2.5');
+    const nested = r.expanded ? purchaseExecuteQuoteNested(mode, colSpan) : '';
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/60">${dataCells}${actionCell}</tr>${nested}`;
+  }).join('');
+  return `<div class="md:col-span-2 wms-execute-quote-section">
+    <div class="wms-modal-table-wrap overflow-x-auto rounded-xl border border-slate-200">
+      <table class="min-w-full text-sm wms-data-table"><thead class="bg-slate-50/90 sticky top-0"><tr>${th}</tr></thead><tbody>${tr}</tbody></table>
+    </div>
+  </div>`;
+}
+
+function purchaseExecuteFormPage(cfg) {
+  const {
+    title,
+    method,
+    quoteSectionTitle,
+    mode,
+    otherSectionTitle = '其他',
+    backHref = 'purchase_execute_list.html',
+  } = cfg;
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
+  const sheetLabel = mode === 'bid' ? '招标比价表' : '询价表';
+  const sheetHint = '支持 .xls .xlsx，单个文件不能超过 100MB';
+  const sheetBlock = mode === 'direct' ? '' : `
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">${sheetLabel}</label>${purchaseExecuteUpload(sheetHint)}</div>`;
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl">
+      <div class="wms-modal-form wms-warehouse-form wms-execute-form">
+        ${formSection('采购申请信息')}
+        ${purchaseExecuteApplyInfo(method)}
+        ${formSection(quoteSectionTitle)}
+        ${purchaseExecuteQuoteSection(mode)}
+        ${formSection('采购信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">采购单号</label><input type="text" value="系统自动生成" readonly class="${roCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">采购总价（元）</label><input type="text" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 发起日期</label><input type="date" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 截止日期</label><input type="date" class="${inputCls}" /></div>
+        ${formSection(otherSectionTitle)}
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">备注</label><textarea rows="4" placeholder="0/500" class="${inputCls}"></textarea></div>
+        ${sheetBlock}
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">附件</label>${purchaseExecuteUpload('支持 .rar .zip .doc .docx .pdf，单个文件不能超过 500MB')}</div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交人</label><select class="${inputCls}"><option value="" disabled selected>请选择</option><option>张三</option><option>李四</option><option>王五</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交部门</label><select class="${inputCls}"><option value="" disabled selected>请选择</option><option>采购部</option><option>设备部</option><option>工程部</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-primary">确定</button>
+      </div>
+    </div>`;
+}
+
+function pendingReturnRowActions(returnKey, status) {
+  const sample = RETURN_PENDING_SAMPLES[returnKey];
+  const type = sample?.materialType || 'fixed';
+  const formHref = returnFormPage(type);
+  const q = (extra = {}) => new URLSearchParams({ returnKey, back: 'mine_pending_return.html', ...extra }).toString();
+  if (status === '已归还' || status === '已作废') {
+    return `<a href="${formHref}?${q({ mode: 'view' })}" class="hover:underline">查看</a>`;
+  }
+  return `<a href="${formHref}?${q({ mode: 'view' })}" class="mr-2 hover:underline">查看</a><a href="${formHref}?${q()}" class="hover:underline">归还</a>`;
+}
+
+function pendingReturnRow(cells, tab, returnKey, status = '待归还') {
+  return { cells, tab, actions: pendingReturnRowActions(returnKey, status) };
+}
+
+const LIST_EMPTY = '<span class="text-slate-400">—</span>';
+
+function pendingPickupRowActions(requisitionNo) {
+  const viewQ = new URLSearchParams({ no: requisitionNo, back: 'mine_pending_pickup.html' });
+  return `<a href="mine_requisition_record.html?${viewQ}" class="hover:underline">查看</a>`;
+}
+
+function pendingPickupRow(cells, tab, requisitionNo) {
+  return { cells, tab, actions: pendingPickupRowActions(requisitionNo) };
+}
+
+const REQUISITION_RECORD_SAMPLES = {
+  LY202510001: {
+    no: 'LY202510001', name: '生产部备件领用', reason: '项目用料', plan: 'JH202509001 月度采购',
+    status: '审核通过', applicant: '李四', dept: '生产部', applyTime: '2025-08-28',
+    outboundNo: '—', outboundDate: '—', outboundQty: '—',
+    materials: [
+      { code: 'GD001001-001', name: '抓斗', spec: '455', unit: '个', qty: '5' },
+      { code: 'GD001001-002', name: '料斗', spec: '455', unit: '个', qty: '10' },
+    ],
+  },
+  LY202510002: {
+    no: 'LY202510002', name: '设备部工具领用', reason: '设备维修', plan: '—',
+    status: '审核通过', applicant: '李四', dept: '设备部', applyTime: '2025-08-30',
+    outboundNo: 'LY202510002-CK001', outboundDate: '2025-09-03', outboundQty: '10',
+    materials: [{ code: 'GD001001-003', name: '螺丝刀', spec: '455', unit: '个', qty: '10' }],
+  },
+  LY202510003: {
+    no: 'LY202510003', name: '设备部工具领用', reason: '日常办公', plan: '—',
+    status: '审核通过', applicant: '王五', dept: '设备部', applyTime: '2025-08-31',
+    outboundNo: 'LY202510003-CK001', outboundDate: '2025-09-03', outboundQty: '5',
+    materials: [{ code: 'GD001001-004', name: '扳手', spec: '455', unit: '个', qty: '5' }],
+  },
+  LY202510004: {
+    no: 'LY202510004', name: '维保部钢丝绳领用', reason: '项目用料', plan: 'JH202509002 维保计划',
+    status: '审核通过', applicant: '赵六', dept: '维保部', applyTime: '2025-09-01',
+    outboundNo: 'LY202510004-CK001', outboundDate: '2025-09-03', outboundQty: '100',
+    materials: [{ code: 'GD001001-005', name: '钢丝绳', spec: '455', unit: 'm', qty: '100' }],
+  },
+  LY202510005: {
+    no: 'LY202510005', name: '设备部工具领用', reason: '应急领用', plan: '—',
+    status: '审核通过', applicant: '李四', dept: '设备部', applyTime: '2025-07-18',
+    outboundNo: 'LY202510005-CK001', outboundDate: '2025-07-20', outboundQty: '5',
+    materials: [{ code: 'GD001001-006', name: '扳手', spec: '455', unit: '个', qty: '5' }],
+  },
+  LY202510006: {
+    no: 'LY202510006', name: '设备部工具领用', reason: '日常办公', plan: '—',
+    status: '审核通过', applicant: '王五', dept: '设备部', applyTime: '2025-07-12',
+    outboundNo: 'LY202510006-CK001', outboundDate: '2025-07-15', outboundQty: '8',
+    materials: [{ code: 'GD001001-007', name: '螺丝刀', spec: '455', unit: '个', qty: '8' }],
+  },
+};
+
+function requisitionRecordModal(backHref, rec) {
+  const statusKey = rec.status === '审核通过' ? 'success' : 'info';
+  const materialRows = rec.materials.map((m, i) =>
+    `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm text-slate-700">${i + 1}</td><td class="px-3 py-2.5 font-mono text-sm text-slate-800">${m.code}</td><td class="px-3 py-2.5 text-sm text-slate-800">${m.name}</td><td class="px-3 py-2.5 text-sm text-slate-700">${m.spec}</td><td class="px-3 py-2.5 text-sm text-slate-700">${m.unit}</td><td class="px-3 py-2.5 text-sm text-slate-800">${m.qty}</td></tr>`
+  ).join('');
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg">
+      <div class="wms-requisition-record">
+        <h4 class="mb-3 text-sm font-semibold text-slate-900">基础信息</h4>
+        <dl class="grid gap-4 sm:grid-cols-2 text-sm mb-6">
+          <div><dt class="text-slate-500">领用单号</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-req-field="no">${rec.no}</dd></div>
+          <div><dt class="text-slate-500">审批状态</dt><dd class="mt-1" data-req-field="status">${badge(rec.status, statusKey)}</dd></div>
+          <div><dt class="text-slate-500">申请名称</dt><dd class="mt-1 text-slate-900" data-req-field="name">${rec.name}</dd></div>
+          <div><dt class="text-slate-500">申请事由</dt><dd class="mt-1 text-slate-800" data-req-field="reason">${rec.reason}</dd></div>
+          <div><dt class="text-slate-500">关联计划单号</dt><dd class="mt-1 font-mono text-slate-800" data-req-field="plan">${rec.plan}</dd></div>
+          <div><dt class="text-slate-500">申请时间</dt><dd class="mt-1 text-slate-800" data-req-field="applyTime">${rec.applyTime}</dd></div>
+          <div><dt class="text-slate-500">申请人</dt><dd class="mt-1 text-slate-800" data-req-field="applicant">${rec.applicant}</dd></div>
+          <div><dt class="text-slate-500">申请部门</dt><dd class="mt-1 text-slate-800" data-req-field="dept">${rec.dept}</dd></div>
+        </dl>
+        <h4 class="mb-3 text-sm font-semibold text-slate-900">领用明细</h4>
+        <div class="mb-6 overflow-hidden rounded-xl border border-slate-200">
+          <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">序号</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资编码</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资名称</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">规格型号</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">计量单位</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">申请数量</th>
+          </tr></thead><tbody data-req-materials>${materialRows}</tbody></table>
+        </div>
+        <h4 class="mb-3 text-sm font-semibold text-slate-900">出库信息</h4>
+        <dl class="grid gap-4 sm:grid-cols-2 text-sm">
+          <div><dt class="text-slate-500">出库单号</dt><dd class="mt-1 font-mono text-slate-800" data-req-field="outboundNo">${rec.outboundNo}</dd></div>
+          <div><dt class="text-slate-500">出库日期</dt><dd class="mt-1 text-slate-800" data-req-field="outboundDate">${rec.outboundDate}</dd></div>
+          <div><dt class="text-slate-500">出库数量</dt><dd class="mt-1 text-slate-800" data-req-field="outboundQty">${rec.outboundQty}</dd></div>
+        </dl>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">关闭</a>
+      </div>
+    </div>`;
+}
+
+function purchaseMaterialTable(rows, { editable = true } = {}) {
+  const cols = ['序号', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '计量单位', '参考单价（元）', '计划数量', '采购数量', '说明', '操作'];
+  const th = cols.map(c => c === '操作' ? actionTh('px-3 py-2.5') : `<th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('');
+  const input = (v, w = 'w-20') => `<input type="text" value="${v}" class="${w} rounded-lg border border-slate-200 px-2 py-1 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" />`;
+  const tr = rows.map(r => {
+    const cells = [
+      r[0], r[1], r[2], r[3], r[4], r[5], r[6],
+      editable ? input(r[7], 'w-24') : r[7],
+      r[8],
+      editable ? input(r[9], 'w-16') : r[9],
+      editable ? input(r[10], 'w-24') : (r[10] || '—'),
+      editable ? '<button type="button" class="text-sm text-slate-600 hover:text-rose-600 hover:underline">删除</button>' : '',
+    ];
+    const dataCells = cells.slice(0, -1).map(c => `<td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('');
+    const actCell = actionTd(cells[cells.length - 1], 'px-3 py-2.5');
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/60">${dataCells}${actCell}</tr>`;
+  }).join('');
+  return `<div class="wms-purchase-section md:col-span-2">
+    <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+      <span class="text-sm font-semibold text-slate-900">采购明细</span>
+      <a href="purchase_pending_select.html" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-plus text-[10px]"></i> 添加</a>
+    </div>
+    <div class="wms-purchase-material-table wms-modal-table-wrap rounded-xl border border-slate-200">
+      <table class="min-w-full text-sm wms-data-table"><thead class="bg-slate-50/90 sticky top-0"><tr>${th}</tr></thead><tbody>${tr}</tbody></table>
+    </div>
+  </div>`;
+}
+
+function requisitionMaterialTable(rows, { addHref = 'apply_requisition_add_material.html' } = {}) {
+  const cols = ['序号', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '操作'];
+  const th = cols.map(c => c === '操作' ? actionTh('px-3 py-2.5') : `<th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('');
+  const tr = rows.map(r => {
+    const dataCells = r.map((c, i) => {
+      const content = i === 1 ? `<span class="font-mono text-xs">${c}</span>` : c;
+      return `<td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${content}</td>`;
+    }).join('');
+    const actions = actionTd('<a href="#" class="mr-3 wms-link-primary hover:underline">编辑</a><button type="button" class="wms-link-primary hover:underline">删除</button>', 'px-3 py-2.5');
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/60">${dataCells}${actions}</tr>`;
+  }).join('');
+  return `<div class="wms-requisition-section md:col-span-2">
+    <h3 class="wms-form-section-title mb-3">申请物资</h3>
+    <div class="overflow-hidden rounded-xl border border-slate-200">
+      <div class="flex justify-end border-b border-slate-100 bg-white px-3 py-2">
+        <a href="${addHref}" class="wms-requisition-add-btn"><i class="fa-solid fa-plus text-[10px]"></i> 添加</a>
+      </div>
+      <div class="wms-modal-table-wrap rounded-none border-0">
+        <table class="min-w-full text-sm wms-data-table"><thead class="bg-slate-50/90 sticky top-0"><tr>${th}</tr></thead><tbody>${tr}</tbody></table>
+      </div>
+    </div>
+  </div>`;
+}
+
+function requisitionFormPage(backHref = 'apply_requisition_list.html') {
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
+  const rows = [
+    ['1', 'GD001001-001', '抓斗', '455', '资产-固定资产', '设备-配件'],
+    ['2', 'GD001001-002', '料斗', '455', '资产-固定资产', '设备-配件'],
+  ];
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl">
+      <div class="wms-modal-form wms-warehouse-form wms-requisition-form">
+        ${formSection('基础信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请单号</label><input type="text" value="系统自动生成" readonly class="${roCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请事由</label><select class="${inputCls}"><option value="" disabled selected>请选择</option><option>日常办公</option><option>设备维修</option><option>项目用料</option><option>应急领用</option></select></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请名称</label><input type="text" placeholder="请输入" class="${inputCls}" /></div>
+        <div class="md:col-span-2">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">关联计划单号</label>
+          <div class="flex flex-wrap gap-2">
+            <select class="w-full shrink-0 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200 sm:w-36"><option selected>物资计划</option><option>不关联</option></select>
+            <select class="min-w-0 flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>月度采购（ID: JH202509001）</option><option>JH202606090001 六月办公物资计划</option></select>
+          </div>
+        </div>
+        ${requisitionMaterialTable(rows)}
+        ${formSection('其他')}
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">说明</label><textarea rows="4" placeholder="0/500" class="${inputCls}"></textarea></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">凭证</label>${uploadZone()}</div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请人</label><select class="${inputCls}"><option value="" disabled selected>请选择</option><option>张三</option><option>李四</option><option>王五</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请部门</label><select class="${inputCls}"><option value="" disabled selected>请选择</option><option>设备部</option><option>工程部</option><option>采购部</option><option>行政部</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-secondary">保存</button>
+        <button type="button" class="wms-btn wms-btn-primary">发起审核</button>
+      </div>
+    </div>`;
+}
+
+const ACCEPTANCE_SUPPLY_SAMPLES = {
+  GH2025001: { supplyNo: 'GH2025001', supplier: '科尼', supplierStatus: '正常', code: 'GD001001-001', name: '抓斗', major: '资产-固定资产', minor: '设备-配件', spec: '455', unit: '个', required: '10', pending: '0', supplied: '10', qualified: '10', unqualified: '0', accepted: '10' },
+  GH2025002: { supplyNo: 'GH2025002', supplier: '上海佩纳', supplierStatus: '正常', code: 'GD001001-002', name: '料斗', major: '资产-固定资产', minor: '设备-配件', spec: '455', unit: '个', required: '10', pending: '0', supplied: '10', qualified: '10', unqualified: '0', accepted: '10' },
+  GH2025003: { supplyNo: 'GH2025003', supplier: '河南蒲瑞', supplierStatus: '正常', code: 'GD001001-003', name: '钢丝绳', major: '资产-固定资产', minor: '设备-配件', spec: '455', unit: 'm', required: '100', pending: '50', supplied: '50', qualified: '50', unqualified: '0', accepted: '50' },
+  GH2025004: { supplyNo: 'GH2025004', supplier: '江苏华能电子有限公司', supplierStatus: '正常', code: 'GD001001-004', name: '螺丝刀', major: '资产-固定资产', minor: '设备-配件', spec: '455', unit: '个', required: '20', pending: '10', supplied: '10', qualified: '9', unqualified: '1', accepted: '10' },
+  GH2025005: { supplyNo: 'GH2025005', supplier: '宁波北仑君威有限公司', supplierStatus: '正常', code: 'GD001001-005', name: '扳手', major: '资产-固定资产', minor: '设备-配件', spec: '455', unit: '个', required: '20', pending: '20', supplied: '0', qualified: '0', unqualified: '0', accepted: '0' },
+};
+
+function purchaseSupplyInfoGrid(sample = {}) {
+  const d = {
+    supplyNo: 'GH2025003',
+    supplier: '河南蒲瑞',
+    code: 'GD001001-003',
+    name: '钢丝绳',
+    required: '100',
+    supplied: '50',
+    qualified: '50',
+    unqualified: '0',
+    returned: '0',
+    pending: '50',
+    ...sample,
+  };
+  const pair = (label, key, value) =>
+    `<td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">${label}</td><td class="px-4 py-2.5 text-sm text-slate-800" data-supply-field="${key}">${value}</td>`;
+  const row = (left, right, border = true) =>
+    `<tr${border ? ' class="border-t border-slate-200"' : ''}>${pair(left[0], left[1], left[2])}${pair(right[0], right[1], right[2])}</tr>`;
+  return `<div class="md:col-span-2 wms-supply-info-grid overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm"><tbody>
+      ${row(['物资供货单号', 'supplyNo', d.supplyNo], ['供应商名称', 'supplier', d.supplier], false)}
+      ${row(['物资编码', 'code', d.code], ['物资名称', 'name', d.name])}
+      ${row(['需求数量', 'required', d.required], ['已供货数量', 'supplied', d.supplied])}
+      ${row(['合格数量', 'qualified', d.qualified], ['不合格数量', 'unqualified', d.unqualified])}
+      ${row(['退货数量', 'returned', d.returned], ['待供货数量', 'pending', d.pending])}
+    </tbody></table>
+  </div>`;
+}
+
+function purchaseSupplyCompletePage(backHref = 'purchase_supply_list.html', sample = {}) {
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const d = { ...ACCEPTANCE_SUPPLY_SAMPLES.GH2025003, returned: '0', ...sample };
+  const gridSample = {
+    supplyNo: d.supplyNo,
+    supplier: d.supplier,
+    code: d.code,
+    name: d.name,
+    required: d.required,
+    supplied: d.supplied,
+    qualified: d.qualified,
+    unqualified: d.unqualified,
+    returned: d.returned || '0',
+    pending: d.pending,
+  };
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg" data-wms-supply-complete>
+      <p class="mb-4 hidden rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-800" data-supply-from-hint>
+        <i class="fa-solid fa-circle-info mr-1.5"></i>从物资验收进入 · 提交后将同步关闭验收待办，并返回物资验收列表
+      </p>
+      <div class="wms-modal-form wms-warehouse-form wms-supply-complete-form">
+        ${formSection('供货信息')}
+        ${purchaseSupplyInfoGrid(gridSample)}
+        ${formSection('其他信息')}
+        <p class="md:col-span-2 text-sm text-slate-500">一些特殊情况，无法完成供货，给予相应的订单终结</p>
+        <div class="md:col-span-2">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 完成供货</label>
+          <div class="flex flex-wrap gap-4 pt-1">
+            <label class="inline-flex items-center gap-2 text-sm text-slate-700"><input type="radio" name="supplyComplete" class="border-slate-300 text-slate-900" value="是" /><span>是</span></label>
+            <label class="inline-flex items-center gap-2 text-sm text-slate-700"><input type="radio" name="supplyComplete" class="border-slate-300 text-slate-900" value="否" checked /><span>否</span></label>
+          </div>
+        </div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 说明</label><textarea rows="4" placeholder="0/500" data-supply-complete-remark class="${inputCls}"></textarea></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">附件</label>${uploadZone()}</div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary" data-supply-back-link>取消</a>
+        <button type="button" class="wms-btn wms-btn-primary" data-supply-complete-submit>确定</button>
+      </div>
+    </div>`;
+}
+
+function acceptanceStatusBadge(status) {
+  const map = { '待验收': 'warning', '验收中': 'info', '已验收': 'success' };
+  return badge(status, map[status] || 'info');
+}
+
+function supplyStatusBadge(status) {
+  const map = { '待供货': 'info', '供货中': 'warning', '已供货': 'success' };
+  return badge(status, map[status] || 'info');
+}
+
+function supplyRowActions(supplyNo, status) {
+  const q = (extra = {}) => {
+    const p = new URLSearchParams({ no: supplyNo, back: 'purchase_supply_list.html', ...extra });
+    return p.toString();
+  };
+  const view = `<a href="#" class="mr-2 hover:underline">查看</a>`;
+  if (status === '已供货') return view;
+  return `${view}<a href="purchase_supply_complete.html?${q()}" class="hover:underline">完成供货</a>`;
+}
+
+function supplyRow(cells, status, supplyNo) {
+  return { cells, tab: status, actions: supplyRowActions(supplyNo, status) };
+}
+
+function acceptanceRowActions(supplyNo, status) {
+  const q = (extra = {}) => {
+    const p = new URLSearchParams({ no: supplyNo, back: 'warehouse_acceptance_list.html', ...extra });
+    return p.toString();
+  };
+  const view = `<a href="warehouse_acceptance_detail.html?${q()}" class="mr-2 hover:underline">查看</a>`;
+  if (status === '已验收') return view;
+  return `${view}<a href="warehouse_acceptance_form.html?${q()}" class="mr-2 hover:underline">验收</a><a href="warehouse_acceptance_record.html?${q()}" class="mr-2 hover:underline">验收记录</a><a href="purchase_supply_complete.html?${q({ from: 'acceptance' })}" class="hover:underline">完成供货</a>`;
+}
+
+function acceptanceRow(cells, status, supplyNo) {
+  return { cells, tab: status, actions: acceptanceRowActions(supplyNo, status) };
+}
+
+function acceptanceSupplyHeaderGrid(sample = {}) {
+  const d = { ...ACCEPTANCE_SUPPLY_SAMPLES.GH2025001, ...sample };
+  const pair = (label, key, value) =>
+    `<td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">${label}</td><td class="px-4 py-2.5 text-sm text-slate-800" data-accept-field="${key}">${value}</td>`;
+  const row = (left, right, border = true) =>
+    `<tr${border ? ' class="border-t border-slate-200"' : ''}>${pair(left[0], left[1], left[2])}${pair(right[0], right[1], right[2])}</tr>`;
+  return `<div class="md:col-span-2 wms-supply-info-grid overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm"><tbody>
+      ${row(['物资供货单号', 'supplyNo', d.supplyNo], ['供应商名称', 'supplier', d.supplier], false)}
+      ${row(['物资编码', 'code', d.code], ['物资名称', 'name', d.name])}
+      ${row(['物资大类', 'major', d.major], ['物资子类', 'minor', d.minor])}
+      ${row(['规格型号', 'spec', d.spec], ['计量单位', 'unit', d.unit])}
+      ${row(['需求数量', 'required', d.required], ['待供货数量', 'pending', d.pending])}
+      ${row(['已供货数量', 'supplied', d.supplied], ['供应商状态', 'supplierStatus', badge(d.supplierStatus, 'success')])}
+    </tbody></table>
+  </div>`;
+}
+
+function acceptanceDetailPage(backHref = 'warehouse_acceptance_list.html', sample = {}) {
+  const d = { ...ACCEPTANCE_SUPPLY_SAMPLES.GH2025001, ...sample };
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg" data-wms-acceptance-supply>
+      <div class="wms-acceptance-detail">
+        ${formSection('供货信息')}
+        ${acceptanceSupplyHeaderGrid(d)}
+        ${formSection('验收进度')}
+        <dl class="grid gap-4 sm:grid-cols-2 text-sm">
+          <div><dt class="text-slate-500">需求数量</dt><dd class="mt-1 text-slate-800" data-accept-field="required">${d.required}</dd></div>
+          <div><dt class="text-slate-500">已验收数量</dt><dd class="mt-1 text-slate-800" data-accept-field="accepted">${d.accepted}</dd></div>
+          <div><dt class="text-slate-500">合格数量</dt><dd class="mt-1 text-slate-800" data-accept-field="qualified">${d.qualified}</dd></div>
+          <div><dt class="text-slate-500">不合格数量</dt><dd class="mt-1 text-slate-800" data-accept-field="unqualified">${d.unqualified}</dd></div>
+        </dl>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">关闭</a>
+      </div>
+    </div>`;
+}
+
+function acceptanceFormPage(backHref = 'warehouse_acceptance_list.html', sample = {}) {
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
+  const d = { ...ACCEPTANCE_SUPPLY_SAMPLES.GH2025001, ...sample };
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-acceptance-supply>
+      <div class="wms-modal-form wms-warehouse-form wms-acceptance-form">
+        ${formSection('供货信息')}
+        ${acceptanceSupplyHeaderGrid(d)}
+        ${formSection('验收信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">验收单号</label><input type="text" value="${d.supplyNo}-YS01" readonly data-accept-field="recordNo" class="${roCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 批次单号</label><input type="text" value="1" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 本批次供货数量</label><input type="number" placeholder="请输入" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 验收日期</label><input type="date" value="2025-11-29" class="${inputCls}" /></div>
+        <div class="md:col-span-2 flex flex-wrap items-end gap-3">
+          <div class="min-w-[200px] flex-1"><label class="mb-1.5 block text-sm font-medium text-slate-700">验收标准</label><input type="text" value="设备-配件验收标准" readonly class="${roCls}" /></div>
+          <a href="config_acceptance_standard.html" class="mb-0.5 inline-flex items-center rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">查看</a>
+        </div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 仓库验收人员</label><select class="${inputCls}"><option value="" disabled selected>请选择</option><option>张仓管</option><option>李仓管</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 计划验收人员</label><select class="${inputCls}"><option value="" disabled selected>请选择</option><option>王工</option><option>赵工</option></select></div>
+        ${formSection('合格物资')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 本批次合格数量</label><input type="number" placeholder="请输入" class="${inputCls}" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">附件</label>${uploadZone()}</div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">照片</label>${photoUploadZone()}</div>
+        ${formSection('不合格物资')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">本批次不合格数量</label><input type="number" value="0" class="${inputCls}" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">不合格说明</label><textarea rows="3" placeholder="0/500" class="${inputCls}"></textarea></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">处理方式</label><select class="${inputCls}"><option value="" disabled selected>请选择</option><option>退货</option><option>换货</option><option>让步接收</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">处理截止日期</label><input type="date" class="${inputCls}" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">附件</label>${uploadZone()}</div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">照片</label>${photoUploadZone()}</div>
+        ${formSection('其他')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交人</label><select class="${inputCls}"><option value="" disabled selected>请选择</option><option>张仓管</option><option>李仓管</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交部门</label><select class="${inputCls}"><option value="" disabled selected>请选择</option><option>物资管理部</option><option>设备部</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-secondary">保存</button>
+        <button type="button" class="wms-btn wms-btn-primary">确定</button>
+      </div>
+    </div>`;
+}
+
+function acceptanceRecordRefundLink(recordNo) {
+  const refundKey = REFUND_BY_ACCEPT[recordNo];
+  if (!refundKey || !REFUND_PENDING_SAMPLES[refundKey]) return '';
+  const formHref = refundFormPage(refundKey);
+  return `<a href="${formHref}?${new URLSearchParams({ refundKey, back: 'warehouse_refund_list.html' })}" class="ml-2 text-rose-600 hover:underline">发起退货</a>`;
+}
+
+function acceptanceRecordRow(cells, actions) {
+  return { cells, actions };
+}
+
+function acceptanceRecordPage(backHref = 'warehouse_acceptance_list.html', supplyNo = 'GH2025003') {
+  const d = ACCEPTANCE_SUPPLY_SAMPLES[supplyNo] || ACCEPTANCE_SUPPLY_SAMPLES.GH2025003;
+  const columns = ['序号', '验收单号', '本批次供货数量', '合格数量', '不合格数量', '物资供货单号', '供应商名称', '验收日期', '仓库验收人员', '计划验收人员', '审批状态'];
+  const recordBack = encodeURIComponent(`warehouse_acceptance_record.html?no=${supplyNo}&back=${encodeURIComponent(backHref)}`);
+  const rows = supplyNo === 'GH2025005' ? [] : [
+    acceptanceRecordRow(['1', `${supplyNo}-YS01`, '30', '30', '0', supplyNo, d.supplier, '2025-11-20', '张仓管', '王工', badge('审核中', 'warning')], `<a href="warehouse_acceptance_record_detail.html?no=${supplyNo}-YS01&back=${recordBack}" class="mr-2 hover:underline">查看</a><a href="#" class="hover:underline">审核</a>`),
+    ...(supplyNo === 'GH2025004' ? [acceptanceRecordRow(['2', `${supplyNo}-YS02`, '10', '9', '1', supplyNo, d.supplier, '2025-11-25', '李仓管', '赵工', badge('审核通过', 'success')], `<a href="warehouse_acceptance_record_detail.html?no=${supplyNo}-YS02&back=${recordBack}" class="mr-2 hover:underline">查看</a>${acceptanceRecordRefundLink(`${supplyNo}-YS02`)}`)] : []),
+  ];
+  const th = columns.map(c => `<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('') + actionTh('px-4 py-3');
+  const tr = rows.map(r => {
+    const search = r.cells.map(stripCellText).join(' ').toLowerCase();
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-search="${search}">${r.cells.map(c => `<td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('')}${actionTd(r.actions, 'px-4 py-3.5 text-slate-900')}</tr>`;
+  }).join('');
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-acceptance-record data-accept-supply-no="${supplyNo}">
+      <p class="mb-4 text-sm text-slate-500">供货单 <span class="font-mono font-medium text-slate-800" data-accept-field="supplyNo">${supplyNo}</span> 的验收记录，按添加时间降序</p>
+      <div class="card overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div class="overflow-x-auto wms-modal-table-wrap"><table class="min-w-full wms-data-table"><thead class="bg-slate-50/80"><tr>${th}</tr></thead><tbody data-accept-records-tbody>${tr || `<tr><td colspan="${columns.length + 1}" class="px-4 py-12 text-center text-sm text-slate-400">暂无验收记录</td></tr>`}</tbody></table></div>
+      </div>
+      <div class="wms-modal-footer mt-4">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">关闭</a>
+        <a href="warehouse_acceptance_form.html?no=${supplyNo}&back=${encodeURIComponent(backHref)}" class="wms-btn wms-btn-primary">新增验收</a>
+      </div>
+    </div>`;
+}
+
+const ACCEPTANCE_RECORD_DETAIL_SAMPLES = {
+  'GH2025003-YS01': { no: 'GH2025003-YS01', batchNo: '1', batchQty: '30', qualified: '30', unqualified: '0', date: '2025-11-20', warehouse: '张仓管', planner: '王工', unqualifiedRemark: '—', disposition: '—', status: '审核中', refundKey: '' },
+  'GH2025004-YS02': { no: 'GH2025004-YS02', batchNo: '2', batchQty: '10', qualified: '9', unqualified: '1', date: '2025-11-25', warehouse: '李仓管', planner: '赵工', unqualifiedRemark: '刀头断裂，无法使用', disposition: '退货', status: '审核通过', refundKey: 'GH2025004-YS02-TH' },
+};
+
+function acceptanceRecordDetailPage(backHref = 'warehouse_acceptance_record.html', recordNo = 'GH2025003-YS01') {
+  const d = ACCEPTANCE_RECORD_DETAIL_SAMPLES[recordNo] || ACCEPTANCE_RECORD_DETAIL_SAMPLES['GH2025003-YS01'];
+  const inputCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600';
+  const refundKey = d.refundKey || REFUND_BY_ACCEPT[recordNo] || '';
+  const refundHref = refundKey ? `${refundFormPage(refundKey)}?${new URLSearchParams({ refundKey, back: 'warehouse_refund_list.html' })}` : '';
+  const refundBtn = refundHref ? `<a href="${refundHref}" class="wms-btn wms-btn-primary">发起退货</a>` : '';
+  const dispositionBlock = Number(d.unqualified) > 0 ? `
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">处理方式</label><input type="text" value="${d.disposition || '—'}" readonly class="${inputCls}" data-accept-record-field="disposition" /></div>
+        ${d.disposition === '退货' && refundKey ? `<div class="md:col-span-2 rounded-xl border border-orange-100 bg-orange-50/50 p-4 text-xs text-slate-600">审核通过后已生成退货待办 <span class="font-mono font-medium">${refundKey}</span>，可在<a href="warehouse_refund_list.html" class="font-medium text-slate-900 hover:underline">物资退货</a>列表执行。</div>` : ''}` : '';
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg" data-wms-acceptance-record-detail data-accept-record-no="${recordNo}">
+      <div class="wms-modal-form wms-acceptance-record-detail">
+        ${formSection('验收信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">验收单号</label><input type="text" value="${d.no}" readonly class="${inputCls}" data-accept-record-field="no" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">批次单号</label><input type="text" value="${d.batchNo}" readonly class="${inputCls}" data-accept-record-field="batchNo" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">本批次供货数量</label><input type="text" value="${d.batchQty}" readonly class="${inputCls}" data-accept-record-field="batchQty" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">验收日期</label><input type="text" value="${d.date}" readonly class="${inputCls}" data-accept-record-field="date" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">仓库验收人员</label><input type="text" value="${d.warehouse}" readonly class="${inputCls}" data-accept-record-field="warehouse" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">计划验收人员</label><input type="text" value="${d.planner}" readonly class="${inputCls}" data-accept-record-field="planner" /></div>
+        ${formSection('合格物资')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">本批次合格数量</label><input type="text" value="${d.qualified}" readonly class="${inputCls}" data-accept-record-field="qualified" /></div>
+        ${formSection('不合格物资')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">本批次不合格数量</label><input type="text" value="${d.unqualified}" readonly class="${inputCls}" data-accept-record-field="unqualified" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">不合格说明</label><textarea rows="2" readonly class="${inputCls}" data-accept-record-field="unqualifiedRemark">${d.unqualifiedRemark || '—'}</textarea></div>
+        ${dispositionBlock}
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">关闭</a>
+        ${refundBtn}
+      </div>
+    </div>`;
+}
+
+const INBOUND_ACCEPT_SAMPLES = {
+  'GH2025001-YS01': {
+    acceptNo: 'GH2025001-YS01', supplyNo: 'GH2025001', acceptDate: '2025-08-08',
+    supplier: '中铁1局', supplierStatus: '正常', contact: '张飞', phone: '134 5558 4564',
+    code: 'GD001001-001', name: '抓斗', major: '资产-固定资产', minor: '设备-配件',
+    spec: '4m³-Q345B', unit: '个', qualified: '10', inboundQty: '0', pendingQty: '10',
+    materialType: 'fixed', inboundNo: '', inboundDate: '', status: '待入库',
+    operator: '张仓管', department: '物资管理部', remark: '', locations: [],
+  },
+  'GH2025003-YS01': {
+    acceptNo: 'GH2025003-YS01', supplyNo: 'GH2025003', acceptDate: '2025-11-20',
+    supplier: '河南蒲瑞', supplierStatus: '正常', contact: '李经理', phone: '138 0000 1234',
+    code: 'LA-00456', name: '钢丝绳', major: '资产-类资产', minor: '防汛设备',
+    spec: 'Φ18×100m', unit: 'm', qualified: '50', inboundQty: '30', pendingQty: '20',
+    materialType: 'like', inboundNo: '', inboundDate: '', status: '部分入库',
+    operator: '', department: '', remark: '', locations: [],
+  },
+  'GH2025004-YS01': {
+    acceptNo: 'GH2025004-YS01', supplyNo: 'GH2025004', acceptDate: '2025-11-22',
+    supplier: '江苏华能电子有限公司', supplierStatus: '正常', contact: '王工', phone: '139 1111 2233',
+    code: 'LA-00456', name: '电钻', major: '资产-类资产', minor: '电动工具',
+    spec: '650W', unit: '台', qualified: '9', inboundQty: '0', pendingQty: '9',
+    materialType: 'like', inboundNo: '', inboundDate: '', status: '待入库',
+    operator: '', department: '', remark: '', locations: [],
+  },
+  'GH2025006-YS01': {
+    acceptNo: 'GH2025006-YS01', supplyNo: 'GH2025006', acceptDate: '2025-11-25',
+    supplier: '鄂东办公用品', supplierStatus: '正常', contact: '陈经理', phone: '137 6666 7788',
+    code: 'HC-00089', name: '打印纸 A4', major: '耗材-办公耗材', minor: '办公用纸',
+    spec: 'A4/80g/500张', unit: '箱', qualified: '200', inboundQty: '0', pendingQty: '200',
+    materialType: 'consumable', inboundNo: '', inboundDate: '', status: '待入库',
+    operator: '', department: '', remark: '', locations: [],
+  },
+  'GH2025002-YS01': {
+    acceptNo: 'GH2025002-YS01', supplyNo: 'GH2025002', acceptDate: '2025-11-16',
+    supplier: '鄂东办公用品', supplierStatus: '正常', contact: '陈经理', phone: '137 6666 7788',
+    code: 'HC-00128', name: '安全帽', major: '耗材-劳保耗材', minor: '安全防护',
+    spec: '标准型', unit: '顶', qualified: '200', inboundQty: '200', pendingQty: '0',
+    materialType: 'consumable', inboundNo: 'RK202509002', inboundDate: '2025-11-18', status: '已入库',
+    operator: '李仓管', department: '物资管理部', remark: '首批入库完成',
+    locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ001', level: '1层', qty: '200' }],
+  },
+};
+
+const INBOUND_FORM_PAGES = {
+  fixed: 'warehouse_inbound_fixed_form.html',
+  like: 'warehouse_inbound_like_form.html',
+  consumable: 'warehouse_inbound_consumable_form.html',
+};
+
+function inboundFormPage(materialType) {
+  return INBOUND_FORM_PAGES[materialType] || 'warehouse_inbound_form.html';
+}
+
+function inboundStatusBadge(status) {
+  const map = { '待入库': 'warning', '部分入库': 'info', '已入库': 'success' };
+  return badge(status, map[status] || 'info');
+}
+
+function inboundRefundHref(acceptNo) {
+  const refundKey = REFUND_BY_ACCEPT[acceptNo];
+  if (!refundKey || !REFUND_PENDING_SAMPLES[refundKey]) return '';
+  const formHref = refundFormPage(refundKey);
+  return `${formHref}?${new URLSearchParams({ refundKey, back: 'warehouse_inbound_list.html' })}`;
+}
+
+function inboundRowActions(acceptNo, status) {
+  const sample = INBOUND_ACCEPT_SAMPLES[acceptNo];
+  const type = sample?.materialType || 'fixed';
+  const formHref = inboundFormPage(type);
+  const q = (extra = {}) => {
+    const p = new URLSearchParams({ acceptNo, back: 'warehouse_inbound_list.html', ...extra });
+    return p.toString();
+  };
+  if (status === '已入库') {
+    const refundHref = inboundRefundHref(acceptNo);
+    const refundLink = refundHref ? `<a href="${refundHref}" class="ml-2 text-rose-600 hover:underline">退供应商</a>` : '';
+    return `<a href="${formHref}?${q({ mode: 'view' })}" class="hover:underline">查看</a>${refundLink}`;
+  }
+  return `<a href="${formHref}?${q({ mode: 'view' })}" class="mr-2 hover:underline">查看</a><a href="${formHref}?${q()}" class="hover:underline">入库</a>`;
+}
+
+function inboundRow(cells, status, acceptNo) {
+  const tab = status === '已入库' ? '已入库' : '待入库';
+  return { cells, tab, actions: inboundRowActions(acceptNo, status) };
+}
+
+function inboundReadonlyGrid(pairs) {
+  const pair = (label, key, value) =>
+    `<td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">${label}</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="${key}">${value}</td>`;
+  const row = (left, right, border = true) =>
+    `<tr${border ? ' class="border-t border-slate-200"' : ''}>${pair(left[0], left[1], left[2])}${pair(right[0], right[1], right[2])}</tr>`;
+  const rows = pairs.map((p, i) => row(p[0], p[1], i > 0)).join('');
+  return `<div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm"><tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+function inboundSupplierGrid(d) {
+  return inboundReadonlyGrid([
+    [['供应商名称', 'supplier', d.supplier], ['供应商状态', 'supplierStatus', badge(d.supplierStatus, 'success')]],
+    [['联系人', 'contact', d.contact], ['联系电话', 'phone', d.phone]],
+  ]);
+}
+
+function inboundAcceptGrid(d) {
+  return inboundReadonlyGrid([
+    [['验收单号', 'acceptNo', d.acceptNo], ['验收日期', 'acceptDate', d.acceptDate]],
+    [['物资编码', 'code', d.code], ['物资名称', 'name', d.name]],
+    [['物资大类', 'major', d.major], ['物资子类', 'minor', d.minor]],
+    [['规格型号', 'spec', d.spec], ['计量单位', 'unit', d.unit]],
+    [['合格数量', 'qualified', d.qualified], ['待入库数量', 'pendingQty', `<span class="font-semibold text-slate-900">${d.pendingQty}</span>`]],
+  ]);
+}
+
+function inboundLocationRowHtml(deletable = false) {
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const delBtn = deletable
+    ? `<button type="button" class="mb-0.5 shrink-0 text-sm text-rose-600 hover:underline" data-inbound-loc-remove>删除</button>`
+    : '<span class="w-10"></span>';
+  return `<div class="inbound-loc-row mb-3 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_100px_auto] sm:items-end" data-inbound-loc-row>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600"><span class="text-rose-500">*</span> 仓库</label><select data-inbound-warehouse class="${inputCls}"><option value="" disabled selected>请选择</option><option>主仓库</option><option>辅仓库</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600">货架</label><select data-inbound-shelf class="${inputCls}"><option value="" disabled selected>请选择</option><option>CK001001-HJ001</option><option>CK001001-HJ002</option><option>CK001001-HJ003</option><option>CK001001-HJ101</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600">架层</label><select data-inbound-level class="${inputCls}"><option value="" disabled selected>请选择</option><option>1层</option><option>2层</option><option>3层</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600"><span class="text-rose-500">*</span> 数量</label><input type="number" min="1" data-inbound-qty placeholder="请输入" class="${inputCls}" /></div>
+    ${delBtn}
+  </div>`;
+}
+
+function inboundLocationsSection(viewMode = false, locations = []) {
+  if (viewMode && locations.length) {
+    const tr = locations.map((loc, i) =>
+      `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">${i + 1}</td><td class="px-3 py-2.5 text-sm">${loc.warehouse}</td><td class="px-3 py-2.5 text-sm">${loc.shelf}</td><td class="px-3 py-2.5 text-sm">${loc.level}</td><td class="px-3 py-2.5 text-sm font-medium">${loc.qty}</td></tr>`
+    ).join('');
+    return `<div class="md:col-span-2" data-wms-inbound-locations>
+      ${formSection('存放位置')}
+      <div class="overflow-hidden rounded-xl border border-slate-200"><table class="min-w-full text-sm"><thead class="bg-slate-50"><tr><th class="px-3 py-2 text-left text-xs text-slate-500">序号</th><th class="px-3 py-2 text-left text-xs text-slate-500">仓库</th><th class="px-3 py-2 text-left text-xs text-slate-500">货架</th><th class="px-3 py-2 text-left text-xs text-slate-500">架层</th><th class="px-3 py-2 text-left text-xs text-slate-500">数量</th></tr></thead><tbody>${tr}</tbody></table></div>
+    </div>`;
+  }
+  return `<div class="md:col-span-2" data-wms-inbound-locations>
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <h4 class="text-sm font-semibold text-slate-800">存放位置</h4>
+      <div class="flex gap-3">
+        <button type="button" class="text-sm font-medium text-slate-700 hover:underline" data-inbound-loc-add>添加</button>
+      </div>
+    </div>
+    <div data-inbound-loc-list>${inboundLocationRowHtml(false)}</div>
+    <p class="mt-2 text-xs text-slate-500">入库的物资可能存放在不同位置；各行数量之和不超过待入库数量 <strong data-inbound-pending-qty-display>—</strong></p>
+    <div class="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-sky-100 bg-sky-50/80 p-3" data-wms-inbound-loc-scan>
+      <button type="button" id="wms-inbound-scan-loc" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-qrcode"></i> 扫描货位码</button>
+      <span class="text-xs text-slate-600">扫描 <code class="rounded bg-white/80 px-1">wms://loc/</code> 货位码自动填充首行仓库/货架（演示：CK001001-HJ001）</span>
+    </div>
+  </div>`;
+}
+
+function warehouseInboundFormPage(backHref = 'warehouse_inbound_list.html', sample = {}) {
+  const d = { ...INBOUND_ACCEPT_SAMPLES['GH2025001-YS01'], ...sample };
+  const viewMode = !!d.viewMode;
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
+  const disAttr = viewMode ? ' disabled' : '';
+  const roAttr = viewMode ? `readonly class="${roCls}"` : `class="${inputCls}"`;
+  const isFixed = d.materialType === 'fixed';
+  const isLike = d.materialType === 'like';
+  const isConsumable = d.materialType === 'consumable';
+  const inboundNo = d.inboundNo || `RK${new Date().toISOString().slice(0, 10).replace(/-/g, '')}001`;
+  const fixedBanner = isFixed && !viewMode ? `<div class="md:col-span-2 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
+    <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-qrcode text-blue-500"></i> 固定资产入库将自动生成资产编码</div>
+    <p class="text-xs text-slate-600">每件生成唯一 asset_code（规则 ZC+日期+序号），入库完成后可批量下载标签 ZIP；每行货位数量固定为 1。</p>
+  </div>` : '';
+  const likeBanner = isLike && !viewMode ? `<div class="md:col-span-2 rounded-xl border border-amber-100 bg-amber-50/50 p-4">
+    <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-screwdriver-wrench text-amber-600"></i> 类资产按数量入库</div>
+    <p class="text-xs text-slate-600">以物资编码标识库存，同编码同货位可累加数量；需归还的类资产在出库后进入待还物资。</p>
+  </div>` : '';
+  const consumableBanner = isConsumable && !viewMode ? `<div class="md:col-span-2 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
+    <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-boxes-stacked text-emerald-600"></i> 耗材按数量入库</div>
+    <p class="text-xs text-slate-600">消耗型物资，同编码同货位库存累加；出库时按 FIFO 原则扣减，一般不强制归还。</p>
+  </div>` : '';
+  const typeBanner = fixedBanner || likeBanner || consumableBanner;
+
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-inbound-form data-inbound-material-type="${d.materialType}">
+      <div class="wms-modal-form wms-warehouse-form wms-inbound-form">
+        ${formSection('供应商信息')}
+        ${inboundSupplierGrid(d)}
+        ${formSection('验收信息')}
+        ${inboundAcceptGrid(d)}
+        ${formSection('入库信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">入库单号</label><input type="text" value="${inboundNo}" readonly data-inbound-field="inboundNo" class="${roCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 入库日期</label><input type="date" value="${d.inboundDate || '2025-11-29'}" data-inbound-field="inboundDate"${disAttr} ${viewMode ? roAttr : `class="${inputCls}"`} /></div>
+        ${inboundLocationsSection(viewMode, d.locations)}
+        ${typeBanner}
+        ${formSection('其他信息')}
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">入库说明</label><textarea rows="3" placeholder="0/500" data-inbound-field="remark"${disAttr} ${viewMode ? `readonly class="${roCls}"` : `class="${inputCls}"`}>${d.remark || ''}</textarea></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">入库照片</label>${viewMode ? '<p class="text-sm text-slate-400">—</p>' : photoUploadZone()}</div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 入库人员</label><select data-inbound-field="operator"${disAttr} class="${inputCls}"><option value="" disabled${!d.operator ? ' selected' : ''}>请选择</option><option${d.operator === '张仓管' ? ' selected' : ''}>张仓管</option><option${d.operator === '李仓管' ? ' selected' : ''}>李仓管</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 入库部门</label><select data-inbound-field="department"${disAttr} class="${inputCls}"><option value="" disabled${!d.department ? ' selected' : ''}>请选择</option><option${d.department === '物资管理部' ? ' selected' : ''}>物资管理部</option><option${d.department === '设备部' ? ' selected' : ''}>设备部</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary" data-inbound-back-link>${viewMode ? '关闭' : '取消'}</a>
+        ${viewMode ? '' : '<button type="button" class="wms-btn wms-btn-primary" data-inbound-submit>确定</button>'}
+      </div>
+    </div>`;
+}
+
+function warehouseInboundListPage() {
+  const rows = [
+    inboundRow(['GH2025001-YS01', 'GH2025001', '中铁1局', 'GD001001-001', '抓斗', '4m³-Q345B', '资产-固定资产', '10', '0', '10', '—', inboundStatusBadge('待入库')], '待入库', 'GH2025001-YS01'),
+    inboundRow(['GH2025003-YS01', 'GH2025003', '河南蒲瑞', 'LA-00456', '钢丝绳', 'Φ18×100m', '资产-类资产', '50', '30', '20', '—', inboundStatusBadge('部分入库')], '部分入库', 'GH2025003-YS01'),
+    inboundRow(['GH2025004-YS01', 'GH2025004', '江苏华能电子有限公司', 'LA-00456', '电钻', '650W', '资产-类资产', '9', '0', '9', '—', inboundStatusBadge('待入库')], '待入库', 'GH2025004-YS01'),
+    inboundRow(['GH2025006-YS01', 'GH2025006', '鄂东办公用品', 'HC-00089', '打印纸 A4', 'A4/80g/500张', '耗材-办公耗材', '200', '0', '200', '—', inboundStatusBadge('待入库')], '待入库', 'GH2025006-YS01'),
+    inboundRow(['GH2025002-YS01', 'GH2025002', '鄂东办公用品', 'HC-00128', '安全帽', '标准型', '耗材-劳保耗材', '200', '200', '0', 'RK202509002', inboundStatusBadge('已入库')], '已入库', 'GH2025002-YS01'),
+  ];
+  return listPage({
+    desc: '验收记录审核通过后自动生成；支持分批入库，指定货位后更新台账',
+    tabs: ['待入库', '已入库'],
+    tabColumn: 11,
+    searchPlaceholder: '验收单号、入库单号、物资编码、物资名称',
+    filters: [{ label: '入库日期', key: 'inboundDate', column: -1, options: ['全部', '近7天', '近30天'] }],
+    columns: ['验收单号', '物资供货单号', '供应商名称', '物资编码', '物资名称', '规格型号', '物资大类', '合格数量', '已入库数量', '待入库数量', '入库单号', '入库状态'],
+    rows,
+  });
+}
+
+const OUTBOUND_REQUISITION_SAMPLES = {
+  'LY202606070002-L1': {
+    lineKey: 'LY202606070002-L1', requisitionNo: 'LY202606070002', lineId: 'L1',
+    reason: '施工现场临时用具', plan: '—', applicant: '王工', applicantDept: '工程部', applyTime: '2026-06-07',
+    code: 'GD001001-005', name: '工程测量仪', major: '资产-固定资产', minor: '办公设备',
+    spec: '全站仪 TS06', unit: '台', applyQty: '1', outboundQty: '0', pendingQty: '1',
+    materialType: 'fixed', needReturn: true, outboundNo: '', outboundDate: '', status: '待出库',
+    recipient: '王工', recipientDept: '工程部', operator: '', department: '', remark: '',
+    assetCodes: [], locations: [],
+  },
+  'LY202606070003-L1': {
+    lineKey: 'LY202606070003-L1', requisitionNo: 'LY202606070003', lineId: 'L1',
+    reason: '设备维修', plan: '—', applicant: '李工', applicantDept: '设备部', applyTime: '2026-06-07',
+    code: 'LA-00456', name: '电钻', major: '资产-类资产', minor: '电动工具',
+    spec: '650W', unit: '台', applyQty: '3', outboundQty: '0', pendingQty: '3',
+    materialType: 'like', needReturn: true, outboundNo: '', outboundDate: '', status: '待出库',
+    recipient: '李工', recipientDept: '设备部', operator: '', department: '', remark: '',
+    assetCodes: [], locations: [],
+  },
+  'LY202606070004-L1': {
+    lineKey: 'LY202606070004-L1', requisitionNo: 'LY202606070004', lineId: 'L1',
+    reason: '日常办公', plan: 'JH202606090001', applicant: '张三', applicantDept: '行政部', applyTime: '2026-06-08',
+    code: 'HC-00089', name: '打印纸 A4', major: '耗材-办公耗材', minor: '办公用纸',
+    spec: 'A4/80g/500张', unit: '箱', applyQty: '50', outboundQty: '0', pendingQty: '50',
+    materialType: 'consumable', needReturn: false, outboundNo: '', outboundDate: '', status: '待出库',
+    recipient: '张三', recipientDept: '行政部', operator: '', department: '', remark: '',
+    assetCodes: [], locations: [],
+  },
+  'LY202606070005-L1': {
+    lineKey: 'LY202606070005-L1', requisitionNo: 'LY202606070005', lineId: 'L1',
+    reason: '项目用料', plan: 'JH202509002 维保计划', applicant: '赵六', applicantDept: '维保部', applyTime: '2026-06-06',
+    code: 'LA-00457', name: '钢丝绳', major: '资产-类资产', minor: '防汛设备',
+    spec: 'Φ18×100m', unit: 'm', applyQty: '100', outboundQty: '60', pendingQty: '40',
+    materialType: 'like', needReturn: true, outboundNo: 'LY202606070005-CK001', outboundDate: '2026-06-08', status: '部分出库',
+    recipient: '赵六', recipientDept: '维保部', operator: '李仓管', department: '物资管理部', remark: '首批出库',
+    assetCodes: [], locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ002', level: '1层', qty: '60' }],
+  },
+  'LY202606010003-L1': {
+    lineKey: 'LY202606010003-L1', requisitionNo: 'LY202606010003', lineId: 'L1',
+    reason: '劳保发放', plan: '—', applicant: '张三', applicantDept: '工程部', applyTime: '2026-06-01',
+    code: 'HC-00128', name: '安全帽', major: '耗材-劳保耗材', minor: '安全防护',
+    spec: '标准型', unit: '顶', applyQty: '50', outboundQty: '50', pendingQty: '0',
+    materialType: 'consumable', needReturn: false, outboundNo: 'CK202606010003', outboundDate: '2026-06-01', status: '已出库',
+    recipient: '张三', recipientDept: '工程部', operator: '李仓管', department: '物资管理部', remark: '劳保发放完成',
+    assetCodes: [], locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ001', level: '1层', qty: '50' }],
+  },
+};
+
+const OUTBOUND_FORM_PAGES = {
+  fixed: 'warehouse_outbound_fixed_form.html',
+  like: 'warehouse_outbound_like_form.html',
+  consumable: 'warehouse_outbound_consumable_form.html',
+};
+
+function outboundFormPage(materialType) {
+  return OUTBOUND_FORM_PAGES[materialType] || 'warehouse_outbound_form.html';
+}
+
+function outboundStatusBadge(status) {
+  const map = { '待出库': 'warning', '部分出库': 'info', '已出库': 'success' };
+  return badge(status, map[status] || 'info');
+}
+
+function outboundRowActions(lineKey, status) {
+  const sample = OUTBOUND_REQUISITION_SAMPLES[lineKey];
+  const type = sample?.materialType || 'fixed';
+  const formHref = outboundFormPage(type);
+  const q = (extra = {}) => {
+    const p = new URLSearchParams({ lineKey, back: 'warehouse_outbound_list.html', ...extra });
+    return p.toString();
+  };
+  if (status === '已出库') {
+    return `<a href="${formHref}?${q({ mode: 'view' })}" class="hover:underline">查看</a>`;
+  }
+  return `<a href="${formHref}?${q({ mode: 'view' })}" class="mr-2 hover:underline">查看</a><a href="${formHref}?${q()}" class="hover:underline">出库</a>`;
+}
+
+function outboundRow(cells, status, lineKey) {
+  const tab = status === '已出库' ? '已出库' : '待出库';
+  return { cells, tab, actions: outboundRowActions(lineKey, status) };
+}
+
+function outboundReadonlyGrid(pairs) {
+  const pair = (label, key, value) =>
+    `<td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">${label}</td><td class="px-4 py-2.5 text-sm text-slate-800" data-outbound-field="${key}">${value}</td>`;
+  const row = (left, right, border = true) =>
+    `<tr${border ? ' class="border-t border-slate-200"' : ''}>${pair(left[0], left[1], left[2])}${pair(right[0], right[1], right[2])}</tr>`;
+  const rows = pairs.map((p, i) => row(p[0], p[1], i > 0)).join('');
+  return `<div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm"><tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+function outboundRequisitionGrid(d) {
+  return outboundReadonlyGrid([
+    [['领用单号', 'requisitionNo', d.requisitionNo], ['申请事由', 'reason', d.reason]],
+    [['关联计划', 'plan', d.plan || '—'], ['申请时间', 'applyTime', d.applyTime]],
+    [['申请人', 'applicant', d.applicant], ['申请部门', 'applicantDept', d.applicantDept]],
+  ]);
+}
+
+function outboundMaterialGrid(d) {
+  const needReturnLabel = d.needReturn ? badge('需归还', 'info') : badge('不需归还', 'success');
+  return outboundReadonlyGrid([
+    [['物资编码', 'code', d.code], ['物资名称', 'name', d.name]],
+    [['物资大类', 'major', d.major], ['物资子类', 'minor', d.minor]],
+    [['规格型号', 'spec', d.spec], ['计量单位', 'unit', d.unit]],
+    [['申请数量', 'applyQty', d.applyQty], ['已出库数量', 'outboundQty', d.outboundQty]],
+    [['待出库数量', 'pendingQty', `<span class="font-semibold text-slate-900">${d.pendingQty}</span>`], ['归还要求', 'needReturn', needReturnLabel]],
+  ]);
+}
+
+function outboundLocationRowHtml(deletable = false) {
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const delBtn = deletable
+    ? `<button type="button" class="mb-0.5 shrink-0 text-sm text-rose-600 hover:underline" data-outbound-loc-remove>删除</button>`
+    : '<span class="w-10"></span>';
+  return `<div class="outbound-loc-row mb-3 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_100px_auto] sm:items-end" data-outbound-loc-row>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600"><span class="text-rose-500">*</span> 仓库</label><select data-outbound-warehouse class="${inputCls}"><option value="" disabled selected>请选择</option><option>主仓库</option><option>辅仓库</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600">货架</label><select data-outbound-shelf class="${inputCls}"><option value="" disabled selected>请选择</option><option>CK001001-HJ001</option><option>CK001001-HJ002</option><option>CK001001-HJ003</option><option>CK001001-HJ101</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600">架层</label><select data-outbound-level class="${inputCls}"><option value="" disabled selected>请选择</option><option>1层</option><option>2层</option><option>3层</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600"><span class="text-rose-500">*</span> 数量</label><input type="number" min="1" data-outbound-qty placeholder="请输入" class="${inputCls}" /></div>
+    ${delBtn}
+  </div>`;
+}
+
+function outboundLocationsSection(viewMode = false, locations = [], showSection = true) {
+  if (!showSection) return '';
+  if (viewMode && locations.length) {
+    const tr = locations.map((loc, i) =>
+      `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">${i + 1}</td><td class="px-3 py-2.5 text-sm">${loc.warehouse}</td><td class="px-3 py-2.5 text-sm">${loc.shelf}</td><td class="px-3 py-2.5 text-sm">${loc.level}</td><td class="px-3 py-2.5 text-sm font-medium">${loc.qty}</td></tr>`
+    ).join('');
+    return `<div class="md:col-span-2" data-wms-outbound-locations>
+      <div class="mb-2"><h4 class="text-sm font-semibold text-slate-800">扣减货位</h4></div>
+      <div class="overflow-hidden rounded-xl border border-slate-200"><table class="min-w-full text-sm"><thead class="bg-slate-50"><tr><th class="px-3 py-2 text-left text-xs text-slate-500">序号</th><th class="px-3 py-2 text-left text-xs text-slate-500">仓库</th><th class="px-3 py-2 text-left text-xs text-slate-500">货架</th><th class="px-3 py-2 text-left text-xs text-slate-500">架层</th><th class="px-3 py-2 text-left text-xs text-slate-500">数量</th></tr></thead><tbody>${tr}</tbody></table></div>
+    </div>`;
+  }
+  return `<div class="md:col-span-2" data-wms-outbound-locations>
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <h4 class="text-sm font-semibold text-slate-800">扣减货位</h4>
+      <button type="button" class="text-sm font-medium text-slate-700 hover:underline" data-outbound-loc-add>添加</button>
+    </div>
+    <div data-outbound-loc-list>${outboundLocationRowHtml(false)}</div>
+    <p class="mt-2 text-xs text-slate-500">从指定货位扣减库存；各行数量之和不超过待出库数量 <strong data-outbound-pending-qty-display>—</strong></p>
+  </div>`;
+}
+
+function outboundFixedAssetSection(viewMode = false, assetCodes = [], backHref = 'warehouse_outbound_list.html', lineKey = '') {
+  if (viewMode && assetCodes.length) {
+    const tr = assetCodes.map((c, i) =>
+      `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">${i + 1}</td><td class="px-3 py-2.5 font-mono text-sm">${c}</td><td class="px-3 py-2.5 text-sm">主仓库/B区</td></tr>`
+    ).join('');
+    return `<div class="md:col-span-2" data-wms-outbound-assets>
+      <div class="mb-2"><h4 class="text-sm font-semibold text-slate-800">出库资产编码</h4></div>
+      <div class="overflow-hidden rounded-xl border border-slate-200"><table class="min-w-full text-sm"><thead class="bg-slate-50"><tr><th class="px-3 py-2 text-left text-xs text-slate-500">序号</th><th class="px-3 py-2 text-left text-xs text-slate-500">资产编码</th><th class="px-3 py-2 text-left text-xs text-slate-500">所在货位</th></tr></thead><tbody>${tr}</tbody></table></div>
+    </div>`;
+  }
+  const selectHref = `warehouse_outbound_select_asset.html?back=${encodeURIComponent(backHref)}&lineKey=${encodeURIComponent(lineKey)}`;
+  return `<div class="md:col-span-2" data-wms-outbound-assets>
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <h4 class="text-sm font-semibold text-slate-800">出库资产 <span class="text-xs font-normal text-slate-500">（须绑定资产编码，一码一物）</span></h4>
+      <div class="flex flex-wrap gap-2">
+        <button type="button" id="wms-outbound-scan-asset" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-qrcode"></i> 扫码添加</button>
+        <a href="${selectHref}" class="inline-flex items-center gap-1 rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-magnifying-glass"></i> 选择资产</a>
+      </div>
+    </div>
+    <div class="min-h-[3rem] rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-3" data-outbound-asset-list>
+      <p class="text-sm text-slate-400" data-outbound-asset-empty>尚未选择资产编码</p>
+    </div>
+    <p class="mt-2 text-xs text-slate-500">已选 <strong data-outbound-asset-count>0</strong> 件，待出库 <strong data-outbound-pending-qty-display>—</strong> 件</p>
+  </div>`;
+}
+
+function outboundConsumableQtySection(viewMode = false, d = {}) {
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
+  if (viewMode) {
+    const qty = d.locations?.[0]?.qty || d.outboundQty || '—';
+    return `<div class="md:col-span-2" data-wms-outbound-consumable-qty>
+      <label class="mb-1.5 block text-sm font-medium text-slate-700">本次出库数量</label>
+      <input type="text" value="${qty}" readonly class="${roCls}" data-outbound-field="thisOutboundQty" />
+      <p class="mt-2 text-xs text-slate-500">系统已按 FIFO 原则从最早入库批次扣减</p>
+    </div>`;
+  }
+  return `<div class="md:col-span-2" data-wms-outbound-consumable-qty>
+    <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 本次出库数量</label>
+    <input type="number" min="1" placeholder="请输入" data-outbound-field="thisOutboundQty" class="${inputCls}" />
+    <p class="mt-2 text-xs text-slate-500">系统将按 <strong>FIFO</strong> 原则从最早入库批次自动扣减，无需手工指定货位</p>
+  </div>`;
+}
+
+function warehouseOutboundFormPage(backHref = 'warehouse_outbound_list.html', sample = {}) {
+  const d = { ...OUTBOUND_REQUISITION_SAMPLES['LY202606070002-L1'], ...sample };
+  const viewMode = !!d.viewMode;
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
+  const disAttr = viewMode ? ' disabled' : '';
+  const isFixed = d.materialType === 'fixed';
+  const isLike = d.materialType === 'like';
+  const isConsumable = d.materialType === 'consumable';
+  const outboundNo = d.outboundNo || `CK${new Date().toISOString().slice(0, 10).replace(/-/g, '')}001`;
+  const fixedBanner = isFixed && !viewMode ? `<div class="md:col-span-2 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
+    <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-qrcode text-blue-500"></i> 固定资产须绑定资产编码出库</div>
+    <p class="text-xs text-slate-600">扫码或选择资产编码，每件对应唯一二维码；出库后资产状态变为已领用${d.needReturn ? '，并进入待还物资' : ''}。</p>
+  </div>` : '';
+  const likeBanner = isLike && !viewMode ? `<div class="md:col-span-2 rounded-xl border border-amber-100 bg-amber-50/50 p-4">
+    <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-screwdriver-wrench text-amber-600"></i> 类资产按数量出库</div>
+    <p class="text-xs text-slate-600">从指定货位扣减库存；${d.needReturn ? '需归还的类资产出库后进入待还物资。' : '本物资不需归还。'}</p>
+  </div>` : '';
+  const consumableBanner = isConsumable && !viewMode ? `<div class="md:col-span-2 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
+    <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-boxes-stacked text-emerald-600"></i> 耗材按数量出库</div>
+    <p class="text-xs text-slate-600">消耗型物资，系统默认按 FIFO 从最早批次扣减；出库后更新库存总量，一般不强制归还。</p>
+  </div>` : '';
+  const typeBanner = fixedBanner || likeBanner || consumableBanner;
+  const typeSpecific = isFixed
+    ? outboundFixedAssetSection(viewMode, d.assetCodes, backHref, d.lineKey)
+    : isLike
+      ? outboundLocationsSection(viewMode, d.locations)
+      : outboundConsumableQtySection(viewMode, d);
+
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-outbound-form data-outbound-material-type="${d.materialType}">
+      <div class="wms-modal-form wms-warehouse-form wms-outbound-form">
+        ${formSection('领用信息')}
+        ${outboundRequisitionGrid(d)}
+        ${formSection('物资信息')}
+        ${outboundMaterialGrid(d)}
+        ${formSection('出库信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">出库单号</label><input type="text" value="${outboundNo}" readonly data-outbound-field="outboundNo" class="${roCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 出库日期</label><input type="date" value="${d.outboundDate || '2026-06-09'}" data-outbound-field="outboundDate"${disAttr} ${viewMode ? `readonly class="${roCls}"` : `class="${inputCls}"`} /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 领用人</label><select data-outbound-field="recipient"${disAttr} class="${inputCls}"><option value="" disabled${!d.recipient ? ' selected' : ''}>请选择</option><option${d.recipient === '王工' ? ' selected' : ''}>王工</option><option${d.recipient === '李工' ? ' selected' : ''}>李工</option><option${d.recipient === '张三' ? ' selected' : ''}>张三</option><option${d.recipient === '赵六' ? ' selected' : ''}>赵六</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 领用部门</label><select data-outbound-field="recipientDept"${disAttr} class="${inputCls}"><option value="" disabled${!d.recipientDept ? ' selected' : ''}>请选择</option><option${d.recipientDept === '工程部' ? ' selected' : ''}>工程部</option><option${d.recipientDept === '设备部' ? ' selected' : ''}>设备部</option><option${d.recipientDept === '行政部' ? ' selected' : ''}>行政部</option><option${d.recipientDept === '维保部' ? ' selected' : ''}>维保部</option></select></div>
+        ${typeSpecific}
+        ${typeBanner}
+        ${formSection('其他信息')}
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">出库说明</label><textarea rows="3" placeholder="0/500" data-outbound-field="remark"${disAttr} ${viewMode ? `readonly class="${roCls}"` : `class="${inputCls}"`}>${d.remark || ''}</textarea></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">出库照片</label>${viewMode ? '<p class="text-sm text-slate-400">—</p>' : photoUploadZone()}</div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 出库人员</label><select data-outbound-field="operator"${disAttr} class="${inputCls}"><option value="" disabled${!d.operator ? ' selected' : ''}>请选择</option><option${d.operator === '张仓管' ? ' selected' : ''}>张仓管</option><option${d.operator === '李仓管' ? ' selected' : ''}>李仓管</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 出库部门</label><select data-outbound-field="department"${disAttr} class="${inputCls}"><option value="" disabled${!d.department ? ' selected' : ''}>请选择</option><option${d.department === '物资管理部' ? ' selected' : ''}>物资管理部</option><option${d.department === '设备部' ? ' selected' : ''}>设备部</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary" data-outbound-back-link>${viewMode ? '关闭' : '取消'}</a>
+        ${viewMode ? '' : '<button type="button" class="wms-btn wms-btn-primary" data-outbound-submit>确定</button>'}
+      </div>
+    </div>`;
+}
+
+function outboundSuccessPage() {
+  return `
+    <div class="mx-auto max-w-3xl" data-wms-outbound-success>
+      <div class="card rounded-2xl bg-white p-8 text-center">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><i class="fa-solid fa-check text-2xl"></i></div>
+        <h2 class="text-xl font-semibold text-slate-900" data-outbound-success-title>出库成功 · 资产交接</h2>
+        <p class="mt-2 text-sm text-slate-500" data-outbound-success-desc>出库单号 CK202606090001 · 领用单 LY202606070002</p>
+        <div class="mt-8 overflow-hidden rounded-xl border border-slate-200 text-left" data-outbound-success-asset-table>
+          <table class="min-w-full text-sm"><thead class="bg-slate-50"><tr><th class="px-4 py-2 text-left text-xs text-slate-500">资产编码</th><th class="px-4 py-2 text-left text-xs text-slate-500">物资名称</th><th class="px-4 py-2 text-left text-xs text-slate-500">领用人</th></tr></thead>
+          <tbody><tr class="border-t border-slate-100"><td class="px-4 py-2.5 font-mono">ZC202606001</td><td class="px-4 py-2.5">工程测量仪</td><td class="px-4 py-2.5">王工</td></tr></tbody></table>
+        </div>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <button type="button" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-print"></i> 打印领用单</button>
+          <a href="mine_pending_pickup.html" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-hand-holding"></i> 待领物资</a>
+          <a href="warehouse_outbound_list.html" class="text-sm text-slate-500 hover:text-slate-900">返回出库列表</a>
+        </div>
+      </div>
+    </div>`;
+}
+
+function warehouseOutboundListPage() {
+  const rows = [
+    outboundRow(['LY202606070002', 'GD001001-005', '工程测量仪', '全站仪 TS06', '资产-固定资产', '1', '0', '1', '王工', '工程部', '—', outboundStatusBadge('待出库')], '待出库', 'LY202606070002-L1'),
+    outboundRow(['LY202606070003', 'LA-00456', '电钻', '650W', '资产-类资产', '3', '0', '3', '李工', '设备部', '—', outboundStatusBadge('待出库')], '待出库', 'LY202606070003-L1'),
+    outboundRow(['LY202606070004', 'HC-00089', '打印纸 A4', 'A4/80g/500张', '耗材-办公耗材', '50', '0', '50', '张三', '行政部', '—', outboundStatusBadge('待出库')], '待出库', 'LY202606070004-L1'),
+    outboundRow(['LY202606070005', 'LA-00457', '钢丝绳', 'Φ18×100m', '资产-类资产', '100', '60', '40', '赵六', '维保部', 'LY202606070005-CK001', outboundStatusBadge('部分出库')], '部分出库', 'LY202606070005-L1'),
+    outboundRow(['LY202606010003', 'HC-00128', '安全帽', '标准型', '耗材-劳保耗材', '50', '50', '0', '张三', '工程部', 'CK202606010003', outboundStatusBadge('已出库')], '已出库', 'LY202606010003-L1'),
+  ];
+  return listPage({
+    desc: '领用申请审核通过后按物资明细自动生成；支持分批出库，扣减库存后更新台账',
+    tabs: ['待出库', '已出库'],
+    tabColumn: 11,
+    searchPlaceholder: '领用单号、出库单号、物资编码、物资名称、申请人',
+    filters: [{ label: '出库日期', key: 'outboundDate', column: -1, options: ['全部', '近7天', '近30天'] }],
+    columns: ['领用单号', '物资编码', '物资名称', '规格型号', '物资大类', '申请数量', '已出库数量', '待出库数量', '申请人', '申请部门', '出库单号', '出库状态'],
+    rows,
+  });
+}
+
+const RETURN_PENDING_SAMPLES = {
+  'LY202606010003-ZC202605012': {
+    returnKey: 'LY202606010003-ZC202605012', requisitionNo: 'LY202606010003', outboundNo: 'CK202606010003',
+    assetCode: 'ZC202605012', code: 'GD001001-005', name: '工程测量仪', major: '资产-固定资产', minor: '办公设备',
+    spec: '全站仪 TS06', unit: '台', borrower: '张三', borrowerDept: '工程部',
+    outboundDate: '2026-06-01', dueDate: '2026-06-15', extendedDueDate: '',
+    outboundQty: '1', returnedQty: '0', pendingQty: '1', materialType: 'fixed', status: '待归还',
+    returnNo: '', returnDate: '', condition: '', operator: '', department: '', remark: '', locations: [],
+  },
+  'LY202605200008-LA-00331': {
+    returnKey: 'LY202605200008-LA-00331', requisitionNo: 'LY202605200008', outboundNo: 'LY202605200008-CK001',
+    assetCode: 'LA-00331', code: 'LA-00330', name: '铝合金梯', major: '资产-类资产', minor: '登高工具',
+    spec: '3m', unit: '架', borrower: '王工', borrowerDept: '工程部',
+    outboundDate: '2026-05-20', dueDate: '2026-06-05', extendedDueDate: '2026-06-20',
+    outboundQty: '1', returnedQty: '0', pendingQty: '1', materialType: 'like', status: '已延期',
+    returnNo: '', returnDate: '', condition: '', operator: '', department: '', remark: '', locations: [],
+  },
+  'LY202606070003-L1': {
+    returnKey: 'LY202606070003-L1', requisitionNo: 'LY202606070003', outboundNo: '—',
+    assetCode: '', code: 'LA-00456', name: '电钻', major: '资产-类资产', minor: '电动工具',
+    spec: '650W', unit: '台', borrower: '李工', borrowerDept: '设备部',
+    outboundDate: '—', dueDate: '2026-07-09', extendedDueDate: '',
+    outboundQty: '3', returnedQty: '0', pendingQty: '3', materialType: 'like', status: '待归还',
+    returnNo: '', returnDate: '', condition: '', operator: '', department: '', remark: '', locations: [],
+  },
+  'LY202606070005-L1': {
+    returnKey: 'LY202606070005-L1', requisitionNo: 'LY202606070005', outboundNo: 'LY202606070005-CK001',
+    assetCode: '', code: 'LA-00457', name: '钢丝绳', major: '资产-类资产', minor: '防汛设备',
+    spec: 'Φ18×100m', unit: 'm', borrower: '赵六', borrowerDept: '维保部',
+    outboundDate: '2026-06-08', dueDate: '2026-08-08', extendedDueDate: '',
+    outboundQty: '60', returnedQty: '40', pendingQty: '20', materialType: 'like', status: '部分归还',
+    returnNo: 'HK20260608001', returnDate: '2026-06-10', condition: '完好', operator: '李仓管', department: '物资管理部',
+    remark: '首批归还', locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ002', level: '1层', qty: '40' }],
+  },
+  'LY202510006-GD007': {
+    returnKey: 'LY202510006-GD007', requisitionNo: 'LY202510006', outboundNo: 'LY202510006-CK001',
+    assetCode: 'GD001001-007', code: 'GD001001-007', name: '螺丝刀', major: '资产-类资产', minor: '设备-配件',
+    spec: '455', unit: '个', borrower: '王五', borrowerDept: '设备部',
+    outboundDate: '2025-07-15', dueDate: '2025-08-05', extendedDueDate: '',
+    outboundQty: '8', returnedQty: '8', pendingQty: '0', materialType: 'like', status: '已归还',
+    returnNo: 'HK20250715001', returnDate: '2025-08-04', condition: '完好', operator: '张仓管', department: '物资管理部',
+    remark: '按时归还', locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ001', level: '1层', qty: '8' }],
+  },
+};
+
+const RETURN_FORM_PAGES = {
+  fixed: 'warehouse_return_fixed_form.html',
+  like: 'warehouse_return_like_form.html',
+};
+
+function returnFormPage(materialType) {
+  return RETURN_FORM_PAGES[materialType] || 'warehouse_return_fixed_form.html';
+}
+
+function returnStatusBadge(status) {
+  const map = { '待归还': 'info', '已延期': 'danger', '部分归还': 'warning', '已归还': 'success', '已作废': 'danger' };
+  return badge(status, map[status] || 'info');
+}
+
+function returnRowActions(returnKey, status) {
+  const sample = RETURN_PENDING_SAMPLES[returnKey];
+  const type = sample?.materialType || 'fixed';
+  const formHref = returnFormPage(type);
+  const scrapHref = `warehouse_return_scrap_form.html?returnKey=${encodeURIComponent(returnKey)}&back=warehouse_return_list.html`;
+  const q = (extra = {}) => {
+    const p = new URLSearchParams({ returnKey, back: 'warehouse_return_list.html', ...extra });
+    return p.toString();
+  };
+  if (status === '已归还' || status === '已作废') {
+    return `<a href="${formHref}?${q({ mode: 'view' })}" class="hover:underline">查看</a>`;
+  }
+  return `<a href="${formHref}?${q({ mode: 'view' })}" class="mr-2 hover:underline">查看</a><a href="${formHref}?${q()}" class="mr-2 hover:underline">归还</a><a href="${scrapHref}" class="text-rose-600 hover:underline">作废</a>`;
+}
+
+function returnRow(cells, status, returnKey) {
+  const tabMap = { '待归还': '待归还', '部分归还': '待归还', '已延期': '已延期', '已归还': '已归还', '已作废': '已作废' };
+  return { cells, tab: tabMap[status] || '待归还', actions: returnRowActions(returnKey, status) };
+}
+
+function returnReadonlyGrid(pairs) {
+  const pair = (label, key, value) =>
+    `<td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">${label}</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="${key}">${value}</td>`;
+  const row = (left, right, border = true) =>
+    `<tr${border ? ' class="border-t border-slate-200"' : ''}>${pair(left[0], left[1], left[2])}${pair(right[0], right[1], right[2])}</tr>`;
+  const rows = pairs.map((p, i) => row(p[0], p[1], i > 0)).join('');
+  return `<div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm"><tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+function returnBorrowGrid(d) {
+  const dueDisplay = d.status === '已延期' && d.extendedDueDate
+    ? `${d.extendedDueDate} <span class="text-xs text-amber-600">（原 ${d.dueDate}）</span>`
+    : d.dueDate;
+  return returnReadonlyGrid([
+    [['领用单号', 'requisitionNo', d.requisitionNo], ['出库单号', 'outboundNo', d.outboundNo || '—']],
+    [['借用人', 'borrower', d.borrower], ['借用人部门', 'borrowerDept', d.borrowerDept]],
+    [['出库日期', 'outboundDate', d.outboundDate], ['应还日期', 'dueDate', dueDisplay]],
+  ]);
+}
+
+function returnMaterialGrid(d) {
+  return returnReadonlyGrid([
+    [['资产编码', 'assetCode', d.assetCode || '—'], ['物资编码', 'code', d.code]],
+    [['物资名称', 'name', d.name], ['物资大类', 'major', d.major]],
+    [['规格型号', 'spec', d.spec], ['计量单位', 'unit', d.unit]],
+    [['出库数量', 'outboundQty', d.outboundQty], ['已还数量', 'returnedQty', d.returnedQty]],
+    [['待还数量', 'pendingQty', `<span class="font-semibold text-slate-900">${d.pendingQty}</span>`], ['物资子类', 'minor', d.minor]],
+  ]);
+}
+
+function returnLocationRowHtml(deletable = false) {
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const delBtn = deletable
+    ? `<button type="button" class="mb-0.5 shrink-0 text-sm text-rose-600 hover:underline" data-return-loc-remove>删除</button>`
+    : '<span class="w-10"></span>';
+  return `<div class="return-loc-row mb-3 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_100px_auto] sm:items-end" data-return-loc-row>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600"><span class="text-rose-500">*</span> 仓库</label><select data-return-warehouse class="${inputCls}"><option value="" disabled selected>请选择</option><option>主仓库</option><option>辅仓库</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600">货架</label><select data-return-shelf class="${inputCls}"><option value="" disabled selected>请选择</option><option>CK001001-HJ001</option><option>CK001001-HJ002</option><option>CK001001-HJ003</option><option>CK001001-HJ101</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600">架层</label><select data-return-level class="${inputCls}"><option value="" disabled selected>请选择</option><option>1层</option><option>2层</option><option>3层</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600"><span class="text-rose-500">*</span> 数量</label><input type="number" min="1" data-return-qty placeholder="请输入" class="${inputCls}" /></div>
+    ${delBtn}
+  </div>`;
+}
+
+function returnLocationsSection(viewMode = false, locations = []) {
+  if (viewMode && locations.length) {
+    const tr = locations.map((loc, i) =>
+      `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">${i + 1}</td><td class="px-3 py-2.5 text-sm">${loc.warehouse}</td><td class="px-3 py-2.5 text-sm">${loc.shelf}</td><td class="px-3 py-2.5 text-sm">${loc.level}</td><td class="px-3 py-2.5 text-sm font-medium">${loc.qty}</td></tr>`
+    ).join('');
+    return `<div class="md:col-span-2" data-wms-return-locations>
+      <div class="mb-2"><h4 class="text-sm font-semibold text-slate-800">回库货位</h4></div>
+      <div class="overflow-hidden rounded-xl border border-slate-200"><table class="min-w-full text-sm"><thead class="bg-slate-50"><tr><th class="px-3 py-2 text-left text-xs text-slate-500">序号</th><th class="px-3 py-2 text-left text-xs text-slate-500">仓库</th><th class="px-3 py-2 text-left text-xs text-slate-500">货架</th><th class="px-3 py-2 text-left text-xs text-slate-500">架层</th><th class="px-3 py-2 text-left text-xs text-slate-500">数量</th></tr></thead><tbody>${tr}</tbody></table></div>
+    </div>`;
+  }
+  return `<div class="md:col-span-2" data-wms-return-locations>
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <h4 class="text-sm font-semibold text-slate-800">回库货位</h4>
+      <button type="button" class="text-sm font-medium text-slate-700 hover:underline" data-return-loc-add>添加</button>
+    </div>
+    <div data-return-loc-list>${returnLocationRowHtml(false)}</div>
+    <p class="mt-2 text-xs text-slate-500">归还物资回库位置；各行数量之和不超过待还数量 <strong data-return-pending-qty-display>—</strong></p>
+  </div>`;
+}
+
+function returnFixedAssetSection(viewMode = false, d = {}) {
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500 font-mono';
+  if (viewMode) {
+    return `<div class="md:col-span-2" data-wms-return-fixed-asset>
+      <label class="mb-1.5 block text-sm font-medium text-slate-700">资产编码</label>
+      <input type="text" value="${d.assetCode || '—'}" readonly class="${roCls}" data-return-field="assetCodeConfirm" />
+    </div>
+    ${returnLocationsSection(viewMode, d.locations?.length ? d.locations : [{ warehouse: '主仓库', shelf: 'CK001001-HJ101', level: '1层', qty: '1' }])}`;
+  }
+  return `<div class="md:col-span-2" data-wms-return-fixed-asset>
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <label class="mb-0 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 资产编码确认</label>
+      <button type="button" id="wms-return-scan-asset" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-qrcode"></i> 扫码确认</button>
+    </div>
+    <input type="text" value="${d.assetCode || ''}" placeholder="扫描或输入资产编码" data-return-field="assetCodeConfirm" class="${inputCls} font-mono" />
+    <p class="mt-2 text-xs text-slate-500">须与待还资产编码 <strong class="font-mono">${d.assetCode || '—'}</strong> 一致</p>
+  </div>
+  ${returnLocationsSection(false)}`;
+}
+
+function returnLikeQtySection(viewMode = false, d = {}) {
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
+  const qtyBlock = viewMode
+    ? `<div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">本次归还数量</label><input type="text" readonly value="${d.locations?.[0]?.qty || d.returnedQty || '—'}" class="${roCls}" /></div>`
+    : `<div class="md:col-span-2" data-wms-return-like-qty><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 本次归还数量</label><input type="number" min="1" placeholder="请输入" data-return-field="thisReturnQty" class="${inputCls}" /><p class="mt-2 text-xs text-slate-500">可与下方回库货位分行数量一致，或仅填总数由系统按行汇总校验</p></div>`;
+  return qtyBlock + returnLocationsSection(viewMode, d.locations);
+}
+
+function warehouseReturnFormPage(backHref = 'warehouse_return_list.html', sample = {}) {
+  const d = { ...RETURN_PENDING_SAMPLES['LY202606010003-ZC202605012'], ...sample };
+  const viewMode = !!d.viewMode;
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
+  const disAttr = viewMode ? ' disabled' : '';
+  const isFixed = d.materialType === 'fixed';
+  const isLike = d.materialType === 'like';
+  const returnNo = d.returnNo || `HK${new Date().toISOString().slice(0, 10).replace(/-/g, '')}001`;
+  const fixedBanner = isFixed && !viewMode ? `<div class="md:col-span-2 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
+    <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-qrcode text-blue-500"></i> 固定资产须扫码确认资产编码</div>
+    <p class="text-xs text-slate-600">扫码 <code class="rounded bg-white/80 px-1">wms://asset/</code> 校验编码一致后回库；完好→在库，需维修→维修中，损坏→待报废。</p>
+  </div>` : '';
+  const likeBanner = isLike && !viewMode ? `<div class="md:col-span-2 rounded-xl border border-amber-100 bg-amber-50/50 p-4">
+    <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-screwdriver-wrench text-amber-600"></i> 类资产按数量归还</div>
+    <p class="text-xs text-slate-600">支持分批归还；指定回库货位后累加库存，待还数量相应减少。</p>
+  </div>` : '';
+  const typeBanner = fixedBanner || likeBanner;
+  const typeSpecific = isFixed ? returnFixedAssetSection(viewMode, d) : returnLikeQtySection(viewMode, d);
+
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-return-form data-return-material-type="${d.materialType}" data-return-expected-asset="${d.assetCode || ''}">
+      <div class="wms-modal-form wms-warehouse-form wms-return-form">
+        ${formSection('借用信息')}
+        ${returnBorrowGrid(d)}
+        ${formSection('物资信息')}
+        ${returnMaterialGrid(d)}
+        ${formSection('归还信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">归还单号</label><input type="text" value="${returnNo}" readonly data-return-field="returnNo" class="${roCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 归还日期</label><input type="date" value="${d.returnDate || '2026-06-09'}" data-return-field="returnDate"${disAttr} ${viewMode ? `readonly class="${roCls}"` : `class="${inputCls}"`} /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 实物状态</label><select data-return-field="condition"${disAttr} class="${inputCls}"><option value="" disabled${!d.condition ? ' selected' : ''}>请选择</option><option${d.condition === '完好' ? ' selected' : ''}>完好</option><option${d.condition === '需维修' ? ' selected' : ''}>需维修</option><option${d.condition === '损坏' ? ' selected' : ''}>损坏</option></select></div>
+        ${typeSpecific}
+        ${typeBanner}
+        ${formSection('其他信息')}
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">归还说明</label><textarea rows="3" placeholder="0/500" data-return-field="remark"${disAttr} ${viewMode ? `readonly class="${roCls}"` : `class="${inputCls}"`}>${d.remark || ''}</textarea></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">归还照片</label>${viewMode ? '<p class="text-sm text-slate-400">—</p>' : photoUploadZone()}</div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 验收人员</label><select data-return-field="operator"${disAttr} class="${inputCls}"><option value="" disabled${!d.operator ? ' selected' : ''}>请选择</option><option${d.operator === '张仓管' ? ' selected' : ''}>张仓管</option><option${d.operator === '李仓管' ? ' selected' : ''}>李仓管</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 验收部门</label><select data-return-field="department"${disAttr} class="${inputCls}"><option value="" disabled${!d.department ? ' selected' : ''}>请选择</option><option${d.department === '物资管理部' ? ' selected' : ''}>物资管理部</option><option${d.department === '设备部' ? ' selected' : ''}>设备部</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary" data-return-back-link>${viewMode ? '关闭' : '取消'}</a>
+        ${viewMode ? '' : '<button type="button" class="wms-btn wms-btn-primary" data-return-submit>确定</button>'}
+      </div>
+    </div>`;
+}
+
+function warehouseReturnScrapPage(backHref = 'warehouse_return_list.html', sample = {}) {
+  const d = { ...RETURN_PENDING_SAMPLES['LY202605200008-LA-00331'], ...sample };
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg" data-wms-return-scrap-form data-return-key="${d.returnKey}">
+      <div class="wms-modal-form wms-warehouse-form">
+        ${formSection('待还信息')}
+        ${returnBorrowGrid(d)}
+        ${returnMaterialGrid(d)}
+        ${formSection('作废信息')}
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 作废原因</label><select data-return-scrap-field="reason" class="${inputCls}"><option value="" disabled selected>请选择</option><option>丢失</option><option>损毁无法修复</option><option>被盗</option><option>其他</option></select></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 说明</label><textarea rows="4" placeholder="请说明作废原因及处理情况" data-return-scrap-field="remark" class="${inputCls}"></textarea></div>
+        <div class="md:col-span-2 rounded-xl border border-rose-100 bg-rose-50/50 p-4 text-xs text-slate-600">作废后待还记录关闭，资产不再回库；固定资产标记灭失，类资产扣减借出账面。</div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary" data-return-back-link>取消</a>
+        <button type="button" class="wms-btn wms-btn-primary bg-rose-600 hover:bg-rose-700" data-return-scrap-submit>确认作废</button>
+      </div>
+    </div>`;
+}
+
+function returnSuccessPage() {
+  return `
+    <div class="mx-auto max-w-2xl" data-wms-return-success>
+      <div class="card rounded-2xl bg-white p-8 text-center">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><i class="fa-solid fa-check text-2xl"></i></div>
+        <h2 class="text-xl font-semibold text-slate-900" data-return-success-title>归还成功</h2>
+        <p class="mt-2 text-sm text-slate-500" data-return-success-desc>归还单号 HK202606090001 · 领用单 LY202606010003</p>
+        <dl class="mt-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-left text-sm sm:grid-cols-2">
+          <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 font-medium text-slate-900" data-return-success-name>工程测量仪</dd></div>
+          <div><dt class="text-slate-500">实物状态</dt><dd class="mt-1 text-slate-800" data-return-success-condition>完好</dd></div>
+          <div><dt class="text-slate-500">回库货位</dt><dd class="mt-1 text-slate-800" data-return-success-location>主仓库 / B区</dd></div>
+          <div><dt class="text-slate-500">借用人</dt><dd class="mt-1 text-slate-800" data-return-success-borrower>张三</dd></div>
+        </dl>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a href="ledger_transaction.html" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-right-left"></i> 出入库记录</a>
+          <a href="warehouse_return_list.html" class="text-sm text-slate-500 hover:text-slate-900">返回归还列表</a>
+        </div>
+      </div>
+    </div>`;
+}
+
+function warehouseReturnListPage() {
+  const rows = [
+    returnRow(['LY202606010003', 'CK202606010003', 'ZC202605012', 'GD001001-005', '工程测量仪', '全站仪 TS06', '资产-固定资产', '张三', '工程部', '1', '0', '1', '2026-06-15', returnStatusBadge('待归还')], '待归还', 'LY202606010003-ZC202605012'),
+    returnRow(['LY202605200008', 'LY202605200008-CK001', 'LA-00331', 'LA-00330', '铝合金梯', '3m', '资产-类资产', '王工', '工程部', '1', '0', '1', '2026-06-20', returnStatusBadge('已延期')], '已延期', 'LY202605200008-LA-00331'),
+    returnRow(['LY202606070003', '—', '—', 'LA-00456', '电钻', '650W', '资产-类资产', '李工', '设备部', '3', '0', '3', '2026-07-09', returnStatusBadge('待归还')], '待归还', 'LY202606070003-L1'),
+    returnRow(['LY202606070005', 'LY202606070005-CK001', '—', 'LA-00457', '钢丝绳', 'Φ18×100m', '资产-类资产', '赵六', '维保部', '60', '40', '20', '2026-08-08', returnStatusBadge('部分归还')], '部分归还', 'LY202606070005-L1'),
+    returnRow(['LY202510006', 'LY202510006-CK001', 'GD001001-007', 'GD001001-007', '螺丝刀', '455', '资产-类资产', '王五', '设备部', '8', '8', '0', '2025-08-05', returnStatusBadge('已归还')], '已归还', 'LY202510006-GD007'),
+  ];
+  return listPage({
+    desc: '出库时标记需归还的物资自动生成；支持分批归还、延期与作废',
+    tabs: ['待归还', '已延期', '已归还', '已作废'],
+    tabColumn: 13,
+    searchPlaceholder: '领用单号、出库单号、资产编码、物资名称、借用人',
+    filters: [{ label: '应还日期', key: 'dueDate', column: -1, options: ['全部', '近7天', '已超期'] }],
+    columns: ['领用单号', '出库单号', '资产编码', '物资编码', '物资名称', '规格型号', '物资大类', '借用人', '借用人部门', '出库数量', '已还数量', '待还数量', '应还日期', '归还状态'],
+    rows,
+  });
+}
+
+const REFUND_BY_ACCEPT = {
+  'GH2025004-YS02': 'GH2025004-YS02-TH',
+  'GH2025003-YS01': 'GH2025003-YS01-TH',
+  'GH2025002-YS01': 'RK202509002-TH01',
+};
+
+const REFUND_PENDING_SAMPLES = {
+  'GH2025004-YS02-TH': {
+    refundKey: 'GH2025004-YS02-TH', scene: 'pre_inbound', refundNo: '', supplyNo: 'GH2025004', acceptNo: 'GH2025004-YS02', inboundNo: '—',
+    supplier: '江苏华能电子有限公司', supplierStatus: '正常', contact: '王工', phone: '139 1111 2233', acceptDate: '2025-11-25',
+    code: 'GD001001-004', name: '螺丝刀', major: '资产-固定资产', minor: '设备-配件', spec: '455', unit: '个',
+    unqualifiedQty: '1', inboundQty: '0', refundedQty: '0', pendingQty: '1', materialType: 'fixed', status: '待退货',
+    refundDate: '', refundReason: '', remark: '', operator: '', department: '', assetCodes: [], locations: [], createTime: '2025-11-25',
+  },
+  'GH2025003-YS01-TH': {
+    refundKey: 'GH2025003-YS01-TH', scene: 'pre_inbound', refundNo: 'TH20251121001', supplyNo: 'GH2025003', acceptNo: 'GH2025003-YS01', inboundNo: '—',
+    supplier: '河南蒲瑞', supplierStatus: '正常', contact: '李经理', phone: '138 0000 1234', acceptDate: '2025-11-20',
+    code: 'GD001001-003', name: '钢丝绳', major: '资产-固定资产', minor: '设备-配件', spec: '455', unit: 'm',
+    unqualifiedQty: '50', inboundQty: '0', refundedQty: '30', pendingQty: '20', materialType: 'like', status: '部分退货',
+    refundDate: '2025-11-21', refundReason: '质量问题', remark: '首批已退 30m', operator: '张仓管', department: '物资管理部', assetCodes: [], locations: [], createTime: '2025-11-20',
+  },
+  'RK202509002-TH01': {
+    refundKey: 'RK202509002-TH01', scene: 'post_inbound', refundNo: '', supplyNo: 'GH2025002', acceptNo: 'GH2025002-YS01', inboundNo: 'RK202509002',
+    supplier: '鄂东办公用品', supplierStatus: '正常', contact: '陈经理', phone: '137 6666 7788', acceptDate: '2025-11-16',
+    code: 'HC-00128', name: '安全帽', major: '耗材-劳保耗材', minor: '安全防护', spec: '标准型', unit: '顶',
+    unqualifiedQty: '0', inboundQty: '200', refundedQty: '0', pendingQty: '50', materialType: 'consumable', status: '待退货',
+    refundDate: '', refundReason: '', remark: '', operator: '', department: '', assetCodes: [], locations: [], createTime: '2026-06-01',
+  },
+  'TH202606030001': {
+    refundKey: 'TH202606030001', scene: 'post_inbound', refundNo: 'TH202606030001', supplyNo: 'GH202605280002', acceptNo: '—', inboundNo: 'RK202606020015',
+    supplier: '华建物资有限公司', supplierStatus: '正常', contact: '陈经理', phone: '138 8888 8821', acceptDate: '2026-05-28',
+    code: 'DL-00234', name: '电缆 YJV-3×2.5', major: '资产-类资产', minor: '电气材料', spec: '3×2.5mm²', unit: 'm',
+    unqualifiedQty: '0', inboundQty: '100', refundedQty: '100', pendingQty: '0', materialType: 'like', status: '已退货',
+    refundDate: '2026-06-03', refundReason: '质量问题', remark: '规格不符，全量退供应商', operator: '张仓管', department: '物资管理部',
+    assetCodes: [], locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ001', level: '1层', qty: '100' }], createTime: '2026-06-03',
+  },
+};
+
+const REFUND_POST_FORM_PAGES = {
+  fixed: 'warehouse_refund_fixed_form.html',
+  like: 'warehouse_refund_like_form.html',
+  consumable: 'warehouse_refund_consumable_form.html',
+};
+
+function refundFormPage(refundKey) {
+  const sample = REFUND_PENDING_SAMPLES[refundKey];
+  if (!sample) return 'warehouse_refund_form.html';
+  if (sample.scene === 'pre_inbound') return 'warehouse_refund_pre_form.html';
+  return REFUND_POST_FORM_PAGES[sample.materialType] || 'warehouse_refund_fixed_form.html';
+}
+
+function refundStatusBadge(status) {
+  const map = { '待退货': 'warning', '部分退货': 'info', '已退货': 'success', '已关闭': 'danger' };
+  return badge(status, map[status] || 'info');
+}
+
+function refundSceneBadge(scene) {
+  return scene === 'pre_inbound' ? badge('验收前', 'warning') : badge('在库', 'info');
+}
+
+function refundRowActions(refundKey, status) {
+  const formHref = refundFormPage(refundKey);
+  const q = (extra = {}) => {
+    const p = new URLSearchParams({ refundKey, back: 'warehouse_refund_list.html', ...extra });
+    return p.toString();
+  };
+  if (status === '已退货' || status === '已关闭') {
+    return `<a href="${formHref}?${q({ mode: 'view' })}" class="hover:underline">查看</a>`;
+  }
+  return `<a href="${formHref}?${q({ mode: 'view' })}" class="mr-2 hover:underline">查看</a><a href="${formHref}?${q()}" class="hover:underline">退货</a>`;
+}
+
+function refundRow(cells, status, refundKey) {
+  const tabMap = { '待退货': '待退货', '部分退货': '部分退货', '已退货': '已退货', '已关闭': '已关闭' };
+  return { cells, tab: tabMap[status] || '待退货', actions: refundRowActions(refundKey, status) };
+}
+
+function refundReadonlyGrid(pairs) {
+  const pair = (label, key, value) =>
+    `<td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">${label}</td><td class="px-4 py-2.5 text-sm text-slate-800" data-refund-field="${key}">${value}</td>`;
+  const row = (left, right, border = true) =>
+    `<tr${border ? ' class="border-t border-slate-200"' : ''}>${pair(left[0], left[1], left[2])}${pair(right[0], right[1], right[2])}</tr>`;
+  const rows = pairs.map((p, i) => row(p[0], p[1], i > 0)).join('');
+  return `<div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm"><tbody>${rows}</tbody></table>
+  </div>`;
+}
+
+function refundSourceGrid(d) {
+  const docRow = d.scene === 'pre_inbound'
+    ? [['验收单号', 'acceptNo', d.acceptNo], ['验收日期', 'acceptDate', d.acceptDate]]
+    : [['验收单号', 'acceptNo', d.acceptNo || '—'], ['入库单号', 'inboundNo', d.inboundNo || '—']];
+  return refundReadonlyGrid([
+    [['供货单号', 'supplyNo', d.supplyNo], ['供应商', 'supplier', d.supplier]],
+    [['联系人', 'contact', d.contact || '—'], ['联系电话', 'phone', d.phone || '—']],
+    docRow,
+  ]);
+}
+
+function refundMaterialGrid(d) {
+  const qtyRow = d.scene === 'pre_inbound'
+    ? [['不合格数量', 'unqualifiedQty', d.unqualifiedQty], ['已退数量', 'refundedQty', d.refundedQty]]
+    : [['已入库数量', 'inboundQty', d.inboundQty], ['已退数量', 'refundedQty', d.refundedQty]];
+  return refundReadonlyGrid([
+    [['物资编码', 'code', d.code], ['物资名称', 'name', d.name]],
+    [['物资大类', 'major', d.major], ['物资子类', 'minor', d.minor]],
+    [['规格型号', 'spec', d.spec], ['计量单位', 'unit', d.unit]],
+    qtyRow,
+    [['待退数量', 'pendingQty', `<span class="font-semibold text-slate-900">${d.pendingQty}</span>`], ['退货场景', 'sceneLabel', refundSceneBadge(d.scene)]],
+  ]);
+}
+
+function refundLocationRowHtml(deletable = false) {
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const delBtn = deletable
+    ? `<button type="button" class="mb-0.5 shrink-0 text-sm text-rose-600 hover:underline" data-refund-loc-remove>删除</button>`
+    : '<span class="w-10"></span>';
+  return `<div class="refund-loc-row mb-3 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_100px_auto] sm:items-end" data-refund-loc-row>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600"><span class="text-rose-500">*</span> 仓库</label><select data-refund-warehouse class="${inputCls}"><option value="" disabled selected>请选择</option><option>主仓库</option><option>辅仓库</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600">货架</label><select data-refund-shelf class="${inputCls}"><option value="" disabled selected>请选择</option><option>CK001001-HJ001</option><option>CK001001-HJ002</option><option>CK001001-HJ003</option><option>CK001001-HJ101</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600">架层</label><select data-refund-level class="${inputCls}"><option value="" disabled selected>请选择</option><option>1层</option><option>2层</option><option>3层</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600"><span class="text-rose-500">*</span> 数量</label><input type="number" min="1" data-refund-qty placeholder="请输入" class="${inputCls}" /></div>
+    ${delBtn}
+  </div>`;
+}
+
+function refundLocationsSection(viewMode = false, locations = []) {
+  if (viewMode && locations.length) {
+    const tr = locations.map((loc, i) =>
+      `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">${i + 1}</td><td class="px-3 py-2.5 text-sm">${loc.warehouse}</td><td class="px-3 py-2.5 text-sm">${loc.shelf}</td><td class="px-3 py-2.5 text-sm">${loc.level}</td><td class="px-3 py-2.5 text-sm font-medium">${loc.qty}</td></tr>`
+    ).join('');
+    return `<div class="md:col-span-2" data-wms-refund-locations>
+      <div class="mb-2"><h4 class="text-sm font-semibold text-slate-800">扣减货位</h4></div>
+      <div class="overflow-hidden rounded-xl border border-slate-200"><table class="min-w-full text-sm"><thead class="bg-slate-50"><tr><th class="px-3 py-2 text-left text-xs text-slate-500">序号</th><th class="px-3 py-2 text-left text-xs text-slate-500">仓库</th><th class="px-3 py-2 text-left text-xs text-slate-500">货架</th><th class="px-3 py-2 text-left text-xs text-slate-500">架层</th><th class="px-3 py-2 text-left text-xs text-slate-500">数量</th></tr></thead><tbody>${tr}</tbody></table></div>
+    </div>`;
+  }
+  return `<div class="md:col-span-2" data-wms-refund-locations>
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <h4 class="text-sm font-semibold text-slate-800">扣减货位</h4>
+      <button type="button" class="text-sm font-medium text-slate-700 hover:underline" data-refund-loc-add>添加</button>
+    </div>
+    <div data-refund-loc-list>${refundLocationRowHtml(false)}</div>
+    <p class="mt-2 text-xs text-slate-500">从指定货位扣减库存后退至供应商；各行数量之和不超过待退数量 <strong data-refund-pending-qty-display>—</strong></p>
+  </div>`;
+}
+
+function refundFixedAssetSection(viewMode = false, assetCodes = [], backHref = 'warehouse_refund_list.html', refundKey = '') {
+  if (viewMode && assetCodes.length) {
+    const tr = assetCodes.map((c, i) =>
+      `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">${i + 1}</td><td class="px-3 py-2.5 font-mono text-sm">${c}</td><td class="px-3 py-2.5 text-sm">主仓库/B区</td></tr>`
+    ).join('');
+    return `<div class="md:col-span-2" data-wms-refund-assets>
+      <div class="mb-2"><h4 class="text-sm font-semibold text-slate-800">退货资产编码</h4></div>
+      <div class="overflow-hidden rounded-xl border border-slate-200"><table class="min-w-full text-sm"><thead class="bg-slate-50"><tr><th class="px-3 py-2 text-left text-xs text-slate-500">序号</th><th class="px-3 py-2 text-left text-xs text-slate-500">资产编码</th><th class="px-3 py-2 text-left text-xs text-slate-500">所在货位</th></tr></thead><tbody>${tr}</tbody></table></div>
+    </div>`;
+  }
+  const selectHref = `warehouse_refund_select_asset.html?back=${encodeURIComponent(backHref)}&refundKey=${encodeURIComponent(refundKey)}`;
+  return `<div class="md:col-span-2" data-wms-refund-assets>
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <h4 class="text-sm font-semibold text-slate-800">退货资产 <span class="text-xs font-normal text-slate-500">（须绑定在库资产编码）</span></h4>
+      <div class="flex flex-wrap gap-2">
+        <button type="button" id="wms-refund-scan-asset" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-qrcode"></i> 扫码添加</button>
+        <a href="${selectHref}" class="inline-flex items-center gap-1 rounded-lg bg-white px-3 py-1.5 text-xs font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-magnifying-glass"></i> 选择资产</a>
+      </div>
+    </div>
+    <div class="min-h-[3rem] rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-3" data-refund-asset-list>
+      <p class="text-sm text-slate-400" data-refund-asset-empty>尚未选择资产编码</p>
+    </div>
+    <p class="mt-2 text-xs text-slate-500">已选 <strong data-refund-asset-count>0</strong> 件，待退 <strong data-refund-pending-qty-display>—</strong> 件</p>
+  </div>`;
+}
+
+function refundConsumableQtySection(viewMode = false, d = {}) {
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
+  if (viewMode) {
+    const qty = d.locations?.[0]?.qty || d.refundedQty || '—';
+    return `<div class="md:col-span-2" data-wms-refund-consumable-qty>
+      <label class="mb-1.5 block text-sm font-medium text-slate-700">本次退货数量</label>
+      <input type="text" value="${qty}" readonly class="${roCls}" data-refund-field="thisRefundQty" />
+      <p class="mt-2 text-xs text-slate-500">系统已按 FIFO 原则从最早入库批次扣减</p>
+    </div>`;
+  }
+  return `<div class="md:col-span-2" data-wms-refund-consumable-qty>
+    <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 本次退货数量</label>
+    <input type="number" min="1" placeholder="请输入" data-refund-field="thisRefundQty" class="${inputCls}" />
+    <p class="mt-2 text-xs text-slate-500">系统将按 <strong>FIFO</strong> 原则从最早入库批次自动扣减，无需手工指定货位</p>
+  </div>`;
+}
+
+function refundReasonSelect(d, viewMode, inputCls, disAttr) {
+  const reasons = ['质量问题', '多供', '规格不符', '其他'];
+  if (viewMode) {
+    return `<div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">退货原因</label><input type="text" readonly value="${d.refundReason || '—'}" data-refund-field="refundReason" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>`;
+  }
+  const opts = reasons.map(r => `<option${d.refundReason === r ? ' selected' : ''}>${r}</option>`).join('');
+  return `<div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 退货原因</label><select data-refund-field="refundReason"${disAttr} class="${inputCls}"><option value="" disabled${!d.refundReason ? ' selected' : ''}>请选择</option>${opts}</select></div>`;
+}
+
+function warehouseRefundPreFormPage(backHref = 'warehouse_refund_list.html', sample = {}) {
+  const d = { ...REFUND_PENDING_SAMPLES['GH2025004-YS02-TH'], ...sample };
+  const viewMode = !!d.viewMode;
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
+  const disAttr = viewMode ? ' disabled' : '';
+  const refundNo = d.refundNo || `TH${new Date().toISOString().slice(0, 10).replace(/-/g, '')}001`;
+  const preBanner = !viewMode ? `<div class="md:col-span-2 rounded-xl border border-orange-100 bg-orange-50/50 p-4">
+    <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-clipboard-check text-orange-500"></i> 验收不合格退货</div>
+    <p class="text-xs text-slate-600">物资尚未入库或在途待入账面；确认退货后回写供货单退货数量，合格品可继续入库。</p>
+  </div>` : '';
+
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-refund-form data-refund-scene="pre_inbound">
+      <div class="wms-modal-form wms-warehouse-form wms-refund-form">
+        ${formSection('来源信息')}
+        ${refundSourceGrid(d)}
+        ${formSection('物资信息')}
+        ${refundMaterialGrid(d)}
+        ${formSection('退货信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">退货单号</label><input type="text" value="${refundNo}" readonly data-refund-field="refundNo" class="${roCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 退货日期</label><input type="date" value="${d.refundDate || '2026-06-09'}" data-refund-field="refundDate"${disAttr} ${viewMode ? `readonly class="${roCls}"` : `class="${inputCls}"`} /></div>
+        ${refundReasonSelect(d, viewMode, inputCls, disAttr)}
+        ${viewMode
+    ? `<div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">本次退货数量</label><input type="text" readonly value="${d.locations?.[0]?.qty || d.pendingQty || '—'}" class="${roCls}" /></div>`
+    : `<div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 本次退货数量</label><input type="number" min="1" placeholder="请输入" data-refund-field="thisRefundQty" class="${inputCls}" /><p class="mt-2 text-xs text-slate-500">不超过待退数量 <strong data-refund-pending-qty-display>${d.pendingQty}</strong> ${d.unit}</p></div>`}
+        ${preBanner}
+        ${formSection('其他信息')}
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">退货说明</label><textarea rows="3" placeholder="0/500" data-refund-field="remark"${disAttr} ${viewMode ? `readonly class="${roCls}"` : `class="${inputCls}"`}>${d.remark || ''}</textarea></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">退货照片</label>${viewMode ? '<p class="text-sm text-slate-400">—</p>' : photoUploadZone()}</div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 经办人</label><select data-refund-field="operator"${disAttr} class="${inputCls}"><option value="" disabled${!d.operator ? ' selected' : ''}>请选择</option><option${d.operator === '张仓管' ? ' selected' : ''}>张仓管</option><option${d.operator === '李仓管' ? ' selected' : ''}>李仓管</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 经办部门</label><select data-refund-field="department"${disAttr} class="${inputCls}"><option value="" disabled${!d.department ? ' selected' : ''}>请选择</option><option${d.department === '物资管理部' ? ' selected' : ''}>物资管理部</option><option${d.department === '设备部' ? ' selected' : ''}>设备部</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary" data-refund-back-link>${viewMode ? '关闭' : '取消'}</a>
+        ${viewMode ? '' : '<button type="button" class="wms-btn wms-btn-primary" data-refund-submit>确定</button>'}
+      </div>
+    </div>`;
+}
+
+function warehouseRefundPostFormPage(backHref = 'warehouse_refund_list.html', sample = {}) {
+  const d = { ...REFUND_PENDING_SAMPLES['RK202509002-TH01'], ...sample };
+  const viewMode = !!d.viewMode;
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
+  const disAttr = viewMode ? ' disabled' : '';
+  const isFixed = d.materialType === 'fixed';
+  const isLike = d.materialType === 'like';
+  const isConsumable = d.materialType === 'consumable';
+  const refundNo = d.refundNo || `TH${new Date().toISOString().slice(0, 10).replace(/-/g, '')}001`;
+  const fixedBanner = isFixed && !viewMode ? `<div class="md:col-span-2 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
+    <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-qrcode text-blue-500"></i> 在库固定资产须绑定资产编码</div>
+    <p class="text-xs text-slate-600">扫码或选择在库资产编码，确认退货后资产状态变为已退供应商，并扣减台账。</p>
+  </div>` : '';
+  const likeBanner = isLike && !viewMode ? `<div class="md:col-span-2 rounded-xl border border-amber-100 bg-amber-50/50 p-4">
+    <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-screwdriver-wrench text-amber-600"></i> 在库类资产按货位扣减</div>
+    <p class="text-xs text-slate-600">从指定货位扣减库存后退至供应商；支持分批退货。</p>
+  </div>` : '';
+  const consumableBanner = isConsumable && !viewMode ? `<div class="md:col-span-2 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4">
+    <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-boxes-stacked text-emerald-600"></i> 在库耗材按数量退货</div>
+    <p class="text-xs text-slate-600">消耗型物资，系统默认按 FIFO 从最早批次扣减后生成 TH 流水。</p>
+  </div>` : '';
+  const typeBanner = fixedBanner || likeBanner || consumableBanner;
+  const typeSpecific = isFixed
+    ? refundFixedAssetSection(viewMode, d.assetCodes, backHref, d.refundKey)
+    : isLike
+      ? refundLocationsSection(viewMode, d.locations)
+      : refundConsumableQtySection(viewMode, d);
+
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-refund-form data-refund-scene="post_inbound" data-refund-material-type="${d.materialType}">
+      <div class="wms-modal-form wms-warehouse-form wms-refund-form">
+        ${formSection('来源信息')}
+        ${refundSourceGrid(d)}
+        ${formSection('物资信息')}
+        ${refundMaterialGrid(d)}
+        ${formSection('退货信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">退货单号</label><input type="text" value="${refundNo}" readonly data-refund-field="refundNo" class="${roCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 退货日期</label><input type="date" value="${d.refundDate || '2026-06-09'}" data-refund-field="refundDate"${disAttr} ${viewMode ? `readonly class="${roCls}"` : `class="${inputCls}"`} /></div>
+        ${refundReasonSelect(d, viewMode, inputCls, disAttr)}
+        ${typeSpecific}
+        ${typeBanner}
+        ${formSection('其他信息')}
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">退货说明</label><textarea rows="3" placeholder="0/500" data-refund-field="remark"${disAttr} ${viewMode ? `readonly class="${roCls}"` : `class="${inputCls}"`}>${d.remark || ''}</textarea></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">退货照片</label>${viewMode ? '<p class="text-sm text-slate-400">—</p>' : photoUploadZone()}</div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 经办人</label><select data-refund-field="operator"${disAttr} class="${inputCls}"><option value="" disabled${!d.operator ? ' selected' : ''}>请选择</option><option${d.operator === '张仓管' ? ' selected' : ''}>张仓管</option><option${d.operator === '李仓管' ? ' selected' : ''}>李仓管</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 经办部门</label><select data-refund-field="department"${disAttr} class="${inputCls}"><option value="" disabled${!d.department ? ' selected' : ''}>请选择</option><option${d.department === '物资管理部' ? ' selected' : ''}>物资管理部</option><option${d.department === '设备部' ? ' selected' : ''}>设备部</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary" data-refund-back-link>${viewMode ? '关闭' : '取消'}</a>
+        ${viewMode ? '' : '<button type="button" class="wms-btn wms-btn-primary" data-refund-submit>确定</button>'}
+      </div>
+    </div>`;
+}
+
+function refundSuccessPage() {
+  return `
+    <div class="mx-auto max-w-2xl" data-wms-refund-success>
+      <div class="card rounded-2xl bg-white p-8 text-center">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><i class="fa-solid fa-check text-2xl"></i></div>
+        <h2 class="text-xl font-semibold text-slate-900" data-refund-success-title>退货成功</h2>
+        <p class="mt-2 text-sm text-slate-500" data-refund-success-desc>退货单号 TH202606090001 · 供货单 GH2025004</p>
+        <dl class="mt-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-left text-sm sm:grid-cols-2">
+          <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 font-medium text-slate-900" data-refund-success-name>螺丝刀</dd></div>
+          <div><dt class="text-slate-500">退货场景</dt><dd class="mt-1 text-slate-800" data-refund-success-scene>验收前</dd></div>
+          <div><dt class="text-slate-500">供应商</dt><dd class="mt-1 text-slate-800" data-refund-success-supplier>江苏华能电子有限公司</dd></div>
+          <div><dt class="text-slate-500">退货数量</dt><dd class="mt-1 text-slate-800" data-refund-success-qty>1 个</dd></div>
+        </dl>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a href="ledger_transaction.html" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-right-left"></i> 出入库记录</a>
+          <a href="warehouse_refund_list.html" class="text-sm text-slate-500 hover:text-slate-900">返回退货列表</a>
+        </div>
+      </div>
+    </div>`;
+}
+
+function warehouseRefundListPage() {
+  const rows = [
+    refundRow(['—', refundSceneBadge('pre_inbound'), 'GH2025004', 'GH2025004-YS02', '—', '江苏华能电子有限公司', 'GD001001-004', '螺丝刀', '455', '资产-固定资产', '1', '0', refundStatusBadge('待退货'), '2025-11-25'], '待退货', 'GH2025004-YS02-TH'),
+    refundRow(['TH20251121001', refundSceneBadge('pre_inbound'), 'GH2025003', 'GH2025003-YS01', '—', '河南蒲瑞', 'GD001001-003', '钢丝绳', '455', '资产-固定资产', '20', '30', refundStatusBadge('部分退货'), '2025-11-20'], '部分退货', 'GH2025003-YS01-TH'),
+    refundRow(['—', refundSceneBadge('post_inbound'), 'GH2025002', 'GH2025002-YS01', 'RK202509002', '鄂东办公用品', 'HC-00128', '安全帽', '标准型', '耗材-劳保耗材', '50', '0', refundStatusBadge('待退货'), '2026-06-01'], '待退货', 'RK202509002-TH01'),
+    refundRow(['TH202606030001', refundSceneBadge('post_inbound'), 'GH202605280002', '—', 'RK202606020015', '华建物资有限公司', 'DL-00234', '电缆 YJV-3×2.5', '3×2.5mm²', '资产-类资产', '0', '100', refundStatusBadge('已退货'), '2026-06-03'], '已退货', 'TH202606030001'),
+  ];
+  return listPage({
+    desc: '验收不合格或在库发现问题自动生成待退任务；确认后回写供货单并生成 TH 流水',
+    addBtn: true, addHref: 'warehouse_refund_form.html',
+    tabs: ['待退货', '部分退货', '已退货', '已关闭'],
+    tabColumn: 12,
+    searchPlaceholder: '退货单号、供货单号、验收单号、入库单号、物资名称、供应商',
+    filters: [
+      { label: '退货场景', key: 'scene', column: 1, options: ['全部', '验收前', '在库'] },
+      { label: '退货日期', key: 'refundDate', column: -1, options: ['全部', '近7天', '近30天'] },
+    ],
+    columns: ['退货单号', '退货场景', '供货单号', '验收单号', '入库单号', '供应商', '物资编码', '物资名称', '规格型号', '物资大类', '待退数量', '已退数量', '退货状态', '创建时间'],
+    rows,
+  });
+}
+
+function formSection(title) {
+  return `<div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">${title}</h3></div>`;
+}
+
+function uploadZone() {
+  return `<div class="wms-upload-zone">
+    <i class="fa-solid fa-cloud-arrow-up text-lg text-slate-400"></i>
+    <p class="mt-2 text-sm text-slate-600">上传文件</p>
+    <p class="mt-1 text-xs text-slate-400">支持 .rar .zip .doc .docx .pdf，单个文件不能超过 500MB</p>
+  </div>`;
+}
+
+function photoUploadZone() {
+  return `<div class="wms-photo-upload">
+    <button type="button" class="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50">
+      <i class="fa-solid fa-plus text-lg"></i>
+      <span class="mt-1 text-xs">上传图片</span>
+    </button>
+    <p class="mt-2 text-xs text-slate-400">支持 .jpg .jpeg .png，单个文件不能超过 100MB</p>
+  </div>`;
+}
+
+function formRadioGroup(label, options, req = true) {
+  const reqMark = req ? '<span class="text-rose-500">*</span> ' : '';
+  const radios = options.map((o, i) =>
+    `<label class="inline-flex items-center gap-2 text-sm text-slate-700">
+      <input type="radio" name="${label}" class="border-slate-300 text-slate-900"${i === 0 ? ' checked' : ''} />
+      <span>${o}</span>
+    </label>`
+  ).join('');
+  return `<div><label class="mb-1.5 block text-sm font-medium text-slate-700">${reqMark}${label}</label><div class="flex flex-wrap gap-4 pt-1">${radios}</div></div>`;
+}
+
+function unitConversionField(main = '', aux = '') {
+  return `<div class="md:col-span-2">
+    <label class="mb-1.5 block text-sm font-medium text-slate-700">主辅单位换算</label>
+    <div class="flex flex-wrap items-center gap-2 text-sm text-slate-700">
+      <span class="text-slate-500">1</span>
+      <input type="text" placeholder="请输入主单位" class="w-28 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" value="${main}" />
+      <span class="text-slate-400">：</span>
+      <input type="text" placeholder="请输入辅单位" class="w-28 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" value="${aux}" />
+    </div>
+    <p class="mt-1.5 text-xs text-slate-400">注释：主单位即为 1，填写换算比</p>
+  </div>`;
+}
+
+const MATERIAL_CATALOG_ROWS = [
+  { code: 'GD001001-001', type: 'fixed', enabled: true, categoryCode: 'ZC-GD-002', categoryPath: '资产类 / 固定资产 / 设备-配件 / 抓斗', name: '抓斗', spec: '4m³-Q345B', major: '资产-固定资产', minor: '设备-配件', unit: '个', price: '10000.00', returnNeed: '需要', borrowDays: '30天', currentStock: '—', availableStock: '—', alert: 'normal' },
+  { code: 'GD001001-002', type: 'fixed', enabled: true, categoryCode: 'ZC-GD-002', categoryPath: '资产类 / 固定资产 / 设备-配件 / 料斗', name: '料斗', spec: '10m³移动式', major: '资产-固定资产', minor: '设备-配件', unit: '个', price: '10000.00', returnNeed: '需要', borrowDays: '30天', currentStock: '—', availableStock: '—', alert: 'normal' },
+  { code: 'GD001001-004', type: 'fixed', enabled: false, categoryCode: 'ZC-GD-002', categoryPath: '资产类 / 固定资产 / 电动工具 / 螺丝刀', name: '螺丝刀', spec: '十字-PH2-300mm', major: '资产-固定资产', minor: '设备-配件', unit: '个', price: '10000.00', returnNeed: '不需要', borrowDays: '—', currentStock: '—', availableStock: '—', alert: 'normal' },
+  { code: 'LA-00456', type: 'like', enabled: true, categoryCode: 'LA-ZC-001001', categoryPath: '资产类 / 类资产 / 电动工具 / 电钻', name: '电钻', spec: '工业级', major: '资产-类资产', minor: '电钻', unit: '台', price: '680.00', returnNeed: '需要', borrowDays: '15天', safeStock: '10', minStock: '5', maxStock: '20', currentStock: '8', availableStock: '6', alert: 'normal' },
+  { code: 'GD001001-006', type: 'consumable', enabled: true, categoryCode: 'HC-SC-001', categoryPath: '耗材类 / 生产耗材 / 设备-配件 / 润滑油', name: '润滑油', spec: 'CD 15W-40', major: '耗材-生产耗材', minor: '设备-配件', unit: '桶', price: '10000.00', safeStock: '50', minStock: '20', maxStock: '200', currentStock: '18', availableStock: '15', alert: 'warning' },
+  { code: 'HC-00089', type: 'consumable', enabled: true, categoryCode: 'HC-BG-001002', categoryPath: '耗材类 / 办公耗材 / 办公用纸 / 打印纸 A4', name: '打印纸 A4', spec: '70g/500张', major: '耗材-办公耗材', minor: '打印纸 A4', unit: '箱', price: '120.00', safeStock: '100', minStock: '50', maxStock: '300', currentStock: '186', availableStock: '170', alert: 'normal' },
+];
+
+const MATERIAL_LIST_COLUMNS = [
+  { key: 'seq', label: '序号', tabs: ['all', 'fixed', 'like', 'consumable'] },
+  { key: 'type', label: '物资类型', tabs: ['all', 'fixed', 'like', 'consumable'] },
+  { key: 'code', label: '物资编码', tabs: ['all', 'fixed', 'like', 'consumable'] },
+  { key: 'name', label: '物资名称', tabs: ['all', 'fixed', 'like', 'consumable'] },
+  { key: 'spec', label: '规格型号', tabs: ['all', 'fixed', 'like', 'consumable'] },
+  { key: 'category', label: '所属分类', tabs: ['all', 'fixed', 'like', 'consumable'] },
+  { key: 'enabled', label: '状态', tabs: ['all', 'fixed', 'like', 'consumable'] },
+  { key: 'unit', label: '主计量单位', tabs: ['all', 'fixed', 'like', 'consumable'] },
+  { key: 'price', label: '参考单价（元）', tabs: ['all', 'fixed', 'like', 'consumable'] },
+  { key: 'returnNeed', label: '归还', tabs: ['all', 'fixed', 'like'] },
+  { key: 'borrowDays', label: '借用周期', tabs: ['all', 'fixed', 'like'] },
+  { key: 'safeStock', label: '安全库存', tabs: ['all', 'like', 'consumable'] },
+  { key: 'minStock', label: '库存下限', tabs: ['all', 'like', 'consumable'] },
+  { key: 'maxStock', label: '库存上限', tabs: ['all', 'like', 'consumable'] },
+  { key: 'currentStock', label: '当前库存', tabs: ['all', 'like', 'consumable'] },
+  { key: 'availableStock', label: '可用库存', tabs: ['all', 'like', 'consumable'] },
+  { key: 'alert', label: '预警', tabs: ['all', 'like', 'consumable'] },
+];
+
+function materialAlertBadge(alert) {
+  if (alert === 'warning') return badge('低于下限', 'warning');
+  if (alert === 'danger') return badge('缺货', 'danger');
+  return badge('正常', 'success');
+}
+
+function materialRowActions(code, enabled = true) {
+  const view = `<a href="config_material_detail.html?code=${code}" class="mr-2 hover:underline">查看</a>`;
+  const edit = enabled ? `<a href="config_material_form.html?code=${code}&mode=edit" class="mr-2 hover:underline">编辑</a>` : '';
+  const disable = enabled
+    ? `<button type="button" class="text-amber-600 hover:underline wms-material-disable" data-material-code="${code}">停用</button>`
+    : `<span class="text-slate-400 text-xs">已停用</span>`;
+  return `${view}${edit}${disable}`;
+}
+
+function materialCatalogRowCells(row, index) {
+  const enabledBadge = row.enabled ? badge('启用', 'success') : badge('停用', 'danger');
+  const map = {
+    seq: String(index + 1),
+    type: materialTypeBadge(row.type),
+    code: `<span class="font-mono text-xs">${row.code}</span>`,
+    name: row.name,
+    spec: row.spec,
+    category: `<span class="text-xs"><span class="font-mono text-slate-500">${row.categoryCode}</span> · ${row.minor}</span>`,
+    enabled: enabledBadge,
+    unit: row.unit,
+    price: row.price,
+    returnNeed: row.returnNeed || '—',
+    borrowDays: row.borrowDays || '—',
+    safeStock: row.safeStock || '—',
+    minStock: row.minStock || '—',
+    maxStock: row.maxStock || '—',
+    currentStock: row.currentStock || '—',
+    availableStock: row.availableStock || '—',
+    alert: row.type === 'fixed' ? '—' : materialAlertBadge(row.alert || 'normal'),
+  };
+  return MATERIAL_LIST_COLUMNS.map(c => map[c.key]);
+}
+
+function materialCatalogPage() {
+  const th = '<th class="w-10 px-3 py-3" data-col-check><input type="checkbox" class="rounded border-slate-300" title="全选" /></th>' +
+    MATERIAL_LIST_COLUMNS.map(c =>
+      `<th class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap" data-material-col="${c.key}" data-show-tabs="${c.tabs.join(',')}">${c.label}</th>`
+    ).join('') + actionTh();
+  const tr = MATERIAL_CATALOG_ROWS.map((row, i) => {
+    const cells = materialCatalogRowCells(row, i);
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-material-row data-material-type="${row.type}" data-material-enabled="${row.enabled}" data-material-alert="${row.alert || 'normal'}" data-material-category-path="${row.categoryPath || ''}">
+      <td class="px-3 py-3" data-col-check><input type="checkbox" class="rounded border-slate-300 wms-material-check"${row.enabled && i < 2 ? ' checked' : ''}${row.enabled ? '' : ' disabled'} /></td>
+      ${cells.map((cell, ci) => `<td class="px-3 py-3.5 text-sm text-slate-700 whitespace-nowrap" data-material-col="${MATERIAL_LIST_COLUMNS[ci].key}" data-show-tabs="${MATERIAL_LIST_COLUMNS[ci].tabs.join(',')}">${cell}</td>`).join('')}
+      ${actionTd(materialRowActions(row.code, row.enabled))}
+    </tr>`;
+  }).join('');
+  const materialAddBtn = primaryAddBtn('config_material_form.html', 'data-wms-material-add');
+  const materialSecondaryBtns = `
+    <button type="button" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-material-batch-disable><i class="fa-solid fa-ban text-xs text-amber-500"></i>批量停用</button>
+    <button type="button" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50" title="P2"><i class="fa-solid fa-file-import text-xs text-slate-400"></i>导入</button>
+    <button type="button" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50" title="P2"><i class="fa-solid fa-file-export text-xs text-slate-400"></i>导出</button>`;
+  const materialStatusFilter = `<label class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">
+              <span class="text-slate-500 shrink-0">状态</span>
+              <select data-wms-filter-enabled class="border-0 bg-transparent py-0.5 pr-6 text-sm font-medium text-slate-800 outline-none focus:ring-0">
+                <option value="all" selected>全部</option><option value="true">启用</option><option value="false">停用</option>
+              </select>
+            </label>`;
+  return `
+    <p class="mb-4 text-sm text-slate-500">可采购/可领用物资主数据；须绑定分类叶子节点，业务规则默认继承分类并可覆盖。停用后不可被选入新计划/采购。</p>
+    <div class="wms-material-layout">
+      ${materialCatalogSidebarTree()}
+      <div class="wms-material-main card min-w-0 rounded-2xl bg-white p-4 shadow-sm">
+        <p class="mb-3 text-sm text-slate-500" data-wms-material-breadcrumb>当前分类：<span class="font-medium text-slate-800">全部物资</span></p>
+        <div class="mb-3 flex w-full flex-nowrap items-center justify-end gap-2 overflow-x-auto" data-wms-list-toolbar>
+            ${materialStatusFilter}
+            <label class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">
+              <span class="text-slate-500 shrink-0">库存预警</span>
+              <select data-wms-filter-alert class="border-0 bg-transparent py-0.5 pr-6 text-sm font-medium text-slate-800 outline-none focus:ring-0">
+                <option value="all" selected>全部</option><option value="warning">低于下限</option><option value="danger">缺货</option>
+              </select>
+            </label>
+            <label class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">
+              <span class="text-slate-500 shrink-0">归还</span>
+              <select data-wms-filter-return class="border-0 bg-transparent py-0.5 pr-6 text-sm font-medium text-slate-800 outline-none focus:ring-0">
+                <option value="all" selected>全部</option><option value="需要">需要</option><option value="不需要">不需要</option>
+              </select>
+            </label>
+            ${listSearchInput('物资编码、名称、规格型号').replace(/data-wms-list-search/g, 'data-wms-material-search').replace(/data-wms-list-search-clear/g, 'data-wms-material-search-clear')}
+            <button type="button" class="hidden shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-100" data-wms-material-filter-reset><i class="fa-solid fa-rotate-left text-xs"></i>重置</button>
+            ${materialSecondaryBtns}
+        </div>
+        <div class="mb-4">${materialAddBtn}</div>
+        <div class="overflow-hidden rounded-xl ring-1 ring-slate-100" data-wms-material-catalog>
+          <div class="overflow-x-auto wms-modal-table-wrap"><table class="min-w-full text-sm wms-data-table" data-wms-material-table><thead class="bg-slate-50/80 sticky top-0"><tr>${th}</tr></thead><tbody>${tr}</tbody></table></div>
+          <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 text-sm text-slate-500">
+            <span data-wms-material-count>共 ${MATERIAL_CATALOG_ROWS.length} 条 · 启用 ${MATERIAL_CATALOG_ROWS.filter(r => r.enabled).length} 条</span>
+            <div class="flex flex-wrap items-center gap-2">
+              <div class="flex gap-1"><span class="rounded-lg bg-slate-900 px-3 py-1 text-white">1</span></div>
+              <span class="text-slate-400">10 条/页</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="wms-material-toast" class="wms-qr-toast hidden" role="status"></div>`;
+}
+
+function materialFormPage(options = {}) {
+  const { backHref = 'config_material_catalog.html', readonly = false, sample = null } = options;
+  const ro = readonly;
+  const inputCls = ro
+    ? 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600'
+    : 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const field = (label, value, req = false, type = 'text', attrs = '') => {
+    const reqMark = req && !ro ? '<span class="text-rose-500">*</span> ' : '';
+    if (type === 'textarea') {
+      return `<div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">${label}</label><textarea rows="3" placeholder="0/500" class="${inputCls}"${ro ? ' readonly' : ''}${attrs ? ` ${attrs}` : ''}>${typeof value === 'string' ? value : ''}</textarea></div>`;
+    }
+    const isRo = ro || (typeof value === 'string' && value.includes('系统'));
+    const ph = isRo ? '' : ' placeholder="请输入"';
+    return `<div><label class="mb-1.5 block text-sm font-medium text-slate-700">${reqMark}${label}</label><input type="${type}" value="${typeof value === 'string' ? value : ''}" class="${isRo ? 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500' : inputCls}"${isRo ? ' readonly' : ph}${isRo ? ' readonly' : ''}${attrs ? ` ${attrs}` : ''} /></div>`;
+  };
+  const s = sample || {
+    code: '系统自动生成', name: '', type: 'fixed',
+    major: '', minor: '', spec: '',
+    mainUnit: '', auxUnit: '', price: '',
+    returnNeed: '需要', safeStock: '', minStock: '', maxStock: '',
+  };
+  const matType = s.type || 'fixed';
+  const isFixedForm = matType === 'fixed';
+  const isStockForm = matType === 'like' || matType === 'consumable';
+  const returnRadios = ['需要', '不需要'].map((o) =>
+    `<label class="inline-flex items-center gap-2 text-sm text-slate-700">
+      <input type="radio" name="returnNeed" class="border-slate-300 text-slate-900" data-wms-material-return value="${o}"${(s.returnNeed || '需要') === o ? ' checked' : ''} />
+      <span>${o}</span>
+    </label>`
+  ).join('');
+  const body = `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl">
+      <div class="wms-modal-form wms-warehouse-form" data-wms-material-form data-material-type="${matType}">
+        ${ro ? '' : materialTypeTabs(matType)}
+        ${formSection('基础信息')}
+        ${field('物资编码', s.code)}
+        ${field('物资名称', s.name || '', !ro)}
+        ${field('规格型号', s.spec || '', !ro)}
+        ${ro
+    ? `<div><label class="mb-1.5 block text-sm font-medium text-slate-700">物资大类</label><input type="text" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" value="${s.major || ''}" /></div>
+           <div><label class="mb-1.5 block text-sm font-medium text-slate-700">物资子类</label><input type="text" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" value="${s.minor || ''}" /></div>`
+    : `${materialMajorSelect(s.major, matType)}${materialMinorSelect(s.minor, s.major || materialMajorsForType(matType)[0])}`}
+        ${formSection('计量核算信息')}
+        ${unitSelect('主计量单位', s.mainUnit || '', { disabled: ro, required: !ro })}
+        ${unitSelect('辅计量单位', s.auxUnit || '', { disabled: ro })}
+        ${ro ? field('主辅单位换算', s.conversion || '—') : unitConversionField()}
+        ${field('参考单价（元）', s.price || '', !ro, 'number')}
+        <div class="md:col-span-2${isFixedForm ? '' : ' hidden'}" data-wms-material-business-return>
+          ${formSection('业务信息')}
+          ${ro ? field('归还', s.returnNeed || '—') : `<div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 归还</label><div class="flex flex-wrap gap-4 pt-1">${returnRadios}</div></div>`}
+        </div>
+        <div class="md:col-span-2${isStockForm ? '' : ' hidden'}" data-wms-material-business-stock>
+          ${formSection('业务信息')}
+          ${field('安全库存', s.safeStock ?? '', true, 'number', 'data-wms-material-safe')}
+          ${field('库存下限', s.minStock ?? '', true, 'number', 'data-wms-material-min')}
+          ${field('库存上限', s.maxStock ?? '', true, 'number', 'data-wms-material-max')}
+        </div>
+        ${formSection('其他')}
+        ${field('说明', s.remark || '', false, 'textarea')}
+        ${ro ? '' : `<div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">资料</label>${uploadZone()}</div>`}
+        ${ro ? '' : `<div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">照片</label>${photoUploadZone()}</div>`}
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">${ro ? '关闭' : '取消'}</a>
+        ${ro ? '' : '<button type="button" class="wms-btn wms-btn-primary">确定</button>'}
+      </div>
+    </div>`;
+  return body;
+}
+
+function materialDetailPage() {
+  const s = {
+    code: 'LA-00456', name: '电钻', categoryCode: 'LA-ZC-001001', type: 'like',
+    major: '资产-类资产', minor: '电钻', spec: '工业级', enabled: true,
+    mainUnit: '台', auxUnit: '—', conversion: '—', price: '680.00',
+    returnNeed: '需要', borrowDays: '15天',
+    safeStock: '10', minStock: '5', maxStock: '20',
+    currentStock: '8', availableStock: '6', lockedStock: '2',
+    inherit: { returnNeed: '需要', borrowDays: '15天', safeStock: '10', minStock: '5', maxStock: '20' },
+    refs: [
+      { type: '计划', no: 'JH202606070002', name: '六月电动工具补充', qty: '5', date: '2026-06-08' },
+      { type: '采购', no: 'CG202606050012', name: '电钻直采', qty: '3', date: '2026-06-05' },
+    ],
+  };
+  const leaf = MATERIAL_CATEGORY_LEAVES.find(l => l.code === s.categoryCode) || MATERIAL_CATEGORY_LEAVES[0];
+  const roVal = (v) => `<span class="text-sm text-slate-800">${v || '—'}</span>`;
+  const inheritRow = (label, actual, inherited) => {
+    const overridden = actual !== inherited && inherited !== undefined;
+    return `<div class="flex flex-wrap items-baseline justify-between gap-2 border-b border-slate-100 py-2.5 text-sm">
+      <span class="text-slate-500">${label}</span>
+      <span class="text-right">${roVal(actual)}${overridden ? ` <span class="ml-1 text-xs text-amber-600">（分类默认 ${inherited}）</span>` : ' <span class="ml-1 text-xs text-slate-400">继承</span>'}</span>
+    </div>`;
+  };
+  const refRows = s.refs.map(r =>
+    `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">${badge(r.type, 'info')}</td><td class="px-3 py-2.5 text-sm font-mono text-xs">${r.no}</td><td class="px-3 py-2.5 text-sm">${r.name}</td><td class="px-3 py-2.5 text-sm">${r.qty}</td><td class="px-3 py-2.5 text-sm text-slate-500">${r.date}</td></tr>`
+  ).join('');
+  return `
+    <div data-wms-modal data-modal-back="config_material_catalog.html" data-modal-size="xl">
+      <div class="space-y-6 p-1">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-semibold text-slate-900">${s.name}</h2>
+            <p class="mt-0.5 text-sm text-slate-500 font-mono">${s.code} · ${materialTypeBadge(s.type)} ${s.enabled ? badge('启用', 'success') : badge('停用', 'danger')}</p>
+          </div>
+          <a href="config_material_form.html?code=${s.code}&mode=edit" class="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-pen text-xs"></i>编辑</a>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h3 class="mb-3 text-sm font-semibold text-slate-800">基础信息</h3>
+          <dl class="grid gap-x-6 gap-y-3 sm:grid-cols-2 text-sm">
+            <div><dt class="text-slate-500">所属分类</dt><dd class="mt-0.5 font-mono text-xs text-slate-800">${leaf.code} · ${leaf.name}</dd></div>
+            <div><dt class="text-slate-500">物资大类 / 子类</dt><dd class="mt-0.5">${s.major} / ${s.minor}</dd></div>
+            <div><dt class="text-slate-500">规格型号</dt><dd class="mt-0.5">${s.spec}</dd></div>
+            <div><dt class="text-slate-500">主 / 辅计量单位</dt><dd class="mt-0.5">${s.mainUnit} / ${s.auxUnit}</dd></div>
+            <div><dt class="text-slate-500">参考单价</dt><dd class="mt-0.5">¥ ${s.price}</dd></div>
+          </dl>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h3 class="mb-1 text-sm font-semibold text-slate-800">业务规则 <span class="font-normal text-slate-400">（默认继承分类，可覆盖）</span></h3>
+          ${inheritRow('归还', s.returnNeed, s.inherit.returnNeed)}
+          ${inheritRow('借用周期', s.borrowDays, s.inherit.borrowDays)}
+          ${inheritRow('安全库存', s.safeStock, s.inherit.safeStock)}
+          ${inheritRow('库存下限', s.minStock, s.inherit.minStock)}
+          ${inheritRow('库存上限', s.maxStock, s.inherit.maxStock)}
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h3 class="mb-3 text-sm font-semibold text-slate-800">库存快照 <span class="font-normal text-slate-400">（只读）</span></h3>
+          <div class="grid gap-3 sm:grid-cols-4">
+            <div class="rounded-xl bg-slate-50 px-4 py-3"><p class="text-xs text-slate-500">当前库存</p><p class="mt-1 text-xl font-semibold text-slate-900">${s.currentStock}</p></div>
+            <div class="rounded-xl bg-slate-50 px-4 py-3"><p class="text-xs text-slate-500">可用库存</p><p class="mt-1 text-xl font-semibold text-emerald-700">${s.availableStock}</p></div>
+            <div class="rounded-xl bg-slate-50 px-4 py-3"><p class="text-xs text-slate-500">锁定库存</p><p class="mt-1 text-xl font-semibold text-slate-700">${s.lockedStock}</p></div>
+            <div class="rounded-xl bg-amber-50 px-4 py-3"><p class="text-xs text-amber-700">预警状态</p><p class="mt-1 text-sm font-medium text-amber-800">${Number(s.currentStock) < Number(s.minStock) ? '低于库存下限' : '正常'}</p></div>
+          </div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h3 class="mb-3 text-sm font-semibold text-slate-800">关联引用</h3>
+          <div class="overflow-x-auto rounded-xl ring-1 ring-slate-100"><table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+            <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">类型</th>
+            <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">单号</th>
+            <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">名称</th>
+            <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">数量</th>
+            <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">日期</th>
+          </tr></thead><tbody>${refRows}</tbody></table></div>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="config_material_catalog.html" class="wms-btn wms-btn-secondary">返回列表</a>
+      </div>
+    </div>`;
+}
+
+function formField(label, type, val, req, options = {}) {
+  const { colSpan = 1, readonly = false } = options;
+  const span = colSpan === 2 ? ' md:col-span-2' : '';
+  const reqMark = req ? '<span class="text-rose-500">*</span> ' : '';
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
+  if (type === 'select') {
+    const opts = (Array.isArray(val) ? val : []).map(o => `<option${o.selected ? ' selected' : ''}>${o.label ?? o}</option>`).join('');
+    return `<div class="${span}"><label class="mb-1.5 block text-sm font-medium text-slate-700">${reqMark}${label}</label><select class="${inputCls}">${opts}</select></div>`;
+  }
+  if (type === 'textarea') {
+    return `<div class="${span}"><label class="mb-1.5 block text-sm font-medium text-slate-700">${reqMark}${label}</label><textarea rows="3" placeholder="0/500" class="${inputCls}">${typeof val === 'string' ? val : ''}</textarea></div>`;
+  }
+  if (type === 'toggle') {
+    return `<div class="${span}"><label class="mb-1.5 block text-sm font-medium text-slate-700">${reqMark}${label}</label><label class="wms-toggle"><input type="checkbox" checked /><span class="wms-toggle-track"></span></label></div>`;
+  }
+  const isRo = readonly || (typeof val === 'string' && val.includes('系统'));
+  return `<div class="${span}"><label class="mb-1.5 block text-sm font-medium text-slate-700">${reqMark}${label}</label><input type="${type}" value="${typeof val === 'string' ? val : ''}" ${isRo ? `readonly class="${roCls}"` : `class="${inputCls}"`} /></div>`;
+}
+
+const shelfTableColumns = ['序号', '货架编码', '货架名称', '所在仓库', '所在分区', '负责人', '层数', '每层承载量', '总承载量', '尺寸(长X宽X高)', '状态', '创建人', '创建时间'];
+const shelfTableRows = [
+  { code: 'CK001001-HJ001', zone: 'A区', enabled: true, cells: ['1', 'CK001001-HJ001', '1号货架', '1号仓库', 'A区', '李四', '10', '—', '—', '—', badge('启用', 'success'), '张三', '2026-06-01 10:00'] },
+  { code: 'CK001001-HJ002', zone: 'A区', enabled: true, cells: ['2', 'CK001001-HJ002', '2号货架', '1号仓库', 'A区', '李四', '10', '—', '—', '—', badge('启用', 'success'), '张三', '2026-06-02 11:30'] },
+  { code: 'CK001001-HJ003', zone: 'A区', enabled: true, cells: ['3', 'CK001001-HJ003', '3号货架', '1号仓库', 'A区', '李四', '8', '—', '—', '—', badge('启用', 'success'), '李四', '2026-06-03 09:15'] },
+  { code: 'CK001001-HJ004', zone: 'A区', enabled: false, cells: ['4', 'CK001001-HJ004', '4号货架', '1号仓库', 'A区', '李四', '6', '—', '—', '—', badge('停用', 'danger'), '张三', '2026-05-20 09:00'] },
+  { code: 'CK001001-HJ101', zone: 'B区', enabled: true, cells: ['1', 'CK001001-HJ101', 'B区1号货架', '1号仓库', 'B区', '王五', '8', '—', '—', '—', badge('启用', 'success'), '李四', '2026-06-04 14:00'] },
+];
+
+function shelfRowActions(code) {
+  return `<a href="config_shelf_form.html?code=${code}" class="mr-2 hover:underline">查看</a><a href="config_shelf_qrcode.html?code=${code}" class="mr-2 hover:underline">二维码</a><button type="button" class="wms-loc-qr-download-single mr-2 hover:underline" data-shelf-code="${code}">下载</button><a href="config_shelf_form.html?code=${code}" class="mr-2 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline">删除</a>`;
+}
+
+function shelfRowActionsDisabled(code) {
+  return `<a href="config_shelf_form.html?code=${code}" class="mr-2 hover:underline">查看</a><span class="mr-2 text-slate-400" title="停用货架不可生成货位码">二维码</span><span class="mr-2 text-slate-400">下载</span><a href="config_shelf_form.html?code=${code}" class="mr-2 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline">删除</a>`;
+}
+
+function warehouseShelfTable() {
+  const th = '<th class="w-10 px-3 py-2.5"><input type="checkbox" id="wms-shelf-check-all" class="rounded border-slate-300" title="全选本分区启用货架" /></th>' +
+    shelfTableColumns.map(c => `<th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('') +
+    '<th class="wms-col-actions px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th>';
+  const tr = shelfTableRows.map(r => {
+    const layers = parseInt(r.cells[6], 10) || 0;
+    const owner = r.cells[5];
+    const checkCell = r.enabled
+      ? `<input type="checkbox" class="wms-shelf-check rounded border-slate-300" data-shelf-code="${r.code}" data-shelf-zone="${r.zone}" checked />`
+      : `<input type="checkbox" class="rounded border-slate-300" disabled title="停用货架不可下载货位码" />`;
+    const actions = r.enabled ? shelfRowActions(r.code) : shelfRowActionsDisabled(r.code);
+    const hidden = r.zone !== 'A区' ? ' hidden' : '';
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80${hidden}" data-shelf-row data-shelf-zone="${r.zone}" data-shelf-enabled="${r.enabled}" data-shelf-owner="${owner}" data-shelf-layers="${layers}"><td class="px-3 py-3">${checkCell}</td>${r.cells.map(c => `<td class="px-3 py-3 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('')}<td class="wms-col-actions px-3 py-3 text-right text-sm whitespace-nowrap">${actions}</td></tr>`;
+  }).join('');
+  return `<div class="wms-modal-table-wrap overflow-x-auto wms-shelf-table" data-wms-shelf-panel>
+    <div class="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-500">
+      <span>当前分区：<strong class="text-slate-800" data-wms-active-zone>A区</strong> · 仅显示本分区货架</span>
+      <span class="text-xs text-slate-400">操作列固定右侧，可横向滚动查看全部字段</span>
+    </div>
+    <table class="wms-shelf-table wms-data-table min-w-full text-sm"><thead class="bg-slate-50/90"><tr>${th}</tr></thead><tbody>${tr}</tbody></table></div>`;
+}
+
+function warehouseConfigPage() {
+  return `<div class="mb-4 flex gap-3 rounded-xl border border-sky-100 bg-sky-50/80 px-4 py-3 text-sm text-sky-950">
+      <i class="fa-solid fa-circle-info mt-0.5 text-sky-500"></i>
+      <div><strong>货位码</strong>标识货架物理位置，用于入库选位与货位识别；<strong>资产码</strong>（<code class="rounded bg-white/80 px-1 text-xs">wms://asset/</code>）在<a href="ledger_warehouse.html" class="font-medium underline">仓库台账</a>管理，二者不可混用。</div>
+    </div>
+    <div class="wms-warehouse-layout">
+    <aside class="wms-warehouse-tree card rounded-2xl bg-white p-4">
+      <div class="mb-3 flex items-center justify-between">
+        <span class="text-sm font-semibold text-slate-900">仓库</span>
+        <a href="config_warehouse_form.html" class="flex h-7 w-7 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700" title="新增仓库"><i class="fa-solid fa-plus text-xs"></i></a>
+      </div>
+      <ul class="wms-tree space-y-0.5 text-sm" data-wms-warehouse-tree>
+        <li>
+          <button type="button" class="wms-tree-node wms-tree-node--warehouse w-full flex items-center gap-2 rounded-lg px-2 py-2 text-left text-slate-700 hover:bg-slate-50" data-node="warehouse">
+            <i class="fa-solid fa-chevron-down w-3 text-[10px] text-slate-400"></i>
+            <i class="fa-regular fa-folder-open text-slate-400"></i>
+            <span class="flex-1 font-medium">1号仓库</span>
+            <a href="config_zone_form.html" class="wms-tree-action text-blue-500 hover:text-blue-700" title="新增分区" onclick="event.stopPropagation()"><i class="fa-solid fa-plus-square text-xs"></i></a>
+            <a href="config_warehouse_form.html" class="wms-tree-action text-blue-500 hover:text-blue-700" title="编辑"><i class="fa-regular fa-pen-to-square text-xs"></i></a>
+            <button type="button" class="wms-tree-action text-blue-500 hover:text-blue-700" title="删除"><i class="fa-regular fa-trash-can text-xs"></i></button>
+          </button>
+          <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2">
+            <li>
+              <button type="button" class="wms-tree-node wms-tree-node--zone is-active w-full flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-blue-600 bg-blue-50/80" data-node="zone" data-zone-name="A区" data-zone-id="45544">
+                <i class="fa-regular fa-folder text-blue-400"></i>
+                <span class="flex-1">A区</span>
+                <a href="config_zone_form.html" class="wms-tree-action text-blue-500 hover:text-blue-700" title="编辑"><i class="fa-regular fa-pen-to-square text-xs"></i></a>
+                <button type="button" class="wms-tree-action text-blue-500 hover:text-blue-700" title="删除"><i class="fa-regular fa-trash-can text-xs"></i></button>
+              </button>
+            </li>
+            <li>
+              <button type="button" class="wms-tree-node wms-tree-node--zone w-full flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-slate-600 hover:bg-slate-50" data-node="zone" data-zone-name="B区" data-zone-id="45545">
+                <i class="fa-regular fa-folder text-slate-400"></i>
+                <span class="flex-1">B区</span>
+                <a href="config_zone_form.html" class="wms-tree-action text-blue-500 hover:text-blue-700" title="编辑"><i class="fa-regular fa-pen-to-square text-xs"></i></a>
+                <button type="button" class="wms-tree-action text-blue-500 hover:text-blue-700" title="删除"><i class="fa-regular fa-trash-can text-xs"></i></button>
+              </button>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </aside>
+    <div class="wms-warehouse-main card rounded-2xl bg-white p-5 min-w-0">
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div class="wms-warehouse-tabs" data-wms-warehouse-tabs>
+          <button type="button" class="wms-tab-btn" data-tab="warehouse">仓库</button>
+          <button type="button" class="wms-tab-btn is-active" data-tab="shelf">货架</button>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs text-slate-500">已选 <strong id="wms-shelf-selected-count" class="text-slate-800">${shelfTableRows.filter(r => r.zone === 'A区' && r.enabled).length}</strong> 个启用货架</span>
+          <button type="button" id="wms-warehouse-batch-loc-qr" data-zone-name="A区" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50" title="批量下载当前分区已勾选货架的货位码标签（ZIP）"><i class="fa-solid fa-qrcode text-xs text-slate-400"></i> 下载货位二维码</button>
+        </div>
+      </div>
+      ${warehouseShelfToolbar()}
+      ${listAddRow({ addBtn: true, addHref: 'config_shelf_form.html' })}
+      <div class="wms-warehouse-detail mb-4 pb-4 border-b border-slate-100" data-wms-zone-detail>
+        <h3 class="text-base font-semibold text-slate-900 mb-3">A区（ID：45544）</h3>
+        <dl class="grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+          <div class="flex gap-2"><dt class="text-slate-500 shrink-0">库区类型：</dt><dd class="text-slate-800">普通区</dd></div>
+          <div class="flex gap-2"><dt class="text-slate-500 shrink-0">面积：</dt><dd class="text-slate-800">100平方米</dd></div>
+          <div class="flex gap-2"><dt class="text-slate-500 shrink-0">存储容量：</dt><dd class="text-slate-800">1000</dd></div>
+          <div class="flex gap-2 items-center"><dt class="text-slate-500 shrink-0">负责人：</dt><dd class="text-slate-800">张飞 <a href="#" class="ml-1 text-blue-600 hover:underline">查看</a></dd></div>
+        </dl>
+      </div>
+      <div data-wms-tab-panel="shelf">${warehouseShelfTable()}</div>
+      <div class="hidden py-12 text-center text-sm text-slate-500" data-wms-tab-panel="warehouse">请切换至「货架」标签管理货架与货位码</div>
+      <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 text-sm text-slate-500">
+        <span data-wms-shelf-total>共 ${shelfTableRows.filter(r => r.zone === 'A区').length} 条</span>
+        <div class="flex gap-1"><span class="rounded-lg bg-slate-900 px-3 py-1 text-white">1</span><span class="rounded-lg px-3 py-1 hover:bg-slate-100">2</span></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function warehouseForm(backHref) {
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg">
+      <div class="wms-modal-form wms-warehouse-form">
+        ${formSection('基础信息')}
+        ${formField('仓库编码', 'text', '系统自动生成', false, { readonly: true })}
+        ${formField('仓库名称', 'text', '', true)}
+        ${formField('仓库类型', 'select', ['货品库', '备件库', '其他'], false)}
+        ${formField('建筑面积', 'text', '', false)}
+        ${formField('存储容量', 'text', '', false)}
+        ${formField('负责人', 'select', ['张三', '李四', '张飞'], false)}
+        ${formSection('其他信息')}
+        ${formField('介绍', 'textarea', '', false, { colSpan: 2 })}
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">资料</label>${uploadZone()}</div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-primary">确定</button>
+      </div>
+    </div>`;
+}
+
+function zoneForm(backHref) {
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg">
+      <div class="wms-modal-form wms-warehouse-form">
+        ${formSection('基础信息')}
+        ${formField('所属仓库', 'select', [{ label: '1号仓库', selected: true }, '2号仓库'], true)}
+        ${formField('分区编码', 'text', '系统自动生成', false, { readonly: true })}
+        ${formField('分区名称', 'text', 'A区', true)}
+        ${formField('库区类型', 'select', ['普通区', '贵重区', '其他'], false)}
+        ${formField('面积', 'text', '', false)}
+        ${formField('存储容量', 'text', '', false)}
+        ${formField('负责人', 'select', ['张三', '李四', '张飞'], false)}
+        ${formSection('其他信息')}
+        ${formField('说明', 'textarea', '', false, { colSpan: 2 })}
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">资料</label>${uploadZone()}</div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-primary">确定</button>
+      </div>
+    </div>`;
+}
+
+function shelfForm(backHref, shelf = SHELF_SAMPLES['CK001001-HJ001']) {
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg">
+      <div class="wms-modal-form wms-warehouse-form">
+        ${formSection('基础信息')}
+        ${formField('所在仓库', 'select', [{ label: shelf.warehouse, selected: true }], true)}
+        ${formField('所在分区', 'select', [{ label: shelf.zone, selected: true }, 'B区'], true)}
+        ${formField('货架编码', 'text', shelf.code, false, { readonly: true })}
+        ${formField('货架名称', 'text', shelf.name, true)}
+        ${formField('负责人', 'select', ['张三', '李四', '张飞'], false)}
+        ${formField('启用', 'toggle', '', false)}
+        ${formField('层数', 'number', '4', true)}
+        ${formSection('货位二维码')}
+        <div class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50/80 p-4" data-shelf-qr-block>
+          ${shelf.status === '停用'
+            ? '<p class="text-sm text-slate-500">货架已停用，不可生成或下载货位码。启用后可自动生成 <code class="rounded bg-white px-1 text-xs">wms://loc/{货架编码}</code></p>'
+            : `<div class="flex flex-wrap items-start gap-4">
+                ${locationQrLabel(shelf)}
+                <div class="text-sm">
+                  <p class="text-slate-600">扫码内容</p>
+                  <p class="mt-1 font-mono text-xs text-slate-800" data-shelf-uri>wms://loc/${shelf.code}</p>
+                  <div class="mt-3 flex flex-wrap gap-2">
+                    <a href="config_shelf_qrcode.html?code=${shelf.code}" class="text-blue-600 hover:underline">全屏查看</a>
+                    <button type="button" class="wms-loc-qr-download-single text-blue-600 hover:underline" data-shelf-code="${shelf.code}">下载 PNG</button>
+                  </div>
+                  <p class="mt-2 text-xs text-slate-400">货架保存后系统自动生成，编码不可修改</p>
+                </div>
+              </div>`}
+        </div>
+        ${formSection('其他信息')}
+        ${formField('说明', 'textarea', '', false, { colSpan: 2 })}
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">资料</label>${uploadZone()}</div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-primary">确定</button>
+      </div>
+    </div>`;
+}
+
+function purchaseRequestForm(backHref, options = {}) {
+  const { fromPending = false, total = fromPending ? '20000.00' : '30200.00', modalSize = 'xl' } = options;
+  const rows = fromPending ? purchaseMaterialRows.pending : purchaseMaterialRows.default;
+  const addHref = fromPending ? 'purchase_pending_select.html' : 'purchase_pending_select.html';
+  const materialBlock = purchaseMaterialTable(rows).replace('purchase_pending_select.html', addHref);
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="${modalSize}">
+      <div class="wms-modal-form wms-purchase-form">
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">申请单号</label><input type="text" value="系统自动生成" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">采购总额（元）</label><input type="text" value="${total}" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交人</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>张三</option><option selected>李四</option><option>王五</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交部门</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>采购部</option><option>设备部</option><option>工程部</option></select></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">备注</label><textarea rows="2" placeholder="请输入备注" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+        <div class="md:col-span-2">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">附件</label>
+          <div class="wms-upload-zone">
+            <i class="fa-solid fa-cloud-arrow-up text-lg text-slate-400"></i>
+            <p class="mt-2 text-sm text-slate-600">点击或拖拽上传附件</p>
+            <p class="mt-1 text-xs text-slate-400">支持 .rar .zip .doc .docx .pdf，单个文件不超过 500MB</p>
+          </div>
+        </div>
+        ${materialBlock}
+        <div class="md:col-span-2">
+          <label class="mb-2 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 采购方式</label>
+          <div class="wms-radio-group">
+            <label class="wms-radio-option"><input type="radio" name="purchase-method" /><span>询价</span></label>
+            <label class="wms-radio-option"><input type="radio" name="purchase-method" checked /><span>直采</span></label>
+            <label class="wms-radio-option"><input type="radio" name="purchase-method" /><span>招标</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-secondary">保存</button>
+        <button type="button" class="wms-btn wms-btn-primary">确定</button>
+      </div>
+    </div>`;
+}
+
+function hubPage(id, title, breadcrumb, backHref, cards) {
+  const grid = cards.map(([href, icon, label, desc]) => `
+    <a href="${href}" class="card flex items-start gap-4 rounded-2xl bg-white p-5 hover:ring-1 hover:ring-slate-200 transition">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid ${icon}"></i></div>
+      <div><div class="font-semibold text-slate-900">${label}</div><p class="mt-1 text-sm text-slate-500">${desc}</p></div>
+      <i class="fa-solid fa-chevron-right ml-auto text-slate-300 text-xs mt-1"></i>
+    </a>`).join('');
+  return `
+    <div class="mb-4"><a href="${backHref}" class="text-sm text-slate-500 hover:text-slate-900"><i class="fa-solid fa-arrow-left mr-1"></i>返回</a></div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">${grid}</div>`;
+}
+
+function categoryRowActions(isLevel1, type = 'fixed') {
+  const viewMap = { fixed: 'config_category_sub_fixed_view.html', like: 'config_category_sub_like_view.html', consumable: 'config_category_sub_consumable_view.html' };
+  const editMap = { fixed: 'config_category_sub_fixed.html', like: 'config_category_sub_like.html', consumable: 'config_category_sub_consumable.html' };
+  const viewHref = viewMap[type] || viewMap.fixed;
+  const editHref = editMap[type] || editMap.fixed;
+  const childHref = 'config_category_sub_child_form.html';
+  if (isLevel1) {
+    return `<a href="${childHref}" class="mr-2 hover:underline">添加子类</a><a href="${viewHref}" class="mr-2 hover:underline">查看</a><a href="${editHref}" class="mr-2 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline">删除</a>`;
+  }
+  return `<a href="${viewHref}" class="mr-2 hover:underline">查看</a><a href="${editHref}" class="mr-2 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline">删除</a>`;
+}
+
+function categorySubTableAsset(type, rows) {
+  const cols = ['序号', '分类编码', '分类名称', '计量单位', '备注'];
+  const th = cols.map(c => `<th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('') +
+    actionTh('px-3 py-2.5');
+  const tr = rows.map(r => {
+    const seqCell = r.level === 1
+      ? `<span class="text-slate-500">${r.expanded ? '➖' : '➕'}</span> <span class="ml-1">${r.seq}</span>`
+      : `<span class="pl-4 text-slate-600">${r.seq}</span>`;
+    const rowCls = r.level === 2 ? 'bg-slate-50/60' : '';
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80 ${rowCls}">
+      <td class="px-3 py-3 text-sm whitespace-nowrap">${seqCell}</td>
+      <td class="px-3 py-3 font-mono text-xs text-slate-700 whitespace-nowrap">${r.code}</td>
+      <td class="px-3 py-3 text-sm text-slate-700 whitespace-nowrap">${r.name}</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">${r.unit || '—'}</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">${r.remark || '—'}</td>
+      ${actionTd(categoryRowActions(r.level === 1, type), 'px-3 py-3')}
+    </tr>`;
+  }).join('');
+  return `<div class="wms-modal-table-wrap overflow-x-auto"><table class="min-w-full text-sm wms-data-table"><thead class="bg-slate-50/90"><tr>${th}</tr></thead><tbody>${tr}</tbody></table></div>`;
+}
+
+function categorySubTableConsumable(rows) {
+  const cols = ['序号', '分类编码', '分类名称', '计量单位', '库存下限', '库存上限', '安全库存', '备注'];
+  const th = cols.map(c => `<th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('') +
+    actionTh('px-3 py-2.5');
+  const tr = rows.map(r => {
+    const seqCell = r.level === 1
+      ? `<span class="text-slate-500">${r.expanded ? '➖' : '➕'}</span> <span class="ml-1">${r.seq}</span>`
+      : `<span class="pl-4 text-slate-600">${r.seq}</span>`;
+    const rowCls = r.level === 2 ? 'bg-slate-50/60' : '';
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80 ${rowCls}">
+      <td class="px-3 py-3 text-sm whitespace-nowrap">${seqCell}</td>
+      <td class="px-3 py-3 font-mono text-xs text-slate-700 whitespace-nowrap">${r.code}</td>
+      <td class="px-3 py-3 text-sm text-slate-700 whitespace-nowrap">${r.name}</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">${r.unit || '—'}</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">${r.min || '—'}</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">${r.max || '—'}</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">${r.safe || '—'}</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">${r.remark || '—'}</td>
+      ${actionTd(categoryRowActions(r.level === 1, 'consumable'), 'px-3 py-3')}
+    </tr>`;
+  }).join('');
+  return `<div class="wms-modal-table-wrap overflow-x-auto"><table class="min-w-full text-sm wms-data-table"><thead class="bg-slate-50/90"><tr>${th}</tr></thead><tbody>${tr}</tbody></table></div>`;
+}
+
+function categoryDetailHeader(items) {
+  return `<div class="wms-category-detail mb-4 pb-4 border-b border-slate-200">
+    <h3 class="text-base font-semibold text-slate-900 mb-3" data-wms-category-title>${items.title}</h3>
+    <dl class="flex flex-wrap gap-x-8 gap-y-2 text-sm">${items.fields.map(([k, v]) =>
+      `<div class="flex gap-2"><dt class="text-slate-500 shrink-0">${k}：</dt><dd class="text-slate-800">${v}</dd></div>`
+    ).join('')}</dl>
+  </div>`;
+}
+
+const CATEGORY_ASSET_SUB_ROWS = [
+  { level: 1, expanded: true, seq: '1', code: 'ZC-GD-001', name: '办公电脑', unit: '', remark: '' },
+  { level: 2, seq: '1.1', code: 'ZC-GD-001001', name: '一体机', unit: '台', remark: '' },
+  { level: 2, seq: '1.2', code: 'ZC-GD-001002', name: '笔记本', unit: '台', remark: '' },
+  { level: 1, expanded: false, seq: '2', code: 'ZC-GD-002', name: '设备配件', unit: '', remark: '' },
+];
+
+const CATEGORY_CONSUMABLE_SUB_ROWS = [
+  { level: 1, expanded: true, seq: '1', code: 'HC-BG-001', name: '办公电脑', unit: '', min: '', max: '', safe: '', remark: '' },
+  { level: 2, seq: '1.1', code: 'HC-BG-001001', name: '一体机', unit: '台', min: '', max: '', safe: '', remark: '' },
+  { level: 2, seq: '1.2', code: 'HC-BG-001002', name: '打印纸 A4', unit: '箱', min: '', max: '', safe: '', remark: '' },
+  { level: 1, expanded: false, seq: '2', code: 'HC-BG-002', name: '办公文具', unit: '', min: '', max: '', safe: '', remark: '' },
+];
+
+function acceptanceStandardPage() {
+  const treeNode = (key, label, status, active = false) => {
+    const statusCls = status === 'configured' ? 'text-blue-500' : 'text-slate-400';
+    const statusText = status === 'configured' ? '已配置' : '待配置';
+    const activeCls = active ? 'is-active bg-blue-50/80 text-blue-600' : 'text-slate-600 hover:bg-slate-50';
+    return `<li><button type="button" class="wms-tree-node wms-tree-node--major w-full flex items-center gap-2 rounded-lg px-2 py-1.5 text-left ${activeCls}" data-acceptance-key="${key}">
+      <i class="fa-regular fa-file ${active ? 'text-blue-400' : 'text-slate-400'}"></i>
+      <span class="flex-1 truncate">${label}<span class="ml-1 text-xs ${statusCls}">（${statusText}）</span></span>
+    </button></li>`;
+  };
+  return `<div class="wms-category-layout" data-wms-acceptance-layout>
+    <aside class="wms-category-tree card rounded-2xl bg-white p-4">
+      <div class="mb-3 text-sm font-semibold text-slate-900">物资分类</div>
+      <ul class="wms-tree space-y-0.5 text-sm" data-wms-acceptance-tree>
+        <li>
+          <button type="button" class="wms-tree-node wms-tree-node--group w-full flex items-center gap-2 rounded-lg px-2 py-2 text-left font-medium text-slate-700 hover:bg-slate-50">
+            <i class="fa-solid fa-chevron-down w-3 text-[10px] text-slate-400"></i>
+            <i class="fa-regular fa-folder-open text-slate-400"></i><span>资产类</span>
+          </button>
+          <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2">
+            ${treeNode('fixed', '固定资产', 'pending', true)}
+            ${treeNode('like', '类资产', 'configured')}
+          </ul>
+        </li>
+        <li class="mt-2">
+          <button type="button" class="wms-tree-node wms-tree-node--group w-full flex items-center gap-2 rounded-lg px-2 py-2 text-left font-medium text-slate-700 hover:bg-slate-50">
+            <i class="fa-solid fa-chevron-down w-3 text-[10px] text-slate-400"></i>
+            <i class="fa-regular fa-folder-open text-slate-400"></i><span>耗材类</span>
+          </button>
+          <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2">
+            ${treeNode('bg', '办公耗材', 'configured')}
+            ${treeNode('sc', '生产耗材', 'pending')}
+            ${treeNode('lb', '劳保耗材', 'pending')}
+          </ul>
+        </li>
+      </ul>
+    </aside>
+    <div class="wms-category-main card rounded-2xl bg-white p-5 min-w-0 flex flex-col">
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h3 class="text-sm font-semibold text-slate-900">验收标准</h3>
+        <div class="flex items-center gap-2">
+          <button type="button" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-acceptance-edit><i class="fa-regular fa-pen-to-square text-xs text-slate-400"></i>编辑</button>
+          <button type="button" class="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50" data-wms-acceptance-save disabled>保存</button>
+        </div>
+      </div>
+      <textarea
+        data-wms-acceptance-editor
+        rows="14"
+        readonly
+        placeholder="请输入验收标准"
+        class="wms-acceptance-editor min-h-[360px] flex-1 w-full resize-y rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-relaxed text-slate-700 outline-none read-only:bg-slate-50 read-only:cursor-default focus:border-blue-400 focus:bg-white focus:ring-2 focus:ring-blue-100"
+      ></textarea>
+      <p class="mt-3 text-xs text-slate-400">每一种子类拥有一套验收标准；默认只读，点击「编辑」后可修改并保存（无版本概念，物资验收时展示最新内容）。</p>
+    </div>
+  </div>`;
+}
+
+function categoryConfigPage() {
+  const assetTable = categorySubTableAsset('fixed', CATEGORY_ASSET_SUB_ROWS);
+  const consumableTable = categorySubTableConsumable(CATEGORY_CONSUMABLE_SUB_ROWS);
+  return `<div class="wms-category-layout">
+    <aside class="wms-category-tree card rounded-2xl bg-white p-4">
+      <div class="mb-3 text-sm font-semibold text-slate-900">物资大类</div>
+      <ul class="wms-tree space-y-0.5 text-sm" data-wms-category-tree>
+        <li>
+          <button type="button" class="wms-tree-node wms-tree-node--group w-full flex items-center gap-2 rounded-lg px-2 py-2 text-left font-medium text-slate-700 hover:bg-slate-50" data-group="asset">
+            <i class="fa-solid fa-chevron-down w-3 text-[10px] text-slate-400"></i>
+            <i class="fa-regular fa-folder-open text-slate-400"></i><span>资产类</span>
+          </button>
+          <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2">
+            <li><button type="button" class="wms-tree-node wms-tree-node--major is-active w-full flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-blue-600 bg-blue-50/80" data-major="fixed" data-panel="fixed"><i class="fa-regular fa-file text-blue-400"></i><span>固定资产</span></button></li>
+            <li><button type="button" class="wms-tree-node wms-tree-node--major w-full flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-slate-600 hover:bg-slate-50" data-major="like" data-panel="like"><i class="fa-regular fa-file text-slate-400"></i><span>类资产</span></button></li>
+          </ul>
+        </li>
+        <li class="mt-2">
+          <button type="button" class="wms-tree-node wms-tree-node--group w-full flex items-center gap-2 rounded-lg px-2 py-2 text-left font-medium text-slate-700 hover:bg-slate-50" data-group="consumable">
+            <i class="fa-solid fa-chevron-down w-3 text-[10px] text-slate-400"></i>
+            <i class="fa-regular fa-folder-open text-slate-400"></i><span>耗材类</span>
+          </button>
+          <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2">
+            <li><button type="button" class="wms-tree-node wms-tree-node--major w-full flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left text-slate-600 hover:bg-slate-50" data-major="bg" data-panel="consumable"><span class="flex items-center gap-2"><i class="fa-regular fa-file text-slate-400"></i><span>办公耗材</span></span><span class="wms-category-tree-actions hidden items-center gap-1"><a href="config_category_major_consumable_form.html" class="text-blue-500 hover:text-blue-700" title="编辑" onclick="event.stopPropagation()"><i class="fa-regular fa-pen-to-square text-xs"></i></a><button type="button" class="text-blue-500 hover:text-blue-700" title="删除" onclick="event.stopPropagation()"><i class="fa-regular fa-trash-can text-xs"></i></button></span></button></li>
+            <li><button type="button" class="wms-tree-node wms-tree-node--major w-full flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-slate-600 hover:bg-slate-50" data-major="sc" data-panel="consumable"><i class="fa-regular fa-file text-slate-400"></i><span>生产耗材</span></button></li>
+            <li><button type="button" class="wms-tree-node wms-tree-node--major w-full flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-slate-600 hover:bg-slate-50" data-major="lb" data-panel="consumable"><i class="fa-regular fa-file text-slate-400"></i><span>劳保耗材</span></button></li>
+          </ul>
+        </li>
+      </ul>
+      <a href="config_category_major_consumable_form.html" class="mt-4 flex h-8 w-8 items-center justify-center rounded-lg border border-dashed border-slate-300 text-slate-400 hover:border-slate-400 hover:text-slate-600" title="新增耗材大类"><i class="fa-solid fa-plus text-xs"></i></a>
+    </aside>
+    <div class="wms-category-main card rounded-2xl bg-white p-5 min-w-0">
+      <h3 class="mb-3 text-sm font-semibold text-slate-900">物资子类</h3>
+      <div class="mb-3 flex w-full flex-nowrap items-center justify-end gap-2 overflow-x-auto" data-wms-list-toolbar>
+        ${listSearchInput('分类编码、分类名称').replace(/data-wms-list-search/g, 'data-wms-category-search')}
+      </div>
+      <div class="mb-4">${primaryAddBtn('config_category_sub_fixed.html', 'data-wms-category-add')}</div>
+      <div data-wms-category-panel="fixed">${categoryDetailHeader({ title: '固定资产（ZC-GD）', fields: [['归还', '需要']] })}${assetTable}</div>
+      <div class="hidden" data-wms-category-panel="like">${categoryDetailHeader({ title: '类资产（LA-ZC）', fields: [['归还', '需要'], ['库存下限', '需要'], ['库存上限', '需要']] })}${categorySubTableAsset('like', [
+        { level: 1, expanded: true, seq: '1', code: 'LA-ZC-001', name: '电动工具', unit: '', remark: '' },
+        { level: 2, seq: '1.1', code: 'LA-ZC-001001', name: '电钻', unit: '台', remark: '' },
+      ])}</div>
+      <div class="hidden" data-wms-category-panel="consumable">${categoryDetailHeader({ title: '办公耗材（HC-BG）', fields: [['归还', '需要'], ['库存下限', '需要'], ['库存上限', '需要'], ['安全库存', '需要']] })}${consumableTable}</div>
+    </div>
+  </div>`;
+}
+
+function categoryViewMajorModal(title, backHref, fields) {
+  const rows = fields.map(([label, value]) =>
+    `<div class="flex gap-3 py-2 border-b border-slate-100 last:border-0"><span class="w-24 shrink-0 text-sm text-slate-500">${label}：</span><span class="text-sm text-slate-900">${value}</span></div>`
+  ).join('');
+  return `<div data-wms-modal data-modal-back="${backHref}" data-modal-size="md">
+    <div class="space-y-1">${rows}</div>
+    <div class="wms-modal-footer"><a href="${backHref}" class="wms-btn wms-btn-secondary">关闭</a></div>
+  </div>`;
+}
+
+function categoryMajorConsumableForm(backHref) {
+  return `<div data-wms-modal data-modal-back="${backHref}" data-modal-size="md">
+    <div class="wms-modal-form">
+      ${formField('分类编码', 'text', '系统生成', false, { readonly: true })}
+      ${formField('分类名称', 'text', '', true)}
+      ${formField('归还', 'select', ['需要', '不需要'], true)}
+      ${formField('库存下限', 'select', ['需要', '不需要'], true)}
+      ${formField('库存上限', 'select', ['需要', '不需要'], true)}
+      ${formField('安全库存', 'select', ['需要', '不需要'], true)}
+      ${formField('损耗标准', 'select', ['需要', '不需要'], false)}
+    </div>
+    <div class="wms-modal-footer"><a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a><button type="button" class="wms-btn wms-btn-primary">确定</button></div>
+  </div>`;
+}
+
+function categorySubForm(backHref, { title, level = 1, type = 'fixed' }) {
+  const isConsumable = type === 'consumable';
+  const section = `<div class="md:col-span-2"><h3 class="wms-form-section-title">${level === 1 ? '子类信息' : '子类信息 · 二级'}</h3></div>`;
+  const parentField = level === 2 ? formField('父级分类', 'select', [{ label: '办公电脑 (ZC-GD-001)', selected: true }], true) : '';
+  const inheritTable = level === 1 && !isConsumable ? `<div class="md:col-span-2 rounded-lg border border-slate-200 overflow-hidden text-sm"><table class="min-w-full"><thead class="bg-slate-50"><tr><th class="px-3 py-2 text-left text-xs text-slate-500">分类编码</th><th class="px-3 py-2 text-left text-xs text-slate-500">分类名称</th><th class="px-3 py-2 text-left text-xs text-slate-500">归还</th></tr></thead><tbody><tr class="border-t"><td class="px-3 py-2 font-mono text-xs">ZC-GD</td><td class="px-3 py-2">${title.replace(' · 新增子类', '')}</td><td class="px-3 py-2">需要</td></tr></tbody></table></div>` : '';
+  const extraFields = isConsumable
+    ? `${formField('库存下限', 'select', ['需要', '不需要'], false)}${formField('库存上限', 'select', ['需要', '不需要'], false)}${formField('安全库存', 'select', ['需要', '不需要'], false)}`
+    : `${formField('归还', 'select', ['需要', '不需要'], true)}${level === 2 ? formField('借用周期（天）', 'number', '90', false) : ''}`;
+  return `<div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg">
+    <div class="wms-modal-form wms-warehouse-form">
+      ${section}
+      ${formField('分类编码', 'text', '系统生成', false, { readonly: true })}
+      ${parentField}
+      ${formField('分类名称', 'text', '', true)}
+      ${formField('计量单位', 'select', ['台', '个', '箱', '套'], true)}
+      ${extraFields}
+      ${formField('备注', 'textarea', '', false, { colSpan: 2 })}
+      ${inheritTable}
+    </div>
+    <div class="wms-modal-footer"><a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a><button type="button" class="wms-btn wms-btn-primary">确定</button></div>
+  </div>`;
+}
+
+const pages = {
+  ledger_warehouse: page('ledger_warehouse', '仓库台账', '物资台账 / 仓库台账', ledgerWarehousePage()),
+
+  ledger_transaction: page('ledger_transaction', '出入库记录', '物资台账 / 出入库记录', ledgerTransactionPage()),
+
+  mine_pending_pickup: page('mine_pending_pickup', '待领物资', '我的物资 / 待领物资', listPage({
+    desc: '领用申请审核通过后的物资领取明细',
+    tabs: ['全部', '待领取', '已领取'],
+    searchPlaceholder: '领用申请单号、物资编码、物资名称、出库单号',
+    columns: ['序号', '领用申请单号', '物资编码', '物资名称', '规格型号', '计量单位', '物资大类', '物资子类', '申请数量', '出库单号', '出库数量', '出库日期'],
+    rows: [
+      pendingPickupRow(['1', 'LY202510001', 'GD001001-001', '抓斗', '455', '个', '资产-固定资产', '设备-配件', '5', LIST_EMPTY, LIST_EMPTY, LIST_EMPTY], '待领取', 'LY202510001'),
+      pendingPickupRow(['2', 'LY202510001', 'GD001001-002', '料斗', '455', '个', '资产-固定资产', '设备-配件', '10', LIST_EMPTY, LIST_EMPTY, LIST_EMPTY], '待领取', 'LY202510001'),
+      pendingPickupRow(['3', 'LY202510002', 'GD001001-003', '螺丝刀', '455', '个', '资产-固定资产', '设备-配件', '10', 'LY202510002-CK001', '10', '2025-09-03'], '已领取', 'LY202510002'),
+      pendingPickupRow(['4', 'LY202510003', 'GD001001-004', '扳手', '455', '个', '资产-固定资产', '设备-配件', '5', 'LY202510003-CK001', '5', '2025-09-03'], '已领取', 'LY202510003'),
+      pendingPickupRow(['5', 'LY202510004', 'GD001001-005', '钢丝绳', '455', 'm', '资产-固定资产', '设备-配件', '100', 'LY202510004-CK001', '100', '2025-09-03'], '已领取', 'LY202510004'),
+    ],
+  })),
+
+  mine_pending_return: page('mine_pending_return', '待还物资', '我的物资 / 待还物资', listPage({
+    desc: '需归还且尚未完成归还的物资；与仓管「物资归还」数据同步',
+    tabs: ['全部', '待归还', '已延期', '已归还'],
+    tabColumn: 9,
+    tabMap: { '部分归还': '待归还' },
+    searchPlaceholder: '领用单号、资产编码、物资名称、出库单号',
+    columns: ['序号', '领用单号', '资产编码', '物资名称', '规格型号', '计量单位', '物资大类', '借用人', '状态', '出库单号', '出库日期', '出库数量', '应还日期', '待还数量'],
+    rows: [
+      pendingReturnRow(['1', 'LY202606010003', 'ZC202605012', '工程测量仪', '全站仪 TS06', '台', '资产-固定资产', '张三', returnStatusBadge('待归还'), 'CK202606010003', '2026-06-01', '1', '2026-06-15', '1'], '待归还', 'LY202606010003-ZC202605012', '待归还'),
+      pendingReturnRow(['2', 'LY202605200008', 'LA-00331', '铝合金梯', '3m', '架', '资产-类资产', '王工', returnStatusBadge('已延期'), 'LY202605200008-CK001', '2026-05-20', '1', '2026-06-20', '1'], '已延期', 'LY202605200008-LA-00331', '已延期'),
+      pendingReturnRow(['3', 'LY202606070003', '—', '电钻', '650W', '台', '资产-类资产', '李工', returnStatusBadge('待归还'), '—', '—', '3', '2026-07-09', '3'], '待归还', 'LY202606070003-L1', '待归还'),
+      pendingReturnRow(['4', 'LY202606070005', '—', '钢丝绳', 'Φ18×100m', 'm', '资产-类资产', '赵六', returnStatusBadge('部分归还'), 'LY202606070005-CK001', '2026-06-08', '60', '2026-08-08', '20'], '待归还', 'LY202606070005-L1', '部分归还'),
+      pendingReturnRow(['5', 'LY202510006', 'GD001001-007', '螺丝刀', '455', '个', '资产-类资产', '王五', returnStatusBadge('已归还'), 'LY202510006-CK001', '2025-07-15', '8', '2025-08-05', '0'], '已归还', 'LY202510006-GD007', '已归还'),
+    ],
+  })),
+
+  mine_requisition_record: page('mine_pending_return', '领用记录', '我的物资 / 领用记录', requisitionRecordModal('mine_pending_return.html', REQUISITION_RECORD_SAMPLES.LY202510001)),
+
+  apply_plan_list: page('apply_plan_list', '物资计划', '物资申请 / 物资计划', listPage({
+    desc: '编制物资需求计划，支持一般计划与急件计划',
+    addBtn: true, addHref: 'apply_plan_form.html',
+    tabs: ['全部', '草稿', '审核中', '已通过'],
+    tabColumn: 4,
+    tabMap: { '审核通过': '已通过' },
+    searchPlaceholder: '计划单号、计划名称',
+    filters: [{ label: '计划类型', key: 'planType', column: 2, options: ['全部', '一般计划', '急件计划'] }],
+    columns: ['计划单号', '计划名称', '计划类型', '最早需求日', '审批状态', '创建时间'],
+    rows: [
+      ['JH202606090001', '六月办公物资计划', badge('一般计划','info'), '2026-06-20', badge('审核通过','success'), '2026-06-05'],
+      ['JH202606080003', '应急防汛物资', badge('急件计划','danger'), '2026-06-10', badge('审核中','warning'), '2026-06-08'],
+    ],
+    actions: '<a href="apply_plan_form.html" class="mr-3 hover:underline">查看</a><a href="#" class="text-slate-400">审核</a>',
+  })),
+
+  apply_requisition_list: page('apply_requisition_list', '领用申请', '物资申请 / 领用申请', listPage({
+    desc: '发起物资领用，审核通过后生成出库待办',
+    addBtn: true, addHref: 'apply_requisition_form.html',
+    tabs: ['全部', '草稿', '审核中', '已通过'],
+    tabColumn: 4,
+    tabMap: { '审核通过': '已通过' },
+    searchPlaceholder: '领用单号、计划单号、申请事由',
+    columns: ['领用单号', '计划单号', '申请事由', '申请时间', '审批状态'],
+    rows: [
+      ['LY202606090005', 'JH202606090001', '项目部日常办公', '2026-06-09', badge('审核中','warning')],
+      ['LY202606070002', '—', '施工现场临时用具', '2026-06-07', badge('审核通过','success')],
+    ],
+    actions: '<a href="apply_requisition_form.html" class="mr-3 hover:underline">查看</a><a href="#" class="hover:underline">审核</a>',
+  })),
+
+  purchase_message: page('purchase_message', '消息中心', '采购管理 / 消息中心', `
+    <div class="space-y-3">
+      ${[
+        ['待审批', '采购申请 CG202606090002 待您审批', '10 分钟前', 'fa-file-circle-check'],
+        ['待入库', '验收单 YS202606080015 已通过，请安排入库', '1 小时前', 'fa-arrow-down-to-bracket'],
+        ['超期提醒', '资产 LA-00331 归还已超期 4 天', '今天 08:00', 'fa-triangle-exclamation'],
+      ].map(([tag, msg, time, icon]) => `
+        <div class="card flex cursor-pointer items-start gap-4 rounded-2xl bg-white p-4">
+          <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid ${icon}"></i></div>
+          <div class="flex-1"><div class="mb-1 flex items-center gap-2"><span class="text-xs font-medium text-slate-900">${tag}</span><span class="text-xs text-slate-400">${time}</span></div><p class="text-sm text-slate-600">${msg}</p></div>
+          <i class="fa-solid fa-chevron-right text-slate-300 text-xs mt-2"></i>
+        </div>`).join('')}
+    </div>`),
+
+  purchase_pending_list: page('purchase_pending_list', '待采物资', '采购管理 / 待采物资', purchasePendingListPage()),
+
+  purchase_request_list: page('purchase_request_list', '采购申请', '采购管理 / 采购申请', listPage({
+    desc: '急件采购申请记录，按添加时间降序',
+    addBtn: true, addHref: 'purchase_request_form.html',
+    tabs: ['全部', '待提交', '审核中', '已通过'],
+    tabColumn: 5,
+    tabMap: { '审核通过': '已通过' },
+    searchPlaceholder: '申请单号、提交人、提交部门',
+    columns: ['序号', '申请单号', '采购总额（元）', '申请日期', '完成供货日期', '审批状态', '提交人', '提交部门'],
+    rows: [
+      { cells: ['1', 'JJSQ202606090002', '28,600.00', '2026-06-09', '<span class="text-slate-400">—</span>', badge('审核中','warning'), '李四', '采购部'], actions: '<a href="purchase_request_form.html?mode=view" class="mr-2 hover:underline">查看</a><a href="purchase_request_form.html?mode=audit" class="hover:underline">审核</a>' },
+      { cells: ['2', 'JJSQ202606050001', '156,000.00', '2026-06-05', '2026-06-18', badge('审核通过','success'), '张三', '采购部'], actions: '<a href="purchase_request_form.html?mode=view" class="hover:underline">查看</a>' },
+      { cells: ['3', 'JJSQ202606030003', '2,000.00', '2026-06-03', '<span class="text-slate-400">—</span>', badge('待提交','info'), '李四', '采购部'], actions: '<a href="purchase_request_form.html?mode=view" class="mr-2 hover:underline">查看</a><a href="purchase_request_form.html?mode=edit" class="mr-2 hover:underline">编辑</a><button type="button" class="hover:underline" data-wms-purchase-submit-audit>发起审核</button>' },
+    ],
+  })),
+
+  purchase_plan_apply: page('purchase_plan_apply', '计划采购申请', '采购管理 / 计划采购申请', listPage({
+    desc: '计划性采购申请，含计划申请与急件申请',
+    addBtn: true, addHref: 'purchase_plan_form.html',
+    tabs: ['全部', '计划申请', '急件申请'],
+    searchPlaceholder: '申请单号、采购方式',
+    filters: [{ label: '审批状态', key: 'status', column: 4, options: ['全部', '草稿', '审核中', '审核通过'] }],
+    columns: ['申请单号', '采购方式', '参考总额', '申请日期', '审批状态'],
+    rows: [
+      { cells: ['PC202606070001', '招标', '¥ 890,000.00', '2026-06-07', badge('审核通过','success')], tab: '计划申请' },
+      { cells: ['PC202606090003', '询价', '¥ 45,200.00', '2026-06-09', badge('草稿','info')], tab: '急件申请' },
+    ],
+  })),
+
+  purchase_execute_list: page('purchase_execute_list', '物资采购', '采购管理 / 物资采购', listPage({
+    desc: '根据采购申请单自动生成采购记录，按审核通过时间降序',
+    tabs: ['全部', '待采购', '已采购'],
+    tabColumn: 8,
+    tabMap: { '待询价': '待采购', '已询价': '已采购' },
+    searchPlaceholder: '申请单号、采购单号',
+    filters: [{ label: '采购方式', key: 'method', column: 3, options: ['全部', '招标', '询价', '直采'] }],
+    columns: ['序号', '申请单号', '参考总额（元）', '采购方式', '采购单号', '发起日期', '截止日期', '采购总价（元）', '状态', '审批状态', '审批人', '审批节点', '审核时间'],
+    rows: [
+      {
+        cells: ['1', 'JHSQ202510001', '100.00', '直采', 'JHSQ202510001', '2025-10-20', '2025-10-20', '<span class="text-slate-400">—</span>', badge('待询价','warning'), badge('待提交','info'), '<span class="text-slate-400">—</span>', '<span class="text-slate-400">—</span>', '<span class="text-slate-400">—</span>'],
+        actions: purchaseExecuteRowActions('直采', 'pending'),
+      },
+      {
+        cells: ['2', 'JHSQ202510002', '28,600.00', '询价', 'JHSQ202510002', '2025-10-21', '2025-10-28', '<span class="text-slate-400">—</span>', badge('待询价','warning'), badge('待提交','info'), '<span class="text-slate-400">—</span>', '<span class="text-slate-400">—</span>', '<span class="text-slate-400">—</span>'],
+        actions: purchaseExecuteRowActions('询价', 'pending'),
+      },
+      {
+        cells: ['3', 'JHSQ202510003', '890,000.00', '招标', 'JHSQ202510003', '2025-10-22', '2025-11-05', '<span class="text-slate-400">—</span>', badge('待询价','warning'), badge('待提交','info'), '<span class="text-slate-400">—</span>', '<span class="text-slate-400">—</span>', '<span class="text-slate-400">—</span>'],
+        actions: purchaseExecuteRowActions('招标', 'pending'),
+      },
+      {
+        cells: ['4', 'JHSQ202510004', '100.00', '直采', 'JHSQ202510004', '2025-10-20', '2025-10-20', '2,000.00', badge('待询价','warning'), badge('审核中','warning'), '<span class="text-slate-400">—</span>', '<span class="text-slate-400">—</span>', '<span class="text-slate-400">—</span>'],
+        actions: purchaseExecuteRowActions('直采', 'auditing'),
+      },
+      {
+        cells: ['5', 'JHSQ202510005', '45,200.00', '询价', 'JHSQ202510005', '2025-10-18', '2025-10-25', '42,800.00', badge('已询价','success'), badge('已审核','success'), '<span class="text-slate-400">—</span>', '<span class="text-slate-400">—</span>', '<span class="text-slate-400">—</span>'],
+        actions: purchaseExecuteRowActions('询价', 'done'),
+      },
+      {
+        cells: ['6', 'JHSQ202510006', '156,000.00', '招标', 'JHSQ202510006', '2025-10-15', '2025-10-30', '152,000.00', badge('已询价','success'), badge('已审核','success'), '<span class="text-slate-400">—</span>', '<span class="text-slate-400">—</span>', '<span class="text-slate-400">—</span>'],
+        actions: purchaseExecuteRowActions('招标', 'done'),
+      },
+    ],
+  })),
+
+  purchase_supply_list: page('purchase_supply_list', '供应商供货单', '采购管理 / 供应商供货单', listPage({
+    desc: '按供应商/物资拆分；待供货/供货中可终结订单（完成供货），已供货仅查看',
+    tabs: ['全部', '待供货', '供货中', '已供货'],
+    tabColumn: 4,
+    searchPlaceholder: '供应商名称、物资编码、物资名称',
+    columns: ['供货单号', '供应商', '物资名称', '需求/已供', '状态'],
+    rows: [
+      supplyRow(['GH2025001', '科尼', '抓斗', '10 / 10 个', supplyStatusBadge('已供货')], '已供货', 'GH2025001'),
+      supplyRow(['GH2025002', '上海佩纳', '料斗', '10 / 10 个', supplyStatusBadge('已供货')], '已供货', 'GH2025002'),
+      supplyRow(['GH2025003', '河南蒲瑞', '钢丝绳', '100 / 50 m', supplyStatusBadge('供货中')], '供货中', 'GH2025003'),
+      supplyRow(['GH2025004', '江苏华能电子有限公司', '螺丝刀', '20 / 10 个', supplyStatusBadge('供货中')], '供货中', 'GH2025004'),
+      supplyRow(['GH2025005', '宁波北仑君威有限公司', '扳手', '20 / 0 个', supplyStatusBadge('待供货')], '待供货', 'GH2025005'),
+    ],
+  })),
+
+  warehouse_pending_check: page('warehouse_pending_check', '待验物资', '物资管理 / 待验物资', listPage({
+    desc: '待验收与验收中的供货单汇总（同源物资验收）',
+    searchPlaceholder: '物资供货单号、供应商名称、物资名称',
+    filters: [{ label: '验收状态', key: 'status', column: 13, options: ['全部', '待验收', '验收中'] }],
+    columns: ['序号', '物资供货单号', '供应商名称', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '计量单位', '需求数量', '已验收数量', '合格数量', '不合格数量', '验收状态'],
+    rows: [
+      acceptanceRow(['1', 'GH2025005', '宁波北仑君威有限公司', 'GD001001-005', '扳手', '455', '资产-固定资产', '设备-配件', '个', '20', '0', '0', '0', acceptanceStatusBadge('待验收')], '待验收', 'GH2025005'),
+      acceptanceRow(['2', 'GH2025003', '河南蒲瑞', 'GD001001-003', '钢丝绳', '455', '资产-固定资产', '设备-配件', 'm', '100', '50', '50', '0', acceptanceStatusBadge('验收中')], '验收中', 'GH2025003'),
+      acceptanceRow(['3', 'GH2025004', '江苏华能电子有限公司', 'GD001001-004', '螺丝刀', '455', '资产-固定资产', '设备-配件', '个', '20', '10', '9', '1', acceptanceStatusBadge('验收中')], '验收中', 'GH2025004'),
+    ],
+  })),
+
+  warehouse_acceptance_list: page('warehouse_acceptance_list', '物资验收', '物资管理 / 物资验收', listPage({
+    desc: '分批次验收，1 个供货单可对应多个验收单；根据供货单自动生成',
+    tabs: ['全部', '待验收', '验收中', '已验收'],
+    tabColumn: 13,
+    searchPlaceholder: '物资供货单号、供应商名称、物资编码、物资名称',
+    columns: ['序号', '物资供货单号', '供应商名称', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '计量单位', '需求数量', '已验收数量', '合格数量', '不合格数量', '验收状态'],
+    rows: [
+      acceptanceRow(['1', 'GH2025001', '科尼', 'GD001001-001', '抓斗', '455', '资产-固定资产', '设备-配件', '个', '10', '10', '10', '0', acceptanceStatusBadge('已验收')], '已验收', 'GH2025001'),
+      acceptanceRow(['2', 'GH2025002', '上海佩纳', 'GD001001-002', '料斗', '455', '资产-固定资产', '设备-配件', '个', '10', '10', '10', '0', acceptanceStatusBadge('已验收')], '已验收', 'GH2025002'),
+      acceptanceRow(['3', 'GH2025003', '河南蒲瑞', 'GD001001-003', '钢丝绳', '455', '资产-固定资产', '设备-配件', 'm', '100', '50', '50', '0', acceptanceStatusBadge('验收中')], '验收中', 'GH2025003'),
+      acceptanceRow(['4', 'GH2025004', '江苏华能电子有限公司', 'GD001001-004', '螺丝刀', '455', '资产-固定资产', '设备-配件', '个', '20', '10', '9', '1', acceptanceStatusBadge('验收中')], '验收中', 'GH2025004'),
+      acceptanceRow(['5', 'GH2025005', '宁波北仑君威有限公司', 'GD001001-005', '扳手', '455', '资产-固定资产', '设备-配件', '个', '20', '0', '0', '0', acceptanceStatusBadge('待验收')], '待验收', 'GH2025005'),
+    ],
+  })),
+
+  warehouse_inbound_list: page('warehouse_inbound_list', '物资入库', '物资管理 / 物资入库', warehouseInboundListPage()),
+
+  warehouse_outbound_list: page('warehouse_outbound_list', '物资出库', '物资管理 / 物资出库', warehouseOutboundListPage()),
+
+  warehouse_return_list: page('warehouse_return_list', '物资归还', '物资管理 / 物资归还', warehouseReturnListPage()),
+
+  warehouse_refund_list: page('warehouse_refund_list', '物资退货', '物资管理 / 物资退货', warehouseRefundListPage()),
+
+  supplier_list: page('supplier_list', '供应商列表', '供应商管理 / 供应商列表', listPage({
+    desc: '供应商档案与供货状态管理',
+    addBtn: true, addHref: 'supplier_form.html',
+    searchPlaceholder: '供应商名称、联系人、联系电话',
+    filters: [{ label: '供货状态', key: 'status', column: 3, options: ['全部', '正常', '暂停'] }],
+    columns: ['供应商名称', '联系人', '联系电话', '供货状态', '添加时间'],
+    rows: [
+      ['华建物资有限公司', '陈经理', '138****8821', badge('正常','success'), '2026-01-15'],
+      ['鄂东办公用品', '刘主管', '139****3302', badge('正常','success'), '2026-02-20'],
+    ],
+  })),
+
+  supplier_eval_list: page('supplier_eval_list', '供应商评价', '供应商管理 / 供应商评价', listPage({
+    desc: '供应商绩效评价记录',
+    addBtn: true, addHref: 'supplier_eval_form.html',
+    tabs: ['全部', '草稿', '审核中', '已通过'],
+    tabColumn: 4,
+    tabMap: { '审核通过': '已通过' },
+    searchPlaceholder: '评价单号、供应商',
+    columns: ['评价单号', '供应商', '综合得分', '评价等级', '审批状态'],
+    rows: [
+      ['PJ202606010001', '华建物资有限公司', '92', badge('A','success'), badge('审核通过','success')],
+    ],
+  })),
+
+  config_warehouse: page('config_warehouse', '仓库配置', '基础配置 / 仓库配置', warehouseConfigPage()),
+
+  config_category: page('config_category', '分类管理', '基础配置 / 分类管理', categoryConfigPage()),
+
+  config_material_catalog: page('config_material_catalog', '物资清单', '基础配置 / 物资清单', materialCatalogPage()),
+
+  planning_inside: page('planning_inside', '场内', '规划内容 / 场内', listPage({
+    desc: '仓库内物资存放位置与数量',
+    searchPlaceholder: '物资编码、物资名称、仓库',
+    columns: ['物资编码', '物资名称', '仓库', '分区', '货架', '数量'],
+    rows: [
+      ['HC-00089', '打印纸 A4', '主仓库', 'A区', 'A-01', '186'],
+      ['LA-00456', '电钻', '主仓库', 'B区', 'B-03', '8'],
+    ],
+  })),
+
+  planning_outside: page('planning_outside', '场外', '规划内容 / 场外', listPage({
+    desc: '仓库外资产使用地点与数量（不含耗材）',
+    searchPlaceholder: '物资编码、物资名称、使用地点',
+    columns: ['物资编码', '物资名称', '使用地点', '数量', '责任人'],
+    rows: [
+      ['ZC202605012', '工程测量仪', '武穴大桥施工点', '1', '王工'],
+      ['LA-00331', '铝合金梯', '城东项目部', '2', '李工'],
+    ],
+  })),
+
+  config_unit_list: page('config_unit_list', '计量单位', '基础配置 / 计量单位', listPage({
+    desc: '物资计量单位主数据',
+    addBtn: true, addHref: 'config_unit_form.html',
+    searchPlaceholder: '单位编码、单位名称',
+    filters: [{ label: '状态', key: 'status', column: 4, options: ['全部', '启用', '停用'] }],
+    columns: ['单位编码', '单位名称', '单位符号', '适用类型', '状态'],
+    rows: [
+      ['DW202606001', '桶', '桶', '耗材', badge('启用', 'success')],
+      ['DW202606002', '台', '台', '资产', badge('启用', 'success')],
+      ['DW202606003', '米', 'm', '通用', badge('启用', 'success')],
+    ],
+  })),
+
+  config_location_list: page('config_location_list', '使用地点', '基础配置 / 使用地点', locationListPage()),
+
+  config_acceptance_standard: page('config_acceptance_standard', '验收标准', '基础配置 / 验收标准', acceptanceStandardPage()),
+
+  system_workflow: page('system_workflow', '流程配置', '系统 / 流程配置', listPage({
+    desc: '配置各类单据审批流程模板',
+    addBtn: true, addHref: 'system_workflow_form.html',
+    searchPlaceholder: '流程编码、单据类型',
+    filters: [{ label: '状态', key: 'status', column: 3, options: ['全部', '启用', '停用'] }],
+    columns: ['流程编码', '单据类型', '审批节点', '状态', '更新时间'],
+    rows: [
+      ['WF-PLAN', '物资计划', '编制人 → 部门负责人 → 物资管理', badge('启用','success'), '2026-06-01'],
+      ['WF-REQUISITION', '领用申请', '申请人 → 部门负责人 → 仓库管理员', badge('启用','success'), '2026-06-01'],
+      ['WF-PURCHASE-URGENT', '急件采购申请', '采购员 → 采购负责人 → 分管领导', badge('启用','success'), '2026-06-01'],
+    ],
+    actions: '<a href="#" class="hover:underline">编辑</a>',
+  })),
+};
+
+// Form pages
+const forms = {
+  apply_plan_form: page('apply_plan_list', '新增物资计划', '物资申请 / 新增计划', formBody('物资计划', [
+    ['计划名称', 'text', '六月办公物资计划', true],
+    ['计划单号', 'text', 'JH202606090001（系统自动）', false],
+    ['计划类型', 'select', ['一般计划', '急件计划'], true],
+    ['需求说明', 'textarea', '', false],
+  ], 'apply_plan_list.html', {
+    extraHtml: `<div class="md:col-span-2 rounded-xl bg-slate-50 p-4">
+      <div class="mb-3 flex items-center justify-between"><span class="text-sm font-medium text-slate-900">计划明细</span>
+        <a href="apply_plan_select_material.html" class="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-plus"></i> 选择物资清单</a></div>
+      <table class="min-w-full text-sm"><thead><tr class="text-left text-xs text-slate-500"><th class="pb-2">物资编码</th><th class="pb-2">名称</th><th class="pb-2">数量</th><th class="pb-2">需求日期</th></tr></thead>
+      <tbody><tr><td class="pt-2">HC-00089</td><td>打印纸 A4</td><td>200</td><td>2026-06-20</td></tr></tbody></table></div>`,
+  })),
+
+  apply_requisition_form: page('apply_requisition_list', '领用申请', '物资申请 / 领用申请', requisitionFormPage('apply_requisition_list.html')),
+
+  warehouse_inbound_success: page('warehouse_inbound_list', '入库成功', '物资管理 / 入库成功', inboundSuccessPage()),
+
+  warehouse_inbound_form: page('warehouse_inbound_list', '物资入库', '物资管理 / 执行入库', warehouseInboundFormPage('warehouse_inbound_list.html')),
+
+  warehouse_inbound_fixed_form: page('warehouse_inbound_list', '固定资产入库', '物资管理 / 固定资产入库', warehouseInboundFormPage('warehouse_inbound_list.html', INBOUND_ACCEPT_SAMPLES['GH2025001-YS01'])),
+
+  warehouse_inbound_like_form: page('warehouse_inbound_list', '类资产入库', '物资管理 / 类资产入库', warehouseInboundFormPage('warehouse_inbound_list.html', INBOUND_ACCEPT_SAMPLES['GH2025004-YS01'])),
+
+  warehouse_inbound_consumable_form: page('warehouse_inbound_list', '耗材入库', '物资管理 / 耗材入库', warehouseInboundFormPage('warehouse_inbound_list.html', INBOUND_ACCEPT_SAMPLES['GH2025006-YS01'])),
+
+  warehouse_outbound_success: page('warehouse_outbound_list', '出库成功', '物资管理 / 出库成功', outboundSuccessPage()),
+
+  warehouse_outbound_fixed_form: page('warehouse_outbound_list', '固定资产出库', '物资管理 / 固定资产出库', warehouseOutboundFormPage('warehouse_outbound_list.html', OUTBOUND_REQUISITION_SAMPLES['LY202606070002-L1'])),
+
+  warehouse_outbound_like_form: page('warehouse_outbound_list', '类资产出库', '物资管理 / 类资产出库', warehouseOutboundFormPage('warehouse_outbound_list.html', OUTBOUND_REQUISITION_SAMPLES['LY202606070003-L1'])),
+
+  warehouse_outbound_consumable_form: page('warehouse_outbound_list', '耗材出库', '物资管理 / 耗材出库', warehouseOutboundFormPage('warehouse_outbound_list.html', OUTBOUND_REQUISITION_SAMPLES['LY202606070004-L1'])),
+
+  warehouse_outbound_form: page('warehouse_outbound_list', '选择出库类型', '物资管理 / 执行出库', hubPage('warehouse_outbound_list', '选择出库类型', '物资管理 / 执行出库', 'warehouse_outbound_list.html', [
+    ['warehouse_outbound_fixed_form.html', 'fa-computer', '固定资产出库', '必选资产编码，一码一物'],
+    ['warehouse_outbound_like_form.html', 'fa-screwdriver-wrench', '类资产出库', '按数量从货位扣减'],
+    ['warehouse_outbound_consumable_form.html', 'fa-boxes-stacked', '耗材出库', '按数量 FIFO 扣减'],
+  ])),
+
+  warehouse_return_success: page('warehouse_return_list', '归还成功', '物资管理 / 归还成功', returnSuccessPage()),
+
+  warehouse_return_fixed_form: page('warehouse_return_list', '固定资产归还', '物资管理 / 固定资产归还', warehouseReturnFormPage('warehouse_return_list.html', RETURN_PENDING_SAMPLES['LY202606010003-ZC202605012'])),
+
+  warehouse_return_like_form: page('warehouse_return_list', '类资产归还', '物资管理 / 类资产归还', warehouseReturnFormPage('warehouse_return_list.html', RETURN_PENDING_SAMPLES['LY202606070003-L1'])),
+
+  warehouse_return_scrap_form: page('warehouse_return_list', '归还作废', '物资管理 / 归还作废', warehouseReturnScrapPage('warehouse_return_list.html')),
+
+  warehouse_return_scrap: page('warehouse_return_list', '归还作废', '物资管理 / 归还作废', warehouseReturnScrapPage('warehouse_return_list.html')),
+
+  warehouse_return_form: page('warehouse_return_list', '物资归还', '物资管理 / 执行归还', warehouseReturnFormPage('warehouse_return_list.html', RETURN_PENDING_SAMPLES['LY202606010003-ZC202605012'])),
+
+  purchase_request_form: page('purchase_request_list', '采购申请', '采购管理 / 新建申请', purchaseRequestForm('purchase_request_list.html')),
+
+  warehouse_acceptance_form: page('warehouse_acceptance_list', '物资验收', '物资管理 / 执行验收', acceptanceFormPage('warehouse_acceptance_list.html')),
+
+  warehouse_acceptance_detail: page('warehouse_acceptance_list', '供货详情', '物资管理 / 查看供货', acceptanceDetailPage('warehouse_acceptance_list.html')),
+
+  warehouse_acceptance_record: page('warehouse_acceptance_list', '验收记录', '物资管理 / 验收记录', acceptanceRecordPage('warehouse_acceptance_list.html')),
+
+  warehouse_acceptance_record_detail: page('warehouse_acceptance_list', '验收记录详情', '物资管理 / 验收记录详情', acceptanceRecordDetailPage('warehouse_acceptance_record.html', 'GH2025004-YS02')),
+
+  purchase_plan_form: page('purchase_plan_apply', '新建计划采购', '采购管理 / 新建计划采购', hubPage('purchase_plan_apply', '新建计划采购', '采购管理 / 计划采购申请', 'purchase_plan_apply.html', [
+    ['purchase_plan_direct.html', 'fa-bolt', '直采', '指定供应商直接采购'],
+    ['purchase_plan_inquiry_bid.html', 'fa-gavel', '询价/招标', '多供应商比价或招标'],
+    ['purchase_plan_add_material.html', 'fa-list', '添加物资', '维护采购明细行'],
+  ])),
+
+  purchase_execute_form: page('purchase_execute_list', '选择采购方式', '采购管理 / 执行采购', hubPage('purchase_execute_list', '选择采购方式', '采购管理 / 物资采购', 'purchase_execute_list.html', [
+    ['purchase_execute_direct.html', 'fa-bolt', '直采-采购', '指定供应商、单价与数量'],
+    ['purchase_execute_inquiry.html', 'fa-scale-balanced', '询价-采购', '多家供应商询价对比'],
+    ['purchase_execute_bid.html', 'fa-gavel', '招标-采购', '招标比价与定标'],
+  ])),
+
+  supplier_form: page('supplier_list', '新增供应商', '供应商管理 / 新增供应商', formBody('供应商档案', [
+    ['供应商名称', 'text', '', true],
+    ['联系人', 'text', '', true],
+    ['联系电话', 'text', '', true],
+    ['供货状态', 'select', ['正常', '暂停', '黑名单'], true],
+  ], 'supplier_list.html')),
+
+  supplier_eval_form: page('supplier_eval_list', '新增评价', '供应商管理 / 新增评价', formBody('供应商评价', [
+    ['供应商', 'select', ['华建物资有限公司', '鄂东办公用品'], true],
+    ['质量得分', 'number', '90', true],
+    ['交付得分', 'number', '88', true],
+    ['服务得分', 'number', '92', true],
+    ['评价说明', 'textarea', '', false],
+  ], 'supplier_eval_list.html', {
+    extraHtml: `<div class="md:col-span-2"><a href="supplier_eval_add_supplier.html" class="text-sm font-medium text-slate-900 hover:underline"><i class="fa-solid fa-plus mr-1"></i>快速添加供应商</a></div>`,
+  })),
+
+  warehouse_refund_form: page('warehouse_refund_list', '新增退货', '物资管理 / 新增退货', hubPage('warehouse_refund_list', '新增退货', '物资管理 / 新增退货', 'warehouse_refund_list.html', [
+    ['warehouse_refund_list.html', 'fa-list-check', '从待退货任务', '推荐：验收不合格审核通过后自动生成待退任务'],
+    ['warehouse_refund_pre_form.html?refundKey=GH2025004-YS02-TH', 'fa-clipboard-check', '验收不合格退货', '示例：螺丝刀验收不合格退供应商'],
+    ['warehouse_refund_consumable_form.html?refundKey=RK202509002-TH01', 'fa-boxes-stacked', '在库耗材退货', '示例：安全帽在库退供应商'],
+  ])),
+
+  warehouse_refund_pre_form: page('warehouse_refund_list', '验收不合格退货', '物资管理 / 验收不合格退货', warehouseRefundPreFormPage('warehouse_refund_list.html', REFUND_PENDING_SAMPLES['GH2025004-YS02-TH'])),
+
+  warehouse_refund_fixed_form: page('warehouse_refund_list', '固定资产退货', '物资管理 / 固定资产退货', warehouseRefundPostFormPage('warehouse_refund_list.html', { ...REFUND_PENDING_SAMPLES['GH2025004-YS02-TH'], scene: 'post_inbound', inboundNo: 'RK202511220001', inboundQty: '9', pendingQty: '1', unqualifiedQty: '0' })),
+
+  warehouse_refund_like_form: page('warehouse_refund_list', '类资产退货', '物资管理 / 类资产退货', warehouseRefundPostFormPage('warehouse_refund_list.html', REFUND_PENDING_SAMPLES['TH202606030001'])),
+
+  warehouse_refund_consumable_form: page('warehouse_refund_list', '耗材退货', '物资管理 / 耗材退货', warehouseRefundPostFormPage('warehouse_refund_list.html', REFUND_PENDING_SAMPLES['RK202509002-TH01'])),
+
+  warehouse_refund_success: page('warehouse_refund_list', '退货成功', '物资管理 / 退货成功', refundSuccessPage()),
+
+  config_warehouse_form: page('config_warehouse', '新增仓库', '基础配置 / 新增仓库', warehouseForm('config_warehouse.html')),
+
+  config_material_form: page('config_material_catalog', '新增物资', '基础配置 / 新增物资', materialFormPage()),
+  config_material_detail: page('config_material_catalog', '查看物资', '基础配置 / 查看物资', materialDetailPage()),
+
+  // --- 物资申请：选择/添加明细 ---
+  apply_plan_select_material: selectPicker('apply_plan_list', '选择物资清单', '物资申请 / 选择物资清单', 'apply_plan_form.html', {
+    heading: '从物资清单选择计划明细（仅显示启用物资）',
+    columns: ['物资编码', '物资名称', '类型', '所属分类', '计量单位', '参考单价'],
+    rows: [
+      ['HC-00089', '打印纸 A4', materialTypeBadge('consumable'), '<span class="text-xs font-mono text-slate-500">HC-BG-001002</span>', '箱', '¥ 120'],
+      ['LA-00456', '电钻', materialTypeBadge('like'), '<span class="text-xs font-mono text-slate-500">LA-ZC-001001</span>', '台', '¥ 680'],
+      ['GD001001-001', '抓斗', materialTypeBadge('fixed'), '<span class="text-xs font-mono text-slate-500">ZC-GD-002</span>', '个', '¥ 10,000'],
+    ],
+  }),
+
+  apply_requisition_add_material: selectPicker('apply_requisition_list', '添加物资', '物资申请 / 添加领用物资', 'apply_requisition_form.html', {
+    heading: '选择领用物资（仅启用物资，显示可用库存）',
+    columns: ['物资编码', '物资名称', '类型', '可用库存', '仓库'],
+    rows: [
+      ['HC-00089', '打印纸 A4', materialTypeBadge('consumable'), '170', '主仓库/A区'],
+      ['LA-00456', '电钻', materialTypeBadge('like'), '6', '主仓库/B区'],
+    ],
+  }),
+
+  // --- 采购：待采/执行/计划 ---
+  purchase_pending_select: selectPicker('purchase_pending_list', '选择待采物资', '采购管理 / 选择', 'purchase_pending_list.html', {
+    heading: '从待采清单勾选物资，确认后进入采购申请',
+    modalSize: 'xl',
+    searchPlaceholder: '计划单号、物资编码、名称…',
+    confirmHref: 'purchase_pending_apply.html',
+    confirmLabel: '确定',
+    checkedCount: 2,
+    columns: ['计划单号', '计划名称', '计划类型', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '计量单位', '计划需求数量', '需求日期'],
+    rows: [
+      ['JH202606080003', '应急防汛物资', badge('急件计划','danger'), 'XF-00102', '防汛沙袋', '50×80cm', '耗材', '防汛物资', '条', '500', '2026-06-12'],
+      ['JH202606080003', '应急防汛物资', badge('急件计划','danger'), 'XF-00105', '抽水泵', 'QZ10-15', '类资产', '防汛设备', '台', '5', '2026-06-12'],
+      ['JH202606070001', '六月设备配件', badge('急件计划','danger'), 'GD001001-001', '抓斗', '455', '资产-固定资产', '设备-配件', '个', '10', '2026-06-15'],
+    ],
+  }),
+
+  purchase_pending_apply: page('purchase_pending_list', '采购申请', '采购管理 / 待采申请', purchaseRequestForm('purchase_pending_list.html', { fromPending: true })),
+
+  purchase_execute_direct: page('purchase_execute_list', '直采-采购', '采购管理 / 直采-采购', purchaseExecuteFormPage({
+    title: '直采采购', method: '直采', quoteSectionTitle: '直采信息', mode: 'direct',
+  })),
+
+  purchase_execute_inquiry: page('purchase_execute_list', '询价-采购', '采购管理 / 询价-采购', purchaseExecuteFormPage({
+    title: '询价采购', method: '询价', quoteSectionTitle: '询价信息', mode: 'inquiry',
+  })),
+
+  purchase_execute_bid: page('purchase_execute_list', '招标-采购', '采购管理 / 招标-采购', purchaseExecuteFormPage({
+    title: '招标采购', method: '招标比价', quoteSectionTitle: '招标比价信息', mode: 'bid', otherSectionTitle: '其他信息',
+  })),
+
+  purchase_plan_direct: page('purchase_plan_apply', '直采', '采购管理 / 计划直采', formBody('计划性直采申请', [
+    ['申请单号', 'text', '系统自动生成', false],
+    ['选定供应商', 'select', ['华建物资有限公司', '鄂东办公用品'], true],
+    ['参考总额', 'text', '', true],
+  ], 'purchase_plan_apply.html', { buttons: ['cancel', 'save', 'submit'] })),
+
+  purchase_plan_add_material: selectPicker('purchase_plan_apply', '添加物资', '采购管理 / 添加采购明细', 'purchase_plan_form.html', {
+    heading: '选择计划采购明细',
+    columns: ['物资编码', '物资名称', '计划数量', '参考单价', '计量单位'],
+    rows: [
+      ['GC-10001', '螺纹钢 Φ12', '100', '¥ 3,800/吨', '吨'],
+      ['HC-00089', '打印纸 A4', '200', '¥ 120', '箱'],
+    ],
+  }),
+
+  purchase_plan_inquiry_bid: page('purchase_plan_apply', '询价/招标', '采购管理 / 计划询价招标', formBody('计划性询价/招标', [
+    ['申请单号', 'text', '系统自动生成', false],
+    ['采购方式', 'select', ['询价', '招标'], true],
+    ['参考总额', 'text', '', false],
+    ['截止日期', 'text', '', true],
+  ], 'purchase_plan_apply.html', { buttons: ['cancel', 'save', 'submit'] })),
+
+  purchase_supply_complete: page('purchase_supply_list', '完成供货', '采购管理 / 完成供货', purchaseSupplyCompletePage('purchase_supply_list.html')),
+
+  // --- 出库/归还 ---
+  warehouse_outbound_select_asset: selectPicker('warehouse_outbound_list', '选择资产', '物资管理 / 选择资产', 'warehouse_outbound_fixed_form.html', {
+    heading: '选择可出库资产（在库状态）',
+    columns: ['资产编码', '物资名称', '类型', '所在货位', '状态'],
+    rows: [
+      ['ZC202606001', '工程测量仪', badge('固定资产','info'), '主仓库/B区', badge('在库','success')],
+      ['ZC202606002', '工程测量仪', badge('固定资产','info'), '主仓库/B区', badge('在库','success')],
+      ['LA-00456', '电钻', badge('类资产','info'), '主仓库/B区/B-03', badge('在库','success')],
+    ],
+  }),
+
+  ledger_asset_detail: page('ledger_warehouse', '资产详情', '物资台账 / 资产详情', assetDetailModal('ledger_warehouse.html', FIXED_ASSET_LEDGER_ROWS[0])),
+
+  ledger_asset_qrcode: page('ledger_warehouse', '资产二维码', '物资台账 / 资产二维码', assetQrcodeModal('ledger_warehouse.html', FIXED_ASSET_LEDGER_ROWS[0])),
+
+  ledger_transaction_detail: page('ledger_transaction', '流水详情', '物资台账 / 流水详情', transactionDetailModal('ledger_transaction.html', TRANSACTION_SAMPLES.RK202606090012)),
+
+  warehouse_refund_select_asset: selectPicker('warehouse_refund_list', '选择退货资产', '物资管理 / 选择退货资产', 'warehouse_refund_fixed_form.html', {
+    heading: '选择在库资产编码（退货至供应商）',
+    columns: ['资产编码', '物资名称', '所在货位', '状态'],
+    rows: [
+      ['GD001001-004-A', '螺丝刀', '主仓库/B区', badge('在库', 'success')],
+      ['GD001001-004-B', '螺丝刀', '主仓库/B区', badge('在库', 'success')],
+    ],
+  }),
+
+  // --- 基础配置 ---
+  config_unit_form: page('config_unit_list', '添加计量单位', '基础配置 / 添加计量单位', formBody('计量单位', [
+    ['单位编码', 'text', '系统自动生成', false],
+    ['单位名称', 'text', '', true],
+    ['单位符号', 'text', '', true],
+    ['适用类型', 'select', ['通用', '资产', '耗材'], true],
+  ], 'config_unit_list.html', { buttons: ['cancel', 'save'] })),
+
+  config_zone_form: page('config_warehouse', '新增分区', '基础配置 / 新增分区', zoneForm('config_warehouse.html')),
+
+  config_shelf_form: page('config_warehouse', '新增货架', '基础配置 / 新增货架', shelfForm('config_warehouse.html')),
+
+  config_shelf_qrcode: page('config_warehouse', '货位二维码', '基础配置 / 货位二维码', shelfQrcodeModal('config_warehouse.html', SHELF_SAMPLES['CK001001-HJ001'])),
+
+  config_location_form: page('config_location_list', '新增使用地点', '基础配置 / 新增地点', locationFormPage()),
+
+  config_eval_weight: page('config_category', '权重设置', '基础配置 / 权重设置', formBody('评价维度权重（合计 100%）', [
+    ['质量权重', 'number', '40', true],
+    ['交付权重', 'number', '35', true],
+    ['服务权重', 'number', '25', true],
+  ], 'config_category.html', { buttons: ['cancel', 'save'] })),
+
+  config_eval_grade: page('config_category', '评价等级设置', '基础配置 / 评价等级', formBody('等级阈值', [
+    ['A 级（≥）', 'number', '90', true],
+    ['B 级（≥）', 'number', '75', true],
+    ['C 级（≥）', 'number', '60', true],
+  ], 'config_category.html', { buttons: ['cancel', 'save'] })),
+
+  config_category_major_fixed: page('config_category', '固定资产', '基础配置 / 查看大类', categoryViewMajorModal('固定资产', 'config_category.html', [
+    ['分类编码', 'ZC-GD'], ['分类名称', '固定资产'], ['归还', '需要'],
+  ])),
+
+  config_category_major_like: page('config_category', '类资产', '基础配置 / 查看大类', categoryViewMajorModal('类资产', 'config_category.html', [
+    ['分类编码', 'LA-ZC'], ['分类名称', '类资产'], ['归还', '需要'], ['库存下限', '需要'], ['库存上限', '需要'],
+  ])),
+
+  config_category_major_consumable_form: page('config_category', '大类', '基础配置 / 新增耗材大类', categoryMajorConsumableForm('config_category.html')),
+
+  config_category_sub_fixed: page('config_category', '固定资产 · 新增子类', '基础配置 / 新增子类', categorySubForm('config_category.html', { title: '固定资产 · 新增子类', level: 1, type: 'fixed' })),
+
+  config_category_sub_fixed_view: page('config_category', '查看子类', '基础配置 / 查看子类', categoryViewMajorModal('办公电脑', 'config_category.html', [
+    ['分类编码', 'ZC-GD-001'], ['分类名称', '办公电脑'], ['计量单位', '—'], ['归还', '需要'],
+  ])),
+
+  config_category_sub_like: page('config_category', '类资产 · 新增子类', '基础配置 / 新增子类', categorySubForm('config_category.html', { title: '类资产 · 新增子类', level: 1, type: 'like' })),
+
+  config_category_sub_like_view: page('config_category', '查看子类', '基础配置 / 查看子类', categoryViewMajorModal('电动工具', 'config_category.html', [
+    ['分类编码', 'LA-ZC-001'], ['分类名称', '电动工具'], ['计量单位', '—'], ['归还', '需要'],
+  ])),
+
+  config_category_sub_consumable: page('config_category', '耗材 · 新增子类', '基础配置 / 新增子类', categorySubForm('config_category.html', { title: '办公耗材 · 新增子类', level: 1, type: 'consumable' })),
+
+  config_category_sub_consumable_view: page('config_category', '查看子类', '基础配置 / 查看子类', categoryViewMajorModal('办公电脑', 'config_category.html', [
+    ['分类编码', 'HC-BG-001'], ['分类名称', '办公电脑'], ['计量单位', '—'], ['库存下限', '需要'], ['库存上限', '需要'],
+  ])),
+
+  config_category_sub_child_form: page('config_category', '添加子类', '基础配置 / 添加二级子类', categorySubForm('config_category.html', { title: '添加二级子类', level: 2, type: 'fixed' })),
+
+  supplier_eval_add_supplier: page('supplier_eval_list', '添加供应商', '供应商管理 / 快速添加', formBody('供应商档案', [
+    ['供应商名称', 'text', '', true],
+    ['联系人', 'text', '', true],
+    ['联系电话', 'text', '', true],
+  ], 'supplier_eval_form.html', { buttons: ['cancel', 'save'] })),
+
+  system_workflow_form: page('system_workflow', '新增流程', '系统 / 新增流程', formBody('审批流程模板', [
+    ['流程编码', 'text', '', true],
+    ['单据类型', 'select', ['物资计划', '领用申请', '采购申请'], true],
+    ['审批节点', 'textarea', '节点1 → 节点2 → 节点3', true],
+  ], 'system_workflow.html', { buttons: ['cancel', 'save'] })),
+
+  config_category_detail: page('config_category', '查看子类', '基础配置 / 查看子类', categoryViewMajorModal('一体机', 'config_category.html', [
+    ['分类编码', 'ZC-GD-001001'], ['分类名称', '一体机'], ['计量单位', '台'], ['归还', '需要'],
+  ])),
+};
+
+function formBody(title, fields, backHref, options = {}) {
+  const { extraHtml = '', buttons = ['cancel', 'save', 'submit'], modalSize = 'md' } = options;
+  const btnMap = {
+    cancel: `<a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a>`,
+    save: `<button type="button" class="wms-btn wms-btn-primary">保存</button>`,
+    submit: `<button type="button" class="wms-btn wms-btn-primary">确定</button>`,
+  };
+  const fieldsHtml = fields.map(([label, type, val, req]) => {
+    if (type === 'select') {
+      const opts = (Array.isArray(val) ? val : []).map(o => `<option>${o}</option>`).join('');
+      return `<div><label class="mb-1.5 block text-sm font-medium text-slate-700">${req ? '<span class="text-rose-500">*</span> ' : ''}${label}</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200">${opts}</select></div>`;
+    }
+    if (type === 'textarea') {
+      return `<div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">${req ? '<span class="text-rose-500">*</span> ' : ''}${label}</label><textarea rows="3" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200">${typeof val === 'string' ? val : ''}</textarea></div>`;
+    }
+    const readonly = !req && typeof val === 'string' && val.includes('系统');
+    return `<div><label class="mb-1.5 block text-sm font-medium text-slate-700">${req ? '<span class="text-rose-500">*</span> ' : ''}${label}</label><input type="${type}" value="${typeof val === 'string' ? val : ''}" ${readonly ? 'readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500"' : 'class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"'} /></div>`;
+  }).join('');
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="${modalSize}">
+      <div class="wms-modal-form">${fieldsHtml}${extraHtml}</div>
+      <div class="wms-modal-footer">
+        ${buttons.map(b => btnMap[b] || '').join('')}
+      </div>
+    </div>`;
+}
+
+if (!fs.existsSync(pagesDir)) fs.mkdirSync(pagesDir, { recursive: true });
+
+Object.entries({ ...pages, ...forms }).forEach(([name, html]) => {
+  fs.writeFileSync(path.join(pagesDir, `${name}.html`), html, 'utf8');
+  console.log('wrote', name);
+});
+
+console.log('Done:', Object.keys({ ...pages, ...forms }).length, 'pages');
+
+const mapLabels = {
+  '../index.html': ['工作台', '首页'],
+  ledger_warehouse: ['仓库台账', '物资台账'],
+  ledger_asset_detail: ['资产详情', '物资台账 · 二维码'],
+  ledger_asset_qrcode: ['资产二维码', '物资台账 · 二维码'],
+  ledger_transaction: ['出入库记录', '物资台账'],
+  ledger_transaction_detail: ['流水详情', '物资台账'],
+  mine_pending_pickup: ['待领物资', '我的物资'],
+  mine_pending_return: ['待还物资', '我的物资'],
+  mine_requisition_record: ['领用记录', '我的物资 · 表单'],
+  apply_plan_list: ['物资计划', '物资申请'],
+  apply_plan_form: ['新增物资计划', '物资申请 · 表单'],
+  apply_plan_select_material: ['选择物资清单', '物资申请 · 表单'],
+  apply_requisition_list: ['领用申请', '物资申请'],
+  apply_requisition_form: ['领用申请', '物资申请 · 表单'],
+  apply_requisition_add_material: ['添加物资', '物资申请 · 表单'],
+  purchase_message: ['消息中心', '采购管理'],
+  purchase_pending_list: ['待采物资', '采购管理'],
+  purchase_pending_select: ['选择待采物资', '采购管理 · 表单'],
+  purchase_pending_apply: ['待采申请', '采购管理 · 表单'],
+  purchase_request_list: ['采购申请', '采购管理'],
+  purchase_request_form: ['新建采购申请', '采购管理 · 表单'],
+  purchase_plan_apply: ['计划采购申请', '采购管理'],
+  purchase_plan_form: ['新建计划采购', '采购管理 · 入口'],
+  purchase_plan_direct: ['计划直采', '采购管理 · 表单'],
+  purchase_plan_inquiry_bid: ['计划询价/招标', '采购管理 · 表单'],
+  purchase_plan_add_material: ['添加采购明细', '采购管理 · 表单'],
+  purchase_execute_list: ['物资采购', '采购管理'],
+  purchase_execute_form: ['选择采购方式', '采购管理 · 入口'],
+  purchase_execute_direct: ['直采-采购', '采购管理 · 表单'],
+  purchase_execute_inquiry: ['询价-采购', '采购管理 · 表单'],
+  purchase_execute_bid: ['招标-采购', '采购管理 · 表单'],
+  purchase_supply_list: ['供应商供货单', '采购管理'],
+  purchase_supply_complete: ['完成供货', '采购管理 · 表单 · 验收快捷入口共用'],
+  warehouse_pending_check: ['待验物资', '物资管理'],
+  warehouse_acceptance_list: ['物资验收', '物资管理'],
+  warehouse_acceptance_form: ['执行验收', '物资管理 · 表单'],
+  warehouse_acceptance_detail: ['供货详情', '物资管理 · 表单'],
+  warehouse_acceptance_record: ['验收记录', '物资管理 · 表单'],
+  warehouse_acceptance_record_detail: ['验收记录详情', '物资管理 · 表单'],
+  warehouse_inbound_list: ['物资入库', '物资管理'],
+  warehouse_inbound_form: ['执行入库', '物资管理 · 表单'],
+  warehouse_inbound_fixed_form: ['固定资产入库', '物资管理 · 表单'],
+  warehouse_inbound_like_form: ['类资产入库', '物资管理 · 表单'],
+  warehouse_inbound_consumable_form: ['耗材入库', '物资管理 · 表单'],
+  warehouse_inbound_success: ['入库成功 · 生码', '物资管理 · 二维码'],
+  warehouse_outbound_list: ['物资出库', '物资管理'],
+  warehouse_outbound_form: ['选择出库类型', '物资管理 · 入口'],
+  warehouse_outbound_fixed_form: ['固定资产出库', '物资管理 · 表单'],
+  warehouse_outbound_like_form: ['类资产出库', '物资管理 · 表单'],
+  warehouse_outbound_consumable_form: ['耗材出库', '物资管理 · 表单'],
+  warehouse_outbound_success: ['出库成功 · 交接', '物资管理 · 确认'],
+  warehouse_outbound_select_asset: ['选择资产', '物资管理 · 表单'],
+  warehouse_return_list: ['物资归还', '物资管理'],
+  warehouse_return_fixed_form: ['固定资产归还', '物资管理 · 表单'],
+  warehouse_return_like_form: ['类资产归还', '物资管理 · 表单'],
+  warehouse_return_success: ['归还成功', '物资管理 · 确认'],
+  warehouse_return_form: ['执行归还', '物资管理 · 表单'],
+  warehouse_return_scrap_form: ['归还作废', '物资管理 · 表单'],
+  warehouse_return_scrap: ['归还作废', '物资管理 · 表单'],
+  warehouse_refund_list: ['物资退货', '物资管理'],
+  warehouse_refund_form: ['新增退货', '物资管理 · 入口'],
+  warehouse_refund_pre_form: ['验收不合格退货', '物资管理 · 表单'],
+  warehouse_refund_fixed_form: ['固定资产退货', '物资管理 · 表单'],
+  warehouse_refund_like_form: ['类资产退货', '物资管理 · 表单'],
+  warehouse_refund_consumable_form: ['耗材退货', '物资管理 · 表单'],
+  warehouse_refund_success: ['退货成功', '物资管理 · 确认'],
+  warehouse_refund_select_asset: ['选择退货资产', '物资管理 · 表单'],
+  supplier_list: ['供应商列表', '供应商管理'],
+  supplier_form: ['新增供应商', '供应商管理 · 表单'],
+  supplier_eval_list: ['供应商评价', '供应商管理'],
+  supplier_eval_form: ['新增评价', '供应商管理 · 表单'],
+  supplier_eval_add_supplier: ['快速添加供应商', '供应商管理 · 表单'],
+  config_warehouse: ['仓库配置', '基础配置'],
+  config_warehouse_form: ['新增仓库', '基础配置 · 表单'],
+  config_zone_form: ['新增分区', '基础配置 · 表单'],
+  config_shelf_form: ['新增货架', '基础配置 · 表单'],
+  config_shelf_qrcode: ['货位二维码', '基础配置 · 二维码'],
+  config_category: ['分类管理', '基础配置'],
+  config_category_major_fixed: ['查看固定资产大类', '基础配置 · 表单'],
+  config_category_major_like: ['查看类资产大类', '基础配置 · 表单'],
+  config_category_major_consumable_form: ['新增耗材大类', '基础配置 · 表单'],
+  config_category_sub_fixed: ['新增固定资产子类', '基础配置 · 表单'],
+  config_category_sub_fixed_view: ['查看固定资产子类', '基础配置 · 表单'],
+  config_category_sub_like: ['新增类资产子类', '基础配置 · 表单'],
+  config_category_sub_like_view: ['查看类资产子类', '基础配置 · 表单'],
+  config_category_sub_consumable: ['新增耗材子类', '基础配置 · 表单'],
+  config_category_sub_consumable_view: ['查看耗材子类', '基础配置 · 表单'],
+  config_category_sub_child_form: ['添加二级子类', '基础配置 · 表单'],
+  config_category_detail: ['查看子类', '基础配置 · 表单'],
+  config_eval_weight: ['权重设置', '基础配置 · 表单'],
+  config_eval_grade: ['评价等级设置', '基础配置 · 表单'],
+  config_unit_list: ['计量单位', '基础配置'],
+  config_unit_form: ['添加计量单位', '基础配置 · 表单'],
+  config_material_catalog: ['物资清单', '基础配置'],
+  config_material_form: ['新增物资', '基础配置 · 表单'],
+  config_material_detail: ['查看物资', '基础配置 · 表单'],
+  config_acceptance_standard: ['验收标准', '基础配置'],
+  config_location_list: ['使用地点', '基础配置'],
+  config_location_form: ['新增使用地点', '基础配置 · 表单'],
+  planning_inside: ['场内', '规划内容'],
+  planning_outside: ['场外', '规划内容'],
+  system_workflow: ['流程配置', '系统'],
+  system_workflow_form: ['新增流程', '系统 · 表单'],
+};
+
+const mapEntries = [['../index.html', ...mapLabels['../index.html']]];
+Object.keys({ ...pages, ...forms }).forEach(name => {
+  const label = mapLabels[name] || [name, '页面'];
+  mapEntries.push([`${name}.html`, ...label]);
+});
+const total = mapEntries.length;
+const mapHtml = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>原型页面目录 · WMS</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="dashboard" data-title="原型目录" data-breadcrumb="系统 / 原型页面目录">
+  <div id="main-content">
+    <p class="mb-6 text-sm text-slate-500">共 ${total} 个 PC 端原型页面，点击可在新标签打开。PRD 文档：<code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs">docs/prd.md</code></p>
+    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" id="page-grid"></div>
+  </div>
+  <script>
+    const pages = ${JSON.stringify(mapEntries)};
+    document.getElementById('page-grid').innerHTML = pages.map(([href, title, group]) => \`
+      <a href="\${href}" target="_blank" class="card flex items-center gap-3 rounded-2xl bg-white p-4 hover:ring-1 hover:ring-slate-200">
+        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid fa-file-lines"></i></div>
+        <div class="min-w-0"><div class="truncate font-medium text-slate-900">\${title}</div><div class="truncate text-xs text-slate-500">\${group}</div></div>
+        <i class="fa-solid fa-arrow-up-right-from-square ml-auto text-xs text-slate-300"></i>
+      </a>\`).join('');
+  </script>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body>
+</html>`;
+fs.writeFileSync(path.join(pagesDir, 'prototype_map.html'), mapHtml, 'utf8');
+console.log('wrote prototype_map.html (' + total + ' entries)');

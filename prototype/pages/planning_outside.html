@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>场外 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="planning_outside" data-title="场外" data-breadcrumb="规划内容 / 场外">
+  <div id="main-content">
+    <div data-wms-list-page>
+      <p class="mb-4 text-sm text-slate-500">仓库外资产使用地点与数量（不含耗材）</p>
+      
+      <div class="mb-4 flex w-full flex-nowrap items-center justify-end gap-2 overflow-x-auto" data-wms-list-toolbar><div class="relative shrink-0 w-[280px]">
+    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+    <input type="search" data-wms-list-search placeholder="物资编码、物资名称、使用地点" class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-9 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+    <button type="button" data-wms-list-search-clear class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" title="清空"><i class="fa-solid fa-xmark text-xs"></i></button>
+  </div><button type="button" class="hidden shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-100" data-wms-list-reset><i class="fa-solid fa-rotate-left text-xs"></i>重置</button></div>
+      <div class="card overflow-hidden rounded-2xl bg-white shadow-sm" data-wms-list-card>
+        <div class="overflow-x-auto wms-modal-table-wrap" data-wms-list-table-wrap><table class="min-w-full wms-data-table"><thead class="bg-slate-50/80"><tr><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">使用地点</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">数量</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">责任人</th><th class="wms-col-actions px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody data-wms-list-tbody><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-search="zc202605012 工程测量仪 武穴大桥施工点 1 王工" data-list-tab=""><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">ZC202605012</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">工程测量仪</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">武穴大桥施工点</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">1</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">王工</td><td class="wms-col-actions px-4 py-3.5 text-slate-900 text-right text-sm whitespace-nowrap"><a href="#" class="hover:underline">查看</a></td></tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-search="la-00331 铝合金梯 城东项目部 2 李工" data-list-tab=""><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">LA-00331</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">铝合金梯</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">城东项目部</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">李工</td><td class="wms-col-actions px-4 py-3.5 text-slate-900 text-right text-sm whitespace-nowrap"><a href="#" class="hover:underline">查看</a></td></tr></tbody></table></div>
+        <div class="hidden py-16 text-center" data-wms-list-empty>
+    <i class="fa-solid fa-inbox mb-3 text-3xl text-slate-300"></i>
+    <p class="text-sm text-slate-500">无匹配数据，请调整筛选条件</p>
+  </div>
+        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 text-sm text-slate-500">
+    <span data-wms-list-count>共 2 条</span>
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="flex gap-1"><span class="rounded-lg bg-slate-900 px-3 py-1 text-white">1</span></div>
+      <span class="text-slate-400">10 条/页</span>
+    </div>
+  </div>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

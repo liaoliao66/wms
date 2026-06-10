@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新增物资计划 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="apply_plan_list" data-title="新增物资计划" data-breadcrumb="物资申请 / 新增计划">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="apply_plan_list.html" data-modal-size="md">
+      <div class="wms-modal-form"><div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 计划名称</label><input type="text" value="六月办公物资计划" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div><div><label class="mb-1.5 block text-sm font-medium text-slate-700">计划单号</label><input type="text" value="JH202606090001（系统自动）" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div><div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 计划类型</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>一般计划</option><option>急件计划</option></select></div><div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">需求说明</label><textarea rows="3" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div><div class="md:col-span-2 rounded-xl bg-slate-50 p-4">
+      <div class="mb-3 flex items-center justify-between"><span class="text-sm font-medium text-slate-900">计划明细</span>
+        <a href="apply_plan_select_material.html" class="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-plus"></i> 选择物资清单</a></div>
+      <table class="min-w-full text-sm"><thead><tr class="text-left text-xs text-slate-500"><th class="pb-2">物资编码</th><th class="pb-2">名称</th><th class="pb-2">数量</th><th class="pb-2">需求日期</th></tr></thead>
+      <tbody><tr><td class="pt-2">HC-00089</td><td>打印纸 A4</td><td>200</td><td>2026-06-20</td></tr></tbody></table></div></div>
+      <div class="wms-modal-footer">
+        <a href="apply_plan_list.html" class="wms-btn wms-btn-secondary">取消</a><button type="button" class="wms-btn wms-btn-primary">保存</button><button type="button" class="wms-btn wms-btn-primary">确定</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

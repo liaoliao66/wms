@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>领用申请 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="apply_requisition_list" data-title="领用申请" data-breadcrumb="物资申请 / 领用申请">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="apply_requisition_list.html" data-modal-size="xl">
+      <div class="wms-modal-form wms-warehouse-form wms-requisition-form">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">基础信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请单号</label><input type="text" value="系统自动生成" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请事由</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>日常办公</option><option>设备维修</option><option>项目用料</option><option>应急领用</option></select></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请名称</label><input type="text" placeholder="请输入" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div class="md:col-span-2">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">关联计划单号</label>
+          <div class="flex flex-wrap gap-2">
+            <select class="w-full shrink-0 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200 sm:w-36"><option selected>物资计划</option><option>不关联</option></select>
+            <select class="min-w-0 flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>月度采购（ID: JH202509001）</option><option>JH202606090001 六月办公物资计划</option></select>
+          </div>
+        </div>
+        <div class="wms-requisition-section md:col-span-2">
+    <h3 class="wms-form-section-title mb-3">申请物资</h3>
+    <div class="overflow-hidden rounded-xl border border-slate-200">
+      <div class="flex justify-end border-b border-slate-100 bg-white px-3 py-2">
+        <a href="apply_requisition_add_material.html" class="wms-requisition-add-btn"><i class="fa-solid fa-plus text-[10px]"></i> 添加</a>
+      </div>
+      <div class="wms-modal-table-wrap rounded-none border-0">
+        <table class="min-w-full text-sm wms-data-table"><thead class="bg-slate-50/90 sticky top-0"><tr><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">规格型号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资大类</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资子类</th><th class="wms-col-actions px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/60"><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">1</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><span class="font-mono text-xs">GD001001-001</span></td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">抓斗</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">455</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">资产-固定资产</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">设备-配件</td><td class="wms-col-actions px-3 py-2.5 text-right text-sm whitespace-nowrap"><a href="#" class="mr-3 wms-link-primary hover:underline">编辑</a><button type="button" class="wms-link-primary hover:underline">删除</button></td></tr><tr class="border-t border-slate-100 hover:bg-slate-50/60"><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">2</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><span class="font-mono text-xs">GD001001-002</span></td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">料斗</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">455</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">资产-固定资产</td><td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">设备-配件</td><td class="wms-col-actions px-3 py-2.5 text-right text-sm whitespace-nowrap"><a href="#" class="mr-3 wms-link-primary hover:underline">编辑</a><button type="button" class="wms-link-primary hover:underline">删除</button></td></tr></tbody></table>
+      </div>
+    </div>
+  </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">其他</h3></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">说明</label><textarea rows="4" placeholder="0/500" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">凭证</label><div class="wms-upload-zone">
+    <i class="fa-solid fa-cloud-arrow-up text-lg text-slate-400"></i>
+    <p class="mt-2 text-sm text-slate-600">上传文件</p>
+    <p class="mt-1 text-xs text-slate-400">支持 .rar .zip .doc .docx .pdf，单个文件不能超过 500MB</p>
+  </div></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请人</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>张三</option><option>李四</option><option>王五</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请部门</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>设备部</option><option>工程部</option><option>采购部</option><option>行政部</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="apply_requisition_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-secondary">保存</button>
+        <button type="button" class="wms-btn wms-btn-primary">发起审核</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

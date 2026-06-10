@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>流水详情 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="ledger_transaction" data-title="流水详情" data-breadcrumb="物资台账 / 流水详情">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="ledger_transaction.html" data-modal-size="lg">
+      <div class="wms-transaction-detail">
+        <dl class="grid gap-4 sm:grid-cols-2 text-sm">
+          <div><dt class="text-slate-500">流水单号</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-tx-field="no">RK202606090012</dd></div>
+          <div><dt class="text-slate-500">操作类型</dt><dd class="mt-1" data-tx-field="type"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">入库</span></dd></div>
+          <div><dt class="text-slate-500">物资编码</dt><dd class="mt-1 font-mono text-slate-800" data-tx-field="materialCode">HC-00128</dd></div>
+          <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 text-slate-900" data-tx-field="materialName">安全帽</dd></div>
+          <div><dt class="text-slate-500">物资大类</dt><dd class="mt-1" data-tx-field="category"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">耗材</span></dd></div>
+          <div><dt class="text-slate-500">数量</dt><dd class="mt-1 text-slate-800" data-tx-field="qty">200 顶</dd></div>
+          <div><dt class="text-slate-500">仓库</dt><dd class="mt-1 text-slate-800" data-tx-field="warehouse">主仓库/A区</dd></div>
+          <div><dt class="text-slate-500">货位</dt><dd class="mt-1 text-slate-800" data-tx-field="location">A-01</dd></div>
+          <div><dt class="text-slate-500">操作时间</dt><dd class="mt-1 text-slate-800" data-tx-field="time">2026-06-09 14:32</dd></div>
+          <div><dt class="text-slate-500">操作人</dt><dd class="mt-1 text-slate-800" data-tx-field="operator">张仓管</dd></div>
+          <div><dt class="text-slate-500" data-tx-label="related">验收单号</dt><dd class="mt-1 font-mono text-slate-800" data-tx-field="relatedNo">YS202606090018</dd></div>
+          <div data-tx-row="supplier"><dt class="text-slate-500">供应商</dt><dd class="mt-1 text-slate-800" data-tx-field="supplier">—</dd></div>
+          <div data-tx-row="refundReason"><dt class="text-slate-500">退货原因</dt><dd class="mt-1 text-slate-800" data-tx-field="refundReason">—</dd></div>
+          <div data-tx-row="recipient"><dt class="text-slate-500">领用人</dt><dd class="mt-1 text-slate-800" data-tx-field="recipient">—</dd></div>
+          <div data-tx-row="assetCode"><dt class="text-slate-500">资产编码</dt><dd class="mt-1 font-mono text-slate-800" data-tx-field="assetCode">—</dd></div>
+          <div data-tx-row="returnStatus"><dt class="text-slate-500">归还状态</dt><dd class="mt-1" data-tx-field="returnStatus">—</dd></div>
+          <div class="sm:col-span-2"><dt class="text-slate-500">备注</dt><dd class="mt-1 text-slate-700" data-tx-field="remark">批量入库</dd></div>
+        </dl>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="ledger_transaction.html" class="wms-btn wms-btn-secondary">关闭</a>
+        <a href="warehouse_inbound_form.html" class="wms-btn wms-btn-primary" data-tx-source-link>查看入库单</a>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>
