@@ -10,7 +10,7 @@
 </head>
 <body data-page="warehouse_acceptance_list" data-title="供货详情" data-breadcrumb="物资管理 / 查看供货">
   <div id="main-content">
-    <div data-wms-modal data-modal-back="warehouse_acceptance_list.html" data-modal-size="lg" data-wms-acceptance-supply>
+    <div data-wms-modal data-modal-back="warehouse_acceptance_list.html" data-modal-size="xl" data-wms-acceptance-supply data-wms-acceptance-detail data-accept-supply-no="GH2025001">
       <div class="wms-acceptance-detail">
         <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">供货信息</h3></div>
         <div class="md:col-span-2 wms-supply-info-grid overflow-hidden rounded-xl border border-slate-200">
@@ -24,13 +24,34 @@
     </tbody></table>
   </div>
         <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">验收进度</h3></div>
-        <div class="md:col-span-2 mb-2"><div class="min-w-[92px]"><div class="mb-1 flex justify-between text-xs text-slate-500"><span>10/10</span><span>100%</span></div><div class="h-1.5 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-emerald-500" style="width:100%"></div></div></div></div>
-        <dl class="grid gap-4 sm:grid-cols-2 text-sm">
+        <p class="md:col-span-2 text-xs text-slate-400">由验货记录自动汇总</p>
+        <div class="md:col-span-2 mb-2" data-accept-progress-bar><div class="min-w-[92px]"><div class="mb-1 flex justify-between text-xs text-slate-500"><span>10/10</span><span>100%</span></div><div class="h-1.5 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-emerald-500" style="width:100%"></div></div></div></div>
+        <dl class="grid gap-4 sm:grid-cols-2 text-sm md:col-span-2">
           <div><dt class="text-slate-500">需求数量</dt><dd class="mt-1 text-slate-800" data-accept-field="required">10</dd></div>
           <div><dt class="text-slate-500">已验收数量</dt><dd class="mt-1 text-slate-800" data-accept-field="accepted">10</dd></div>
           <div><dt class="text-slate-500">合格数量</dt><dd class="mt-1 text-slate-800" data-accept-field="qualified">10</dd></div>
           <div><dt class="text-slate-500">不合格数量</dt><dd class="mt-1 text-slate-800" data-accept-field="unqualified">0</dd></div>
         </dl>
+        <div class="wms-form-section md:col-span-2 flex flex-wrap items-center justify-between gap-2">
+          <h3 class="wms-form-section-title mb-0">验货记录</h3>
+          <a href="warehouse_acceptance_record.html?no=GH2025001&back=warehouse_acceptance_list.html" data-accept-all-records-link class="text-xs font-medium text-slate-600 hover:underline">全部记录 →</a>
+        </div>
+        <p class="md:col-span-2 text-sm text-slate-500">共 <span data-accept-record-count>1</span> 条，按验收日期降序</p>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+    <div class="overflow-x-auto wms-modal-table-wrap"><table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">验收单号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">批次</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">本批次数量</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">合格</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">不合格</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">验收日期</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">仓库验收</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划验收</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">业务状态</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody data-accept-detail-records-tbody><tr class="border-t border-slate-100 hover:bg-slate-50/80">
+    <td class="px-3 py-2.5 text-sm text-slate-700">1</td>
+    <td class="px-3 py-2.5 font-mono text-xs text-slate-800">GH2025001-YS01</td>
+    <td class="px-3 py-2.5 text-sm text-slate-700">1</td>
+    <td class="px-3 py-2.5 text-sm font-medium text-slate-900">10</td>
+    <td class="px-3 py-2.5 text-sm text-emerald-700">10</td>
+    <td class="px-3 py-2.5 text-sm text-slate-700">0</td>
+    <td class="px-3 py-2.5 text-sm text-slate-600">2025-11-15</td>
+    <td class="px-3 py-2.5 text-sm text-slate-700">张仓管</td>
+    <td class="px-3 py-2.5 text-sm text-slate-700">王工</td>
+    <td class="px-3 py-2.5 text-sm"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">审核通过</span></td>
+    <td class="px-3 py-2.5 text-right text-sm whitespace-nowrap"><a href="warehouse_acceptance_record_detail.html?no=GH2025001-YS01&back=warehouse_acceptance_detail.html%3Fno%3DGH2025001%26back%3Dwarehouse_acceptance_list.html" class="hover:underline">查看</a></td>
+  </tr></tbody></table></div>
+  </div>
       </div>
       <div class="wms-modal-footer">
         <a href="warehouse_acceptance_list.html" class="wms-btn wms-btn-secondary">关闭</a>

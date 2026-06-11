@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>物资台账 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="ledger_material" data-title="物资台账" data-breadcrumb="物资台账 / 库存总览">
+  <div id="main-content">
+    <div data-wms-material-ledger>
+      <p class="mb-4 text-sm text-slate-500">全公司<strong class="font-medium text-slate-700">物资维度</strong>库存总览，按编码汇总在库、可用、借出与预警；需要定位货位请使用<a href="ledger_warehouse.html" class="font-medium text-slate-800 hover:underline">仓库台账</a>。</p>
+      
+    <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <button type="button" class="card rounded-2xl bg-white p-4 text-left hover:ring-1 hover:ring-slate-200 transition" data-ledger-stat-tab="全部">
+        <div class="text-sm text-slate-500">在库物资种类</div>
+        <div class="mt-1 text-2xl font-semibold text-slate-900">6</div>
+        <div class="mt-1 text-xs text-slate-400">全公司汇总</div>
+      </button>
+      <div class="card rounded-2xl bg-white p-4">
+        <div class="text-sm text-slate-500">在库总量（折算）</div>
+        <div class="mt-1 text-2xl font-semibold text-slate-900">335+</div>
+        <div class="mt-1 text-xs text-slate-400">含类资产/耗材</div>
+      </div>
+      <button type="button" class="card rounded-2xl bg-white p-4 text-left hover:ring-1 hover:ring-amber-200 transition" data-ledger-stat-tab="库存预警">
+        <div class="text-sm text-slate-500">库存预警</div>
+        <div class="mt-1 text-2xl font-semibold text-amber-600">1</div>
+        <div class="mt-1 text-xs text-amber-600">低于安全库存</div>
+      </button>
+      <button type="button" class="card rounded-2xl bg-white p-4 text-left hover:ring-1 hover:ring-slate-200 transition" data-ledger-stat-tab="固定资产">
+        <div class="text-sm text-slate-500">借出中</div>
+        <div class="mt-1 text-2xl font-semibold text-slate-900">63</div>
+        <div class="mt-1 text-xs text-slate-400">类资产+固资件数</div>
+      </button>
+      <a href="warehouse_scrap_pending_pool.html" class="card rounded-2xl bg-white p-4 text-left hover:ring-1 hover:ring-rose-200 transition">
+        <div class="text-sm text-slate-500">待报废</div>
+        <div class="mt-1 text-2xl font-semibold text-rose-600">3</div>
+        <div class="mt-1 text-xs text-rose-600">待发起作废</div>
+      </a>
+    </div>
+      <div class="wms-material-layout">
+        <aside class="wms-material-tree rounded-xl border border-slate-200 bg-white p-3" data-wms-material-sidebar data-wms-filter-value="" data-material-type="all">
+    <div class="mb-2 text-sm font-semibold text-slate-900">物资分类</div>
+    <div class="relative mb-3">
+      <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
+      <input type="search" data-wms-material-tree-search placeholder="搜索分类…" class="w-full rounded-lg border border-slate-200 py-2 pl-8 pr-8 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+      <button type="button" data-wms-material-tree-search-clear class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" title="清空"><i class="fa-solid fa-xmark text-xs"></i></button>
+    </div>
+    <div class="wms-material-tree-scroll">
+      <ul class="wms-tree space-y-0.5 text-sm" data-wms-material-tree>
+        <li data-wms-material-tree-item data-wms-filter-path="">
+          <button type="button" class="wms-tree-node wms-tree-node--all is-active w-full flex items-center justify-between gap-2 rounded-lg px-2 py-2 text-left text-sm font-medium text-slate-800 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="" data-material-type="all" data-wms-filter-label="全部物资"><span>全部物资</span><span class="wms-material-tree-count">7</span></button>
+        </li>
+        
+    <li class="mt-1" data-wms-material-tree-branch data-wms-material-tree-group data-wms-filter-path="资产类" data-wms-filter-expanded="true">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle is-expanded flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="收起"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--group flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类" data-material-type="asset" data-wms-filter-label="资产类"><span class="flex min-w-0 items-center gap-2"><i class="fa-regular fa-folder-open shrink-0 text-slate-400"></i><span class="truncate">资产类</span></span><span class="wms-material-tree-count">5</span></button>
+      </div>
+      <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children><li data-wms-material-tree-branch data-wms-material-tree-item data-wms-filter-path="资产类 / 固定资产" data-wms-filter-expanded="false">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--major flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-1.5 text-left text-sm font-medium text-slate-800 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类 / 固定资产" data-material-type="fixed" data-wms-filter-label="固定资产"><span class="flex min-w-0 items-center gap-2"><i class="fa-regular fa-file shrink-0 text-xs text-slate-400"></i><span class="truncate">固定资产</span></span><span class="wms-material-tree-count">3</span></button>
+      </div>
+      <ul class="ml-5 mt-0.5 hidden space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children><li data-wms-material-tree-branch data-wms-material-tree-item data-wms-filter-path="资产类 / 固定资产 / 办公电脑" data-wms-filter-expanded="false">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--minor wms-tree-node--branch flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类 / 固定资产 / 办公电脑" data-material-type="fixed" data-wms-filter-label="办公电脑"><span class="truncate">办公电脑</span><span class="wms-material-tree-count wms-material-tree-count--zero">0</span></button>
+      </div>
+      <ul class="ml-5 mt-0.5 hidden space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children><li data-wms-material-tree-item data-wms-filter-path="资产类 / 固定资产 / 办公电脑 / 一体机"><button type="button" class="wms-tree-node wms-tree-node--leaf w-full flex items-center justify-between gap-2 rounded-lg py-1 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类 / 固定资产 / 办公电脑 / 一体机" data-material-type="fixed" data-wms-filter-label="一体机"><span class="truncate">一体机</span><span class="wms-material-tree-count wms-material-tree-count--zero">0</span></button></li><li data-wms-material-tree-item data-wms-filter-path="资产类 / 固定资产 / 办公电脑 / 笔记本"><button type="button" class="wms-tree-node wms-tree-node--leaf w-full flex items-center justify-between gap-2 rounded-lg py-1 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类 / 固定资产 / 办公电脑 / 笔记本" data-material-type="fixed" data-wms-filter-label="笔记本"><span class="truncate">笔记本</span><span class="wms-material-tree-count wms-material-tree-count--zero">0</span></button></li></ul>
+    </li><li data-wms-material-tree-branch data-wms-material-tree-item data-wms-filter-path="资产类 / 固定资产 / 设备-配件" data-wms-filter-expanded="false">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--minor wms-tree-node--branch flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类 / 固定资产 / 设备-配件" data-material-type="fixed" data-wms-filter-label="设备-配件"><span class="truncate">设备-配件</span><span class="wms-material-tree-count wms-material-tree-count--zero">0</span></button>
+      </div>
+      <ul class="ml-5 mt-0.5 hidden space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children><li data-wms-material-tree-item data-wms-filter-path="资产类 / 固定资产 / 设备-配件 / 抓斗"><button type="button" class="wms-tree-node wms-tree-node--leaf w-full flex items-center justify-between gap-2 rounded-lg py-1 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类 / 固定资产 / 设备-配件 / 抓斗" data-material-type="fixed" data-wms-filter-label="抓斗"><span class="truncate">抓斗</span><span class="wms-material-tree-count wms-material-tree-count--zero">0</span></button></li><li data-wms-material-tree-item data-wms-filter-path="资产类 / 固定资产 / 设备-配件 / 料斗"><button type="button" class="wms-tree-node wms-tree-node--leaf w-full flex items-center justify-between gap-2 rounded-lg py-1 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类 / 固定资产 / 设备-配件 / 料斗" data-material-type="fixed" data-wms-filter-label="料斗"><span class="truncate">料斗</span><span class="wms-material-tree-count wms-material-tree-count--zero">0</span></button></li><li data-wms-material-tree-item data-wms-filter-path="资产类 / 固定资产 / 设备-配件 / 钢丝绳"><button type="button" class="wms-tree-node wms-tree-node--leaf w-full flex items-center justify-between gap-2 rounded-lg py-1 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类 / 固定资产 / 设备-配件 / 钢丝绳" data-material-type="fixed" data-wms-filter-label="钢丝绳"><span class="truncate">钢丝绳</span><span class="wms-material-tree-count wms-material-tree-count--zero">0</span></button></li></ul>
+    </li></ul>
+    </li><li data-wms-material-tree-branch data-wms-material-tree-item data-wms-filter-path="资产类 / 类资产" data-wms-filter-expanded="false">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--major flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-1.5 text-left text-sm font-medium text-slate-800 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类 / 类资产" data-material-type="like" data-wms-filter-label="类资产"><span class="flex min-w-0 items-center gap-2"><i class="fa-regular fa-file shrink-0 text-xs text-slate-400"></i><span class="truncate">类资产</span></span><span class="wms-material-tree-count">2</span></button>
+      </div>
+      <ul class="ml-5 mt-0.5 hidden space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children><li data-wms-material-tree-branch data-wms-material-tree-item data-wms-filter-path="资产类 / 类资产 / 电动工具" data-wms-filter-expanded="false">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--minor wms-tree-node--branch flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类 / 类资产 / 电动工具" data-material-type="like" data-wms-filter-label="电动工具"><span class="truncate">电动工具</span><span class="wms-material-tree-count">1</span></button>
+      </div>
+      <ul class="ml-5 mt-0.5 hidden space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children><li data-wms-material-tree-item data-wms-filter-path="资产类 / 类资产 / 电动工具 / 电钻"><button type="button" class="wms-tree-node wms-tree-node--leaf w-full flex items-center justify-between gap-2 rounded-lg py-1 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类 / 类资产 / 电动工具 / 电钻" data-material-type="like" data-wms-filter-label="电钻"><span class="truncate">电钻</span><span class="wms-material-tree-count">1</span></button></li><li data-wms-material-tree-item data-wms-filter-path="资产类 / 类资产 / 电动工具 / 扳手"><button type="button" class="wms-tree-node wms-tree-node--leaf w-full flex items-center justify-between gap-2 rounded-lg py-1 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类 / 类资产 / 电动工具 / 扳手" data-material-type="like" data-wms-filter-label="扳手"><span class="truncate">扳手</span><span class="wms-material-tree-count wms-material-tree-count--zero">0</span></button></li><li data-wms-material-tree-item data-wms-filter-path="资产类 / 类资产 / 电动工具 / 螺丝刀"><button type="button" class="wms-tree-node wms-tree-node--leaf w-full flex items-center justify-between gap-2 rounded-lg py-1 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类 / 类资产 / 电动工具 / 螺丝刀" data-material-type="like" data-wms-filter-label="螺丝刀"><span class="truncate">螺丝刀</span><span class="wms-material-tree-count wms-material-tree-count--zero">0</span></button></li></ul>
+    </li><li data-wms-material-tree-branch data-wms-material-tree-item data-wms-filter-path="资产类 / 类资产 / 防汛设备" data-wms-filter-expanded="false">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--minor wms-tree-node--branch flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类 / 类资产 / 防汛设备" data-material-type="like" data-wms-filter-label="防汛设备"><span class="truncate">防汛设备</span><span class="wms-material-tree-count">1</span></button>
+      </div>
+      <ul class="ml-5 mt-0.5 hidden space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children><li data-wms-material-tree-item data-wms-filter-path="资产类 / 类资产 / 防汛设备 / 抽水泵"><button type="button" class="wms-tree-node wms-tree-node--leaf w-full flex items-center justify-between gap-2 rounded-lg py-1 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="资产类 / 类资产 / 防汛设备 / 抽水泵" data-material-type="like" data-wms-filter-label="抽水泵"><span class="truncate">抽水泵</span><span class="wms-material-tree-count wms-material-tree-count--zero">0</span></button></li></ul>
+    </li></ul>
+    </li></ul>
+    </li>
+    <li class="mt-1" data-wms-material-tree-branch data-wms-material-tree-group data-wms-filter-path="耗材类" data-wms-filter-expanded="true">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle is-expanded flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="收起"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--group flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="耗材类" data-material-type="consumable" data-wms-filter-label="耗材类"><span class="flex min-w-0 items-center gap-2"><i class="fa-regular fa-folder-open shrink-0 text-slate-400"></i><span class="truncate">耗材类</span></span><span class="wms-material-tree-count">2</span></button>
+      </div>
+      <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children><li data-wms-material-tree-branch data-wms-material-tree-item data-wms-filter-path="耗材类 / 办公耗材" data-wms-filter-expanded="false">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--major flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-1.5 text-left text-sm font-medium text-slate-800 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="耗材类 / 办公耗材" data-material-type="consumable" data-wms-filter-label="办公耗材"><span class="flex min-w-0 items-center gap-2"><i class="fa-regular fa-file shrink-0 text-xs text-slate-400"></i><span class="truncate">办公耗材</span></span><span class="wms-material-tree-count">1</span></button>
+      </div>
+      <ul class="ml-5 mt-0.5 hidden space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children><li data-wms-material-tree-branch data-wms-material-tree-item data-wms-filter-path="耗材类 / 办公耗材 / 办公用纸" data-wms-filter-expanded="false">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--minor wms-tree-node--branch flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="耗材类 / 办公耗材 / 办公用纸" data-material-type="consumable" data-wms-filter-label="办公用纸"><span class="truncate">办公用纸</span><span class="wms-material-tree-count">1</span></button>
+      </div>
+      <ul class="ml-5 mt-0.5 hidden space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children><li data-wms-material-tree-item data-wms-filter-path="耗材类 / 办公耗材 / 办公用纸 / 打印纸 A4"><button type="button" class="wms-tree-node wms-tree-node--leaf w-full flex items-center justify-between gap-2 rounded-lg py-1 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="耗材类 / 办公耗材 / 办公用纸 / 打印纸 A4" data-material-type="consumable" data-wms-filter-label="打印纸 A4"><span class="truncate">打印纸 A4</span><span class="wms-material-tree-count">1</span></button></li></ul>
+    </li><li data-wms-material-tree-item data-wms-filter-path="耗材类 / 办公耗材 / 办公文具"><button type="button" class="wms-tree-node wms-tree-node--minor w-full flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="耗材类 / 办公耗材 / 办公文具" data-material-type="consumable" data-wms-filter-label="办公文具"><span class="flex min-w-0 items-center gap-2"><i class="fa-regular fa-file shrink-0 text-xs text-slate-400"></i><span class="truncate">办公文具</span></span><span class="wms-material-tree-count wms-material-tree-count--zero">0</span></button></li></ul>
+    </li><li data-wms-material-tree-branch data-wms-material-tree-item data-wms-filter-path="耗材类 / 生产耗材" data-wms-filter-expanded="false">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--major flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-1.5 text-left text-sm font-medium text-slate-800 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="耗材类 / 生产耗材" data-material-type="consumable" data-wms-filter-label="生产耗材"><span class="flex min-w-0 items-center gap-2"><i class="fa-regular fa-file shrink-0 text-xs text-slate-400"></i><span class="truncate">生产耗材</span></span><span class="wms-material-tree-count">1</span></button>
+      </div>
+      <ul class="ml-5 mt-0.5 hidden space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children><li data-wms-material-tree-branch data-wms-material-tree-item data-wms-filter-path="耗材类 / 生产耗材 / 设备-配件" data-wms-filter-expanded="false">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--minor wms-tree-node--branch flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="耗材类 / 生产耗材 / 设备-配件" data-material-type="consumable" data-wms-filter-label="设备-配件"><span class="truncate">设备-配件</span><span class="wms-material-tree-count">1</span></button>
+      </div>
+      <ul class="ml-5 mt-0.5 hidden space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children><li data-wms-material-tree-item data-wms-filter-path="耗材类 / 生产耗材 / 设备-配件 / 润滑油"><button type="button" class="wms-tree-node wms-tree-node--leaf w-full flex items-center justify-between gap-2 rounded-lg py-1 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="耗材类 / 生产耗材 / 设备-配件 / 润滑油" data-material-type="consumable" data-wms-filter-label="润滑油"><span class="truncate">润滑油</span><span class="wms-material-tree-count">1</span></button></li></ul>
+    </li></ul>
+    </li><li data-wms-material-tree-branch data-wms-material-tree-item data-wms-filter-path="耗材类 / 劳保耗材" data-wms-filter-expanded="false">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--major flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-1.5 text-left text-sm font-medium text-slate-800 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="耗材类 / 劳保耗材" data-material-type="consumable" data-wms-filter-label="劳保耗材"><span class="flex min-w-0 items-center gap-2"><i class="fa-regular fa-file shrink-0 text-xs text-slate-400"></i><span class="truncate">劳保耗材</span></span><span class="wms-material-tree-count wms-material-tree-count--zero">0</span></button>
+      </div>
+      <ul class="ml-5 mt-0.5 hidden space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children><li data-wms-material-tree-branch data-wms-material-tree-item data-wms-filter-path="耗材类 / 劳保耗材 / 安全防护" data-wms-filter-expanded="false">
+      <div class="flex items-center gap-0.5">
+        <button type="button" class="wms-material-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-material-tree-toggle aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+        <button type="button" class="wms-tree-node wms-tree-node--minor wms-tree-node--branch flex min-w-0 flex-1 items-center justify-between gap-2 rounded-lg px-1 py-1.5 text-left text-sm text-slate-700 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="耗材类 / 劳保耗材 / 安全防护" data-material-type="consumable" data-wms-filter-label="安全防护"><span class="truncate">安全防护</span><span class="wms-material-tree-count wms-material-tree-count--zero">0</span></button>
+      </div>
+      <ul class="ml-5 mt-0.5 hidden space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children><li data-wms-material-tree-item data-wms-filter-path="耗材类 / 劳保耗材 / 安全防护 / 安全帽"><button type="button" class="wms-tree-node wms-tree-node--leaf w-full flex items-center justify-between gap-2 rounded-lg py-1 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-material-tree-pick data-wms-filter-value="耗材类 / 劳保耗材 / 安全防护 / 安全帽" data-material-type="consumable" data-wms-filter-label="安全帽"><span class="truncate">安全帽</span><span class="wms-material-tree-count wms-material-tree-count--zero">0</span></button></li></ul>
+    </li></ul>
+    </li></ul>
+    </li>
+      </ul>
+      <p class="hidden py-6 text-center text-sm text-slate-400" data-wms-material-tree-empty>无匹配分类</p>
+    </div>
+  </aside>
+        <div class="wms-material-main card min-w-0 rounded-2xl bg-white p-4 shadow-sm">
+          <p class="mb-3 text-xs text-slate-500" data-wms-material-breadcrumb>当前分类：<span class="font-medium text-slate-800">全部物资</span></p>
+          <div data-wms-list-page>
+            <div class="mb-4 flex flex-wrap gap-2" data-wms-list-tabs>
+              <button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-slate-900 text-white" data-wms-list-tab="全部">全部</button>
+              <button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-list-tab="固定资产">固定资产</button>
+              <button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-list-tab="类资产">类资产</button>
+              <button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-list-tab="耗材">耗材</button>
+              <button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-list-tab="库存预警">库存预警</button>
+            </div>
+            <div class="mb-4 flex w-full flex-nowrap items-center justify-end gap-2 overflow-x-auto" data-wms-list-toolbar><div class="relative shrink-0 w-[280px]">
+    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+    <input type="search" data-wms-list-search placeholder="物资编码、资产编码、名称、规格…" class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-9 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+    <button type="button" data-wms-list-search-clear class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" title="清空"><i class="fa-solid fa-xmark text-xs"></i></button>
+  </div><button type="button" class="hidden shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-100" data-wms-list-reset><i class="fa-solid fa-rotate-left text-xs"></i>重置</button><a href="ledger_warehouse.html" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-warehouse text-xs text-slate-400"></i>仓库台账</a></div>
+            <div class="card overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100" data-wms-list-card>
+              <div class="overflow-x-auto wms-modal-table-wrap" data-wms-list-table-wrap>
+                <table class="min-w-full wms-data-table">
+                  <thead class="bg-slate-50/80"><tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">编码</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">规格型号</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">类型</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">在库总量</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">可用</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">锁定</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">借出</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">分布/位置</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">状态</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">最近变动</th>
+                    <th class="wms-col-actions px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th>
+                  </tr></thead>
+                  <tbody data-wms-list-tbody><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-ledger-material-row data-material-type="like" data-material-category-path="资产类 / 类资产 / 电动工具 / 电钻" data-list-tab="类资产" data-list-search="la-00456 电钻 650w 资产-类资产 电动工具 主仓库">
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="font-mono text-xs">LA-00456</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">电钻</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">650W</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">类资产</span></td>
+      <td class="px-4 py-3.5 text-sm font-medium text-slate-900 whitespace-nowrap">8 台</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">6</td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">0</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">主仓库</td>
+      <td class="px-4 py-3.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">正常</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">2026-06-08 16:45</td>
+      <td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="ledger_material_detail.html?code=LA-00456&back=ledger_material.html" class="hover:underline">查看</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-ledger-material-row data-material-type="like" data-material-category-path="资产类 / 类资产 / 防汛设备 / 钢丝绳" data-list-tab="类资产" data-list-search="la-00457 钢丝绳 φ18×100m 资产-类资产 防汛设备 主仓库、辅仓库">
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="font-mono text-xs">LA-00457</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">钢丝绳</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">Φ18×100m</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">类资产</span></td>
+      <td class="px-4 py-3.5 text-sm font-medium text-slate-900 whitespace-nowrap">120 m</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">60</td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">0</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">60</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">主仓库、辅仓库</td>
+      <td class="px-4 py-3.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">正常</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">2026-06-08 10:00</td>
+      <td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="ledger_material_detail.html?code=LA-00457&back=ledger_material.html" class="hover:underline">查看</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-ledger-material-row data-material-type="consumable" data-material-category-path="耗材类 / 办公耗材 / 办公用纸 / 打印纸 A4" data-list-tab="耗材" data-list-search="hc-00089 打印纸 a4 70g/500张 耗材-办公耗材 办公用纸 主仓库">
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="font-mono text-xs">HC-00089</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">打印纸 A4</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">70g/500张</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">耗材</span></td>
+      <td class="px-4 py-3.5 text-sm font-medium text-slate-900 whitespace-nowrap">186 箱</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">170</td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">16</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">0</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">主仓库</td>
+      <td class="px-4 py-3.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">正常</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">2026-06-08 16:00</td>
+      <td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="ledger_material_detail.html?code=HC-00089&back=ledger_material.html" class="hover:underline">查看</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-ledger-material-row data-material-type="consumable" data-material-category-path="耗材类 / 生产耗材 / 设备-配件 / 润滑油" data-list-tab="库存预警" data-list-search="gd001001-006 润滑油 cd 15w-40 耗材-生产耗材 设备-配件 主仓库">
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="font-mono text-xs">GD001001-006</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">润滑油</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">CD 15W-40</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">耗材</span></td>
+      <td class="px-4 py-3.5 text-sm font-medium text-slate-900 whitespace-nowrap">18 桶</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">15</td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">0</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">0</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">主仓库</td>
+      <td class="px-4 py-3.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">预警</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">2026-06-07 09:00</td>
+      <td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="ledger_material_detail.html?code=GD001001-006&back=ledger_material.html" class="hover:underline">查看</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-ledger-material-row data-material-type="fixed" data-material-category-path="资产类 / 固定资产 / 办公设备 / 笔记本电脑" data-list-tab="固定资产" data-list-search="bg-00201 zc202606001 笔记本电脑 thinkpad t14 资产-固定资产 办公设备 主仓库/b区/b-03">
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="font-mono text-xs">ZC202606001</span><div class="text-[10px] text-slate-400">BG-00201</div></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">笔记本电脑</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">ThinkPad T14</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">固定资产</span></td>
+      <td class="px-4 py-3.5 text-sm font-medium text-slate-900 whitespace-nowrap">1 台</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">1</td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">0</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">0</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">主仓库/B区/B-03</td>
+      <td class="px-4 py-3.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">在库</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">2026-06-09 11:20</td>
+      <td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="ledger_material_detail.html?code=BG-00201&assetCode=ZC202606001&back=ledger_material.html" class="mr-2 hover:underline">查看</a><a href="ledger_asset_detail.html?code=ZC202606001" class="hover:underline">资产</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-ledger-material-row data-material-type="fixed" data-material-category-path="资产类 / 固定资产 / 办公设备 / 笔记本电脑" data-list-tab="固定资产" data-list-search="bg-00201 zc202606002 笔记本电脑 thinkpad t14 资产-固定资产 办公设备 主仓库/b区/b-03">
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="font-mono text-xs">ZC202606002</span><div class="text-[10px] text-slate-400">BG-00201</div></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">笔记本电脑</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">ThinkPad T14</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">固定资产</span></td>
+      <td class="px-4 py-3.5 text-sm font-medium text-slate-900 whitespace-nowrap">1 台</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">1</td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">0</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">0</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">主仓库/B区/B-03</td>
+      <td class="px-4 py-3.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">在库</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">2026-06-09 11:20</td>
+      <td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="ledger_material_detail.html?code=BG-00201&assetCode=ZC202606002&back=ledger_material.html" class="mr-2 hover:underline">查看</a><a href="ledger_asset_detail.html?code=ZC202606002" class="hover:underline">资产</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-ledger-material-row data-material-type="fixed" data-material-category-path="资产类 / 固定资产 / 办公设备 / 工程测量仪" data-list-tab="固定资产" data-list-search="gc-20001 zc202605012 工程测量仪 全站仪 ts06 资产-固定资产 办公设备 武穴大桥施工点">
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="font-mono text-xs">ZC202605012</span><div class="text-[10px] text-slate-400">GC-20001</div></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">工程测量仪</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">全站仪 TS06</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">固定资产</span></td>
+      <td class="px-4 py-3.5 text-sm font-medium text-slate-900 whitespace-nowrap">1 台</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">0</td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">0</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">1</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">武穴大桥施工点<div class="text-[10px] text-slate-400">借用人：王工</div></td>
+      <td class="px-4 py-3.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">借出</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">2026-06-01 09:00</td>
+      <td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="ledger_material_detail.html?code=GC-20001&assetCode=ZC202605012&back=ledger_material.html" class="mr-2 hover:underline">查看</a><a href="ledger_asset_detail.html?code=ZC202605012" class="hover:underline">资产</a></td>
+    </tr></tbody>
+                </table>
+              </div>
+              <div class="hidden py-16 text-center" data-wms-list-empty>
+    <i class="fa-solid fa-inbox mb-3 text-3xl text-slate-300"></i>
+    <p class="text-sm text-slate-500">无匹配数据，请调整筛选条件</p>
+  </div>
+              <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 text-sm text-slate-500">
+    <span data-wms-list-count>共 7 条</span>
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="flex gap-1"><span class="rounded-lg bg-slate-900 px-3 py-1 text-white">1</span></div>
+      <span class="text-slate-400">10 条/页</span>
+    </div>
+  </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

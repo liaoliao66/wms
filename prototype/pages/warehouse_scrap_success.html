@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>作废成功 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_scrap_list" data-title="作废成功" data-breadcrumb="物资管理 / 作废成功">
+  <div id="main-content">
+    <div class="mx-auto max-w-2xl" data-wms-scrap-success>
+      <div class="card rounded-2xl bg-white p-8 text-center">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 text-rose-600"><i class="fa-solid fa-check text-2xl"></i></div>
+        <h2 class="text-xl font-semibold text-slate-900" data-scrap-success-title>作废执行成功</h2>
+        <p class="mt-2 text-sm text-slate-500" data-scrap-success-desc>作废单号 ZF202606090001 · 已扣减台账库存</p>
+        <dl class="mt-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-left text-sm sm:grid-cols-2">
+          <div><dt class="text-slate-500">来源类型</dt><dd class="mt-1 text-slate-800" data-scrap-success-source>待报废转报废</dd></div>
+          <div><dt class="text-slate-500">作废数量</dt><dd class="mt-1 font-medium text-slate-900" data-scrap-success-qty>1 台</dd></div>
+          <div><dt class="text-slate-500">物资摘要</dt><dd class="mt-1 text-slate-800" data-scrap-success-name>手持对讲机</dd></div>
+          <div><dt class="text-slate-500">流水类型</dt><dd class="mt-1 font-mono text-xs text-slate-600">txn_type=scrap</dd></div>
+        </dl>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a href="ledger_transaction.html" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-right-left"></i> 出入库记录</a>
+          <a href="warehouse_scrap_list.html" class="text-sm text-slate-500 hover:text-slate-900">返回作废列表</a>
+        </div>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

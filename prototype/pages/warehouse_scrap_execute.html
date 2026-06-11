@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>执行作废 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_scrap_list" data-title="执行作废" data-breadcrumb="物资管理 / 执行作废">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="warehouse_scrap_list.html" data-modal-size="lg" data-wms-scrap-execute data-scrap-key="ZF202606090001">
+      <div class="mb-5 rounded-xl border border-rose-100 bg-rose-50/60 p-4 text-sm text-slate-700">
+        <i class="fa-solid fa-circle-exclamation mr-1 text-rose-600"></i>
+        审批已通过。请现场核对物资后确认执行；执行后将<strong>扣减台账可用库存</strong>，资产状态变为「已作废」，并写入 <code class="rounded bg-white/80 px-1 text-xs">txn_type=scrap</code> 流水。
+      </div>
+      <dl class="mb-6 grid gap-4 sm:grid-cols-2 text-sm">
+        <div><dt class="text-slate-500">作废单号</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-scrap-exec-field="scrapNo">ZF202606090001</dd></div>
+        <div><dt class="text-slate-500">来源类型</dt><dd class="mt-1 text-slate-800" data-scrap-exec-field="sourceType">待报废转报废</dd></div>
+        <div><dt class="text-slate-500">作废原因</dt><dd class="mt-1 text-slate-800" data-scrap-exec-field="reason">损坏无法修复</dd></div>
+        <div><dt class="text-slate-500">申请人</dt><dd class="mt-1 text-slate-800">张仓管 · 物资管理部</dd></div>
+        <div class="sm:col-span-2"><dt class="text-slate-500">说明</dt><dd class="mt-1 text-slate-800">归还时判定损坏，对讲机主板烧毁，经设备部确认无法维修。</dd></div>
+      </dl>
+      <h4 class="mb-3 text-sm font-semibold text-slate-900">作废明细</h4>
+      <div class="mb-4 overflow-hidden rounded-xl border border-slate-200">
+        <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">序号</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">资产编码</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资名称</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">货位</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">作废数量</th>
+        </tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">1</td><td class="px-3 py-2.5 font-mono text-xs">LA-00502</td><td class="px-3 py-2.5 text-sm">手持对讲机</td><td class="px-3 py-2.5 text-sm">主仓库/待报废区</td><td class="px-3 py-2.5 text-sm font-medium">1 台</td></tr></tbody></table>
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-xs text-slate-600">
+        <div class="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-qrcode text-blue-500"></i> 现场核对（可选）</div>
+        固定资产建议扫码确认资产编码；类资产/耗材核对货位与数量无误后执行。
+        <button type="button" class="mt-3 inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50" data-scrap-scan><i class="fa-solid fa-barcode"></i> 模拟扫码核对</button>
+      </div>
+      <div class="wms-modal-footer mt-6">
+        <a href="warehouse_scrap_list.html" class="wms-btn wms-btn-secondary" data-scrap-back-link>取消</a>
+        <button type="button" class="wms-btn wms-btn-primary bg-rose-600 hover:bg-rose-700" data-scrap-execute-submit>确认执行作废</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

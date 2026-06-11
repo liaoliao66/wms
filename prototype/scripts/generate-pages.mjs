@@ -477,6 +477,272 @@ function ledgerWarehousePage() {
     <div id="wms-qr-toast" class="wms-qr-toast hidden" role="status"></div>`;
 }
 
+const MATERIAL_LEDGER_ROWS = [
+  { viewType: 'summary', materialType: 'like', code: 'LA-00456', name: '电钻', spec: '650W', major: '资产-类资产', minor: '电动工具', unit: '台', categoryPath: '资产类 / 类资产 / 电动工具 / 电钻', totalQty: '8', availableQty: '6', lockedQty: '0', borrowedQty: '2', warehouses: '主仓库', stockStatus: 'normal', alert: 'normal', lastChange: '2026-06-08 16:45' },
+  { viewType: 'summary', materialType: 'like', code: 'LA-00457', name: '钢丝绳', spec: 'Φ18×100m', major: '资产-类资产', minor: '防汛设备', unit: 'm', categoryPath: '资产类 / 类资产 / 防汛设备 / 钢丝绳', totalQty: '120', availableQty: '60', lockedQty: '0', borrowedQty: '60', warehouses: '主仓库、辅仓库', stockStatus: 'normal', alert: 'normal', lastChange: '2026-06-08 10:00' },
+  { viewType: 'summary', materialType: 'consumable', code: 'HC-00089', name: '打印纸 A4', spec: '70g/500张', major: '耗材-办公耗材', minor: '办公用纸', unit: '箱', categoryPath: '耗材类 / 办公耗材 / 办公用纸 / 打印纸 A4', totalQty: '186', availableQty: '170', lockedQty: '16', borrowedQty: '0', warehouses: '主仓库', stockStatus: 'normal', alert: 'normal', lastChange: '2026-06-08 16:00' },
+  { viewType: 'summary', materialType: 'consumable', code: 'GD001001-006', name: '润滑油', spec: 'CD 15W-40', major: '耗材-生产耗材', minor: '设备-配件', unit: '桶', categoryPath: '耗材类 / 生产耗材 / 设备-配件 / 润滑油', totalQty: '18', availableQty: '15', lockedQty: '0', borrowedQty: '0', warehouses: '主仓库', stockStatus: 'warning', alert: 'warning', lastChange: '2026-06-07 09:00' },
+  { viewType: 'fixed', materialType: 'fixed', assetCode: 'ZC202606001', code: 'BG-00201', name: '笔记本电脑', spec: 'ThinkPad T14', major: '资产-固定资产', minor: '办公设备', unit: '台', categoryPath: '资产类 / 固定资产 / 办公设备 / 笔记本电脑', totalQty: '1', availableQty: '1', lockedQty: '0', borrowedQty: '0', location: '主仓库/B区/B-03', assetStatus: '在库', stockStatus: 'normal', alert: 'normal', lastChange: '2026-06-09 11:20' },
+  { viewType: 'fixed', materialType: 'fixed', assetCode: 'ZC202606002', code: 'BG-00201', name: '笔记本电脑', spec: 'ThinkPad T14', major: '资产-固定资产', minor: '办公设备', unit: '台', categoryPath: '资产类 / 固定资产 / 办公设备 / 笔记本电脑', totalQty: '1', availableQty: '1', lockedQty: '0', borrowedQty: '0', location: '主仓库/B区/B-03', assetStatus: '在库', stockStatus: 'normal', alert: 'normal', lastChange: '2026-06-09 11:20' },
+  { viewType: 'fixed', materialType: 'fixed', assetCode: 'ZC202605012', code: 'GC-20001', name: '工程测量仪', spec: '全站仪 TS06', major: '资产-固定资产', minor: '办公设备', unit: '台', categoryPath: '资产类 / 固定资产 / 办公设备 / 工程测量仪', totalQty: '1', availableQty: '0', lockedQty: '0', borrowedQty: '1', location: '武穴大桥施工点', assetStatus: '借出', stockStatus: 'normal', alert: 'normal', borrower: '王工', lastChange: '2026-06-01 09:00' },
+];
+
+const MATERIAL_LEDGER_DETAIL_SAMPLES = {
+  'LA-00456': {
+    code: 'LA-00456', name: '电钻', spec: '650W', major: '资产-类资产', minor: '电动工具', unit: '台',
+    safeStock: '10', minStock: '5', maxStock: '20',
+    totalQty: '8', availableQty: '6', lockedQty: '0', borrowedQty: '2', pendingScrapQty: '0',
+    stockStatus: 'normal',
+    warehouses: [
+      { warehouse: '主仓库', zone: 'A区', shelf: 'A-02', qty: '8', available: '6', status: '在库' },
+    ],
+    transactions: [
+      { no: 'HK202606090003', type: '归还', qty: '1 台', time: '2026-06-08 16:45' },
+      { no: 'CK202606090008', type: '出库', qty: '2 台', time: '2026-06-07 14:20' },
+    ],
+  },
+  'HC-00089': {
+    code: 'HC-00089', name: '打印纸 A4', spec: '70g/500张', major: '耗材-办公耗材', minor: '办公用纸', unit: '箱',
+    safeStock: '100', minStock: '50', maxStock: '300',
+    totalQty: '186', availableQty: '170', lockedQty: '16', borrowedQty: '0', pendingScrapQty: '12',
+    stockStatus: 'normal',
+    warehouses: [
+      { warehouse: '主仓库', zone: 'A区', shelf: 'A-02', qty: '174', available: '158', status: '在库' },
+      { warehouse: '主仓库', zone: '待报废区', shelf: '—', qty: '12', available: '12', status: '待报废' },
+    ],
+    transactions: [
+      { no: 'CK202606010003', type: '出库', qty: '50 箱', time: '2026-06-01 09:30' },
+    ],
+  },
+  'GD001001-006': {
+    code: 'GD001001-006', name: '润滑油', spec: 'CD 15W-40', major: '耗材-生产耗材', minor: '设备-配件', unit: '桶',
+    safeStock: '50', minStock: '20', maxStock: '200',
+    totalQty: '18', availableQty: '15', lockedQty: '0', borrowedQty: '0', pendingScrapQty: '0',
+    stockStatus: 'warning',
+    warehouses: [
+      { warehouse: '主仓库', zone: 'A区', shelf: 'A-01', qty: '18', available: '15', status: '在库' },
+    ],
+    transactions: [
+      { no: 'RK202606090012', type: '入库', qty: '20 桶', time: '2026-05-28 11:00' },
+    ],
+  },
+  'ZC202605012': {
+    code: 'GC-20001', assetCode: 'ZC202605012', name: '工程测量仪', spec: '全站仪 TS06', major: '资产-固定资产', minor: '办公设备', unit: '台',
+    totalQty: '1', availableQty: '0', lockedQty: '0', borrowedQty: '1', pendingScrapQty: '0',
+    stockStatus: 'normal', assetStatus: '借出', borrower: '王工', location: '武穴大桥施工点',
+    warehouses: [
+      { warehouse: '场外', zone: '武穴大桥施工点', shelf: '—', qty: '1', available: '0', status: '借出' },
+    ],
+    transactions: [
+      { no: 'CK202606090008', type: '出库', qty: '1 台', time: '2026-06-01 09:00' },
+    ],
+  },
+};
+
+function materialLedgerStockBadge(status) {
+  const map = { normal: ['正常', 'success'], warning: ['预警', 'warning'], danger: ['缺货', 'danger'] };
+  const [label, tone] = map[status] || map.normal;
+  return badge(label, tone);
+}
+
+function materialLedgerAssetStatusBadge(status) {
+  const map = { '在库': 'success', '借出': 'warning', '维修中': 'info', '待报废': 'danger', '已作废': 'danger' };
+  return badge(status, map[status] || 'info');
+}
+
+function materialLedgerListTab(row) {
+  if (row.alert === 'warning' || row.alert === 'danger' || row.stockStatus === 'warning') return '库存预警';
+  if (row.materialType === 'fixed') return '固定资产';
+  if (row.materialType === 'like') return '类资产';
+  return '耗材';
+}
+
+function materialLedgerRowActions(row) {
+  if (row.viewType === 'fixed') {
+    return `<a href="ledger_material_detail.html?code=${encodeURIComponent(row.code)}&assetCode=${encodeURIComponent(row.assetCode)}&back=ledger_material.html" class="mr-2 hover:underline">查看</a><a href="ledger_asset_detail.html?code=${encodeURIComponent(row.assetCode)}" class="hover:underline">资产</a>`;
+  }
+  return `<a href="ledger_material_detail.html?code=${encodeURIComponent(row.code)}&back=ledger_material.html" class="hover:underline">查看</a>`;
+}
+
+function materialLedgerSidebarTree() {
+  return materialPickerSidebarTree(MATERIAL_LEDGER_ROWS);
+}
+
+function ledgerMaterialListPage() {
+  const tr = MATERIAL_LEDGER_ROWS.map(row => {
+    const tab = materialLedgerListTab(row);
+    const codeCell = row.viewType === 'fixed'
+      ? `<span class="font-mono text-xs">${row.assetCode}</span><div class="text-[10px] text-slate-400">${row.code}</div>`
+      : `<span class="font-mono text-xs">${row.code}</span>`;
+    const locCell = row.viewType === 'fixed'
+      ? `${row.location}${row.borrower ? `<div class="text-[10px] text-slate-400">借用人：${row.borrower}</div>` : ''}`
+      : row.warehouses;
+    const statusCell = row.viewType === 'fixed'
+      ? materialLedgerAssetStatusBadge(row.assetStatus)
+      : materialLedgerStockBadge(row.stockStatus);
+    const searchText = [row.code, row.assetCode, row.name, row.spec, row.major, row.minor, row.warehouses, row.location].filter(Boolean).join(' ').toLowerCase();
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-ledger-material-row data-material-type="${row.materialType}" data-material-category-path="${row.categoryPath || ''}" data-list-tab="${tab}" data-list-search="${searchText.replace(/"/g, '')}">
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${codeCell}</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${row.name}</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${row.spec}</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${materialTypeBadge(row.materialType)}</td>
+      <td class="px-4 py-3.5 text-sm font-medium text-slate-900 whitespace-nowrap">${row.totalQty} ${row.unit}</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${row.availableQty}</td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">${row.lockedQty}</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${row.borrowedQty}</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${locCell}</td>
+      <td class="px-4 py-3.5 whitespace-nowrap">${statusCell}</td>
+      <td class="px-4 py-3.5 text-sm text-slate-500 whitespace-nowrap">${row.lastChange}</td>
+      ${actionTd(materialLedgerRowActions(row), 'px-4 py-3.5')}
+    </tr>`;
+  }).join('');
+
+  const statCards = `
+    <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+      <button type="button" class="card rounded-2xl bg-white p-4 text-left hover:ring-1 hover:ring-slate-200 transition" data-ledger-stat-tab="全部">
+        <div class="text-sm text-slate-500">在库物资种类</div>
+        <div class="mt-1 text-2xl font-semibold text-slate-900">6</div>
+        <div class="mt-1 text-xs text-slate-400">全公司汇总</div>
+      </button>
+      <div class="card rounded-2xl bg-white p-4">
+        <div class="text-sm text-slate-500">在库总量（折算）</div>
+        <div class="mt-1 text-2xl font-semibold text-slate-900">335+</div>
+        <div class="mt-1 text-xs text-slate-400">含类资产/耗材</div>
+      </div>
+      <button type="button" class="card rounded-2xl bg-white p-4 text-left hover:ring-1 hover:ring-amber-200 transition" data-ledger-stat-tab="库存预警">
+        <div class="text-sm text-slate-500">库存预警</div>
+        <div class="mt-1 text-2xl font-semibold text-amber-600">1</div>
+        <div class="mt-1 text-xs text-amber-600">低于安全库存</div>
+      </button>
+      <button type="button" class="card rounded-2xl bg-white p-4 text-left hover:ring-1 hover:ring-slate-200 transition" data-ledger-stat-tab="固定资产">
+        <div class="text-sm text-slate-500">借出中</div>
+        <div class="mt-1 text-2xl font-semibold text-slate-900">63</div>
+        <div class="mt-1 text-xs text-slate-400">类资产+固资件数</div>
+      </button>
+      <a href="warehouse_scrap_pending_pool.html" class="card rounded-2xl bg-white p-4 text-left hover:ring-1 hover:ring-rose-200 transition">
+        <div class="text-sm text-slate-500">待报废</div>
+        <div class="mt-1 text-2xl font-semibold text-rose-600">3</div>
+        <div class="mt-1 text-xs text-rose-600">待发起作废</div>
+      </a>
+    </div>`;
+
+  return `
+    <div data-wms-material-ledger>
+      <p class="mb-4 text-sm text-slate-500">全公司<strong class="font-medium text-slate-700">物资维度</strong>库存总览，按编码汇总在库、可用、借出与预警；需要定位货位请使用<a href="ledger_warehouse.html" class="font-medium text-slate-800 hover:underline">仓库台账</a>。</p>
+      ${statCards}
+      <div class="wms-material-layout">
+        ${materialLedgerSidebarTree()}
+        <div class="wms-material-main card min-w-0 rounded-2xl bg-white p-4 shadow-sm">
+          <p class="mb-3 text-xs text-slate-500" data-wms-material-breadcrumb>当前分类：<span class="font-medium text-slate-800">全部物资</span></p>
+          <div data-wms-list-page>
+            <div class="mb-4 flex flex-wrap gap-2" data-wms-list-tabs>
+              <button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-slate-900 text-white" data-wms-list-tab="全部">全部</button>
+              <button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-list-tab="固定资产">固定资产</button>
+              <button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-list-tab="类资产">类资产</button>
+              <button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-list-tab="耗材">耗材</button>
+              <button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-list-tab="库存预警">库存预警</button>
+            </div>
+            ${listPageActions({
+              searchPlaceholder: '物资编码、资产编码、名称、规格…',
+              secondary: ['<a href="ledger_warehouse.html" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-warehouse text-xs text-slate-400"></i>仓库台账</a>'],
+            })}
+            <div class="card overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100" data-wms-list-card>
+              <div class="overflow-x-auto wms-modal-table-wrap" data-wms-list-table-wrap>
+                <table class="min-w-full wms-data-table">
+                  <thead class="bg-slate-50/80"><tr>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">编码</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">规格型号</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">类型</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">在库总量</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">可用</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">锁定</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">借出</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">分布/位置</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">状态</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">最近变动</th>
+                    ${actionTh('px-4 py-3')}
+                  </tr></thead>
+                  <tbody data-wms-list-tbody>${tr}</tbody>
+                </table>
+              </div>
+              ${listEmptyState()}
+              ${listTableFooter(MATERIAL_LEDGER_ROWS.length)}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function ledgerMaterialDetailPage(backHref = 'ledger_material.html', sample = {}) {
+  const d = { ...MATERIAL_LEDGER_DETAIL_SAMPLES['LA-00456'], ...sample };
+  const whRows = (d.warehouses || []).map((w, i) =>
+    `<tr class="border-t border-slate-100">
+      <td class="px-3 py-2.5 text-sm">${i + 1}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800">${w.warehouse}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${w.zone}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${w.shelf}</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900">${w.qty}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${w.available}</td>
+      <td class="px-3 py-2.5 text-sm">${w.status === '待报废' ? badge('待报废', 'warning') : w.status === '借出' ? badge('借出', 'warning') : badge('在库', 'success')}</td>
+      <td class="px-3 py-2.5 text-right text-sm"><a href="ledger_warehouse.html" class="text-slate-700 hover:underline">货位台账</a></td>
+    </tr>`
+  ).join('');
+  const txRows = (d.transactions || []).map(tx =>
+    `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 font-mono text-xs text-slate-800">${tx.no}</td><td class="px-3 py-2.5 text-sm">${transactionTypeBadge(tx.type)}</td><td class="px-3 py-2.5 text-sm text-slate-700">${tx.qty}</td><td class="px-3 py-2.5 text-sm text-slate-500">${tx.time}</td><td class="px-3 py-2.5 text-right text-sm"><a href="ledger_transaction.html?no=${encodeURIComponent(tx.no)}" class="hover:underline">流水</a></td></tr>`
+  ).join('');
+  const assetBanner = d.assetCode ? `<div class="mb-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-700"><i class="fa-solid fa-barcode mr-1 text-slate-500"></i>固定资产资产编码 <span class="font-mono font-semibold">${d.assetCode}</span> · 状态 ${materialLedgerAssetStatusBadge(d.assetStatus || '在库')}${d.borrower ? ` · 借用人 ${d.borrower}` : ''}</div>` : '';
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-ledger-material-detail data-material-code="${d.code}">
+      ${assetBanner}
+      <dl class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+        <div><dt class="text-slate-500">物资编码</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-ledger-mat-field="code">${d.code}</dd></div>
+        <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 text-slate-900" data-ledger-mat-field="name">${d.name}</dd></div>
+        <div><dt class="text-slate-500">规格型号</dt><dd class="mt-1 text-slate-800" data-ledger-mat-field="spec">${d.spec}</dd></div>
+        <div><dt class="text-slate-500">库存状态</dt><dd class="mt-1">${materialLedgerStockBadge(d.stockStatus || 'normal')}</dd></div>
+        <div><dt class="text-slate-500">在库总量</dt><dd class="mt-1 font-semibold text-slate-900">${d.totalQty} ${d.unit}</dd></div>
+        <div><dt class="text-slate-500">可用数量</dt><dd class="mt-1 font-semibold text-emerald-700">${d.availableQty}</dd></div>
+        <div><dt class="text-slate-500">锁定/预留</dt><dd class="mt-1 text-slate-800">${d.lockedQty || '0'}</dd></div>
+        <div><dt class="text-slate-500">借出数量</dt><dd class="mt-1 text-slate-800">${d.borrowedQty || '0'}</dd></div>
+        ${d.safeStock ? `<div><dt class="text-slate-500">安全库存</dt><dd class="mt-1 text-slate-800">${d.safeStock}</dd></div>` : ''}
+        ${d.minStock ? `<div><dt class="text-slate-500">库存下限</dt><dd class="mt-1 text-slate-800">${d.minStock}</dd></div>` : ''}
+        ${d.pendingScrapQty ? `<div><dt class="text-slate-500">待报废</dt><dd class="mt-1 text-rose-700">${d.pendingScrapQty} ${d.unit}</dd></div>` : ''}
+      </dl>
+      <h4 class="mb-3 text-sm font-semibold text-slate-900">分仓明细</h4>
+      <div class="mb-6 overflow-hidden rounded-xl border border-slate-200">
+        <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">序号</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">仓库</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">分区</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">货架</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">数量</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">可用</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">状态</th>
+          <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">操作</th>
+        </tr></thead><tbody>${whRows}</tbody></table>
+      </div>
+      <h4 class="mb-3 text-sm font-semibold text-slate-900">最近流水</h4>
+      <div class="mb-4 overflow-hidden rounded-xl border border-slate-200">
+        <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">单号</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">类型</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">数量</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">时间</th>
+          <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">操作</th>
+        </tr></thead><tbody>${txRows}</tbody></table>
+      </div>
+      <div class="flex flex-wrap gap-3 text-sm">
+        <a href="config_material_detail.html?code=${encodeURIComponent(d.code)}" class="text-slate-600 hover:underline"><i class="fa-solid fa-list mr-1"></i>物资清单</a>
+        <a href="ledger_transaction.html" class="text-slate-600 hover:underline"><i class="fa-solid fa-right-left mr-1"></i>全部流水</a>
+        ${d.pendingScrapQty ? `<a href="warehouse_scrap_pending_pool.html" class="text-rose-600 hover:underline"><i class="fa-solid fa-dumpster mr-1"></i>待报废池</a>` : ''}
+      </div>
+      <div class="wms-modal-footer mt-6">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary" data-ledger-mat-back>关闭</a>
+      </div>
+    </div>`;
+}
+
 function assetDetailModal(backHref, asset) {
   const statusBadge = asset.status === '在库' ? badge('在库', 'success') : badge('借出', 'warning');
   return `
@@ -1502,6 +1768,61 @@ const ACCEPTANCE_SUPPLY_SAMPLES = {
   GH2025005: { supplyNo: 'GH2025005', supplier: '宁波北仑君威有限公司', supplierStatus: '正常', code: 'GD001001-005', name: '扳手', major: '资产-固定资产', minor: '设备-配件', spec: '455', unit: '个', required: '20', pending: '20', supplied: '0', qualified: '0', unqualified: '0', accepted: '0' },
 };
 
+const ACCEPTANCE_RECORDS_BY_SUPPLY = {
+  GH2025001: [{ no: 'GH2025001-YS01', batchNo: '1', batchQty: '10', qualified: '10', unqualified: '0', date: '2025-11-15', warehouse: '张仓管', planner: '王工', status: '审核通过' }],
+  GH2025002: [{ no: 'GH2025002-YS01', batchNo: '1', batchQty: '10', qualified: '10', unqualified: '0', date: '2025-11-16', warehouse: '李仓管', planner: '赵工', status: '审核通过' }],
+  GH2025003: [{ no: 'GH2025003-YS01', batchNo: '1', batchQty: '50', qualified: '50', unqualified: '0', date: '2025-11-20', warehouse: '张仓管', planner: '王工', status: '审核中' }],
+  GH2025004: [
+    { no: 'GH2025004-YS01', batchNo: '1', batchQty: '10', qualified: '9', unqualified: '1', date: '2025-11-22', warehouse: '张仓管', planner: '王工', status: '审核通过', disposition: '换货' },
+    { no: 'GH2025004-YS02', batchNo: '2', batchQty: '10', qualified: '9', unqualified: '1', date: '2025-11-25', warehouse: '李仓管', planner: '赵工', status: '审核通过', disposition: '退货', refundKey: 'GH2025004-YS02-TH' },
+  ],
+  GH2025005: [],
+};
+
+function aggregateAcceptanceRecords(records = []) {
+  return records.reduce((acc, r) => {
+    acc.accepted += Number(r.batchQty) || 0;
+    acc.qualified += Number(r.qualified) || 0;
+    acc.unqualified += Number(r.unqualified) || 0;
+    return acc;
+  }, { accepted: 0, qualified: 0, unqualified: 0 });
+}
+
+function acceptanceDetailRecordRowHtml(seq, record, supplyNo, detailBack) {
+  const statusTone = record.status === '审核通过' ? 'success' : 'warning';
+  const recordDetailBack = encodeURIComponent(`warehouse_acceptance_detail.html?no=${supplyNo}&back=${detailBack}`);
+  const dispositionHint = record.disposition && record.disposition !== '—'
+    ? `<span class="ml-1 text-xs text-slate-400">(${record.disposition})</span>`
+    : '';
+  return `<tr class="border-t border-slate-100 hover:bg-slate-50/80">
+    <td class="px-3 py-2.5 text-sm text-slate-700">${seq}</td>
+    <td class="px-3 py-2.5 font-mono text-xs text-slate-800">${record.no}</td>
+    <td class="px-3 py-2.5 text-sm text-slate-700">${record.batchNo || seq}</td>
+    <td class="px-3 py-2.5 text-sm font-medium text-slate-900">${record.batchQty}</td>
+    <td class="px-3 py-2.5 text-sm text-emerald-700">${record.qualified}</td>
+    <td class="px-3 py-2.5 text-sm text-slate-700">${record.unqualified}${dispositionHint}</td>
+    <td class="px-3 py-2.5 text-sm text-slate-600">${record.date}</td>
+    <td class="px-3 py-2.5 text-sm text-slate-700">${record.warehouse}</td>
+    <td class="px-3 py-2.5 text-sm text-slate-700">${record.planner}</td>
+    <td class="px-3 py-2.5 text-sm">${badge(record.status, statusTone)}</td>
+    <td class="px-3 py-2.5 text-right text-sm whitespace-nowrap"><a href="warehouse_acceptance_record_detail.html?no=${record.no}&back=${recordDetailBack}" class="hover:underline">查看</a></td>
+  </tr>`;
+}
+
+function acceptanceDetailRecordsTable(supplyNo, backHref) {
+  const records = ACCEPTANCE_RECORDS_BY_SUPPLY[supplyNo] || [];
+  const detailBack = encodeURIComponent(backHref);
+  const thCls = 'px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap';
+  const cols = ['序号', '验收单号', '批次', '本批次数量', '合格', '不合格', '验收日期', '仓库验收', '计划验收', '业务状态', '操作'];
+  const th = cols.map(c => `<th class="${thCls}">${c}</th>`).join('');
+  const tr = records.length
+    ? records.map((r, i) => acceptanceDetailRecordRowHtml(i + 1, r, supplyNo, detailBack)).join('')
+    : `<tr><td colspan="${cols.length}" class="px-4 py-10 text-center text-sm text-slate-400">暂无验货记录</td></tr>`;
+  return `<div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+    <div class="overflow-x-auto wms-modal-table-wrap"><table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>${th}</tr></thead><tbody data-accept-detail-records-tbody>${tr}</tbody></table></div>
+  </div>`;
+}
+
 function purchaseSupplyInfoGrid(sample = {}) {
   const d = {
     supplyNo: 'GH2025003',
@@ -1651,19 +1972,32 @@ function acceptanceListCells(seq, supplyNo, supplier, code, name, spec, major, m
 
 function acceptanceDetailPage(backHref = 'warehouse_acceptance_list.html', sample = {}) {
   const d = { ...ACCEPTANCE_SUPPLY_SAMPLES.GH2025001, ...sample };
+  const records = ACCEPTANCE_RECORDS_BY_SUPPLY[d.supplyNo] || [];
+  const agg = aggregateAcceptanceRecords(records);
+  const accepted = String(agg.accepted || d.accepted);
+  const qualified = String(agg.qualified || d.qualified);
+  const unqualified = String(agg.unqualified || d.unqualified);
+  const recordListHref = `warehouse_acceptance_record.html?no=${d.supplyNo}&back=${encodeURIComponent(backHref)}`;
   return `
-    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg" data-wms-acceptance-supply>
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-acceptance-supply data-wms-acceptance-detail data-accept-supply-no="${d.supplyNo}">
       <div class="wms-acceptance-detail">
         ${formSection('供货信息')}
         ${acceptanceSupplyHeaderGrid(d)}
         ${formSection('验收进度')}
-        <div class="md:col-span-2 mb-2">${acceptanceProgressCell(d.accepted, d.required)}</div>
-        <dl class="grid gap-4 sm:grid-cols-2 text-sm">
+        <p class="md:col-span-2 text-xs text-slate-400">由验货记录自动汇总</p>
+        <div class="md:col-span-2 mb-2" data-accept-progress-bar>${acceptanceProgressCell(accepted, d.required)}</div>
+        <dl class="grid gap-4 sm:grid-cols-2 text-sm md:col-span-2">
           <div><dt class="text-slate-500">需求数量</dt><dd class="mt-1 text-slate-800" data-accept-field="required">${d.required}</dd></div>
-          <div><dt class="text-slate-500">已验收数量</dt><dd class="mt-1 text-slate-800" data-accept-field="accepted">${d.accepted}</dd></div>
-          <div><dt class="text-slate-500">合格数量</dt><dd class="mt-1 text-slate-800" data-accept-field="qualified">${d.qualified}</dd></div>
-          <div><dt class="text-slate-500">不合格数量</dt><dd class="mt-1 text-slate-800" data-accept-field="unqualified">${d.unqualified}</dd></div>
+          <div><dt class="text-slate-500">已验收数量</dt><dd class="mt-1 text-slate-800" data-accept-field="accepted">${accepted}</dd></div>
+          <div><dt class="text-slate-500">合格数量</dt><dd class="mt-1 text-slate-800" data-accept-field="qualified">${qualified}</dd></div>
+          <div><dt class="text-slate-500">不合格数量</dt><dd class="mt-1 text-slate-800" data-accept-field="unqualified">${unqualified}</dd></div>
         </dl>
+        <div class="wms-form-section md:col-span-2 flex flex-wrap items-center justify-between gap-2">
+          <h3 class="wms-form-section-title mb-0">验货记录</h3>
+          <a href="${recordListHref}" data-accept-all-records-link class="text-xs font-medium text-slate-600 hover:underline">全部记录 →</a>
+        </div>
+        <p class="md:col-span-2 text-sm text-slate-500">共 <span data-accept-record-count>${records.length}</span> 条，按验收日期降序</p>
+        ${acceptanceDetailRecordsTable(d.supplyNo, backHref)}
       </div>
       <div class="wms-modal-footer">
         <a href="${backHref}" class="wms-btn wms-btn-secondary">关闭</a>
@@ -1787,7 +2121,7 @@ function acceptanceRecordPage(backHref = 'warehouse_acceptance_list.html', suppl
 }
 
 const ACCEPTANCE_RECORD_DETAIL_SAMPLES = {
-  'GH2025003-YS01': { no: 'GH2025003-YS01', batchNo: '1', batchQty: '30', qualified: '30', unqualified: '0', date: '2025-11-20', warehouse: '张仓管', planner: '王工', unqualifiedRemark: '—', disposition: '—', status: '审核中', refundKey: '' },
+  'GH2025003-YS01': { no: 'GH2025003-YS01', batchNo: '1', batchQty: '50', qualified: '50', unqualified: '0', date: '2025-11-20', warehouse: '张仓管', planner: '王工', unqualifiedRemark: '—', disposition: '—', status: '审核中', refundKey: '' },
   'GH2025004-YS02': { no: 'GH2025004-YS02', batchNo: '2', batchQty: '10', qualified: '9', unqualified: '1', date: '2025-11-25', warehouse: '李仓管', planner: '赵工', unqualifiedRemark: '刀头断裂，无法使用', disposition: '退货', status: '审核通过', refundKey: 'GH2025004-YS02-TH' },
 };
 
@@ -2593,7 +2927,7 @@ function warehouseReturnScrapPage(backHref = 'warehouse_return_list.html', sampl
         ${formSection('作废信息')}
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 作废原因</label><select data-return-scrap-field="reason" class="${inputCls}"><option value="" disabled selected>请选择</option><option>丢失</option><option>损毁无法修复</option><option>被盗</option><option>其他</option></select></div>
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 说明</label><textarea rows="4" placeholder="请说明作废原因及处理情况" data-return-scrap-field="remark" class="${inputCls}"></textarea></div>
-        <div class="md:col-span-2 rounded-xl border border-rose-100 bg-rose-50/50 p-4 text-xs text-slate-600">作废后待还记录关闭，资产不再回库；固定资产标记灭失，类资产扣减借出账面。</div>
+        <div class="md:col-span-2 rounded-xl border border-rose-100 bg-rose-50/50 p-4 text-xs text-slate-600">作废后待还记录关闭，资产不再回库；固定资产标记灭失，类资产扣减借出账面。系统将自动生成来源为<strong>归还灭失</strong>的作废单（可在<a href="warehouse_scrap_list.html" class="font-medium text-slate-900 hover:underline">物资作废</a>查看）。</div>
       </div>
       <div class="wms-modal-footer">
         <a href="${backHref}" class="wms-btn wms-btn-secondary" data-return-back-link>取消</a>
@@ -2663,7 +2997,8 @@ function returnSuccessPage() {
         <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><i class="fa-solid fa-check text-2xl"></i></div>
         <h2 class="text-xl font-semibold text-slate-900" data-return-success-title>归还成功</h2>
         <p class="mt-2 text-sm text-slate-500" data-return-success-desc>归还单号 HK202606090001 · 领用单 LY202606010003</p>
-        <p class="mt-1 text-xs text-amber-700" data-return-success-hint>已通知借用人确认归还，确认前状态为「待确认」</p>
+        <p class="mt-1 text-xs text-amber-700 hidden" data-return-success-hint>已通知借用人确认归还，确认前状态为「待确认」</p>
+        <p class="mt-1 text-xs text-rose-700 hidden" data-return-success-pending-scrap>实物状态为损坏，物资已进入<a href="warehouse_scrap_pending_pool.html" class="font-medium underline">待报废池</a>，请发起作废单完成核销。</p>
         <dl class="mt-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-left text-sm sm:grid-cols-2">
           <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 font-medium text-slate-900" data-return-success-name>工程测量仪</dd></div>
           <div><dt class="text-slate-500">实物状态</dt><dd class="mt-1 text-slate-800" data-return-success-condition>完好</dd></div>
@@ -3033,6 +3368,324 @@ function warehouseRefundListPage() {
     columns: ['退货单号', '退货场景', '供货单号', '验收单号', '入库单号', '供应商', '物资编码', '物资名称', '规格型号', '物资大类', '待退数量', '已退数量', '退货状态', '创建时间'],
     rows,
   });
+}
+
+const SCRAP_PICKER_ROWS = [
+  { type: 'fixed', code: 'ZC202606001', name: '笔记本电脑', categoryPath: '资产类 / 固定资产 / 办公设备', unit: '台', stock: '1', warehouse: '主仓库/B区', assetCode: 'ZC202606001', location: 'B-03', assetStatus: '在库' },
+  { type: 'like', code: 'LA-00456', name: '电钻', categoryPath: '资产类 / 类资产 / 电动工具', unit: '台', stock: '6', warehouse: '主仓库/A区', assetCode: '—', location: 'A-02', assetStatus: '在库' },
+  { type: 'consumable', code: 'GD001001-006', name: '润滑油', categoryPath: '耗材类 / 生产耗材', unit: '桶', stock: '15', warehouse: '主仓库/A区', assetCode: '—', location: 'A-01', assetStatus: '在库' },
+  { type: 'consumable', code: 'HC-00089', name: '打印纸 A4', categoryPath: '耗材类 / 办公耗材', unit: '箱', stock: '170', warehouse: '主仓库/A区', assetCode: '—', location: 'A-02', assetStatus: '在库' },
+];
+
+const SCRAP_FORM_SAMPLE_LINES = [
+  { seq: 1, materialType: 'like', code: 'LA-00456', assetCode: '—', name: '电钻', spec: '650W', major: '资产-类资产', location: '主仓库/A区/A-02', available: '6', scrapQty: '2', remark: '电机烧毁' },
+  { seq: 2, materialType: 'consumable', code: 'GD001001-006', assetCode: '—', name: '润滑油', spec: 'CD 15W-40', major: '耗材-生产耗材', location: '主仓库/A区/A-01', available: '15', scrapQty: '3', remark: '超过保质期' },
+];
+
+const PENDING_SCRAP_POOL = {
+  'POOL-LA-00502': { poolKey: 'POOL-LA-00502', assetCode: 'LA-00502', code: 'LA-00500', name: '手持对讲机', spec: 'UHF 400-470MHz', major: '资产-类资产', unit: '台', qty: '1', location: '主仓库/待报废区', assetStatus: '待报废', sourceType: '归还损坏', sourceDocNo: 'HK20260608004', inboundDate: '2026-06-09', remark: '归还验收判定损坏，主板烧毁' },
+  'POOL-GD008': { poolKey: 'POOL-GD008', assetCode: 'GD001001-008', code: 'GD001001-008', name: '铝合金梯', spec: '3m', major: '资产-固定资产', unit: '架', qty: '1', location: '主仓库/待报废区', assetStatus: '待报废', sourceType: '归还损坏', sourceDocNo: 'HK20260607002', inboundDate: '2026-06-08', remark: '梯框变形无法修复' },
+  'POOL-HC089': { poolKey: 'POOL-HC089', assetCode: '—', code: 'HC-00089', name: '打印纸 A4', spec: '70g/500张', major: '耗材-办公耗材', unit: '箱', qty: '12', location: '主仓库/A区/A-02', assetStatus: '待报废', sourceType: '在库过期', sourceDocNo: '—', inboundDate: '2026-06-07', remark: '受潮霉变，无法使用' },
+};
+
+const SCRAP_SAMPLES = {
+  'ZF202606090001': {
+    scrapKey: 'ZF202606090001', scrapNo: 'ZF202606090001', scrapType: 'pending_scrap', sourceType: '待报废转报废',
+    sourceDocNo: 'HK20260608004', poolKey: 'POOL-LA-00502', status: '待执行', reason: '损坏无法修复',
+    remark: '归还时判定损坏，对讲机主板烧毁，经设备部确认无法维修。',
+    applicant: '张仓管', department: '物资管理部', warehouse: '主仓库', applyDate: '2026-06-09', lineCount: '1', totalQty: '1',
+    lines: [{ seq: 1, materialType: 'like', code: 'LA-00500', assetCode: 'LA-00502', name: '手持对讲机', spec: 'UHF 400-470MHz', major: '资产-类资产', location: '主仓库/待报废区', available: '1', scrapQty: '1', remark: '归还损坏' }],
+  },
+  'ZF202606080002': {
+    scrapKey: 'ZF202606080002', scrapNo: 'ZF202606080002', scrapType: 'in_stock', sourceType: '在库报废',
+    sourceDocNo: '—', status: '已执行', reason: '过期失效',
+    remark: '库内润滑油超过保质期，按制度核销。',
+    applicant: '李仓管', department: '物资管理部', warehouse: '主仓库', applyDate: '2026-06-08', executedDate: '2026-06-08', lineCount: '1', totalQty: '5',
+    lines: [{ seq: 1, materialType: 'consumable', code: 'GD001001-006', assetCode: '—', name: '润滑油', spec: 'CD 15W-40', major: '耗材-生产耗材', location: '主仓库/A区/A-01', available: '15', scrapQty: '5', remark: '过期批次' }],
+  },
+  'ZF202606070003': {
+    scrapKey: 'ZF202606070003', scrapNo: 'ZF202606070003', scrapType: 'in_stock', sourceType: '在库报废',
+    sourceDocNo: '—', status: '审核中', reason: '损坏无法修复',
+    remark: '电钻多台电机故障，待物资管理部门审批。',
+    applicant: '张仓管', department: '物资管理部', warehouse: '主仓库', applyDate: '2026-06-07', lineCount: '2', totalQty: '3',
+    lines: SCRAP_FORM_SAMPLE_LINES,
+  },
+  'ZF202606060004': {
+    scrapKey: 'ZF202606060004', scrapNo: 'ZF202606060004', scrapType: 'in_stock', sourceType: '在库报废',
+    sourceDocNo: '—', status: '草稿', reason: '淘汰更新',
+    remark: '旧型号办公设备计划淘汰，草稿待补充明细。',
+    applicant: '张仓管', department: '物资管理部', warehouse: '主仓库', applyDate: '2026-06-06', lineCount: '0', totalQty: '0',
+    lines: [],
+  },
+  'ZF202606050005': {
+    scrapKey: 'ZF202606050005', scrapNo: 'ZF202606050005', scrapType: 'return_loss', sourceType: '归还灭失',
+    sourceDocNo: 'LY202605200008', returnKey: 'LY202605200008-LA-00331', status: '已执行', reason: '丢失',
+    remark: '借用人确认铝合金梯在工地丢失，无法找回。',
+    applicant: '张仓管', department: '物资管理部', warehouse: '主仓库', applyDate: '2026-06-05', executedDate: '2026-06-05', lineCount: '1', totalQty: '1',
+    lines: [{ seq: 1, materialType: 'like', code: 'LA-00330', assetCode: 'LA-00331', name: '铝合金梯', spec: '3m', major: '资产-类资产', location: '借出中', available: '1', scrapQty: '1', remark: '工地丢失' }],
+  },
+};
+
+function scrapStatusBadge(status) {
+  const map = { '草稿': 'info', '审核中': 'warning', '审核驳回': 'danger', '待执行': 'warning', '已执行': 'success' };
+  return badge(status, map[status] || 'info');
+}
+
+function scrapSourceBadge(sourceType) {
+  const map = { '在库报废': 'info', '归还灭失': 'danger', '待报废转报废': 'warning', '维修报废': 'warning' };
+  return badge(sourceType, map[sourceType] || 'info');
+}
+
+function scrapRowActions(scrapKey, status) {
+  const q = (extra = {}) => {
+    const p = new URLSearchParams({ scrapKey, back: 'warehouse_scrap_list.html', ...extra });
+    return p.toString();
+  };
+  if (status === '草稿') {
+    return `<a href="warehouse_scrap_form.html?${q()}" class="mr-2 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline" data-scrap-delete>删除</a>`;
+  }
+  if (status === '审核中' || status === '审核驳回') {
+    return `<a href="warehouse_scrap_form.html?${q({ mode: 'view' })}" class="hover:underline">查看</a>`;
+  }
+  if (status === '待执行') {
+    return `<a href="warehouse_scrap_form.html?${q({ mode: 'view' })}" class="mr-2 hover:underline">查看</a><a href="warehouse_scrap_execute.html?${q()}" class="font-medium text-rose-700 hover:underline">执行</a>`;
+  }
+  return `<a href="warehouse_scrap_form.html?${q({ mode: 'view' })}" class="hover:underline">查看</a>`;
+}
+
+function scrapRow(cells, status, scrapKey) {
+  const tabMap = { '草稿': '草稿', '审核中': '审核中', '审核驳回': '审核中', '待执行': '待执行', '已执行': '已执行' };
+  return { cells, tab: tabMap[status] || status, actions: scrapRowActions(scrapKey, status) };
+}
+
+function scrapQtyCell(row, viewMode = false) {
+  const qtyCls = 'w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200';
+  if (row.materialType === 'fixed' || viewMode) {
+    return `<span class="font-medium text-slate-900">${row.scrapQty || '1'}</span>`;
+  }
+  return `<input type="number" min="1" max="${row.available}" value="${row.scrapQty || ''}" data-scrap-qty class="${qtyCls}" />`;
+}
+
+function scrapMaterialTable(rows = SCRAP_FORM_SAMPLE_LINES, { addHref = 'warehouse_scrap_add_material.html', viewMode = false } = {}) {
+  const cols = ['序号', '物资编码', '资产编码', '物资名称', '规格型号', '物资大类', '货位', '可用库存', '作废数量', '备注', '操作'];
+  const th = cols.map(c => {
+    if (c === '操作' && viewMode) return '';
+    if (c === '操作') return '<th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th>';
+    const req = c === '作废数量' ? '<span class="text-rose-500">*</span> ' : '';
+    return `<th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${req}${c}</th>`;
+  }).join('');
+  const remarkCls = 'w-[100px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200';
+  const tr = rows.length ? rows.map(r => {
+    const typeHint = r.materialType === 'fixed' ? '<span class="ml-1 text-[10px] text-slate-400">固资</span>'
+      : r.materialType === 'like' ? '<span class="ml-1 text-[10px] text-amber-600">类资产</span>'
+        : '<span class="ml-1 text-[10px] text-emerald-600">耗材</span>';
+    const actCell = viewMode ? '' : `<td class="px-3 py-2.5 text-right text-sm whitespace-nowrap"><button type="button" class="text-sm text-rose-600 hover:underline">删除</button></td>`;
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/60" data-scrap-row data-material-type="${r.materialType}">
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.seq}</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">${r.code}</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">${r.assetCode || '—'}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.name}${typeHint}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.spec}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.major}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.location}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.available}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${scrapQtyCell(r, viewMode)}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${viewMode ? (r.remark || '—') : `<input type="text" value="${r.remark || ''}" placeholder="备注" class="${remarkCls}" />`}</td>
+      ${actCell}
+    </tr>`;
+  }).join('') : `<tr><td colspan="${viewMode ? 10 : 11}" class="px-3 py-8 text-center text-sm text-slate-400">暂无明细，请添加作废物资</td></tr>`;
+  const addBtn = viewMode ? '' : `<div class="flex justify-end border-b border-slate-100 bg-white px-3 py-2">
+        <a href="${addHref}" class="wms-requisition-add-btn"><i class="fa-solid fa-plus text-[10px]"></i> 添加物资</a>
+      </div>`;
+  return `<div class="wms-requisition-section md:col-span-2">
+    <h3 class="wms-form-section-title mb-3">作废明细</h3>
+    <div class="rounded-xl border border-slate-200">
+      ${addBtn}
+      <div class="wms-requisition-table-wrap overflow-x-auto wms-modal-table-wrap rounded-none border-0">
+        <table class="min-w-[1050px] w-full text-sm wms-requisition-material-table"><thead class="bg-slate-50/90"><tr>${th}</tr></thead><tbody data-scrap-lines>${tr}</tbody></table>
+      </div>
+      <p class="border-t border-slate-100 bg-slate-50/80 px-3 py-2 text-xs text-slate-500">
+        <i class="fa-solid fa-circle-info mr-1 text-rose-500"></i>
+        <strong>固定资产</strong>按资产编码逐件作废，数量固定为 1；
+        <strong>类资产/耗材</strong>须填写作废数量，且不得超过可用库存。执行后将扣减台账并写入 scrap 流水。
+      </p>
+    </div>
+  </div>`;
+}
+
+function warehouseScrapListPage() {
+  const rows = [
+    scrapRow(['ZF202606090001', scrapSourceBadge('待报废转报废'), 'HK20260608004', '手持对讲机', '1', '张仓管', '物资管理部', scrapStatusBadge('待执行'), '2026-06-09'], '待执行', 'ZF202606090001'),
+    scrapRow(['ZF202606080002', scrapSourceBadge('在库报废'), '—', '润滑油', '5', '李仓管', '物资管理部', scrapStatusBadge('已执行'), '2026-06-08'], '已执行', 'ZF202606080002'),
+    scrapRow(['ZF202606070003', scrapSourceBadge('在库报废'), '—', '电钻等 2 项', '3', '张仓管', '物资管理部', scrapStatusBadge('审核中'), '2026-06-07'], '审核中', 'ZF202606070003'),
+    scrapRow(['ZF202606060004', scrapSourceBadge('在库报废'), '—', '—', '0', '张仓管', '物资管理部', scrapStatusBadge('草稿'), '2026-06-06'], '草稿', 'ZF202606060004'),
+    scrapRow(['ZF202606050005', scrapSourceBadge('归还灭失'), 'LY202605200008', '铝合金梯', '1', '张仓管', '物资管理部', scrapStatusBadge('已执行'), '2026-06-05'], '已执行', 'ZF202606050005'),
+  ];
+  return listPage({
+    desc: '对在库、待报废、维修中等状态的物资发起报废申请；审批通过后执行核销，扣减台账并写入 scrap 审计。归还灭失类作废由<a href="warehouse_return_list.html" class="font-medium text-slate-800 hover:underline">物资归还</a>入口发起并自动关联。',
+    addBtn: true, addHref: 'warehouse_scrap_form.html',
+    secondary: ['<a href="warehouse_scrap_pending_pool.html" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-rose-700 ring-1 ring-rose-200 hover:bg-rose-50"><i class="fa-solid fa-dumpster text-xs"></i>待报废池 <span class="rounded-md bg-rose-100 px-1.5 py-0.5 text-xs font-semibold">3</span></a>'],
+    tabs: ['全部', '草稿', '审核中', '待执行', '已执行'],
+    tabColumn: 7,
+    searchPlaceholder: '作废单号、关联单号、物资名称、申请人',
+    filters: [
+      { label: '来源类型', key: 'source', column: 1, options: ['全部', '在库报废', '归还灭失', '待报废转报废', '维修报废'] },
+    ],
+    columns: ['作废单号', '来源类型', '关联单号', '物资摘要', '合计数量', '申请人', '申请部门', '状态', '申请时间'],
+    rows,
+  });
+}
+
+function warehouseScrapPendingPoolPage() {
+  const rows = Object.values(PENDING_SCRAP_POOL).map(p => ({
+    cells: [
+      badge('待报废', 'warning'),
+      scrapSourceBadge(p.sourceType === '归还损坏' ? '待报废转报废' : '在库报废'),
+      p.assetCode !== '—' ? p.assetCode : '—',
+      p.code,
+      p.name,
+      p.spec,
+      p.major,
+      p.location,
+      `${p.qty} ${p.unit}`,
+      p.sourceDocNo !== '—' ? p.sourceDocNo : '—',
+      p.inboundDate,
+    ],
+    tab: '',
+    actions: `<a href="warehouse_scrap_form.html?poolKey=${encodeURIComponent(p.poolKey)}&back=warehouse_scrap_pending_pool.html" class="font-medium text-rose-700 hover:underline">发起作废</a>`,
+  }));
+  return `
+    <div class="mb-4"><a href="warehouse_scrap_list.html" class="text-sm text-slate-500 hover:text-slate-900"><i class="fa-solid fa-arrow-left mr-1"></i>返回作废列表</a></div>
+    <div data-wms-list-page>
+      <p class="mb-4 text-sm text-slate-500">归还验收判定<strong>损坏</strong>的物资进入待报废池，状态为「待报废」仍占用账面数量；须发起作废单审批执行后才核销库存。与<a href="warehouse_return_list.html" class="font-medium text-slate-800 hover:underline">物资归还</a>、<a href="ledger_warehouse.html" class="font-medium text-slate-800 hover:underline">仓库台账</a>联动。</p>
+      <div class="mb-4 rounded-xl border border-amber-100 bg-amber-50/60 p-4 text-sm text-slate-700">
+        <i class="fa-solid fa-triangle-exclamation mr-1 text-amber-600"></i>
+        待报废物资不可出库、不可再次领用；请尽快完成作废审批与执行。
+      </div>
+      ${listPageActions({ searchPlaceholder: '资产编码、物资编码、名称、来源单号' })}
+      <div class="card overflow-hidden rounded-2xl bg-white shadow-sm">
+        <div class="overflow-x-auto wms-modal-table-wrap"><table class="min-w-full wms-data-table"><thead class="bg-slate-50/80"><tr>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">资产状态</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">来源</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">资产编码</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">规格型号</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资大类</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">存放位置</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">数量</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">来源单号</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">入池日期</th>
+          ${actionTh('px-4 py-3')}
+        </tr></thead><tbody>${rows.map(r => `<tr class="border-t border-slate-100 hover:bg-slate-50/80">${r.cells.map(c => `<td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('')}${actionTd(r.actions, 'px-4 py-3.5')}</tr>`).join('')}</tbody></table></div>
+        ${listTableFooter(rows.length)}
+      </div>
+    </div>`;
+}
+
+function warehouseScrapFormPage(backHref = 'warehouse_scrap_list.html', sample = {}) {
+  const d = {
+    scrapNo: '系统自动生成', sourceType: '在库报废', sourceDocNo: '—', reason: '', remark: '',
+    applicant: '张仓管', department: '物资管理部', warehouse: '主仓库', applyDate: '2026-06-09',
+    lines: SCRAP_FORM_SAMPLE_LINES, status: '草稿', ...sample,
+  };
+  const viewMode = d.viewMode === true;
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
+  const disAttr = viewMode ? ' disabled' : '';
+  const sourceReadonly = d.sourceType !== '在库报废' || viewMode;
+  const reasonOptions = ['损坏无法修复', '过期失效', '淘汰更新', '丢失', '被盗', '事故损毁', '其他'];
+  const reasonSelect = reasonOptions.map(o =>
+    `<option${d.reason === o ? ' selected' : ''}${!d.reason && o === '损坏无法修复' && d.poolKey ? ' selected' : ''}>${o}</option>`
+  ).join('');
+  const poolBanner = d.poolKey ? `<div class="md:col-span-2 rounded-xl border border-amber-100 bg-amber-50/50 p-4 text-sm text-slate-700">
+    <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>从<strong>待报废池</strong>发起，物资明细已预填且不可修改编码；提交后走 <code class="rounded bg-white/80 px-1 text-xs">WF-SCRAP</code> 审批。
+  </div>` : '';
+  const returnBanner = d.scrapType === 'return_loss' ? `<div class="md:col-span-2 rounded-xl border border-rose-100 bg-rose-50/50 p-4 text-xs text-slate-600">本单由归还作废自动生成，来源类型为<strong>归还灭失</strong>；不恢复库存，关闭待还记录。</div>` : '';
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-scrap-form data-scrap-key="${d.scrapKey || ''}">
+      <div class="wms-modal-form wms-warehouse-form">
+        ${formSection('基本信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">作废单号</label><input type="text" value="${d.scrapNo}" readonly data-scrap-field="scrapNo" class="${roCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">来源类型</label><select data-scrap-field="sourceType"${sourceReadonly ? ' disabled' : ''} class="${sourceReadonly ? roCls : inputCls}"><option${d.sourceType === '在库报废' ? ' selected' : ''}>在库报废</option><option${d.sourceType === '待报废转报废' ? ' selected' : ''}>待报废转报废</option><option${d.sourceType === '维修报废' ? ' selected' : ''}>维修报废</option><option${d.sourceType === '归还灭失' ? ' selected' : ''}>归还灭失</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">关联单号</label><input type="text" value="${d.sourceDocNo}" readonly data-scrap-field="sourceDocNo" class="${roCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 所属仓库</label><select data-scrap-field="warehouse"${disAttr} class="${inputCls}"><option${d.warehouse === '主仓库' ? ' selected' : ''}>主仓库</option><option>备件库</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 作废原因</label><select data-scrap-field="reason"${disAttr} class="${inputCls}"><option value="" disabled${!d.reason ? ' selected' : ''}>请选择</option>${reasonSelect}</select></div>
+        ${poolBanner}${returnBanner}
+        ${scrapMaterialTable(d.lines || [], { addHref: d.poolKey ? '#' : 'warehouse_scrap_add_material.html', viewMode: viewMode || !!d.poolKey })}
+        ${formSection('其他信息')}
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 说明</label><textarea rows="4" placeholder="请说明作废原因及处理情况（0/500）" data-scrap-field="remark"${disAttr} ${viewMode ? `readonly class="${roCls}"` : `class="${inputCls}"`}>${d.remark || (d.poolKey ? PENDING_SCRAP_POOL[d.poolKey]?.remark : '') || ''}</textarea></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">附件</label>${viewMode ? '<p class="text-sm text-slate-400">—</p>' : uploadZone()}</div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请人</label><select data-scrap-field="applicant"${disAttr} class="${inputCls}"><option${d.applicant === '张仓管' ? ' selected' : ''}>张仓管</option><option${d.applicant === '李仓管' ? ' selected' : ''}>李仓管</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请部门</label><select data-scrap-field="department"${disAttr} class="${inputCls}"><option${d.department === '物资管理部' ? ' selected' : ''}>物资管理部</option><option>设备部</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary" data-scrap-back-link>${viewMode ? '关闭' : '取消'}</a>
+        ${viewMode ? '' : `<button type="button" class="wms-btn wms-btn-secondary" data-scrap-save>保存草稿</button>
+        <button type="button" class="wms-btn wms-btn-primary" data-scrap-submit>提交审批</button>`}
+      </div>
+    </div>`;
+}
+
+function warehouseScrapExecutePage(backHref = 'warehouse_scrap_list.html', sample = {}) {
+  const d = { ...SCRAP_SAMPLES['ZF202606090001'], ...sample };
+  const lineRows = (d.lines || []).map((r, i) =>
+    `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">${i + 1}</td><td class="px-3 py-2.5 font-mono text-xs">${r.assetCode !== '—' ? r.assetCode : '—'}</td><td class="px-3 py-2.5 text-sm">${r.name}</td><td class="px-3 py-2.5 text-sm">${r.location}</td><td class="px-3 py-2.5 text-sm font-medium">${r.scrapQty} ${r.materialType === 'consumable' ? '桶' : r.materialType === 'like' ? '台' : '件'}</td></tr>`
+  ).join('');
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg" data-wms-scrap-execute data-scrap-key="${d.scrapKey}">
+      <div class="mb-5 rounded-xl border border-rose-100 bg-rose-50/60 p-4 text-sm text-slate-700">
+        <i class="fa-solid fa-circle-exclamation mr-1 text-rose-600"></i>
+        审批已通过。请现场核对物资后确认执行；执行后将<strong>扣减台账可用库存</strong>，资产状态变为「已作废」，并写入 <code class="rounded bg-white/80 px-1 text-xs">txn_type=scrap</code> 流水。
+      </div>
+      <dl class="mb-6 grid gap-4 sm:grid-cols-2 text-sm">
+        <div><dt class="text-slate-500">作废单号</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-scrap-exec-field="scrapNo">${d.scrapNo}</dd></div>
+        <div><dt class="text-slate-500">来源类型</dt><dd class="mt-1 text-slate-800" data-scrap-exec-field="sourceType">${d.sourceType}</dd></div>
+        <div><dt class="text-slate-500">作废原因</dt><dd class="mt-1 text-slate-800" data-scrap-exec-field="reason">${d.reason}</dd></div>
+        <div><dt class="text-slate-500">申请人</dt><dd class="mt-1 text-slate-800">${d.applicant} · ${d.department}</dd></div>
+        <div class="sm:col-span-2"><dt class="text-slate-500">说明</dt><dd class="mt-1 text-slate-800">${d.remark}</dd></div>
+      </dl>
+      <h4 class="mb-3 text-sm font-semibold text-slate-900">作废明细</h4>
+      <div class="mb-4 overflow-hidden rounded-xl border border-slate-200">
+        <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">序号</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">资产编码</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资名称</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">货位</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">作废数量</th>
+        </tr></thead><tbody>${lineRows}</tbody></table>
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-xs text-slate-600">
+        <div class="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-qrcode text-blue-500"></i> 现场核对（可选）</div>
+        固定资产建议扫码确认资产编码；类资产/耗材核对货位与数量无误后执行。
+        <button type="button" class="mt-3 inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50" data-scrap-scan><i class="fa-solid fa-barcode"></i> 模拟扫码核对</button>
+      </div>
+      <div class="wms-modal-footer mt-6">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary" data-scrap-back-link>取消</a>
+        <button type="button" class="wms-btn wms-btn-primary bg-rose-600 hover:bg-rose-700" data-scrap-execute-submit>确认执行作废</button>
+      </div>
+    </div>`;
+}
+
+function scrapSuccessPage() {
+  return `
+    <div class="mx-auto max-w-2xl" data-wms-scrap-success>
+      <div class="card rounded-2xl bg-white p-8 text-center">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 text-rose-600"><i class="fa-solid fa-check text-2xl"></i></div>
+        <h2 class="text-xl font-semibold text-slate-900" data-scrap-success-title>作废执行成功</h2>
+        <p class="mt-2 text-sm text-slate-500" data-scrap-success-desc>作废单号 ZF202606090001 · 已扣减台账库存</p>
+        <dl class="mt-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-left text-sm sm:grid-cols-2">
+          <div><dt class="text-slate-500">来源类型</dt><dd class="mt-1 text-slate-800" data-scrap-success-source>待报废转报废</dd></div>
+          <div><dt class="text-slate-500">作废数量</dt><dd class="mt-1 font-medium text-slate-900" data-scrap-success-qty>1 台</dd></div>
+          <div><dt class="text-slate-500">物资摘要</dt><dd class="mt-1 text-slate-800" data-scrap-success-name>手持对讲机</dd></div>
+          <div><dt class="text-slate-500">流水类型</dt><dd class="mt-1 font-mono text-xs text-slate-600">txn_type=scrap</dd></div>
+        </dl>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a href="ledger_transaction.html" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-right-left"></i> 出入库记录</a>
+          <a href="warehouse_scrap_list.html" class="text-sm text-slate-500 hover:text-slate-900">返回作废列表</a>
+        </div>
+      </div>
+    </div>`;
 }
 
 function formSection(title) {
@@ -4408,6 +5061,8 @@ function supplierEvalSelectSupplierPage() {
 }
 
 const pages = {
+  ledger_material: page('ledger_material', '物资台账', '物资台账 / 库存总览', ledgerMaterialListPage()),
+
   ledger_warehouse: page('ledger_warehouse', '仓库台账', '物资台账 / 仓库台账', ledgerWarehousePage()),
 
   ledger_transaction: page('ledger_transaction', '出入库记录', '物资台账 / 出入库记录', ledgerTransactionPage()),
@@ -4609,6 +5264,10 @@ const pages = {
 
   warehouse_refund_list: page('warehouse_refund_list', '物资退货', '物资管理 / 物资退货', warehouseRefundListPage()),
 
+  warehouse_scrap_list: page('warehouse_scrap_list', '物资作废', '物资管理 / 物资作废', warehouseScrapListPage()),
+
+  warehouse_scrap_pending_pool: page('warehouse_scrap_list', '待报废池', '物资管理 / 待报废池', warehouseScrapPendingPoolPage()),
+
   supplier_list: page('supplier_list', '供应商列表', '供应商管理 / 供应商列表', listPage({
     desc: '供应商档案与供货状态；审批通过的评价结果自动回写最新等级与评分',
     addBtn: true, addHref: 'supplier_form.html',
@@ -4701,6 +5360,7 @@ const pages = {
       ['WF-REQUISITION', '领用申请', '申请人 → 部门负责人 → 仓库管理员', badge('启用','success'), '2026-06-01'],
       ['WF-PURCHASE-URGENT', '急件采购申请', '采购员 → 采购负责人 → 分管领导', badge('启用','success'), '2026-06-01'],
       ['WF-SUPPLIER-EVAL', '供应商评价', '评价人 → 采购负责人', badge('启用','success'), '2026-06-09'],
+      ['WF-SCRAP', '物资作废', '申请人 → 仓库管理员 → 物资管理部门', badge('启用','success'), '2026-06-09'],
     ],
     actions: '<a href="#" class="hover:underline">编辑</a>',
   })),
@@ -4808,6 +5468,21 @@ const forms = {
 
   warehouse_refund_success: page('warehouse_refund_list', '退货成功', '物资管理 / 退货成功', refundSuccessPage()),
 
+  warehouse_scrap_form: page('warehouse_scrap_list', '新建作废单', '物资管理 / 新建作废单', warehouseScrapFormPage('warehouse_scrap_list.html')),
+
+  warehouse_scrap_execute: page('warehouse_scrap_list', '执行作废', '物资管理 / 执行作废', warehouseScrapExecutePage('warehouse_scrap_list.html')),
+
+  warehouse_scrap_success: page('warehouse_scrap_list', '作废成功', '物资管理 / 作废成功', scrapSuccessPage()),
+
+  warehouse_scrap_add_material: selectPickerWithTree('warehouse_scrap_list', '添加作废物资', '物资管理 / 添加作废物资', 'warehouse_scrap_form.html', {
+    heading: '选择在库物资（仅显示在库/待报废状态；固资按编码、类资产/耗材按数量）',
+    columns: ['物资编码', '物资名称', '类型', '资产编码', '货位', '可用库存'],
+    pickerRows: SCRAP_PICKER_ROWS,
+    renderCells: (row) => [row.code, row.name, materialTypeBadge(row.type), row.assetCode, row.location, row.stock],
+    checkedCount: 0,
+    confirmLabel: '确认添加',
+  }),
+
   config_warehouse_form: page('config_warehouse', '新增仓库', '基础配置 / 新增仓库', warehouseForm('config_warehouse.html')),
 
   config_material_form: page('config_material_catalog', '新增物资', '基础配置 / 新增物资', materialFormPage()),
@@ -4896,6 +5571,8 @@ const forms = {
       ['LA-00456', '电钻', badge('类资产','info'), '主仓库/B区/B-03', badge('在库','success')],
     ],
   }),
+
+  ledger_material_detail: page('ledger_material', '物资库存详情', '物资台账 / 物资库存详情', ledgerMaterialDetailPage('ledger_material.html', MATERIAL_LEDGER_DETAIL_SAMPLES['LA-00456'])),
 
   ledger_asset_detail: page('ledger_warehouse', '资产详情', '物资台账 / 资产详情', assetDetailModal('ledger_warehouse.html', FIXED_ASSET_LEDGER_ROWS[0])),
 
@@ -5009,6 +5686,8 @@ console.log('Done:', Object.keys({ ...pages, ...forms }).length, 'pages');
 
 const mapLabels = {
   '../index.html': ['工作台', '首页'],
+  ledger_material: ['物资台账', '物资台账'],
+  ledger_material_detail: ['物资库存详情', '物资台账 · 表单'],
   ledger_warehouse: ['仓库台账', '物资台账'],
   ledger_asset_detail: ['资产详情', '物资台账 · 二维码'],
   ledger_asset_qrcode: ['资产二维码', '物资台账 · 二维码'],
@@ -5068,6 +5747,12 @@ const mapLabels = {
   warehouse_return_scrap_form: ['归还作废', '物资管理 · 表单'],
   warehouse_return_scrap: ['归还作废', '物资管理 · 表单'],
   warehouse_refund_list: ['物资退货', '物资管理'],
+  warehouse_scrap_list: ['物资作废', '物资管理'],
+  warehouse_scrap_pending_pool: ['待报废池', '物资管理'],
+  warehouse_scrap_form: ['新建作废单', '物资管理 · 表单'],
+  warehouse_scrap_execute: ['执行作废', '物资管理 · 表单'],
+  warehouse_scrap_success: ['作废成功', '物资管理 · 确认'],
+  warehouse_scrap_add_material: ['添加作废物资', '物资管理 · 表单'],
   warehouse_refund_form: ['新增退货', '物资管理 · 入口'],
   warehouse_refund_pre_form: ['验收不合格退货', '物资管理 · 表单'],
   warehouse_refund_fixed_form: ['固定资产退货', '物资管理 · 表单'],

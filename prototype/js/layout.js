@@ -23,12 +23,12 @@ const WMS_ACCEPTANCE_SUPPLY_SAMPLES = {
 };
 
 const WMS_ACCEPTANCE_RECORDS = {
-  GH2025001: [{ no: 'GH2025001-YS01', batchQty: '10', qualified: '10', unqualified: '0', date: '2025-11-15', warehouse: '张仓管', planner: '王工', status: '审核通过' }],
-  GH2025002: [{ no: 'GH2025002-YS01', batchQty: '10', qualified: '10', unqualified: '0', date: '2025-11-16', warehouse: '李仓管', planner: '赵工', status: '审核通过' }],
-  GH2025003: [{ no: 'GH2025003-YS01', batchQty: '50', qualified: '50', unqualified: '0', date: '2025-11-20', warehouse: '张仓管', planner: '王工', status: '审核中' }],
+  GH2025001: [{ no: 'GH2025001-YS01', batchNo: '1', batchQty: '10', qualified: '10', unqualified: '0', date: '2025-11-15', warehouse: '张仓管', planner: '王工', status: '审核通过' }],
+  GH2025002: [{ no: 'GH2025002-YS01', batchNo: '1', batchQty: '10', qualified: '10', unqualified: '0', date: '2025-11-16', warehouse: '李仓管', planner: '赵工', status: '审核通过' }],
+  GH2025003: [{ no: 'GH2025003-YS01', batchNo: '1', batchQty: '50', qualified: '50', unqualified: '0', date: '2025-11-20', warehouse: '张仓管', planner: '王工', status: '审核中' }],
   GH2025004: [
-    { no: 'GH2025004-YS01', batchQty: '10', qualified: '9', unqualified: '1', date: '2025-11-22', warehouse: '张仓管', planner: '王工', status: '审核通过', disposition: '换货', refundKey: '' },
-    { no: 'GH2025004-YS02', batchQty: '10', qualified: '9', unqualified: '1', date: '2025-11-25', warehouse: '李仓管', planner: '赵工', status: '审核通过', disposition: '退货', refundKey: 'GH2025004-YS02-TH' },
+    { no: 'GH2025004-YS01', batchNo: '1', batchQty: '10', qualified: '9', unqualified: '1', date: '2025-11-22', warehouse: '张仓管', planner: '王工', status: '审核通过', disposition: '换货', refundKey: '' },
+    { no: 'GH2025004-YS02', batchNo: '2', batchQty: '10', qualified: '9', unqualified: '1', date: '2025-11-25', warehouse: '李仓管', planner: '赵工', status: '审核通过', disposition: '退货', refundKey: 'GH2025004-YS02-TH' },
   ],
   GH2025005: [],
 };
@@ -64,6 +64,27 @@ const WMS_RETURN_PENDING_SAMPLES = {
 
 const WMS_RETURN_TYPE_LABELS = { fixed: '固定资产归还', like: '类资产归还' };
 
+const WMS_MATERIAL_LEDGER_SAMPLES = {
+  'LA-00456': { code: 'LA-00456', name: '电钻', spec: '650W', major: '资产-类资产', minor: '电动工具', unit: '台', safeStock: '10', minStock: '5', maxStock: '20', totalQty: '8', availableQty: '6', lockedQty: '0', borrowedQty: '2', pendingScrapQty: '0', stockStatus: 'normal', warehouses: [{ warehouse: '主仓库', zone: 'A区', shelf: 'A-02', qty: '8', available: '6', status: '在库' }], transactions: [{ no: 'HK202606090003', type: '归还', qty: '1 台', time: '2026-06-08 16:45' }, { no: 'CK202606090008', type: '出库', qty: '2 台', time: '2026-06-07 14:20' }] },
+  'HC-00089': { code: 'HC-00089', name: '打印纸 A4', spec: '70g/500张', major: '耗材-办公耗材', minor: '办公用纸', unit: '箱', safeStock: '100', minStock: '50', maxStock: '300', totalQty: '186', availableQty: '170', lockedQty: '16', borrowedQty: '0', pendingScrapQty: '12', stockStatus: 'normal', warehouses: [{ warehouse: '主仓库', zone: 'A区', shelf: 'A-02', qty: '174', available: '158', status: '在库' }, { warehouse: '主仓库', zone: '待报废区', shelf: '—', qty: '12', available: '12', status: '待报废' }], transactions: [{ no: 'CK202606010003', type: '出库', qty: '50 箱', time: '2026-06-01 09:30' }] },
+  'GD001001-006': { code: 'GD001001-006', name: '润滑油', spec: 'CD 15W-40', major: '耗材-生产耗材', minor: '设备-配件', unit: '桶', safeStock: '50', minStock: '20', maxStock: '200', totalQty: '18', availableQty: '15', lockedQty: '0', borrowedQty: '0', pendingScrapQty: '0', stockStatus: 'warning', warehouses: [{ warehouse: '主仓库', zone: 'A区', shelf: 'A-01', qty: '18', available: '15', status: '在库' }], transactions: [{ no: 'RK202606090012', type: '入库', qty: '20 桶', time: '2026-05-28 11:00' }] },
+  'ZC202605012': { code: 'GC-20001', assetCode: 'ZC202605012', name: '工程测量仪', spec: '全站仪 TS06', major: '资产-固定资产', minor: '办公设备', unit: '台', totalQty: '1', availableQty: '0', lockedQty: '0', borrowedQty: '1', pendingScrapQty: '0', stockStatus: 'normal', assetStatus: '借出', borrower: '王工', location: '武穴大桥施工点', warehouses: [{ warehouse: '场外', zone: '武穴大桥施工点', shelf: '—', qty: '1', available: '0', status: '借出' }], transactions: [{ no: 'CK202606090008', type: '出库', qty: '1 台', time: '2026-06-01 09:00' }] },
+};
+
+const WMS_PENDING_SCRAP_POOL = {
+  'POOL-LA-00502': { poolKey: 'POOL-LA-00502', assetCode: 'LA-00502', code: 'LA-00500', name: '手持对讲机', spec: 'UHF 400-470MHz', major: '资产-类资产', unit: '台', qty: '1', location: '主仓库/待报废区', assetStatus: '待报废', sourceType: '归还损坏', sourceDocNo: 'HK20260608004', inboundDate: '2026-06-09', remark: '归还验收判定损坏，主板烧毁' },
+  'POOL-GD008': { poolKey: 'POOL-GD008', assetCode: 'GD001001-008', code: 'GD001001-008', name: '铝合金梯', spec: '3m', major: '资产-固定资产', unit: '架', qty: '1', location: '主仓库/待报废区', assetStatus: '待报废', sourceType: '归还损坏', sourceDocNo: 'HK20260607002', inboundDate: '2026-06-08', remark: '梯框变形无法修复' },
+  'POOL-HC089': { poolKey: 'POOL-HC089', assetCode: '—', code: 'HC-00089', name: '打印纸 A4', spec: '70g/500张', major: '耗材-办公耗材', unit: '箱', qty: '12', location: '主仓库/A区/A-02', assetStatus: '待报废', sourceType: '在库过期', sourceDocNo: '—', inboundDate: '2026-06-07', remark: '受潮霉变，无法使用' },
+};
+
+const WMS_SCRAP_SAMPLES = {
+  'ZF202606090001': { scrapKey: 'ZF202606090001', scrapNo: 'ZF202606090001', scrapType: 'pending_scrap', sourceType: '待报废转报废', sourceDocNo: 'HK20260608004', poolKey: 'POOL-LA-00502', status: '待执行', reason: '损坏无法修复', remark: '归还时判定损坏，对讲机主板烧毁，经设备部确认无法维修。', applicant: '张仓管', department: '物资管理部', warehouse: '主仓库', applyDate: '2026-06-09', lineCount: '1', totalQty: '1', lines: [{ seq: 1, materialType: 'like', code: 'LA-00500', assetCode: 'LA-00502', name: '手持对讲机', spec: 'UHF 400-470MHz', major: '资产-类资产', location: '主仓库/待报废区', available: '1', scrapQty: '1', remark: '归还损坏' }] },
+  'ZF202606080002': { scrapKey: 'ZF202606080002', scrapNo: 'ZF202606080002', scrapType: 'in_stock', sourceType: '在库报废', sourceDocNo: '—', status: '已执行', reason: '过期失效', remark: '库内润滑油超过保质期，按制度核销。', applicant: '李仓管', department: '物资管理部', warehouse: '主仓库', applyDate: '2026-06-08', executedDate: '2026-06-08', lineCount: '1', totalQty: '5', lines: [{ seq: 1, materialType: 'consumable', code: 'GD001001-006', assetCode: '—', name: '润滑油', spec: 'CD 15W-40', major: '耗材-生产耗材', location: '主仓库/A区/A-01', available: '15', scrapQty: '5', remark: '过期批次' }] },
+  'ZF202606070003': { scrapKey: 'ZF202606070003', scrapNo: 'ZF202606070003', scrapType: 'in_stock', sourceType: '在库报废', sourceDocNo: '—', status: '审核中', reason: '损坏无法修复', remark: '电钻多台电机故障，待物资管理部门审批。', applicant: '张仓管', department: '物资管理部', warehouse: '主仓库', applyDate: '2026-06-07', lineCount: '2', totalQty: '3', lines: [{ seq: 1, materialType: 'like', code: 'LA-00456', assetCode: '—', name: '电钻', spec: '650W', major: '资产-类资产', location: '主仓库/A区/A-02', available: '6', scrapQty: '2', remark: '电机烧毁' }, { seq: 2, materialType: 'consumable', code: 'GD001001-006', assetCode: '—', name: '润滑油', spec: 'CD 15W-40', major: '耗材-生产耗材', location: '主仓库/A区/A-01', available: '15', scrapQty: '1', remark: '变质' }] },
+  'ZF202606060004': { scrapKey: 'ZF202606060004', scrapNo: 'ZF202606060004', scrapType: 'in_stock', sourceType: '在库报废', sourceDocNo: '—', status: '草稿', reason: '淘汰更新', remark: '旧型号办公设备计划淘汰，草稿待补充明细。', applicant: '张仓管', department: '物资管理部', warehouse: '主仓库', applyDate: '2026-06-06', lineCount: '0', totalQty: '0', lines: [] },
+  'ZF202606050005': { scrapKey: 'ZF202606050005', scrapNo: 'ZF202606050005', scrapType: 'return_loss', sourceType: '归还灭失', sourceDocNo: 'LY202605200008', returnKey: 'LY202605200008-LA-00331', status: '已执行', reason: '丢失', remark: '借用人确认铝合金梯在工地丢失，无法找回。', applicant: '张仓管', department: '物资管理部', warehouse: '主仓库', applyDate: '2026-06-05', executedDate: '2026-06-05', lineCount: '1', totalQty: '1', lines: [{ seq: 1, materialType: 'like', code: 'LA-00330', assetCode: 'LA-00331', name: '铝合金梯', spec: '3m', major: '资产-类资产', location: '借出中', available: '1', scrapQty: '1', remark: '工地丢失' }] },
+};
+
 const WMS_REFUND_BY_ACCEPT = {
   'GH2025004-YS02': 'GH2025004-YS02-TH',
   'GH2025003-YS01': 'GH2025003-YS01-TH',
@@ -71,7 +92,7 @@ const WMS_REFUND_BY_ACCEPT = {
 };
 
 const WMS_ACCEPTANCE_RECORD_DETAIL_SAMPLES = {
-  'GH2025003-YS01': { no: 'GH2025003-YS01', batchNo: '1', batchQty: '30', qualified: '30', unqualified: '0', date: '2025-11-20', warehouse: '张仓管', planner: '王工', unqualifiedRemark: '—', disposition: '—', refundKey: '' },
+  'GH2025003-YS01': { no: 'GH2025003-YS01', batchNo: '1', batchQty: '50', qualified: '50', unqualified: '0', date: '2025-11-20', warehouse: '张仓管', planner: '王工', unqualifiedRemark: '—', disposition: '—', refundKey: '' },
   'GH2025004-YS02': { no: 'GH2025004-YS02', batchNo: '2', batchQty: '10', qualified: '9', unqualified: '1', date: '2025-11-25', warehouse: '李仓管', planner: '赵工', unqualifiedRemark: '刀头断裂，无法使用', disposition: '退货', refundKey: 'GH2025004-YS02-TH' },
 };
 
@@ -108,6 +129,7 @@ const WMS_ASSET_SAMPLES = {
 const WMS_NAV = [
   { id: 'dashboard', label: '工作台', icon: 'fa-gauge-high', href: '../index.html' },
   { group: '物资台账' },
+  { id: 'ledger_material', label: '物资台账', icon: 'fa-boxes-stacked', href: 'ledger_material.html' },
   { id: 'ledger_warehouse', label: '仓库台账', icon: 'fa-warehouse', href: 'ledger_warehouse.html' },
   { id: 'ledger_transaction', label: '出入库记录', icon: 'fa-right-left', href: 'ledger_transaction.html' },
   { group: '我的物资' },
@@ -128,6 +150,7 @@ const WMS_NAV = [
   { id: 'warehouse_outbound_list', label: '物资出库', icon: 'fa-arrow-up-from-bracket', href: 'warehouse_outbound_list.html' },
   { id: 'warehouse_return_list', label: '物资归还', icon: 'fa-undo', href: 'warehouse_return_list.html' },
   { id: 'warehouse_refund_list', label: '物资退货', icon: 'fa-box-open', href: 'warehouse_refund_list.html' },
+  { id: 'warehouse_scrap_list', label: '物资作废', icon: 'fa-dumpster', href: 'warehouse_scrap_list.html' },
   { group: '供应商管理' },
   { id: 'supplier_list', label: '供应商列表', icon: 'fa-building', href: 'supplier_list.html' },
   { id: 'supplier_eval_list', label: '供应商评价', icon: 'fa-star', href: 'supplier_eval_list.html' },
@@ -221,6 +244,8 @@ function initLayout() {
   initWarehouseConfig(root);
   initCategoryConfig(root);
   initAcceptanceStandard(root);
+  initLedgerMaterial(root);
+  initLedgerMaterialDetailFromQuery(root);
   initLedgerWarehouse(root);
   initAssetQrActions(root);
   initWarehouseLocQr(root);
@@ -241,6 +266,9 @@ function initLayout() {
   initReturnConfirmFromQuery(root);
   initReturnScrapFromQuery(root);
   initReturnSuccessFromQuery(root);
+  initScrapFromQuery(root);
+  initScrapExecuteFromQuery(root);
+  initScrapSuccessFromQuery(root);
   initRefundFromQuery(root);
   initRefundSuccessFromQuery(root);
   initRefundSelectAsset(root);
@@ -480,6 +508,17 @@ function initListToolbar(root) {
           if (rowVal !== val) return false;
         }
       }
+
+      const ledgerEl = pageEl.closest('[data-wms-material-ledger]');
+      if (ledgerEl) {
+        const sidebar = ledgerEl.querySelector('[data-wms-material-sidebar]');
+        const categoryFilter = sidebar?.dataset.wmsFilterValue || '';
+        if (categoryFilter) {
+          const rowPath = row.getAttribute('data-material-category-path') || '';
+          if (!rowPath.startsWith(categoryFilter)) return false;
+        }
+      }
+
       return true;
     }
 
@@ -1368,6 +1407,71 @@ function initAssetQrActions(root) {
   });
 }
 
+function initLedgerMaterial(root) {
+  const ledger = root.querySelector('[data-wms-material-ledger]');
+  if (!ledger) return;
+
+  initMaterialCatalogSidebar(root);
+
+  const sidebar = ledger.querySelector('[data-wms-material-sidebar]');
+  const listPage = ledger.querySelector('[data-wms-list-page]');
+  const tabBtns = listPage ? [...listPage.querySelectorAll('[data-wms-list-tab]')] : [];
+  const searchInput = listPage?.querySelector('[data-wms-list-search]');
+
+  function refreshList() {
+    const activeTab = tabBtns.find(b => b.classList.contains('bg-slate-900'));
+    activeTab?.click();
+  }
+
+  sidebar?.addEventListener('wms-category-filter', refreshList);
+
+  ledger.querySelectorAll('[data-ledger-stat-tab]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.getAttribute('data-ledger-stat-tab');
+      const target = tabBtns.find(b => b.getAttribute('data-wms-list-tab') === tab);
+      if (target) {
+        target.click();
+        return;
+      }
+      if (tab === '全部' && searchInput) {
+        searchInput.value = '';
+        tabBtns[0]?.click();
+      }
+    });
+  });
+}
+
+function initLedgerMaterialDetailFromQuery(root) {
+  if (root.dataset.page !== 'ledger_material') return;
+  if (!(root.dataset.title || '').includes('详情')) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  const assetCode = params.get('assetCode');
+  const backHref = params.get('back') || 'ledger_material.html';
+  if (!code) return;
+
+  let sample = WMS_MATERIAL_LEDGER_SAMPLES[code];
+  if (!sample && assetCode) {
+    sample = Object.values(WMS_MATERIAL_LEDGER_SAMPLES).find(s => s.assetCode === assetCode);
+  }
+  if (!sample) return;
+
+  document.querySelectorAll('[data-ledger-mat-field]').forEach(el => {
+    const key = el.dataset.ledgerMatField;
+    if (sample[key] !== undefined) el.textContent = sample[key];
+  });
+
+  document.querySelectorAll('[data-ledger-mat-back], .wms-modal-close').forEach(a => {
+    a.setAttribute('href', backHref);
+  });
+  const backdrop = document.querySelector('.wms-modal-backdrop');
+  if (backdrop) backdrop.onclick = (e) => { if (e.target === backdrop) window.location.href = backHref; };
+
+  const titleEl = document.getElementById('wms-modal-title');
+  if (titleEl) titleEl.textContent = `物资库存 · ${sample.name}`;
+}
+
 function initLedgerWarehouse(root) {
   const panel = root.querySelector('[data-wms-ledger-panel]');
   if (!panel) return;
@@ -1543,6 +1647,75 @@ function wmsRefundFormHref(refundKey, back = 'warehouse_refund_list.html') {
   return `${formPage}?${new URLSearchParams({ refundKey, back })}`;
 }
 
+function aggregateAcceptanceRecords(records = []) {
+  return records.reduce((acc, r) => {
+    acc.accepted += Number(r.batchQty) || 0;
+    acc.qualified += Number(r.qualified) || 0;
+    acc.unqualified += Number(r.unqualified) || 0;
+    return acc;
+  }, { accepted: 0, qualified: 0, unqualified: 0 });
+}
+
+function acceptanceProgressHtml(accepted, required) {
+  const a = Number(accepted) || 0;
+  const r = Number(required) || 1;
+  const pct = Math.min(100, Math.round((a / r) * 100));
+  const barCls = pct >= 100 ? 'bg-emerald-500' : 'bg-sky-500';
+  return `<div class="min-w-[92px]"><div class="mb-1 flex justify-between text-xs text-slate-500"><span>${a}/${r}</span><span>${pct}%</span></div><div class="h-1.5 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full ${barCls}" style="width:${pct}%"></div></div></div>`;
+}
+
+function renderAcceptanceDetailRecords(supplyNo, backHref) {
+  const tbody = document.querySelector('[data-accept-detail-records-tbody]');
+  if (!tbody) return;
+  const records = WMS_ACCEPTANCE_RECORDS[supplyNo] || [];
+  const countEl = document.querySelector('[data-accept-record-count]');
+  if (countEl) countEl.textContent = String(records.length);
+  if (!records.length) {
+    tbody.innerHTML = '<tr><td colspan="11" class="px-4 py-10 text-center text-sm text-slate-400">暂无验货记录</td></tr>';
+    return;
+  }
+  const detailBack = encodeURIComponent(backHref);
+  const statusMap = { '审核通过': 'success', '审核中': 'warning' };
+  tbody.innerHTML = records.map((r, i) => {
+    const badgeCls = statusMap[r.status] === 'success'
+      ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20'
+      : 'bg-amber-50 text-amber-700 ring-amber-600/20';
+    const recordDetailBack = encodeURIComponent(`warehouse_acceptance_detail.html?no=${supplyNo}&back=${detailBack}`);
+    const dispositionHint = r.disposition && r.disposition !== '—'
+      ? `<span class="ml-1 text-xs text-slate-400">(${r.disposition})</span>`
+      : '';
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80">
+      <td class="px-3 py-2.5 text-sm text-slate-700">${i + 1}</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-800">${r.no}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${r.batchNo || i + 1}</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900">${r.batchQty}</td>
+      <td class="px-3 py-2.5 text-sm text-emerald-700">${r.qualified}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${r.unqualified}${dispositionHint}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-600">${r.date}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${r.warehouse}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${r.planner}</td>
+      <td class="px-3 py-2.5 text-sm"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${badgeCls}">${r.status}</span></td>
+      <td class="px-3 py-2.5 text-right text-sm whitespace-nowrap"><a href="warehouse_acceptance_record_detail.html?no=${r.no}&back=${recordDetailBack}" class="hover:underline">查看</a></td>
+    </tr>`;
+  }).join('');
+}
+
+function updateAcceptanceDetailProgress(supplyNo) {
+  const sample = WMS_ACCEPTANCE_SUPPLY_SAMPLES[supplyNo];
+  if (!sample) return;
+  const records = WMS_ACCEPTANCE_RECORDS[supplyNo] || [];
+  const agg = aggregateAcceptanceRecords(records);
+  const accepted = String(agg.accepted);
+  const qualified = String(agg.qualified);
+  const unqualified = String(agg.unqualified);
+  const scope = document.querySelector('[data-wms-acceptance-detail]');
+  scope?.querySelectorAll('[data-accept-field="accepted"]').forEach(el => { el.textContent = accepted; });
+  scope?.querySelectorAll('[data-accept-field="qualified"]').forEach(el => { el.textContent = qualified; });
+  scope?.querySelectorAll('[data-accept-field="unqualified"]').forEach(el => { el.textContent = unqualified; });
+  const bar = document.querySelector('[data-accept-progress-bar]');
+  if (bar) bar.innerHTML = acceptanceProgressHtml(accepted, sample.required);
+}
+
 function renderAcceptanceRecordRows(supplyNo, backHref) {
   const tbody = document.querySelector('[data-accept-records-tbody]');
   if (!tbody) return;
@@ -1643,8 +1816,17 @@ function initAcceptanceFromQuery(root) {
   }
 
   if (title.includes('供货详情')) {
+    const supplyNo = no || document.querySelector('[data-accept-field="supplyNo"]')?.textContent?.trim() || '';
+    if (supplyNo) {
+      renderAcceptanceDetailRecords(supplyNo, backHref);
+      updateAcceptanceDetailProgress(supplyNo);
+      const recordsLink = document.querySelector('[data-accept-all-records-link]');
+      if (recordsLink) {
+        recordsLink.href = `warehouse_acceptance_record.html?no=${supplyNo}&back=${encodeURIComponent(backHref)}`;
+      }
+    }
     const titleEl = document.getElementById('wms-modal-title');
-    if (titleEl) titleEl.textContent = `供货详情 · ${no}`;
+    if (titleEl && supplyNo) titleEl.textContent = `供货详情 · ${supplyNo}`;
     return;
   }
 
@@ -2548,9 +2730,176 @@ function initReturnScrapFromQuery(root) {
     const remark = scope?.querySelector('[data-return-scrap-field="remark"]');
     if (!reason?.value || reason.selectedIndex <= 0) { showSupplyCompleteToast('请选择作废原因'); return; }
     if (!remark?.value?.trim()) { showSupplyCompleteToast('请填写作废说明'); return; }
-    showSupplyCompleteToast('作废成功');
-    setTimeout(() => { window.location.href = backHref; }, 900);
+    showSupplyCompleteToast('归还作废成功，已生成作废单 ZF202606050006');
+    setTimeout(() => { window.location.href = `warehouse_scrap_list.html?tab=${encodeURIComponent('已执行')}`; }, 900);
   });
+}
+
+function scrapSampleFromPool(poolKey) {
+  const p = WMS_PENDING_SCRAP_POOL[poolKey];
+  if (!p) return null;
+  const materialType = p.major.includes('固定资产') ? 'fixed' : p.major.includes('类资产') ? 'like' : 'consumable';
+  return {
+    poolKey,
+    sourceType: '待报废转报废',
+    sourceDocNo: p.sourceDocNo,
+    reason: p.sourceType === '在库过期' ? '过期失效' : '损坏无法修复',
+    remark: p.remark,
+    lines: [{
+      seq: 1, materialType, code: p.code, assetCode: p.assetCode, name: p.name, spec: p.spec,
+      major: p.major, location: p.location, available: p.qty, scrapQty: p.qty, remark: p.remark,
+    }],
+  };
+}
+
+function fillScrapFields(scope, sample) {
+  scope.querySelectorAll('[data-scrap-field]').forEach(el => {
+    const key = el.dataset.scrapField;
+    if (sample[key] !== undefined && sample[key] !== null) el.value = sample[key];
+  });
+}
+
+function renderScrapLineRows(lines, viewMode = false) {
+  const tbody = document.querySelector('[data-scrap-lines]');
+  if (!tbody) return;
+  if (!lines?.length) {
+    tbody.innerHTML = `<tr><td colspan="${viewMode ? 10 : 11}" class="px-3 py-8 text-center text-sm text-slate-400">暂无明细，请添加作废物资</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = lines.map(r => {
+    const typeHint = r.materialType === 'fixed' ? '<span class="ml-1 text-[10px] text-slate-400">固资</span>'
+      : r.materialType === 'like' ? '<span class="ml-1 text-[10px] text-amber-600">类资产</span>'
+        : '<span class="ml-1 text-[10px] text-emerald-600">耗材</span>';
+    const qtyCell = viewMode
+      ? `<span class="font-medium text-slate-900">${r.scrapQty || '1'}</span>`
+      : `<input type="number" min="1" max="${r.available}" value="${r.scrapQty || ''}" data-scrap-qty class="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm" />`;
+    const remarkCell = viewMode ? (r.remark || '—') : `<input type="text" value="${r.remark || ''}" placeholder="备注" class="w-[100px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm" />`;
+    const actCell = viewMode ? '' : '<td class="px-3 py-2.5 text-right text-sm whitespace-nowrap"><button type="button" class="text-sm text-rose-600 hover:underline">删除</button></td>';
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/60" data-scrap-row data-material-type="${r.materialType}">
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.seq}</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">${r.code}</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">${r.assetCode || '—'}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.name}${typeHint}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.spec}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.major}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.location}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.available}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${qtyCell}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${remarkCell}</td>
+      ${actCell}
+    </tr>`;
+  }).join('');
+}
+
+function initScrapFromQuery(root) {
+  if (root.dataset.page !== 'warehouse_scrap_list') return;
+  const title = root.dataset.title || '';
+  if (!title.includes('作废单') && !title.includes('新建')) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const scrapKey = params.get('scrapKey');
+  const poolKey = params.get('poolKey');
+  const viewMode = params.get('mode') === 'view';
+  const backHref = params.get('back') || 'warehouse_scrap_list.html';
+
+  let sample = { viewMode };
+  if (scrapKey && WMS_SCRAP_SAMPLES[scrapKey]) {
+    sample = { ...WMS_SCRAP_SAMPLES[scrapKey], viewMode };
+  } else if (poolKey) {
+    sample = { ...scrapSampleFromPool(poolKey), viewMode: false };
+  }
+
+  const scope = document.querySelector('[data-wms-scrap-form]');
+  if (scope && (scrapKey || poolKey || !viewMode)) fillScrapFields(scope, sample);
+  if (sample.lines) renderScrapLineRows(sample.lines, viewMode || !!sample.poolKey);
+
+  document.querySelectorAll('[data-scrap-back-link], .wms-modal-close').forEach(a => {
+    a.setAttribute('href', backHref);
+  });
+  const backdrop = document.querySelector('.wms-modal-backdrop');
+  if (backdrop) backdrop.onclick = (e) => { if (e.target === backdrop) window.location.href = backHref; };
+
+  const titleEl = document.getElementById('wms-modal-title');
+  if (titleEl) {
+    if (viewMode && sample.scrapNo) titleEl.textContent = `作废详情 · ${sample.scrapNo}`;
+    else if (poolKey) titleEl.textContent = '从待报废池发起作废';
+    else titleEl.textContent = '新建作废单';
+  }
+
+  if (viewMode) {
+    scope?.querySelectorAll('input, select, textarea').forEach(el => { el.disabled = true; });
+  }
+
+  scope?.querySelector('[data-scrap-save]')?.addEventListener('click', () => {
+    showSupplyCompleteToast('草稿已保存');
+    setTimeout(() => { window.location.href = `${backHref}?tab=${encodeURIComponent('草稿')}`; }, 700);
+  });
+
+  scope?.querySelector('[data-scrap-submit]')?.addEventListener('click', () => {
+    const reason = scope?.querySelector('[data-scrap-field="reason"]');
+    const remark = scope?.querySelector('[data-scrap-field="remark"]');
+    if (!reason?.value || reason.selectedIndex <= 0) { showSupplyCompleteToast('请选择作废原因'); return; }
+    if (!remark?.value?.trim()) { showSupplyCompleteToast('请填写作废说明'); return; }
+    const rows = scope?.querySelectorAll('[data-scrap-row]');
+    if (!rows?.length) { showSupplyCompleteToast('请添加作废明细'); return; }
+    showSupplyCompleteToast('已提交审批（WF-SCRAP）');
+    setTimeout(() => { window.location.href = `${backHref}?tab=${encodeURIComponent('审核中')}`; }, 900);
+  });
+}
+
+function initScrapExecuteFromQuery(root) {
+  if (root.dataset.page !== 'warehouse_scrap_list') return;
+  if (!(root.dataset.title || '').includes('执行作废')) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const scrapKey = params.get('scrapKey') || 'ZF202606090001';
+  const backHref = params.get('back') || 'warehouse_scrap_list.html';
+  const sample = WMS_SCRAP_SAMPLES[scrapKey];
+  if (!sample) return;
+
+  document.querySelectorAll('[data-scrap-exec-field]').forEach(el => {
+    const key = el.dataset.scrapExecField;
+    if (sample[key] !== undefined) el.textContent = sample[key];
+  });
+
+  document.querySelectorAll('[data-scrap-back-link]').forEach(a => { a.setAttribute('href', backHref); });
+
+  document.querySelector('[data-scrap-scan]')?.addEventListener('click', () => {
+    const code = sample.lines?.[0]?.assetCode;
+    if (code && code !== '—') showQrToast(`已识别资产码：${code}`);
+    else showSupplyCompleteToast('已核对货位与数量');
+  });
+
+  document.querySelector('[data-scrap-execute-submit]')?.addEventListener('click', () => {
+    const line = sample.lines?.[0];
+    const qty = line?.scrapQty || '1';
+    const unit = line?.materialType === 'consumable' ? '桶' : line?.materialType === 'like' ? '台' : '件';
+    window.location.href = `warehouse_scrap_success.html?scrapKey=${encodeURIComponent(scrapKey)}&qty=${encodeURIComponent(qty)}&unit=${encodeURIComponent(unit)}&back=${encodeURIComponent(backHref)}`;
+  });
+}
+
+function initScrapSuccessFromQuery(root) {
+  if (root.dataset.page !== 'warehouse_scrap_list') return;
+  if (!(root.dataset.title || '').includes('作废成功')) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const scrapKey = params.get('scrapKey') || 'ZF202606090001';
+  const sample = WMS_SCRAP_SAMPLES[scrapKey];
+  const qty = params.get('qty') || sample?.totalQty || '1';
+  const unit = params.get('unit') || '台';
+  const line = sample?.lines?.[0];
+
+  const titleEl = document.querySelector('[data-scrap-success-title]');
+  const descEl = document.querySelector('[data-scrap-success-desc]');
+  if (titleEl) titleEl.textContent = `作废执行成功 · ${line?.name || '物资'}`;
+  if (descEl) descEl.textContent = `作废单号 ${sample?.scrapNo || scrapKey} · 已扣减台账库存`;
+
+  const sourceEl = document.querySelector('[data-scrap-success-source]');
+  const qtyEl = document.querySelector('[data-scrap-success-qty]');
+  const nameEl = document.querySelector('[data-scrap-success-name]');
+  if (sourceEl) sourceEl.textContent = sample?.sourceType || '—';
+  if (qtyEl) qtyEl.textContent = `${qty} ${unit}`;
+  if (nameEl) nameEl.textContent = line?.name || '—';
 }
 
 function initReturnSuccessFromQuery(root) {
@@ -2574,8 +2923,22 @@ function initReturnSuccessFromQuery(root) {
   const borrowerEl = document.querySelector('[data-return-success-borrower]');
   if (nameEl) nameEl.textContent = sample?.name || '—';
   if (condEl) condEl.textContent = condition;
-  if (locEl) locEl.textContent = '主仓库 / B区';
+  if (locEl) locEl.textContent = condition === '损坏' ? '主仓库 / 待报废区' : '主仓库 / B区';
   if (borrowerEl) borrowerEl.textContent = sample?.borrower || '—';
+
+  const hintEl = document.querySelector('[data-return-success-hint]');
+  const pendingScrapEl = document.querySelector('[data-return-success-pending-scrap]');
+  if (condition === '损坏') {
+    if (titleEl) titleEl.textContent = `归还入库 · ${sample?.name || '物资'}（待报废）`;
+    hintEl?.classList.add('hidden');
+    pendingScrapEl?.classList.remove('hidden');
+  } else if (condition === '完好') {
+    hintEl?.classList.remove('hidden');
+    pendingScrapEl?.classList.add('hidden');
+  } else {
+    hintEl?.classList.add('hidden');
+    pendingScrapEl?.classList.add('hidden');
+  }
 }
 
 function fillRefundFields(scope, sample) {

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新建作废单 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_scrap_list" data-title="新建作废单" data-breadcrumb="物资管理 / 新建作废单">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="warehouse_scrap_list.html" data-modal-size="xl" data-wms-scrap-form data-scrap-key="">
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">基本信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">作废单号</label><input type="text" value="系统自动生成" readonly data-scrap-field="scrapNo" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">来源类型</label><select data-scrap-field="sourceType" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>在库报废</option><option>待报废转报废</option><option>维修报废</option><option>归还灭失</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">关联单号</label><input type="text" value="—" readonly data-scrap-field="sourceDocNo" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 所属仓库</label><select data-scrap-field="warehouse" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>主仓库</option><option>备件库</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 作废原因</label><select data-scrap-field="reason" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>损坏无法修复</option><option>过期失效</option><option>淘汰更新</option><option>丢失</option><option>被盗</option><option>事故损毁</option><option>其他</option></select></div>
+        
+        <div class="wms-requisition-section md:col-span-2">
+    <h3 class="wms-form-section-title mb-3">作废明细</h3>
+    <div class="rounded-xl border border-slate-200">
+      <div class="flex justify-end border-b border-slate-100 bg-white px-3 py-2">
+        <a href="warehouse_scrap_add_material.html" class="wms-requisition-add-btn"><i class="fa-solid fa-plus text-[10px]"></i> 添加物资</a>
+      </div>
+      <div class="wms-requisition-table-wrap overflow-x-auto wms-modal-table-wrap rounded-none border-0">
+        <table class="min-w-[1050px] w-full text-sm wms-requisition-material-table"><thead class="bg-slate-50/90"><tr><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">资产编码</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">规格型号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资大类</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">货位</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">可用库存</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 作废数量</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">备注</th><th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody data-scrap-lines><tr class="border-t border-slate-100 hover:bg-slate-50/60" data-scrap-row data-material-type="like">
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">1</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">LA-00456</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">—</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">电钻<span class="ml-1 text-[10px] text-amber-600">类资产</span></td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">650W</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">资产-类资产</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">主仓库/A区/A-02</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">6</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="number" min="1" max="6" value="2" data-scrap-qty class="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="text" value="电机烧毁" placeholder="备注" class="w-[100px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td>
+      <td class="px-3 py-2.5 text-right text-sm whitespace-nowrap"><button type="button" class="text-sm text-rose-600 hover:underline">删除</button></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/60" data-scrap-row data-material-type="consumable">
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">2</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">GD001001-006</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">—</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">润滑油<span class="ml-1 text-[10px] text-emerald-600">耗材</span></td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">CD 15W-40</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">耗材-生产耗材</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">主仓库/A区/A-01</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">15</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="number" min="1" max="15" value="3" data-scrap-qty class="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="text" value="超过保质期" placeholder="备注" class="w-[100px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td>
+      <td class="px-3 py-2.5 text-right text-sm whitespace-nowrap"><button type="button" class="text-sm text-rose-600 hover:underline">删除</button></td>
+    </tr></tbody></table>
+      </div>
+      <p class="border-t border-slate-100 bg-slate-50/80 px-3 py-2 text-xs text-slate-500">
+        <i class="fa-solid fa-circle-info mr-1 text-rose-500"></i>
+        <strong>固定资产</strong>按资产编码逐件作废，数量固定为 1；
+        <strong>类资产/耗材</strong>须填写作废数量，且不得超过可用库存。执行后将扣减台账并写入 scrap 流水。
+      </p>
+    </div>
+  </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">其他信息</h3></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 说明</label><textarea rows="4" placeholder="请说明作废原因及处理情况（0/500）" data-scrap-field="remark" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">附件</label><div class="wms-upload-zone">
+    <i class="fa-solid fa-cloud-arrow-up text-lg text-slate-400"></i>
+    <p class="mt-2 text-sm text-slate-600">上传文件</p>
+    <p class="mt-1 text-xs text-slate-400">支持 .rar .zip .doc .docx .pdf，单个文件不能超过 500MB</p>
+  </div></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请人</label><select data-scrap-field="applicant" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>张仓管</option><option>李仓管</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请部门</label><select data-scrap-field="department" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>物资管理部</option><option>设备部</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="warehouse_scrap_list.html" class="wms-btn wms-btn-secondary" data-scrap-back-link>取消</a>
+        <button type="button" class="wms-btn wms-btn-secondary" data-scrap-save>保存草稿</button>
+        <button type="button" class="wms-btn wms-btn-primary" data-scrap-submit>提交审批</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>
