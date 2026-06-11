@@ -974,30 +974,37 @@ function warehouseShelfToolbar() {
   </div>`;
 }
 
+function purchasePendingApplyHref(planNo, code, name, qty) {
+  const p = new URLSearchParams({ planNo, code, name, qty: String(qty) });
+  return `purchase_pending_apply.html?${p.toString()}`;
+}
+
 function purchasePendingListPage() {
-  const cols = ['序号', '计划单号', '计划名称', '计划类型', '物资编码', '物资名称', '状态', '规格型号', '物资大类', '物资子类', '填报人', '填报部门', '申请日期', '计量单位', '计划需求数量', '申请数量', '申请日期', '采购数量', '采购方式', '采购日期'];
+  const cols = ['序号', '计划单号', '计划名称', '计划类型', '物资编码', '物资名称', '状态', '规格型号', '物资大类', '物资子类', '填报人', '填报部门', '申请日期', '计量单位', '计划需求数量', '申请数量', '采购申请单号', '采购数量', '采购方式', '采购日期'];
   const th = cols.map(c => `<th class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('') +
     actionTh();
   const dash = '<span class="text-slate-400">—</span>';
   const rows = [
-    ['1', 'JJJH202510001', '日常采购', '一般计划', 'GD001001-001', '抓斗', '待申请', '454', '资产-固定资产', '设备-配件', '李四', '设备部', '2026-05-04', '个', '10', dash, dash, dash, dash, dash,
-      '<a href="#" class="mr-2 hover:underline">查看</a><a href="purchase_pending_apply.html" class="font-medium hover:underline">申请</a>'],
-    ['2', 'JJJH202510002', '日常采购', '一般计划', 'GD001001-002', '料斗', '待申请', '454', '资产-固定资产', '设备-配件', '李四', '设备部', '2026-05-04', '个', '10', dash, dash, dash, dash, dash,
-      '<a href="#" class="mr-2 hover:underline">查看</a><a href="purchase_pending_apply.html" class="font-medium hover:underline">申请</a>'],
-    ['3', 'JJJH202510005', '日常采购', '一般计划', 'GD001001-005', '钢丝绳', '待采购', '454', '耗材-生成耗材', '设备-配件', '李四', '维保部', '2026-05-04', 'm', '10', dash, dash, dash, dash, dash,
-      '<a href="#" class="hover:underline">查看</a>'],
+    ['1', 'JJJH202606080001', '防汛应急采购', badge('急件计划', 'warning'), 'XF-00102', '防汛沙袋', badge('待申请', 'info'), '50×80cm', '耗材-防汛物资', '防汛物资', '李四', '设备部', '2026-06-08', '条', '500', dash, dash, dash, dash, dash,
+      `<a href="apply_plan_list.html" class="mr-2 hover:underline">查看计划</a><a href="${purchasePendingApplyHref('JJJH202606080001', 'XF-00102', '防汛沙袋', 500)}" class="font-medium text-slate-900 hover:underline">申请</a>`],
+    ['2', 'JJJH202510001', '设备配件补库', badge('急件计划', 'warning'), 'GD001001-001', '抓斗', badge('待申请', 'info'), '4m³-Q345B', '资产-固定资产', '设备-配件', '李四', '设备部', '2026-05-04', '个', '10', dash, dash, dash, dash, dash,
+      `<a href="apply_plan_list.html" class="mr-2 hover:underline">查看计划</a><a href="${purchasePendingApplyHref('JJJH202510001', 'GD001001-001', '抓斗', 10)}" class="font-medium text-slate-900 hover:underline">申请</a>`],
+    ['3', 'JJJH202510002', '设备配件补库', badge('急件计划', 'warning'), 'GD001001-002', '料斗', badge('待申请', 'info'), '4m³', '资产-固定资产', '设备-配件', '李四', '设备部', '2026-05-04', '个', '10', dash, dash, dash, dash, dash,
+      `<a href="apply_plan_list.html" class="mr-2 hover:underline">查看计划</a><a href="${purchasePendingApplyHref('JJJH202510002', 'GD001001-002', '料斗', 10)}" class="font-medium text-slate-900 hover:underline">申请</a>`],
+    ['4', 'JJJH202606050001', '维保耗材采购', badge('急件计划', 'warning'), 'XF-00105', '抽水泵', badge('已申请', 'success'), 'QZ10-15', '资产-类资产', '防汛设备', '王五', '维保部', '2026-06-05', '台', '5', '5', '<a href="purchase_request_list.html" class="font-mono text-xs hover:underline">JJSQ202606050001</a>', dash, dash, dash,
+      '<a href="purchase_request_form.html?mode=view&amp;requestNo=JJSQ202606050001" class="hover:underline">查看申请</a>'],
   ];
   const tr = rows.map(r => {
     const actions = r.pop();
-    const status = r[6];
-    const planType = r[3];
+    const status = stripCellText(r[6]);
+    const planType = stripCellText(r[3]);
     const search = r.map(stripCellText).join(' ').toLowerCase();
     return `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-tab="${status}" data-list-search="${search}" data-list-filter-planType="${planType}">${r.map(c => `<td class="px-3 py-3.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('')}${actionTd(actions)}</tr>`;
   }).join('');
   return `
     <div data-wms-list-page>
-      <p class="mb-4 text-sm text-slate-500">急件计划审核通过后，形成待采物资记录；按审核通过时间降序</p>
-      ${pageTabs(['全部', '待申请', '待采购', '已采购', '已拒绝'])}
+      <p class="mb-4 text-sm text-slate-500">急件计划审核通过后自动生成待采记录；<strong>待申请</strong>可发起采购申请，<strong>已申请</strong>不可重复申请</p>
+      ${pageTabs(['全部', '待申请', '已申请'])}
       ${pageToolbar({
     searchPlaceholder: '计划单号、物资编码、物资名称',
     filters: [{ label: '计划类型', key: 'planType', options: ['全部', '一般计划', '急件计划'] }],
@@ -1474,6 +1481,7 @@ function purchaseSupplyCompletePage(backHref = 'purchase_supply_list.html', samp
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 说明</label><textarea rows="4" placeholder="0/500" data-supply-complete-remark class="${inputCls}"></textarea></div>
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">附件</label>${uploadZone()}</div>
       </div>
+      <p class="mt-4 text-xs text-slate-400" data-supply-complete-hint>提交后将更新供货状态，并引导至物资验收列表</p>
       <div class="wms-modal-footer">
         <a href="${backHref}" class="wms-btn wms-btn-secondary" data-supply-back-link>取消</a>
         <button type="button" class="wms-btn wms-btn-primary" data-supply-complete-submit>确定</button>
@@ -1486,9 +1494,24 @@ function acceptanceStatusBadge(status) {
   return badge(status, map[status] || 'info');
 }
 
+function acceptanceProgressCell(accepted, required) {
+  const a = Number(accepted) || 0;
+  const r = Number(required) || 1;
+  const pct = Math.min(100, Math.round((a / r) * 100));
+  const barCls = pct >= 100 ? 'bg-emerald-500' : 'bg-sky-500';
+  return `<div class="min-w-[92px]"><div class="mb-1 flex justify-between text-xs text-slate-500"><span>${a}/${r}</span><span>${pct}%</span></div><div class="h-1.5 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full ${barCls}" style="width:${pct}%"></div></div></div>`;
+}
+
 function supplyStatusBadge(status) {
   const map = { '待供货': 'info', '供货中': 'warning', '已供货': 'success' };
   return badge(status, map[status] || 'info');
+}
+
+function supplyOverdueBadge(dueDate) {
+  const due = new Date(dueDate);
+  const now = new Date('2026-06-09');
+  if (due >= now) return '';
+  return `<span class="ml-1 inline-flex rounded-lg bg-rose-50 px-1.5 py-0.5 text-[10px] font-medium text-rose-700 ring-1 ring-inset ring-rose-600/20">逾期</span>`;
 }
 
 function supplyRowActions(supplyNo, status) {
@@ -1537,6 +1560,10 @@ function acceptanceSupplyHeaderGrid(sample = {}) {
   </div>`;
 }
 
+function acceptanceListCells(seq, supplyNo, supplier, code, name, spec, major, minor, unit, required, accepted, qualified, unqualified, status) {
+  return [seq, supplyNo, supplier, code, name, spec, major, minor, unit, required, accepted, qualified, unqualified, acceptanceProgressCell(accepted, required), acceptanceStatusBadge(status)];
+}
+
 function acceptanceDetailPage(backHref = 'warehouse_acceptance_list.html', sample = {}) {
   const d = { ...ACCEPTANCE_SUPPLY_SAMPLES.GH2025001, ...sample };
   return `
@@ -1545,6 +1572,7 @@ function acceptanceDetailPage(backHref = 'warehouse_acceptance_list.html', sampl
         ${formSection('供货信息')}
         ${acceptanceSupplyHeaderGrid(d)}
         ${formSection('验收进度')}
+        <div class="md:col-span-2 mb-2">${acceptanceProgressCell(d.accepted, d.required)}</div>
         <dl class="grid gap-4 sm:grid-cols-2 text-sm">
           <div><dt class="text-slate-500">需求数量</dt><dd class="mt-1 text-slate-800" data-accept-field="required">${d.required}</dd></div>
           <div><dt class="text-slate-500">已验收数量</dt><dd class="mt-1 text-slate-800" data-accept-field="accepted">${d.accepted}</dd></div>
@@ -1563,10 +1591,14 @@ function acceptanceFormPage(backHref = 'warehouse_acceptance_list.html', sample 
   const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
   const d = { ...ACCEPTANCE_SUPPLY_SAMPLES.GH2025001, ...sample };
   return `
-    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-acceptance-supply>
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-acceptance-supply data-wms-acceptance-form>
       <div class="wms-modal-form wms-warehouse-form wms-acceptance-form">
         ${formSection('供货信息')}
         ${acceptanceSupplyHeaderGrid(d)}
+        <div class="md:col-span-2 rounded-xl border border-sky-100 bg-sky-50/60 p-4">
+          <div class="mb-2 text-xs font-medium text-sky-800">验收进度（已验 / 需求）</div>
+          ${acceptanceProgressCell(d.accepted, d.required)}
+        </div>
         ${formSection('验收信息')}
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">验收单号</label><input type="text" value="${d.supplyNo}-YS01" readonly data-accept-field="recordNo" class="${roCls}" /></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 批次单号</label><input type="text" value="1" class="${inputCls}" /></div>
@@ -1583,9 +1615,12 @@ function acceptanceFormPage(backHref = 'warehouse_acceptance_list.html', sample 
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">附件</label>${uploadZone()}</div>
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">照片</label>${photoUploadZone()}</div>
         ${formSection('不合格物资')}
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">本批次不合格数量</label><input type="number" value="0" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">本批次不合格数量</label><input type="number" value="0" data-accept-unqualified-qty class="${inputCls}" /></div>
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">不合格说明</label><textarea rows="3" placeholder="0/500" class="${inputCls}"></textarea></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">处理方式</label><select class="${inputCls}"><option value="" disabled selected>请选择</option><option>退货</option><option>换货</option><option>让步接收</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">处理方式</label><select data-accept-disposition class="${inputCls}"><option value="" disabled selected>请选择</option><option value="退货">退货</option><option value="换货">换货</option><option value="让步接收">让步接收</option></select></div>
+        <div class="md:col-span-2 hidden rounded-xl border border-orange-100 bg-orange-50/50 p-4 text-sm text-slate-700" data-accept-refund-hint>
+          <i class="fa-solid fa-circle-info mr-1 text-orange-500"></i>处理方式为「退货」时，验收记录通过后将自动生成退货待办，可在<a href="warehouse_refund_list.html" class="font-medium text-slate-900 hover:underline">物资退货</a>执行。
+        </div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">处理截止日期</label><input type="date" class="${inputCls}" /></div>
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">附件</label>${uploadZone()}</div>
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">照片</label>${photoUploadZone()}</div>
@@ -1612,14 +1647,42 @@ function acceptanceRecordRow(cells, actions) {
   return { cells, actions };
 }
 
+function acceptanceRecordInboundLink(recordNo) {
+  if (!INBOUND_ACCEPT_SAMPLES[recordNo]) return '';
+  const sample = INBOUND_ACCEPT_SAMPLES[recordNo];
+  if (sample.status === '已入库') return '';
+  const formHref = inboundFormPage(sample.materialType);
+  const q = new URLSearchParams({ acceptNo: recordNo, back: 'warehouse_inbound_list.html' });
+  return `<a href="${formHref}?${q}" class="ml-2 font-medium text-emerald-700 hover:underline">去入库</a>`;
+}
+
 function acceptanceRecordPage(backHref = 'warehouse_acceptance_list.html', supplyNo = 'GH2025003') {
   const d = ACCEPTANCE_SUPPLY_SAMPLES[supplyNo] || ACCEPTANCE_SUPPLY_SAMPLES.GH2025003;
-  const columns = ['序号', '验收单号', '本批次供货数量', '合格数量', '不合格数量', '物资供货单号', '供应商名称', '验收日期', '仓库验收人员', '计划验收人员', '审批状态'];
+  const columns = ['序号', '验收单号', '本批次供货数量', '合格数量', '不合格数量', '物资供货单号', '供应商名称', '验收日期', '仓库验收人员', '计划验收人员', '业务状态'];
   const recordBack = encodeURIComponent(`warehouse_acceptance_record.html?no=${supplyNo}&back=${encodeURIComponent(backHref)}`);
-  const rows = supplyNo === 'GH2025005' ? [] : [
-    acceptanceRecordRow(['1', `${supplyNo}-YS01`, '30', '30', '0', supplyNo, d.supplier, '2025-11-20', '张仓管', '王工', badge('审核中', 'warning')], `<a href="warehouse_acceptance_record_detail.html?no=${supplyNo}-YS01&back=${recordBack}" class="mr-2 hover:underline">查看</a><a href="#" class="hover:underline">审核</a>`),
-    ...(supplyNo === 'GH2025004' ? [acceptanceRecordRow(['2', `${supplyNo}-YS02`, '10', '9', '1', supplyNo, d.supplier, '2025-11-25', '李仓管', '赵工', badge('审核通过', 'success')], `<a href="warehouse_acceptance_record_detail.html?no=${supplyNo}-YS02&back=${recordBack}" class="mr-2 hover:underline">查看</a>${acceptanceRecordRefundLink(`${supplyNo}-YS02`)}`)] : []),
-  ];
+  const row = (seq, no, batch, qual, unqual, date, wh, pl, status, actions) =>
+    acceptanceRecordRow([seq, no, batch, qual, unqual, supplyNo, d.supplier, date, wh, pl, badge(status, status === '审核通过' ? 'success' : 'warning')], actions);
+  let rows = [];
+  if (supplyNo === 'GH2025005') {
+    rows = [];
+  } else if (supplyNo === 'GH2025004') {
+    rows = [
+      row('1', 'GH2025004-YS01', '10', '9', '1', '2025-11-22', '张仓管', '王工', '审核通过', `<a href="warehouse_acceptance_record_detail.html?no=GH2025004-YS01&back=${recordBack}" class="hover:underline">查看</a>`),
+      row('2', 'GH2025004-YS02', '10', '9', '1', '2025-11-25', '李仓管', '赵工', '审核通过', `<a href="warehouse_acceptance_record_detail.html?no=GH2025004-YS02&back=${recordBack}" class="mr-2 hover:underline">查看</a>${acceptanceRecordRefundLink('GH2025004-YS02')}${acceptanceRecordInboundLink('GH2025004-YS01')}`),
+    ];
+  } else if (supplyNo === 'GH2025001') {
+    rows = [
+      row('1', 'GH2025001-YS01', '10', '10', '0', '2025-11-15', '张仓管', '王工', '审核通过', `<a href="warehouse_acceptance_record_detail.html?no=GH2025001-YS01&back=${recordBack}" class="mr-2 hover:underline">查看</a>${acceptanceRecordInboundLink('GH2025001-YS01')}`),
+    ];
+  } else if (supplyNo === 'GH2025003') {
+    rows = [
+      row('1', 'GH2025003-YS01', '50', '50', '0', '2025-11-20', '张仓管', '王工', '审核中', `<a href="warehouse_acceptance_record_detail.html?no=GH2025003-YS01&back=${recordBack}" class="hover:underline">查看</a>`),
+    ];
+  } else {
+    rows = [
+      row('1', `${supplyNo}-YS01`, '10', '10', '0', '2025-11-20', '张仓管', '王工', '审核中', `<a href="warehouse_acceptance_record_detail.html?no=${supplyNo}-YS01&back=${recordBack}" class="hover:underline">查看</a>`),
+    ];
+  }
   const th = columns.map(c => `<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('') + actionTh('px-4 py-3');
   const tr = rows.map(r => {
     const search = r.cells.map(stripCellText).join(' ').toLowerCase();
@@ -1648,7 +1711,10 @@ function acceptanceRecordDetailPage(backHref = 'warehouse_acceptance_record.html
   const inputCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600';
   const refundKey = d.refundKey || REFUND_BY_ACCEPT[recordNo] || '';
   const refundHref = refundKey ? `${refundFormPage(refundKey)}?${new URLSearchParams({ refundKey, back: 'warehouse_refund_list.html' })}` : '';
-  const refundBtn = refundHref ? `<a href="${refundHref}" class="wms-btn wms-btn-primary">发起退货</a>` : '';
+  const inboundBtn = d.status === '审核通过' && INBOUND_ACCEPT_SAMPLES[recordNo] && INBOUND_ACCEPT_SAMPLES[recordNo].status !== '已入库'
+    ? `<a href="${inboundFormPage(INBOUND_ACCEPT_SAMPLES[recordNo].materialType)}?${new URLSearchParams({ acceptNo: recordNo, back: 'warehouse_inbound_list.html' })}" class="wms-btn wms-btn-primary">去入库</a>`
+    : '';
+  const refundBtn = refundHref ? `<a href="${refundHref}" class="wms-btn wms-btn-secondary">发起退货</a>` : '';
   const dispositionBlock = Number(d.unqualified) > 0 ? `
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">处理方式</label><input type="text" value="${d.disposition || '—'}" readonly class="${inputCls}" data-accept-record-field="disposition" /></div>
         ${d.disposition === '退货' && refundKey ? `<div class="md:col-span-2 rounded-xl border border-orange-100 bg-orange-50/50 p-4 text-xs text-slate-600">审核通过后已生成退货待办 <span class="font-mono font-medium">${refundKey}</span>，可在<a href="warehouse_refund_list.html" class="font-medium text-slate-900 hover:underline">物资退货</a>列表执行。</div>` : ''}` : '';
@@ -1669,17 +1735,19 @@ function acceptanceRecordDetailPage(backHref = 'warehouse_acceptance_record.html
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">不合格说明</label><textarea rows="2" readonly class="${inputCls}" data-accept-record-field="unqualifiedRemark">${d.unqualifiedRemark || '—'}</textarea></div>
         ${dispositionBlock}
       </div>
+      ${d.status === '审核通过' && INBOUND_ACCEPT_SAMPLES[recordNo] ? `<div class="md:col-span-2 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4 text-xs text-slate-600">验收记录已通过，合格数量 <strong>${d.qualified}</strong> 可入库。${INBOUND_ACCEPT_SAMPLES[recordNo].status === '已入库' ? '该批次已全部入库。' : '请前往物资入库执行入库操作。'}</div>` : ''}
       <div class="wms-modal-footer">
         <a href="${backHref}" class="wms-btn wms-btn-secondary">关闭</a>
         ${refundBtn}
+        ${inboundBtn}
       </div>
     </div>`;
 }
 
 const INBOUND_ACCEPT_SAMPLES = {
   'GH2025001-YS01': {
-    acceptNo: 'GH2025001-YS01', supplyNo: 'GH2025001', acceptDate: '2025-08-08',
-    supplier: '中铁1局', supplierStatus: '正常', contact: '张飞', phone: '134 5558 4564',
+    acceptNo: 'GH2025001-YS01', supplyNo: 'GH2025001', acceptDate: '2025-11-15',
+    supplier: '科尼', supplierStatus: '正常', contact: '李四', phone: '139 1234 5678',
     code: 'GD001001-001', name: '抓斗', major: '资产-固定资产', minor: '设备-配件',
     spec: '4m³-Q345B', unit: '个', qualified: '10', inboundQty: '0', pendingQty: '10',
     materialType: 'fixed', inboundNo: '', inboundDate: '', status: '待入库',
@@ -1760,7 +1828,7 @@ function inboundRowActions(acceptNo, status) {
 
 function inboundRow(cells, status, acceptNo) {
   const tab = status === '已入库' ? '已入库' : '待入库';
-  return { cells, tab, actions: inboundRowActions(acceptNo, status) };
+  return { cells, tab: tab, actions: inboundRowActions(acceptNo, status === '已入库' ? '已入库' : status) };
 }
 
 function inboundReadonlyGrid(pairs) {
@@ -1883,19 +1951,19 @@ function warehouseInboundFormPage(backHref = 'warehouse_inbound_list.html', samp
 
 function warehouseInboundListPage() {
   const rows = [
-    inboundRow(['GH2025001-YS01', 'GH2025001', '中铁1局', 'GD001001-001', '抓斗', '4m³-Q345B', '资产-固定资产', '10', '0', '10', '—', inboundStatusBadge('待入库')], '待入库', 'GH2025001-YS01'),
-    inboundRow(['GH2025003-YS01', 'GH2025003', '河南蒲瑞', 'LA-00456', '钢丝绳', 'Φ18×100m', '资产-类资产', '50', '30', '20', '—', inboundStatusBadge('部分入库')], '部分入库', 'GH2025003-YS01'),
-    inboundRow(['GH2025004-YS01', 'GH2025004', '江苏华能电子有限公司', 'LA-00456', '电钻', '650W', '资产-类资产', '9', '0', '9', '—', inboundStatusBadge('待入库')], '待入库', 'GH2025004-YS01'),
-    inboundRow(['GH2025006-YS01', 'GH2025006', '鄂东办公用品', 'HC-00089', '打印纸 A4', 'A4/80g/500张', '耗材-办公耗材', '200', '0', '200', '—', inboundStatusBadge('待入库')], '待入库', 'GH2025006-YS01'),
-    inboundRow(['GH2025002-YS01', 'GH2025002', '鄂东办公用品', 'HC-00128', '安全帽', '标准型', '耗材-劳保耗材', '200', '200', '0', 'RK202509002', inboundStatusBadge('已入库')], '已入库', 'GH2025002-YS01'),
+    inboundRow(['GH2025001-YS01', 'GH2025001', '科尼', 'GD001001-001', '抓斗', '4m³-Q345B', '资产-固定资产', '10', '0', '10', badge('审核通过', 'success'), '—', inboundStatusBadge('待入库')], '待入库', 'GH2025001-YS01'),
+    inboundRow(['GH2025004-YS01', 'GH2025004', '江苏华能电子有限公司', 'LA-00456', '电钻', '650W', '资产-类资产', '9', '0', '9', badge('审核通过', 'success'), '—', inboundStatusBadge('待入库')], '待入库', 'GH2025004-YS01'),
+    inboundRow(['GH2025006-YS01', 'GH2025006', '鄂东办公用品', 'HC-00089', '打印纸 A4', 'A4/80g/500张', '耗材-办公耗材', '200', '0', '200', badge('审核通过', 'success'), '—', inboundStatusBadge('待入库')], '待入库', 'GH2025006-YS01'),
+    inboundRow(['GH2025003-YS01', 'GH2025003', '河南蒲瑞', 'LA-00456', '钢丝绳', 'Φ18×100m', '资产-类资产', '50', '30', '20', badge('审核通过', 'success'), '—', inboundStatusBadge('部分入库')], '部分入库', 'GH2025003-YS01'),
+    inboundRow(['GH2025002-YS01', 'GH2025002', '鄂东办公用品', 'HC-00128', '安全帽', '标准型', '耗材-劳保耗材', '200', '200', '0', badge('审核通过', 'success'), 'RK202509002', inboundStatusBadge('已入库')], '已入库', 'GH2025002-YS01'),
   ];
   return listPage({
-    desc: '验收记录审核通过后自动生成；支持分批入库，指定货位后更新台账',
+    desc: '仅展示<strong>验收记录已通过</strong>的待入库数据；验收记录审核通过后自动生成入库待办，支持分批入库',
     tabs: ['待入库', '已入库'],
-    tabColumn: 11,
+    tabColumn: 12,
     searchPlaceholder: '验收单号、入库单号、物资编码、物资名称',
     filters: [{ label: '入库日期', key: 'inboundDate', column: -1, options: ['全部', '近7天', '近30天'] }],
-    columns: ['验收单号', '物资供货单号', '供应商名称', '物资编码', '物资名称', '规格型号', '物资大类', '合格数量', '已入库数量', '待入库数量', '入库单号', '入库状态'],
+    columns: ['验收单号', '物资供货单号', '供应商名称', '物资编码', '物资名称', '规格型号', '物资大类', '合格数量', '已入库数量', '待入库数量', '验收记录状态', '入库单号', '入库状态'],
     rows,
   });
 }
@@ -3352,15 +3420,31 @@ function shelfForm(backHref, shelf = SHELF_SAMPLES['CK001001-HJ001']) {
 }
 
 function purchaseRequestForm(backHref, options = {}) {
-  const { fromPending = false, total = fromPending ? '20000.00' : '30200.00', modalSize = 'xl' } = options;
+  const { fromPending = false, total = fromPending ? '20000.00' : '30200.00', modalSize = 'xl', planNo = '', pendingCode = '', showSupplyOrders = false } = options;
   const rows = fromPending ? purchaseMaterialRows.pending : purchaseMaterialRows.default;
   const addHref = fromPending ? 'purchase_pending_select.html' : 'purchase_pending_select.html';
   const materialBlock = purchaseMaterialTable(rows).replace('purchase_pending_select.html', addHref);
+  const sourceBlock = fromPending ? `<div class="md:col-span-2 rounded-xl border border-violet-100 bg-violet-50/50 p-4 text-sm" data-wms-purchase-source>
+    <dl class="grid gap-3 sm:grid-cols-2">
+      <div><dt class="text-slate-500">采购类型</dt><dd class="mt-0.5 font-medium text-slate-900">急件采购</dd></div>
+      <div><dt class="text-slate-500">来源计划单号</dt><dd class="mt-0.5 font-mono text-xs text-slate-800" data-purchase-plan-no>${planNo || 'JJJH202606080001'}</dd></div>
+      <div><dt class="text-slate-500">来源待采物资</dt><dd class="mt-0.5 text-slate-800" data-purchase-pending-material>${pendingCode ? `${pendingCode} · 从待采带入` : '从待采列表带入'}</dd></div>
+    </dl>
+  </div>` : '';
+  const supplyOrdersBlock = `<div class="md:col-span-2 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4${showSupplyOrders ? '' : ' hidden'}" data-wms-purchase-supply-orders>
+    <div class="mb-2 text-sm font-medium text-slate-900">已生成供货单</div>
+    <ul class="space-y-2 text-sm text-slate-700">
+      <li class="flex items-center justify-between rounded-lg bg-white/80 px-3 py-2"><span><span class="font-mono text-xs">GH2025001</span> · 科尼 · 抓斗 10个</span><a href="purchase_supply_list.html" class="text-xs font-medium hover:underline">查看</a></li>
+      <li class="flex items-center justify-between rounded-lg bg-white/80 px-3 py-2"><span><span class="font-mono text-xs">GH2025003</span> · 河南蒲瑞 · 钢丝绳 100m</span><a href="purchase_supply_list.html" class="text-xs font-medium hover:underline">查看</a></li>
+    </ul>
+  </div>`;
   return `
-    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="${modalSize}">
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="${modalSize}" data-wms-purchase-request${fromPending ? ' data-from-pending="true"' : ''}>
       <div class="wms-modal-form wms-purchase-form">
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">申请单号</label><input type="text" value="系统自动生成" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">申请单号</label><input type="text" value="系统自动生成" readonly data-purchase-request-no class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">采购类型</label><input type="text" value="急件采购" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">采购总额（元）</label><input type="text" value="${total}" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        ${sourceBlock}
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交人</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>张三</option><option selected>李四</option><option>王五</option></select></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交部门</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>采购部</option><option>设备部</option><option>工程部</option></select></div>
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">备注</label><textarea rows="2" placeholder="请输入备注" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
@@ -3373,6 +3457,14 @@ function purchaseRequestForm(backHref, options = {}) {
           </div>
         </div>
         ${materialBlock}
+        <div class="md:col-span-2">
+          <label class="mb-2 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 推荐供应商</label>
+          <div class="flex flex-wrap gap-2 text-sm">
+            <span class="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200">科尼 <span class="rounded bg-emerald-50 px-1.5 py-0.5 text-xs text-emerald-700">良好 8.6</span></span>
+            <span class="inline-flex items-center gap-2 rounded-lg bg-white px-3 py-2 ring-1 ring-slate-200">河南蒲瑞 <span class="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-500">未评价</span></span>
+          </div>
+        </div>
+        ${supplyOrdersBlock}
         <div class="md:col-span-2">
           <label class="mb-2 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 采购方式</label>
           <div class="wms-radio-group">
@@ -3634,6 +3726,525 @@ function categorySubForm(backHref, { title, level = 1, type = 'fixed' }) {
   </div>`;
 }
 
+/** 供应商主数据（档案 + 关联业务回显） */
+const SUPPLIER_SAMPLES = {
+  GYS001: {
+    code: 'GYS001', name: '科尼', shortName: '科尼', status: '正常', type: '设备配件供应商',
+    contact: '李四', phone: '13912345678', address: '上海市浦东新区张江路 88 号', createdAt: '2024-03-15',
+    latestScore: '8.60', latestGrade: '良好', latestEvalDate: '2025-12-30', latestEvalNo: 'PJ2025001',
+    supplies: [
+      { no: 'GH2025001', material: '抓斗', qty: '10 / 10 个', status: '已供货', date: '2025-08-01' },
+    ],
+    acceptances: [
+      { no: 'GH2025001-YS01', supplyNo: 'GH2025001', material: '抓斗', qualified: '10', unqualified: '0', date: '2025-08-08', status: '已验收' },
+    ],
+    refunds: [],
+    evalHistory: [
+      { evalNo: 'PJ2025001', evalName: '2025年度设备配件类供应商评价', period: '2025年度', score: '8.60', grade: '良好', evalDate: '2025-12-30', status: '审核通过' },
+      { evalNo: 'PJ2025002', evalName: '2025年度维修工具类供应商评价', period: '2025年度', score: '8.60', grade: '良好', evalDate: '2025-12-30', status: '审核中' },
+    ],
+  },
+  GYS002: {
+    code: 'GYS002', name: '上海佩纳', shortName: '上海佩纳', status: '正常', type: '设备配件供应商',
+    contact: '李四', phone: '13912345678', address: '上海市嘉定区工业路 12 号', createdAt: '2024-05-20',
+    latestScore: '8.10', latestGrade: '良好', latestEvalDate: '2025-12-30', latestEvalNo: 'PJ2025001',
+    supplies: [{ no: 'GH2025002', material: '料斗', qty: '10 / 10 个', status: '已供货', date: '2025-09-01' }],
+    acceptances: [{ no: 'GH2025002-YS01', supplyNo: 'GH2025002', material: '料斗', qualified: '10', unqualified: '0', date: '2025-11-16', status: '已验收' }],
+    refunds: [],
+    evalHistory: [{ evalNo: 'PJ2025001', evalName: '2025年度设备配件类供应商评价', period: '2025年度', score: '8.10', grade: '良好', evalDate: '2025-12-30', status: '审核通过' }],
+  },
+  GYS003: {
+    code: 'GYS003', name: '河南蒲瑞', shortName: '河南蒲瑞', status: '正常', type: '设备配件供应商',
+    contact: '李经理', phone: '13800001234', address: '河南省郑州市高新区', createdAt: '2024-06-10',
+    latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—',
+    supplies: [{ no: 'GH2025003', material: '钢丝绳', qty: '100 / 50 m', status: '供货中', date: '2025-10-15' }],
+    acceptances: [{ no: 'GH2025003-YS01', supplyNo: 'GH2025003', material: '钢丝绳', qualified: '50', unqualified: '0', date: '2025-11-20', status: '验收中' }],
+    refunds: [{ no: 'TH20251121001', supplyNo: 'GH2025003', material: '钢丝绳', qty: '30 m', reason: '质量问题', date: '2025-11-21', status: '部分退货' }],
+    evalHistory: [],
+  },
+  GYS004: {
+    code: 'GYS004', name: '江苏华能电子有限公司', shortName: '江苏华能', status: '正常', type: '耗材供应商',
+    contact: '王工', phone: '13911112233', address: '江苏省南京市江宁区', createdAt: '2024-08-01',
+    latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—',
+    supplies: [{ no: 'GH2025004', material: '螺丝刀', qty: '20 / 10 个', status: '供货中', date: '2025-11-01' }],
+    acceptances: [{ no: 'GH2025004-YS01', supplyNo: 'GH2025004', material: '螺丝刀', qualified: '9', unqualified: '1', date: '2025-11-22', status: '验收中' }],
+    refunds: [{ no: 'GH2025004-YS02-TH', supplyNo: 'GH2025004', material: '螺丝刀', qty: '1 个', reason: '验收不合格', date: '—', status: '待退货' }],
+    evalHistory: [],
+  },
+  GYS005: {
+    code: 'GYS005', name: '宁波北仑君威有限公司', shortName: '宁波北仑君威', status: '暂停', type: '耗材供应商',
+    contact: '李四', phone: '13912345678', address: '浙江省宁波市北仑区', createdAt: '2024-09-12',
+    latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—',
+    supplies: [{ no: 'GH2025005', material: '扳手', qty: '20 / 0 个', status: '待供货', date: '2025-12-01' }],
+    acceptances: [],
+    refunds: [],
+    evalHistory: [],
+  },
+  GYS006: {
+    code: 'GYS006', name: '华建物资有限公司', shortName: '华建物资', status: '正常', type: '电气材料供应商',
+    contact: '陈经理', phone: '13888888221', address: '湖北省黄冈市武穴市', createdAt: '2026-01-15',
+    latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—',
+    supplies: [{ no: 'GH202605280002', material: '电缆 YJV-3×2.5', qty: '100 / 100 m', status: '已供货', date: '2026-05-28' }],
+    acceptances: [],
+    refunds: [{ no: 'TH202606030001', supplyNo: 'GH202605280002', material: '电缆 YJV-3×2.5', qty: '100 m', reason: '规格不符', date: '2026-06-03', status: '已退货' }],
+    evalHistory: [],
+  },
+  GYS007: {
+    code: 'GYS007', name: '鄂东办公用品', shortName: '鄂东办公', status: '正常', type: '办公耗材供应商',
+    contact: '刘主管', phone: '13933333002', address: '湖北省黄冈市', createdAt: '2026-02-20',
+    latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—',
+    supplies: [{ no: 'GH2025002', material: '安全帽', qty: '200 / 200 顶', status: '已供货', date: '2025-11-10' }],
+    acceptances: [{ no: 'GH2025002-YS01', supplyNo: 'GH2025002', material: '安全帽', qualified: '200', unqualified: '0', date: '2025-11-16', status: '已验收' }],
+    refunds: [{ no: 'RK202509002-TH01', supplyNo: 'GH2025002', material: '安全帽', qty: '50 顶', reason: '在库退货', date: '—', status: '待退货' }],
+    evalHistory: [],
+  },
+};
+
+function evalGradeBadge(grade) {
+  const map = { 优秀: 'success', 良好: 'info', 合格: 'warning', 不合格: 'danger' };
+  if (!grade || grade === '—') return '—';
+  return badge(grade, map[grade] || 'info');
+}
+
+function supplierStatusBadge(status) {
+  const map = { 正常: 'success', 暂停: 'warning', 黑名单: 'danger' };
+  return badge(status, map[status] || 'info');
+}
+
+/** 供应商评价：指标权重、等级、样例数据 */
+const EVAL_CONFIG_VERSION = 'V2026-001';
+const EVAL_CONFIG_EFFECTIVE = '2026-01-01';
+
+const EVAL_INDICATORS = [
+  { key: 'quality', name: '产品质量', weight: 0.4 },
+  { key: 'delivery', name: '交货及时性', weight: 0.2 },
+  { key: 'service', name: '售后服务', weight: 0.2 },
+  { key: 'price', name: '价格合理性', weight: 0.2 },
+];
+
+const EVAL_GRADES = [
+  { name: '优秀', min: 9, max: 10 },
+  { name: '良好', min: 7, max: 9 },
+  { name: '合格', min: 6, max: 7 },
+  { name: '不合格', min: 0, max: 6 },
+];
+
+const EVAL_SUPPLIER_MASTER = Object.values(SUPPLIER_SAMPLES).map(s => [
+  s.code, s.name, s.shortName, supplierStatusBadge(s.status), s.contact, s.phone, s.type,
+]);
+
+const EVAL_FORM_LINES = [
+  { code: 'GYS001', name: '科尼', quality: 9, delivery: 8, service: 8, price: 9, bonus: 0, penalty: 0, remark: '' },
+  { code: 'GYS002', name: '上海佩纳', quality: 8, delivery: 9, service: 7, price: 8, bonus: 0, penalty: 0, remark: '' },
+];
+
+const EVAL_ORDER_SAMPLES = {
+  PJ2025001: {
+    no: 'PJ2025001', name: '2025年度设备配件类供应商评价', evaluator: '李四', evalDate: '2025-12-30',
+    evalPeriod: '年度', periodStart: '2025-01-01', periodEnd: '2025-12-31',
+    status: '审核通过', approver: '王经理', node: '采购负责人', approveTime: '2025-12-31 10:20',
+    creator: '李四', createdAt: '2025-12-30 09:15', supplierCount: 2, avgScore: '8.35',
+    configVersion: EVAL_CONFIG_VERSION, orderRemark: '年度例行评价',
+    approvalFlow: [
+      { node: '提交', user: '李四', time: '2025-12-30 09:15', result: '提交', opinion: '—' },
+      { node: '采购负责人', user: '王经理', time: '2025-12-31 10:20', result: '通过', opinion: '同意' },
+    ],
+    lines: EVAL_FORM_LINES,
+  },
+  PJ2025002: {
+    no: 'PJ2025002', name: '2025年度维修工具类供应商评价', evaluator: '李四', evalDate: '2025-12-30',
+    evalPeriod: '年度', periodStart: '2025-01-01', periodEnd: '2025-12-31',
+    status: '审核中', approver: '—', node: '采购负责人', approveTime: '—',
+    creator: '李四', createdAt: '2025-12-30 14:00', supplierCount: 1, avgScore: '8.60',
+    configVersion: EVAL_CONFIG_VERSION, orderRemark: '',
+    approvalFlow: [{ node: '提交', user: '李四', time: '2025-12-30 14:00', result: '提交', opinion: '—' }],
+    lines: [EVAL_FORM_LINES[0]],
+  },
+  PJ2024001: {
+    no: 'PJ2024001', name: '2024年度评价', evaluator: '李四', evalDate: '2025-12-28',
+    evalPeriod: '年度', periodStart: '2024-01-01', periodEnd: '2024-12-31',
+    status: '草稿', approver: '—', node: '—', approveTime: '—',
+    creator: '李四', createdAt: '2025-12-28 16:30', supplierCount: 0, avgScore: '—',
+    configVersion: EVAL_CONFIG_VERSION, orderRemark: '', lines: [],
+  },
+  PJ2023001: {
+    no: 'PJ2023001', name: '2023年度耗材类供应商评价', evaluator: '张三', evalDate: '2024-01-10',
+    evalPeriod: '年度', periodStart: '2023-01-01', periodEnd: '2023-12-31',
+    status: '已驳回', approver: '王经理', node: '采购负责人', approveTime: '2024-01-12 11:00',
+    creator: '张三', createdAt: '2024-01-08 10:00', supplierCount: 3, avgScore: '—',
+    configVersion: 'V2025-002', orderRemark: '', rejectReason: '评价期间数据不完整，请补充供货记录后重提',
+    approvalFlow: [
+      { node: '提交', user: '张三', time: '2024-01-08 10:00', result: '提交', opinion: '—' },
+      { node: '采购负责人', user: '王经理', time: '2024-01-12 11:00', result: '驳回', opinion: '评价期间数据不完整，请补充供货记录后重提' },
+    ],
+    lines: [],
+  },
+};
+
+function configEvalTabBar(active) {
+  const tabs = [
+    ['config_eval_weight.html', '权重设置', active === 'weight'],
+    ['config_eval_grade.html', '评价等级设置', active === 'grade'],
+  ];
+  return `<div class="mb-6 flex flex-wrap gap-2 border-b border-slate-100 pb-4">
+    ${tabs.map(([href, label, on]) =>
+    `<a href="${href}" class="rounded-xl px-4 py-2 text-sm font-medium transition ${on ? 'bg-slate-900 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50'}">${label}</a>`
+  ).join('')}
+  </div>`;
+}
+
+function configEvalWeightPage() {
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const rows = EVAL_INDICATORS.map((ind, i) => `
+    <tr class="border-t border-slate-100" data-wms-eval-weight-row>
+      <td class="px-4 py-3 text-sm text-slate-500">${i + 1}</td>
+      <td class="px-4 py-3"><input type="text" value="${ind.name}" data-eval-indicator-name class="${inputCls}" /></td>
+      <td class="px-4 py-3"><input type="number" step="0.01" min="0" max="1" value="${ind.weight}" data-eval-indicator-weight class="${inputCls} w-32" /></td>
+      <td class="px-4 py-3 text-right"><button type="button" class="text-sm text-rose-600 hover:underline" data-eval-weight-delete>删除</button></td>
+    </tr>`).join('');
+  return `
+    ${configEvalTabBar('weight')}
+    <div class="card rounded-2xl bg-white p-5 shadow-sm" data-wms-eval-weight-page>
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <p class="text-sm text-slate-500">维护供应商评价评分指标及权重系数；新建评价单创建时快照当前版本。</p>
+        <span class="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs text-slate-600">当前版本 <strong class="text-slate-900">${EVAL_CONFIG_VERSION}</strong> · 生效 ${EVAL_CONFIG_EFFECTIVE}</span>
+      </div>
+      <div class="overflow-x-auto wms-modal-table-wrap mb-4">
+        <table class="min-w-full wms-data-table text-sm">
+          <thead class="bg-slate-50/80"><tr>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">序号</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><span class="text-rose-500">*</span> 指标名称</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><span class="text-rose-500">*</span> 权重系数</th>
+            <th class="wms-col-actions px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">操作</th>
+          </tr></thead>
+          <tbody data-wms-eval-weight-tbody>${rows}</tbody>
+        </table>
+      </div>
+      <button type="button" class="mb-4 inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50" data-eval-weight-add><i class="fa-solid fa-plus text-xs"></i> 添加</button>
+      <div class="rounded-xl bg-slate-50 p-4 text-xs text-slate-600 leading-relaxed">
+        <p class="font-semibold text-slate-700 mb-1">计算说明</p>
+        <p>综合评分 = Σ(维度得分 × 权重系数) / Σ(权重系数)</p>
+        <p class="mt-1">示例：质量 9 分（0.4）、交货 8 分（0.2）、服务 7 分（0.2）→ (9×0.4+8×0.2+7×0.2)/(0.4+0.2+0.2) = 8.25 分</p>
+        <p class="mt-2 text-slate-500">权重系数之和建议为 1.0；保存后生成新版本，仅对新建评价单生效，已建单保留创建时快照。</p>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button type="button" class="wms-btn wms-btn-primary" data-eval-weight-save>保存</button>
+      </div>
+    </div>`;
+}
+
+function configEvalGradePage() {
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const rows = EVAL_GRADES.map((g, i) => `
+    <tr class="border-t border-slate-100" data-wms-eval-grade-row>
+      <td class="px-4 py-3 text-sm text-slate-500">${i + 1}</td>
+      <td class="px-4 py-3"><input type="text" value="${g.name}" data-eval-grade-name class="${inputCls}" /></td>
+      <td class="px-4 py-3"><input type="number" step="0.1" min="0" max="10" value="${g.min}" data-eval-grade-min class="${inputCls} w-28" /></td>
+      <td class="px-4 py-3"><input type="number" step="0.1" min="0" max="10" value="${g.max}" data-eval-grade-max class="${inputCls} w-28" /></td>
+      <td class="px-4 py-3 text-right"><button type="button" class="text-sm text-rose-600 hover:underline" data-eval-grade-delete>删除</button></td>
+    </tr>`).join('');
+  return `
+    ${configEvalTabBar('grade')}
+    <div class="card rounded-2xl bg-white p-5 shadow-sm" data-wms-eval-grade-page>
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <p class="text-sm text-slate-500">将综合评分映射为评价等级；区间须完整覆盖 0～10 分且不重叠。</p>
+        <span class="inline-flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-1.5 text-xs text-slate-600">当前版本 <strong class="text-slate-900">${EVAL_CONFIG_VERSION}</strong> · 生效 ${EVAL_CONFIG_EFFECTIVE}</span>
+      </div>
+      <div class="overflow-x-auto wms-modal-table-wrap mb-4">
+        <table class="min-w-full wms-data-table text-sm">
+          <thead class="bg-slate-50/80"><tr>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">序号</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><span class="text-rose-500">*</span> 评价等级</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><span class="text-rose-500">*</span> 最低分（含）</th>
+            <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500"><span class="text-rose-500">*</span> 最高分（不含，10 分含）</th>
+            <th class="wms-col-actions px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">操作</th>
+          </tr></thead>
+          <tbody data-wms-eval-grade-tbody>${rows}</tbody>
+        </table>
+      </div>
+      <button type="button" class="mb-4 inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50" data-eval-grade-add><i class="fa-solid fa-plus text-xs"></i> 添加</button>
+      <div class="rounded-xl bg-slate-50 p-4 text-xs text-slate-600 leading-relaxed">
+        <p class="font-semibold text-slate-700 mb-1">规则</p>
+        <p>1. 各等级分数不能重叠，且需覆盖 0～10 分的完整范围</p>
+        <p>2. 各等级包含下限、不包含上限；10 分为最高分，包含该分值</p>
+      </div>
+      <div class="mt-6 flex justify-end gap-2">
+        <button type="button" class="wms-btn wms-btn-primary" data-eval-grade-save>保存</button>
+      </div>
+    </div>`;
+}
+
+function evalScoreHint() {
+  return `<div class="md:col-span-2 rounded-xl border border-blue-100 bg-blue-50/40 p-4 text-xs text-slate-600 leading-relaxed">
+    <p class="font-semibold text-slate-800 mb-1">评分说明</p>
+    <p>各维度评分范围 0～10 分（支持一位小数）；表头指标来自 <a href="config_eval_weight.html" class="font-medium text-slate-800 hover:underline">评价设置 → 权重设置</a></p>
+    <p>综合评分 = 加权基础分 + 特殊加分 − 特殊扣分（单项加分/扣分上限 2 分，有加减分时备注必填）</p>
+    <p>评价等级按评价等级设置自动匹配；配置版本 ${EVAL_CONFIG_VERSION}</p>
+  </div>`;
+}
+
+function supplierEvalTableHead(viewMode = false) {
+  const indCols = EVAL_INDICATORS.map(i =>
+    `<th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> ${i.name}</th>`
+  ).join('');
+  return `<th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">序号</th>
+    <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">供应商编码</th>
+    <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">供应商名称</th>
+    ${indCols}
+    <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">特殊加分</th>
+    <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">特殊扣分</th>
+    <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">综合评分</th>
+    <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">评价等级</th>
+    <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">备注</th>
+    ${viewMode ? '' : '<th class="wms-col-actions px-3 py-2.5 text-right text-xs font-semibold text-slate-500 whitespace-nowrap">操作</th>'}`;
+}
+
+function supplierEvalLineRow(line, viewMode = false) {
+  const inputCls = 'w-full min-w-[4rem] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200';
+  const roCls = 'w-full min-w-[4rem] rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm text-slate-600';
+  const dis = viewMode ? ' readonly' : '';
+  const cls = viewMode ? roCls : inputCls;
+  const num = (dim, v) => `<input type="number" step="0.1" min="0" max="10" value="${v ?? ''}" data-eval-dimension="${dim}"${dis} class="${cls}" />`;
+  const bonus = (v) => `<input type="number" step="0.1" min="0" max="2" value="${v ?? 0}" data-eval-field="bonus"${dis} class="${cls}" title="上限 2 分" />`;
+  const penalty = (v) => `<input type="number" step="0.1" min="0" max="2" value="${v ?? 0}" data-eval-field="penalty"${dis} class="${cls}" title="上限 2 分" />`;
+  const remark = (v) => `<input type="text" value="${v || ''}" placeholder="有加减分时必填" data-eval-field="lineRemark"${dis} class="${cls}" />`;
+  const indCells = EVAL_INDICATORS.map(i => `<td class="px-3 py-2 whitespace-nowrap">${num(i.key, line[i.key])}</td>`).join('');
+  return `<tr class="border-t border-slate-100 hover:bg-slate-50/50" data-wms-eval-line data-supplier-code="${line.code}">
+    <td class="px-3 py-2 text-sm text-slate-500 whitespace-nowrap" data-eval-seq>1</td>
+    <td class="px-3 py-2 text-sm font-mono text-slate-600 whitespace-nowrap"><a href="supplier_detail.html?code=${line.code}" class="hover:underline">${line.code}</a></td>
+    <td class="px-3 py-2 text-sm text-slate-800 whitespace-nowrap">${line.name}</td>
+    ${indCells}
+    <td class="px-3 py-2 whitespace-nowrap">${bonus(line.bonus)}</td>
+    <td class="px-3 py-2 whitespace-nowrap">${penalty(line.penalty)}</td>
+    <td class="px-3 py-2 text-sm font-medium text-slate-900 whitespace-nowrap" data-eval-total>—</td>
+    <td class="px-3 py-2 whitespace-nowrap" data-eval-grade-cell>—</td>
+    <td class="px-3 py-2 whitespace-nowrap">${remark(line.remark)}</td>
+    <td class="wms-col-actions px-3 py-2 text-right text-sm whitespace-nowrap">${viewMode ? '' : '<button type="button" class="text-rose-600 hover:underline" data-eval-line-delete>删除</button>'}</td>
+  </tr>`;
+}
+
+function supplierEvalApprovalBlock(d) {
+  if (!d.approvalFlow?.length) return '';
+  const rows = d.approvalFlow.map(f => {
+    const resultBadge = f.result === '通过' ? badge('通过', 'success')
+      : f.result === '驳回' ? badge('驳回', 'danger')
+        : badge(f.result, 'info');
+    return `<tr class="border-t border-slate-100"><td class="px-3 py-2 text-sm">${f.node}</td><td class="px-3 py-2 text-sm">${f.user}</td><td class="px-3 py-2 text-sm">${resultBadge}</td><td class="px-3 py-2 text-sm text-slate-600">${f.opinion || '—'}</td><td class="px-3 py-2 text-sm text-slate-500">${f.time}</td></tr>`;
+  }).join('');
+  const reject = d.rejectReason ? `<p class="mt-2 text-xs text-rose-600">驳回原因：${d.rejectReason}</p>` : '';
+  return `<div class="md:col-span-2 rounded-xl border border-slate-200 bg-white p-4">
+    <h4 class="mb-3 text-sm font-semibold text-slate-800">审批轨迹</h4>
+    <div class="overflow-x-auto rounded-lg ring-1 ring-slate-100"><table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+      <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">节点</th>
+      <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">处理人</th>
+      <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">结果</th>
+      <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">意见</th>
+      <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">时间</th>
+    </tr></thead><tbody>${rows}</tbody></table></div>${reject}
+  </div>`;
+}
+
+function supplierEvalFormPage(backHref = 'supplier_eval_list.html', sample = {}) {
+  const d = {
+    no: '',
+    name: '',
+    evaluator: '李四',
+    evalDate: '2026-06-09',
+    evalPeriod: '年度',
+    periodStart: '2026-01-01',
+    periodEnd: '2026-12-31',
+    status: '',
+    lines: [],
+    configVersion: EVAL_CONFIG_VERSION,
+    ...sample,
+  };
+  const viewMode = !!d.viewMode || ['审核通过', '审核中'].includes(d.status);
+  const readOnly = viewMode;
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
+  const dis = readOnly ? ' disabled' : '';
+  const lines = (d.lines || []).map(l => supplierEvalLineRow(l, readOnly)).join('');
+  const statusType = d.status === '审核通过' ? 'success' : d.status === '审核中' ? 'warning' : d.status === '已驳回' ? 'danger' : 'info';
+  const statusBadge = d.status ? `<span class="ml-2">${badge(d.status, statusType)}</span>` : '';
+  const periodOpts = ['年度', '半年度', '季度', '项目单次'].map(p =>
+    `<option${d.evalPeriod === p ? ' selected' : ''}>${p}</option>`
+  ).join('');
+  const canEdit = !readOnly && (!d.status || d.status === '草稿' || d.status === '已驳回');
+  const footerBtns = canEdit
+    ? '<button type="button" class="wms-btn wms-btn-secondary" data-eval-save-draft>保存草稿</button><button type="button" class="wms-btn wms-btn-primary" data-eval-submit>提交审批</button>'
+    : (d.status === '已驳回' && !viewMode ? '<button type="button" class="wms-btn wms-btn-primary" data-eval-submit>重新提交</button>' : '');
+
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl">
+      <div class="wms-modal-form wms-warehouse-form" data-wms-supplier-eval-form data-eval-key="${d.no || ''}" data-eval-view="${readOnly ? '1' : '0'}" data-eval-status="${d.status || ''}">
+        ${formSection('基础信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">评价单号</label><input type="text" value="${d.no || '系统自动生成'}" readonly class="${roCls}" data-eval-order-no /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">配置版本</label><input type="text" value="${d.configVersion || EVAL_CONFIG_VERSION}" readonly class="${roCls}" data-eval-config-version /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价人</label><input type="text" value="${d.evaluator || '李四'}" readonly class="${roCls}" data-eval-field="evaluator" title="默认为当前登录用户" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价名称</label><input type="text" value="${d.name || ''}" placeholder="请输入评价名称" data-eval-field="evalName"${readOnly ? ' readonly' : ''} class="${readOnly ? roCls : inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价周期</label><select data-eval-field="evalPeriod"${dis} class="${inputCls}">${periodOpts}</select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价期间</label><div class="flex items-center gap-2"><input type="date" value="${d.periodStart || ''}" data-eval-field="periodStart"${dis} class="${readOnly ? roCls : inputCls}" /><span class="text-slate-400">至</span><input type="date" value="${d.periodEnd || ''}" data-eval-field="periodEnd"${dis} class="${readOnly ? roCls : inputCls}" /></div></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价日期</label><input type="date" value="${d.evalDate || '2026-06-09'}" data-eval-field="evalDate"${dis} class="${readOnly ? roCls : inputCls}" /></div>
+        ${d.status ? `<div class="md:col-span-2 flex flex-wrap items-center gap-4 text-sm text-slate-600">审批状态：${statusBadge}${d.approver && d.approver !== '—' ? `<span>审批人：${d.approver}</span>` : ''}${d.approveTime && d.approveTime !== '—' ? `<span>审批时间：${d.approveTime}</span>` : ''}</div>` : ''}
+        ${evalScoreHint()}
+        ${formSection('评价记录')}
+        <div class="md:col-span-2 flex flex-wrap items-center justify-between gap-3 mb-2">
+          <p class="text-xs text-slate-500">一张评价单可评价多家供应商；综合得分与等级自动计算；审批通过后回写供应商档案</p>
+          ${canEdit ? `<a href="supplier_eval_select_supplier.html" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-plus text-[10px]"></i> 选择供应商</a>` : ''}
+        </div>
+        <div class="md:col-span-2 overflow-x-auto wms-modal-table-wrap -mx-1">
+          <table class="min-w-full wms-data-table text-sm" data-wms-eval-lines-table>
+            <thead class="bg-slate-50/80"><tr>${supplierEvalTableHead(readOnly)}</tr></thead>
+            <tbody data-wms-eval-lines-tbody>${lines || '<tr data-wms-eval-empty><td colspan="20" class="px-4 py-8 text-center text-sm text-slate-400">请点击「选择供应商」添加评价对象</td></tr>'}</tbody>
+          </table>
+        </div>
+        ${readOnly ? supplierEvalApprovalBlock(d) : ''}
+        ${formSection('其他信息')}
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">备注</label><textarea rows="3" maxlength="500" placeholder="0/500" data-eval-field="orderRemark"${readOnly ? ' readonly' : ''} class="${readOnly ? roCls : inputCls}">${d.orderRemark || ''}</textarea></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">评价佐证材料</label>${readOnly ? '<p class="text-sm text-slate-400">评价报告.pdf</p>' : uploadZone()}</div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">${readOnly ? '关闭' : '取消'}</a>
+        ${footerBtns}
+      </div>
+    </div>`;
+}
+
+function supplierDetailPage(backHref = 'supplier_list.html', code = 'GYS001') {
+  const s = SUPPLIER_SAMPLES[code] || SUPPLIER_SAMPLES.GYS001;
+  const supplyRows = (s.supplies || []).map(r =>
+    `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 font-mono text-xs"><a href="warehouse_acceptance_detail.html?supplyNo=${r.no}" class="hover:underline">${r.no}</a></td><td class="px-3 py-2.5 text-sm">${r.material}</td><td class="px-3 py-2.5 text-sm">${r.qty}</td><td class="px-3 py-2.5 text-sm">${badge(r.status, r.status === '已供货' ? 'success' : r.status === '供货中' ? 'warning' : 'info')}</td><td class="px-3 py-2.5 text-sm text-slate-500">${r.date}</td></tr>`
+  ).join('') || '<tr><td colspan="5" class="px-4 py-8 text-center text-sm text-slate-400">暂无供货记录</td></tr>';
+  const acceptRows = (s.acceptances || []).map(r =>
+    `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 font-mono text-xs"><a href="warehouse_acceptance_record_detail.html?no=${r.no}" class="hover:underline">${r.no}</a></td><td class="px-3 py-2.5 text-sm font-mono text-xs">${r.supplyNo}</td><td class="px-3 py-2.5 text-sm">${r.material}</td><td class="px-3 py-2.5 text-sm">${r.qualified}</td><td class="px-3 py-2.5 text-sm">${r.unqualified}</td><td class="px-3 py-2.5 text-sm">${badge(r.status, r.status === '已验收' ? 'success' : 'warning')}</td><td class="px-3 py-2.5 text-sm text-slate-500">${r.date}</td></tr>`
+  ).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-sm text-slate-400">暂无验收记录</td></tr>';
+  const refundRows = (s.refunds || []).map(r =>
+    `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 font-mono text-xs"><a href="warehouse_refund_like_form.html?refundKey=${r.no}" class="hover:underline">${r.no}</a></td><td class="px-3 py-2.5 text-sm font-mono text-xs">${r.supplyNo}</td><td class="px-3 py-2.5 text-sm">${r.material}</td><td class="px-3 py-2.5 text-sm">${r.qty}</td><td class="px-3 py-2.5 text-sm">${r.reason}</td><td class="px-3 py-2.5 text-sm">${badge(r.status, r.status === '已退货' ? 'success' : 'warning')}</td><td class="px-3 py-2.5 text-sm text-slate-500">${r.date}</td></tr>`
+  ).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-sm text-slate-400">暂无退货记录</td></tr>';
+  const evalApproved = (s.evalHistory || []).filter(r => r.status === '审核通过');
+  const evalRows = evalApproved.map(r =>
+    `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 font-mono text-xs"><a href="supplier_eval_form.html?evalKey=${r.evalNo}&mode=view" class="hover:underline">${r.evalNo}</a></td><td class="px-3 py-2.5 text-sm">${r.evalName}</td><td class="px-3 py-2.5 text-sm">${r.period}</td><td class="px-3 py-2.5 text-sm font-medium">${r.score}</td><td class="px-3 py-2.5 text-sm">${evalGradeBadge(r.grade)}</td><td class="px-3 py-2.5 text-sm text-slate-500">${r.evalDate}</td></tr>`
+  ).join('') || '<tr><td colspan="6" class="px-4 py-8 text-center text-sm text-slate-400">暂无已通过评价记录</td></tr>';
+  const tabs = [
+    ['profile', '基础信息', true],
+    ['eval', '绩效评价', false],
+    ['supply', '供货记录', false],
+    ['accept', '验收记录', false],
+    ['refund', '退货记录', false],
+  ];
+  const tabBtns = tabs.map(([id, label, on]) =>
+    `<button type="button" class="wms-tab-btn${on ? ' is-active' : ''}" data-supplier-tab="${id}">${label}</button>`
+  ).join('');
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl-detail">
+      <div class="wms-supplier-detail" data-wms-supplier-detail data-supplier-code="${s.code}">
+        <div class="wms-supplier-detail__head">
+          <div class="wms-supplier-detail__identity">
+            <div class="wms-supplier-detail__name" data-supplier-field="name">${s.name}</div>
+            <div class="wms-supplier-detail__meta">
+              <code data-supplier-field="code">${s.code}</code>
+              <span class="text-slate-300">·</span>
+              <span data-supplier-field="type">${s.type}</span>
+              <span data-supplier-field="status">${supplierStatusBadge(s.status)}</span>
+            </div>
+          </div>
+          <a href="supplier_form.html?code=${s.code}&mode=edit" class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-800"><i class="fa-solid fa-pen text-[10px]"></i>编辑</a>
+        </div>
+        <div class="wms-supplier-detail__kpis">
+          <div class="wms-supplier-kpi"><p class="wms-supplier-kpi__label">最新综合评分</p><p class="wms-supplier-kpi__value" data-supplier-field="latestScore">${s.latestScore}</p></div>
+          <div class="wms-supplier-kpi"><p class="wms-supplier-kpi__label">最新评价等级</p><div class="wms-supplier-kpi__value wms-supplier-kpi__value--sm" data-supplier-field="latestGrade">${evalGradeBadge(s.latestGrade)}</div></div>
+          <div class="wms-supplier-kpi"><p class="wms-supplier-kpi__label">最近评价日期</p><p class="wms-supplier-kpi__value wms-supplier-kpi__value--sm" data-supplier-field="latestEvalDate">${s.latestEvalDate}</p></div>
+          <div class="wms-supplier-kpi"><p class="wms-supplier-kpi__label">供货单数</p><p class="wms-supplier-kpi__value" data-supplier-field="supplyCount">${(s.supplies || []).length}</p></div>
+        </div>
+        <div class="wms-supplier-tabs" data-wms-supplier-tabs role="tablist">${tabBtns}</div>
+        <div class="wms-supplier-detail__panels">
+          <div data-supplier-panel="profile">
+            <div class="wms-supplier-panel-card">
+              <dl class="grid gap-x-6 sm:grid-cols-2">
+                <div><dt>供应商简称</dt><dd data-supplier-field="shortName">${s.shortName}</dd></div>
+                <div><dt>联系人 / 电话</dt><dd><span data-supplier-field="contact">${s.contact}</span> / <span data-supplier-field="phone">${s.phone}</span></dd></div>
+                <div class="sm:col-span-2"><dt>地址</dt><dd data-supplier-field="address">${s.address}</dd></div>
+                <div><dt>添加时间</dt><dd data-supplier-field="createdAt">${s.createdAt}</dd></div>
+                <div><dt>最近评价单号</dt><dd class="font-mono text-xs">${s.latestEvalNo !== '—' ? `<a href="supplier_eval_form.html?evalKey=${s.latestEvalNo}&mode=view" class="text-slate-900 hover:underline">${s.latestEvalNo}</a>` : '—'}</dd></div>
+              </dl>
+            </div>
+          </div>
+          <div class="hidden" data-supplier-panel="eval">
+            <div class="wms-supplier-detail__table-wrap"><table class="min-w-full text-sm" data-supplier-eval-tbody><thead><tr>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">评价单号</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">评价名称</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">评价周期</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">综合评分</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">等级</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">评价日期</th>
+            </tr></thead><tbody>${evalRows}</tbody></table></div>
+          </div>
+          <div class="hidden" data-supplier-panel="supply">
+            <div class="wms-supplier-detail__table-wrap"><table class="min-w-full text-sm"><thead><tr>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">供货单号</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">物资名称</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">需求/已供</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">状态</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">日期</th>
+            </tr></thead><tbody data-supplier-supply-tbody>${supplyRows}</tbody></table></div>
+          </div>
+          <div class="hidden" data-supplier-panel="accept">
+            <div class="wms-supplier-detail__table-wrap"><table class="min-w-full text-sm"><thead><tr>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">验收单号</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">供货单号</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">物资</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">合格</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">不合格</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">状态</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">日期</th>
+            </tr></thead><tbody data-supplier-accept-tbody>${acceptRows}</tbody></table></div>
+          </div>
+          <div class="hidden" data-supplier-panel="refund">
+            <div class="wms-supplier-detail__table-wrap"><table class="min-w-full text-sm"><thead><tr>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">退货单号</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">供货单号</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">物资</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">退货数量</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">原因</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">状态</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">日期</th>
+            </tr></thead><tbody data-supplier-refund-tbody>${refundRows}</tbody></table></div>
+          </div>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">返回列表</a>
+      </div>
+    </div>`;
+}
+
+function supplierEvalSelectSupplierPage() {
+  const th = `<th class="w-10 px-4 py-3"><input type="checkbox" class="rounded border-slate-300" data-eval-select-all /></th>` +
+    ['供应商编码', '供应商名称', '供应商简称', '供货状态', '联系人', '联系电话', '供应商类型']
+      .map(c => `<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('');
+  const tr = EVAL_SUPPLIER_MASTER.map((cells, i) => {
+    const disabled = cells[3].includes('暂停') ? ' disabled' : '';
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80${disabled ? ' opacity-50' : ''}" data-supplier-pick-row data-supplier-code="${cells[0]}">
+      <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" data-supplier-pick${disabled ? ' disabled' : i < 2 ? ' checked' : ''} /></td>
+      ${cells.map(c => `<td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('')}
+    </tr>`;
+  }).join('');
+  return `
+    <div data-wms-modal data-modal-back="supplier_eval_form.html" data-modal-size="xl">
+      <div data-wms-supplier-eval-select>
+        <div class="wms-modal-toolbar">
+          <p class="text-sm text-slate-500">从供应商主数据选择待评价供应商（暂停供货不可选）</p>
+          ${listSearchInput('请输入供应商编码或名称')}
+        </div>
+        <div class="wms-modal-table-wrap"><table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>${th}</tr></thead><tbody>${tr}</tbody></table></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="supplier_eval_form.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-primary" data-eval-select-confirm>确定</button>
+      </div>
+    </div>`;
+}
+
 const pages = {
   ledger_warehouse: page('ledger_warehouse', '仓库台账', '物资台账 / 仓库台账', ledgerWarehousePage()),
 
@@ -3719,17 +4330,18 @@ const pages = {
   purchase_pending_list: page('purchase_pending_list', '待采物资', '采购管理 / 待采物资', purchasePendingListPage()),
 
   purchase_request_list: page('purchase_request_list', '采购申请', '采购管理 / 采购申请', listPage({
-    desc: '急件采购申请记录，按添加时间降序',
+    desc: '急件计划驱动的采购申请；审核通过后按供应商/物资拆分供货单',
     addBtn: true, addHref: 'purchase_request_form.html',
     tabs: ['全部', '待提交', '审核中', '已通过'],
-    tabColumn: 5,
-    tabMap: { '审核通过': '已通过' },
-    searchPlaceholder: '申请单号、提交人、提交部门',
-    columns: ['序号', '申请单号', '采购总额（元）', '申请日期', '完成供货日期', '审批状态', '提交人', '提交部门'],
+    tabColumn: 7,
+    tabMap: { '审核通过': '已通过', '待提交': '待提交', '审核中': '审核中' },
+    searchPlaceholder: '申请单号、来源计划、提交人',
+    filters: [{ label: '采购类型', key: 'purchaseType', column: 2, options: ['全部', '急件采购'] }],
+    columns: ['序号', '申请单号', '采购类型', '来源计划单号', '来源待采', '采购总额（元）', '申请日期', '业务状态', '提交人', '提交部门'],
     rows: [
-      { cells: ['1', 'JJSQ202606090002', '28,600.00', '2026-06-09', '<span class="text-slate-400">—</span>', badge('审核中','warning'), '李四', '采购部'], actions: '<a href="purchase_request_form.html?mode=view" class="mr-2 hover:underline">查看</a><a href="purchase_request_form.html?mode=audit" class="hover:underline">审核</a>' },
-      { cells: ['2', 'JJSQ202606050001', '156,000.00', '2026-06-05', '2026-06-18', badge('审核通过','success'), '张三', '采购部'], actions: '<a href="purchase_request_form.html?mode=view" class="hover:underline">查看</a>' },
-      { cells: ['3', 'JJSQ202606030003', '2,000.00', '2026-06-03', '<span class="text-slate-400">—</span>', badge('待提交','info'), '李四', '采购部'], actions: '<a href="purchase_request_form.html?mode=view" class="mr-2 hover:underline">查看</a><a href="purchase_request_form.html?mode=edit" class="mr-2 hover:underline">编辑</a><button type="button" class="hover:underline" data-wms-purchase-submit-audit>发起审核</button>' },
+      { cells: ['1', 'JJSQ202606090002', badge('急件采购', 'warning'), 'JJJH202606080001', 'XF-00102 防汛沙袋', '28,600.00', '2026-06-09', badge('审核中', 'warning'), '李四', '采购部'], actions: '<a href="purchase_request_form.html?mode=view&amp;requestNo=JJSQ202606090002" class="hover:underline">查看</a>' },
+      { cells: ['2', 'JJSQ202606050001', badge('急件采购', 'warning'), 'JJJH202606050001', 'XF-00105 抽水泵', '156,000.00', '2026-06-05', badge('审核通过', 'success'), '张三', '采购部'], actions: '<a href="purchase_request_form.html?mode=view&amp;requestNo=JJSQ202606050001&amp;showSupply=1" class="mr-2 hover:underline">查看</a><a href="purchase_supply_list.html" class="hover:underline">供货单</a>' },
+      { cells: ['3', 'JJSQ202606030003', badge('急件采购', 'warning'), 'JJJH202510001', 'GD001001-001 抓斗', '2,000.00', '2026-06-03', badge('待提交', 'info'), '李四', '采购部'], actions: '<a href="purchase_request_form.html?mode=view&amp;requestNo=JJSQ202606030003" class="mr-2 hover:underline">查看</a><a href="purchase_request_form.html?mode=edit&amp;requestNo=JJSQ202606030003" class="mr-2 hover:underline">编辑</a><button type="button" class="hover:underline" data-wms-purchase-submit-audit>提交</button>' },
     ],
   })),
 
@@ -3783,44 +4395,44 @@ const pages = {
   })),
 
   purchase_supply_list: page('purchase_supply_list', '供应商供货单', '采购管理 / 供应商供货单', listPage({
-    desc: '按供应商/物资拆分；待供货/供货中可终结订单（完成供货），已供货仅查看',
+    desc: '采购申请审核通过后按供应商/物资自动拆分；完成供货后进入物资验收',
     tabs: ['全部', '待供货', '供货中', '已供货'],
-    tabColumn: 4,
-    searchPlaceholder: '供应商名称、物资编码、物资名称',
-    columns: ['供货单号', '供应商', '物资名称', '需求/已供', '状态'],
+    tabColumn: 6,
+    searchPlaceholder: '供货单号、供应商名称、物资名称、采购申请单号',
+    columns: ['供货单号', '采购申请单号', '供应商', '物资名称', '需求/已供', '约定交期', '状态'],
     rows: [
-      supplyRow(['GH2025001', '科尼', '抓斗', '10 / 10 个', supplyStatusBadge('已供货')], '已供货', 'GH2025001'),
-      supplyRow(['GH2025002', '上海佩纳', '料斗', '10 / 10 个', supplyStatusBadge('已供货')], '已供货', 'GH2025002'),
-      supplyRow(['GH2025003', '河南蒲瑞', '钢丝绳', '100 / 50 m', supplyStatusBadge('供货中')], '供货中', 'GH2025003'),
-      supplyRow(['GH2025004', '江苏华能电子有限公司', '螺丝刀', '20 / 10 个', supplyStatusBadge('供货中')], '供货中', 'GH2025004'),
-      supplyRow(['GH2025005', '宁波北仑君威有限公司', '扳手', '20 / 0 个', supplyStatusBadge('待供货')], '待供货', 'GH2025005'),
+      supplyRow(['GH2025001', 'JJSQ202606050001', '科尼', '抓斗', '10 / 10 个', '2026-06-15', supplyStatusBadge('已供货')], '已供货', 'GH2025001'),
+      supplyRow(['GH2025002', 'JJSQ202606050001', '上海佩纳', '料斗', '10 / 10 个', '2026-06-15', supplyStatusBadge('已供货')], '已供货', 'GH2025002'),
+      supplyRow(['GH2025003', 'JJSQ202606050001', '河南蒲瑞', '钢丝绳', '100 / 50 m', '2026-06-20', supplyStatusBadge('供货中')], '供货中', 'GH2025003'),
+      supplyRow(['GH2025004', 'JJSQ202606090002', '江苏华能电子有限公司', '螺丝刀', '20 / 10 个', '2026-06-18', supplyStatusBadge('供货中')], '供货中', 'GH2025004'),
+      supplyRow(['GH2025005', 'JJSQ202606090002', '宁波北仑君威有限公司', '扳手', `20 / 0 个${supplyOverdueBadge('2026-06-05')}`, '2026-06-05', supplyStatusBadge('待供货')], '待供货', 'GH2025005'),
     ],
   })),
 
   warehouse_pending_check: page('warehouse_pending_check', '待验物资', '物资管理 / 待验物资', listPage({
-    desc: '待验收与验收中的供货单汇总（同源物资验收）',
+    desc: '<span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-sky-500"></i>与<a href="warehouse_acceptance_list.html" class="font-medium text-slate-900 hover:underline">物资验收</a>列表中「待验收 + 验收中」数据<strong>完全同源</strong>，本页为验收人员快捷入口</span>',
     searchPlaceholder: '物资供货单号、供应商名称、物资名称',
-    filters: [{ label: '验收状态', key: 'status', column: 13, options: ['全部', '待验收', '验收中'] }],
-    columns: ['序号', '物资供货单号', '供应商名称', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '计量单位', '需求数量', '已验收数量', '合格数量', '不合格数量', '验收状态'],
+    filters: [{ label: '验收状态', key: 'status', column: 14, options: ['全部', '待验收', '验收中'] }],
+    columns: ['序号', '物资供货单号', '供应商名称', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '计量单位', '需求数量', '已验收数量', '合格数量', '不合格数量', '验收进度', '验收状态'],
     rows: [
-      acceptanceRow(['1', 'GH2025005', '宁波北仑君威有限公司', 'GD001001-005', '扳手', '455', '资产-固定资产', '设备-配件', '个', '20', '0', '0', '0', acceptanceStatusBadge('待验收')], '待验收', 'GH2025005'),
-      acceptanceRow(['2', 'GH2025003', '河南蒲瑞', 'GD001001-003', '钢丝绳', '455', '资产-固定资产', '设备-配件', 'm', '100', '50', '50', '0', acceptanceStatusBadge('验收中')], '验收中', 'GH2025003'),
-      acceptanceRow(['3', 'GH2025004', '江苏华能电子有限公司', 'GD001001-004', '螺丝刀', '455', '资产-固定资产', '设备-配件', '个', '20', '10', '9', '1', acceptanceStatusBadge('验收中')], '验收中', 'GH2025004'),
+      acceptanceRow(acceptanceListCells('1', 'GH2025005', '宁波北仑君威有限公司', 'GD001001-005', '扳手', '455', '资产-固定资产', '设备-配件', '个', '20', '0', '0', '0', '待验收'), '待验收', 'GH2025005'),
+      acceptanceRow(acceptanceListCells('2', 'GH2025003', '河南蒲瑞', 'GD001001-003', '钢丝绳', '455', '资产-固定资产', '设备-配件', 'm', '100', '50', '50', '0', '验收中'), '验收中', 'GH2025003'),
+      acceptanceRow(acceptanceListCells('3', 'GH2025004', '江苏华能电子有限公司', 'GD001001-004', '螺丝刀', '455', '资产-固定资产', '设备-配件', '个', '20', '10', '9', '1', '验收中'), '验收中', 'GH2025004'),
     ],
   })),
 
   warehouse_acceptance_list: page('warehouse_acceptance_list', '物资验收', '物资管理 / 物资验收', listPage({
-    desc: '分批次验收，1 个供货单可对应多个验收单；根据供货单自动生成',
+    desc: '分批次验收，1 个供货单可对应多个验收记录；验收记录通过后生成入库待办',
     tabs: ['全部', '待验收', '验收中', '已验收'],
-    tabColumn: 13,
+    tabColumn: 14,
     searchPlaceholder: '物资供货单号、供应商名称、物资编码、物资名称',
-    columns: ['序号', '物资供货单号', '供应商名称', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '计量单位', '需求数量', '已验收数量', '合格数量', '不合格数量', '验收状态'],
+    columns: ['序号', '物资供货单号', '供应商名称', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '计量单位', '需求数量', '已验收数量', '合格数量', '不合格数量', '验收进度', '验收状态'],
     rows: [
-      acceptanceRow(['1', 'GH2025001', '科尼', 'GD001001-001', '抓斗', '455', '资产-固定资产', '设备-配件', '个', '10', '10', '10', '0', acceptanceStatusBadge('已验收')], '已验收', 'GH2025001'),
-      acceptanceRow(['2', 'GH2025002', '上海佩纳', 'GD001001-002', '料斗', '455', '资产-固定资产', '设备-配件', '个', '10', '10', '10', '0', acceptanceStatusBadge('已验收')], '已验收', 'GH2025002'),
-      acceptanceRow(['3', 'GH2025003', '河南蒲瑞', 'GD001001-003', '钢丝绳', '455', '资产-固定资产', '设备-配件', 'm', '100', '50', '50', '0', acceptanceStatusBadge('验收中')], '验收中', 'GH2025003'),
-      acceptanceRow(['4', 'GH2025004', '江苏华能电子有限公司', 'GD001001-004', '螺丝刀', '455', '资产-固定资产', '设备-配件', '个', '20', '10', '9', '1', acceptanceStatusBadge('验收中')], '验收中', 'GH2025004'),
-      acceptanceRow(['5', 'GH2025005', '宁波北仑君威有限公司', 'GD001001-005', '扳手', '455', '资产-固定资产', '设备-配件', '个', '20', '0', '0', '0', acceptanceStatusBadge('待验收')], '待验收', 'GH2025005'),
+      acceptanceRow(acceptanceListCells('1', 'GH2025001', '科尼', 'GD001001-001', '抓斗', '455', '资产-固定资产', '设备-配件', '个', '10', '10', '10', '0', '已验收'), '已验收', 'GH2025001'),
+      acceptanceRow(acceptanceListCells('2', 'GH2025002', '上海佩纳', 'GD001001-002', '料斗', '455', '资产-固定资产', '设备-配件', '个', '10', '10', '10', '0', '已验收'), '已验收', 'GH2025002'),
+      acceptanceRow(acceptanceListCells('3', 'GH2025003', '河南蒲瑞', 'GD001001-003', '钢丝绳', '455', '资产-固定资产', '设备-配件', 'm', '100', '50', '50', '0', '验收中'), '验收中', 'GH2025003'),
+      acceptanceRow(acceptanceListCells('4', 'GH2025004', '江苏华能电子有限公司', 'GD001001-004', '螺丝刀', '455', '资产-固定资产', '设备-配件', '个', '20', '10', '9', '1', '验收中'), '验收中', 'GH2025004'),
+      acceptanceRow(acceptanceListCells('5', 'GH2025005', '宁波北仑君威有限公司', 'GD001001-005', '扳手', '455', '资产-固定资产', '设备-配件', '个', '20', '0', '0', '0', '待验收'), '待验收', 'GH2025005'),
     ],
   })),
 
@@ -3833,29 +4445,42 @@ const pages = {
   warehouse_refund_list: page('warehouse_refund_list', '物资退货', '物资管理 / 物资退货', warehouseRefundListPage()),
 
   supplier_list: page('supplier_list', '供应商列表', '供应商管理 / 供应商列表', listPage({
-    desc: '供应商档案与供货状态管理',
+    desc: '供应商档案与供货状态；审批通过的评价结果自动回写最新等级与评分',
     addBtn: true, addHref: 'supplier_form.html',
-    searchPlaceholder: '供应商名称、联系人、联系电话',
-    filters: [{ label: '供货状态', key: 'status', column: 3, options: ['全部', '正常', '暂停'] }],
-    columns: ['供应商名称', '联系人', '联系电话', '供货状态', '添加时间'],
-    rows: [
-      ['华建物资有限公司', '陈经理', '138****8821', badge('正常','success'), '2026-01-15'],
-      ['鄂东办公用品', '刘主管', '139****3302', badge('正常','success'), '2026-02-20'],
-    ],
+    searchPlaceholder: '供应商编码、名称、联系人',
+    filters: [{ label: '供货状态', key: 'status', column: 4, options: ['全部', '正常', '暂停', '黑名单'] }],
+    columns: ['供应商编码', '供应商名称', '联系人', '联系电话', '供货状态', '最新等级', '最近评价', '添加时间'],
+    rows: Object.values(SUPPLIER_SAMPLES).map(s => ({
+      cells: [
+        s.code, s.name, s.contact, s.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2'),
+        supplierStatusBadge(s.status), evalGradeBadge(s.latestGrade), s.latestEvalDate, s.createdAt,
+      ],
+      tab: '',
+      actions: `<a href="supplier_detail.html?code=${s.code}" class="mr-3 hover:underline">查看</a><a href="supplier_form.html?code=${s.code}&mode=edit" class="hover:underline">编辑</a>`,
+    })),
   })),
 
   supplier_eval_list: page('supplier_eval_list', '供应商评价', '供应商管理 / 供应商评价', listPage({
-    desc: '供应商绩效评价记录',
+    desc: '供应商绩效评价批次记录，按创建时间降序；<a href="config_eval_weight.html" class="font-medium text-slate-800 hover:underline">评价设置</a>',
     addBtn: true, addHref: 'supplier_eval_form.html',
-    tabs: ['全部', '草稿', '审核中', '已通过'],
-    tabColumn: 4,
+    secondary: ['<a href="config_eval_weight.html" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-sliders text-xs text-slate-400"></i>评价设置</a>'],
+    tabs: ['全部', '草稿', '审核中', '已通过', '已驳回'],
+    tabColumn: 6,
     tabMap: { '审核通过': '已通过' },
-    searchPlaceholder: '评价单号、供应商',
-    columns: ['评价单号', '供应商', '综合得分', '评价等级', '审批状态'],
+    searchPlaceholder: '评价单号、评价名称',
+    filters: [{ label: '评价日期', key: 'evalDate', column: 4, options: ['全部', '2025-12-30', '2025-12-28', '2024-01-10'] }],
+    columns: ['评价单号', '评价名称', '评价人', '评价日期', '供应商数', '平均综合分', '审批状态', '审批人', '创建时间'],
     rows: [
-      ['PJ202606010001', '华建物资有限公司', '92', badge('A','success'), badge('审核通过','success')],
+      { cells: ['PJ2025001', '2025年度设备配件类供应商评价', '李四', '2025-12-30', '2', '8.35', badge('审核通过', 'success'), '王经理', '2025-12-30 09:15'], actions: '<a href="supplier_eval_form.html?evalKey=PJ2025001&mode=view" class="hover:underline">查看</a>' },
+      { cells: ['PJ2025002', '2025年度维修工具类供应商评价', '李四', '2025-12-30', '1', '8.60', badge('审核中', 'warning'), '—', '2025-12-30 14:00'], actions: '<a href="supplier_eval_form.html?evalKey=PJ2025002&mode=view" class="hover:underline">查看</a>' },
+      { cells: ['PJ2024001', '2024年度评价', '李四', '2025-12-28', '0', '—', badge('草稿', 'info'), '—', '2025-12-28 16:30'], actions: '<a href="supplier_eval_form.html?evalKey=PJ2024001" class="mr-3 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline" data-eval-delete>删除</a>' },
+      { cells: ['PJ2023001', '2023年度耗材类供应商评价', '张三', '2024-01-10', '3', '—', badge('已驳回', 'danger'), '王经理', '2024-01-08 10:00'], actions: '<a href="supplier_eval_form.html?evalKey=PJ2023001&mode=view" class="mr-3 hover:underline">查看</a><a href="supplier_eval_form.html?evalKey=PJ2023001" class="hover:underline">编辑</a>' },
     ],
   })),
+
+  config_eval_weight: page('config_eval_weight', '权重设置', '基础配置 / 评价设置 / 权重设置', configEvalWeightPage()),
+
+  config_eval_grade: page('config_eval_grade', '评价等级设置', '基础配置 / 评价设置 / 评价等级', configEvalGradePage()),
 
   config_warehouse: page('config_warehouse', '仓库配置', '基础配置 / 仓库配置', warehouseConfigPage()),
 
@@ -3910,6 +4535,7 @@ const pages = {
       ['WF-PLAN', '物资计划', '编制人 → 部门负责人 → 物资管理', badge('启用','success'), '2026-06-01'],
       ['WF-REQUISITION', '领用申请', '申请人 → 部门负责人 → 仓库管理员', badge('启用','success'), '2026-06-01'],
       ['WF-PURCHASE-URGENT', '急件采购申请', '采购员 → 采购负责人 → 分管领导', badge('启用','success'), '2026-06-01'],
+      ['WF-SUPPLIER-EVAL', '供应商评价', '评价人 → 采购负责人', badge('启用','success'), '2026-06-09'],
     ],
     actions: '<a href="#" class="hover:underline">编辑</a>',
   })),
@@ -3990,6 +4616,8 @@ const forms = {
     ['purchase_execute_bid.html', 'fa-gavel', '招标-采购', '招标比价与定标'],
   ])),
 
+  supplier_detail: page('supplier_list', '供应商详情', '供应商管理 / 供应商详情', supplierDetailPage()),
+
   supplier_form: page('supplier_list', '新增供应商', '供应商管理 / 新增供应商', formBody('供应商档案', [
     ['供应商名称', 'text', '', true],
     ['联系人', 'text', '', true],
@@ -3997,15 +4625,7 @@ const forms = {
     ['供货状态', 'select', ['正常', '暂停', '黑名单'], true],
   ], 'supplier_list.html')),
 
-  supplier_eval_form: page('supplier_eval_list', '新增评价', '供应商管理 / 新增评价', formBody('供应商评价', [
-    ['供应商', 'select', ['华建物资有限公司', '鄂东办公用品'], true],
-    ['质量得分', 'number', '90', true],
-    ['交付得分', 'number', '88', true],
-    ['服务得分', 'number', '92', true],
-    ['评价说明', 'textarea', '', false],
-  ], 'supplier_eval_list.html', {
-    extraHtml: `<div class="md:col-span-2"><a href="supplier_eval_add_supplier.html" class="text-sm font-medium text-slate-900 hover:underline"><i class="fa-solid fa-plus mr-1"></i>快速添加供应商</a></div>`,
-  })),
+  supplier_eval_form: page('supplier_eval_list', '新增评价', '供应商管理 / 新增评价', supplierEvalFormPage()),
 
   warehouse_refund_form: page('warehouse_refund_list', '新增退货', '物资管理 / 新增退货', hubPage('warehouse_refund_list', '新增退货', '物资管理 / 新增退货', 'warehouse_refund_list.html', [
     ['warehouse_refund_list.html', 'fa-list-check', '从待退货任务', '推荐：验收不合格审核通过后自动生成待退任务'],
@@ -4064,7 +4684,7 @@ const forms = {
     ],
   }),
 
-  purchase_pending_apply: page('purchase_pending_list', '采购申请', '采购管理 / 待采申请', purchaseRequestForm('purchase_pending_list.html', { fromPending: true })),
+  purchase_pending_apply: page('purchase_pending_list', '采购申请', '采购管理 / 待采申请', purchaseRequestForm('purchase_pending_list.html', { fromPending: true, total: '28600.00' })),
 
   purchase_execute_direct: page('purchase_execute_list', '直采-采购', '采购管理 / 直采-采购', purchaseExecuteFormPage({
     title: '直采采购', method: '直采', quoteSectionTitle: '直采信息', mode: 'direct',
@@ -4144,17 +4764,7 @@ const forms = {
 
   config_location_form: page('config_location_list', '新增使用地点', '基础配置 / 新增地点', locationFormPage()),
 
-  config_eval_weight: page('config_category', '权重设置', '基础配置 / 权重设置', formBody('评价维度权重（合计 100%）', [
-    ['质量权重', 'number', '40', true],
-    ['交付权重', 'number', '35', true],
-    ['服务权重', 'number', '25', true],
-  ], 'config_category.html', { buttons: ['cancel', 'save'] })),
-
-  config_eval_grade: page('config_category', '评价等级设置', '基础配置 / 评价等级', formBody('等级阈值', [
-    ['A 级（≥）', 'number', '90', true],
-    ['B 级（≥）', 'number', '75', true],
-    ['C 级（≥）', 'number', '60', true],
-  ], 'config_category.html', { buttons: ['cancel', 'save'] })),
+  supplier_eval_select_supplier: page('supplier_eval_list', '选择供应商', '供应商管理 / 选择供应商', supplierEvalSelectSupplierPage()),
 
   config_category_major_fixed: page('config_category', '固定资产', '基础配置 / 查看大类', categoryViewMajorModal('固定资产', 'config_category.html', [
     ['分类编码', 'ZC-GD'], ['分类名称', '固定资产'], ['归还', '需要'],
@@ -4185,12 +4795,6 @@ const forms = {
   ])),
 
   config_category_sub_child_form: page('config_category', '添加子类', '基础配置 / 添加二级子类', categorySubForm('config_category.html', { title: '添加二级子类', level: 2, type: 'fixed' })),
-
-  supplier_eval_add_supplier: page('supplier_eval_list', '添加供应商', '供应商管理 / 快速添加', formBody('供应商档案', [
-    ['供应商名称', 'text', '', true],
-    ['联系人', 'text', '', true],
-    ['联系电话', 'text', '', true],
-  ], 'supplier_eval_form.html', { buttons: ['cancel', 'save'] })),
 
   system_workflow_form: page('system_workflow', '新增流程', '系统 / 新增流程', formBody('审批流程模板', [
     ['流程编码', 'text', '', true],
@@ -4255,7 +4859,6 @@ const mapLabels = {
   apply_requisition_list: ['领用申请', '物资申请'],
   apply_requisition_form: ['领用申请', '物资申请 · 表单'],
   apply_requisition_add_material: ['添加物资', '物资申请 · 表单'],
-  purchase_message: ['消息中心', '采购管理'],
   purchase_pending_list: ['待采物资', '采购管理'],
   purchase_pending_select: ['选择待采物资', '采购管理 · 表单'],
   purchase_pending_apply: ['待采申请', '采购管理 · 表单'],
@@ -4308,10 +4911,13 @@ const mapLabels = {
   warehouse_refund_success: ['退货成功', '物资管理 · 确认'],
   warehouse_refund_select_asset: ['选择退货资产', '物资管理 · 表单'],
   supplier_list: ['供应商列表', '供应商管理'],
+  supplier_detail: ['供应商详情', '供应商管理'],
   supplier_form: ['新增供应商', '供应商管理 · 表单'],
   supplier_eval_list: ['供应商评价', '供应商管理'],
   supplier_eval_form: ['新增评价', '供应商管理 · 表单'],
-  supplier_eval_add_supplier: ['快速添加供应商', '供应商管理 · 表单'],
+  supplier_eval_select_supplier: ['选择供应商', '供应商管理 · 表单'],
+  config_eval_weight: ['权重设置', '基础配置 · 评价设置'],
+  config_eval_grade: ['评价等级设置', '基础配置 · 评价设置'],
   config_warehouse: ['仓库配置', '基础配置'],
   config_warehouse_form: ['新增仓库', '基础配置 · 表单'],
   config_zone_form: ['新增分区', '基础配置 · 表单'],
@@ -4329,8 +4935,6 @@ const mapLabels = {
   config_category_sub_consumable_view: ['查看耗材子类', '基础配置 · 表单'],
   config_category_sub_child_form: ['添加二级子类', '基础配置 · 表单'],
   config_category_detail: ['查看子类', '基础配置 · 表单'],
-  config_eval_weight: ['权重设置', '基础配置 · 表单'],
-  config_eval_grade: ['评价等级设置', '基础配置 · 表单'],
   config_unit_list: ['计量单位', '基础配置'],
   config_unit_form: ['添加计量单位', '基础配置 · 表单'],
   config_material_catalog: ['物资清单', '基础配置'],

@@ -63,6 +63,7 @@ body.wms-modal-open .wms-app-shell {
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
   animation: wmsBackdropIn 0.18s ease-out;
+  pointer-events: auto;
 }
 
 .wms-modal {
@@ -83,6 +84,19 @@ body.wms-modal-open .wms-app-shell {
 .wms-modal--md { max-width: 640px; }
 .wms-modal--lg { max-width: 880px; }
 .wms-modal--xl { max-width: min(96vw, 1120px); }
+.wms-modal--xl-detail {
+  max-width: min(96vw, 960px);
+  height: min(720px, calc(100vh - 2rem));
+  max-height: min(720px, calc(100vh - 2rem));
+}
+
+.wms-modal--xl-detail .wms-modal-body--supplier-detail {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 1rem 1.25rem 0.75rem;
+  min-height: 0;
+}
 
 .wms-modal-header {
   display: flex;
@@ -413,6 +427,195 @@ body.wms-modal-open .wms-app-shell {
   font-weight: 600;
   background: #fff;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1);
+}
+
+/* 供应商详情弹窗 */
+.wms-supplier-detail {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  gap: 0.875rem;
+}
+
+.wms-supplier-detail__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.125rem;
+}
+
+.wms-supplier-detail__identity .wms-supplier-detail__name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.wms-supplier-detail__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.wms-supplier-detail__meta code {
+  font-family: ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: #475569;
+}
+
+.wms-supplier-detail__kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+
+@media (max-width: 768px) {
+  .wms-supplier-detail__kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.wms-supplier-kpi {
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
+  padding: 0.75rem 0.875rem;
+}
+
+.wms-supplier-kpi__label {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: #64748b;
+}
+
+.wms-supplier-kpi__value {
+  margin-top: 0.25rem;
+  font-size: 1.375rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: #0f172a;
+}
+
+.wms-supplier-kpi__value--sm {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.wms-supplier-tabs {
+  display: flex;
+  width: 100%;
+  gap: 0.125rem;
+  padding: 0.25rem;
+  border-radius: 0.625rem;
+  background: #f1f5f9;
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.wms-supplier-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.wms-supplier-tabs .wms-tab-btn {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  border: none !important;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  color: #64748b;
+  background: transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.15s, color 0.15s, box-shadow 0.15s;
+}
+
+.wms-supplier-tabs .wms-tab-btn:hover:not(.is-active) {
+  color: #334155;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.wms-supplier-tabs .wms-tab-btn.is-active {
+  color: #0f172a;
+  font-weight: 600;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+}
+
+.wms-supplier-detail__panels {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.125rem;
+  margin-right: -0.125rem;
+}
+
+.wms-supplier-detail__panels::-webkit-scrollbar {
+  width: 6px;
+}
+
+.wms-supplier-detail__panels::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #cbd5e1;
+}
+
+.wms-supplier-panel-card {
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  padding: 1rem;
+}
+
+.wms-supplier-panel-card dl > div {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.wms-supplier-panel-card dl > div:last-child {
+  border-bottom: none;
+}
+
+.wms-supplier-panel-card dt {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.wms-supplier-panel-card dd {
+  margin-top: 0.125rem;
+  font-size: 0.875rem;
+  color: #1e293b;
+}
+
+.wms-supplier-detail__table-wrap {
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+}
+
+.wms-supplier-detail__table-wrap table {
+  width: 100%;
+}
+
+.wms-supplier-detail__table-wrap thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: rgba(248, 250, 252, 0.95);
+  backdrop-filter: blur(4px);
 }
 
 /* 数据表：操作列固定右侧，横向滚动时不隐藏 */

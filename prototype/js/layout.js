@@ -116,7 +116,6 @@ const WMS_NAV = [
   { id: 'apply_plan_list', label: '物资计划', icon: 'fa-clipboard-list', href: 'apply_plan_list.html' },
   { id: 'apply_requisition_list', label: '领用申请', icon: 'fa-file-signature', href: 'apply_requisition_list.html' },
   { group: '采购管理' },
-  { id: 'purchase_message', label: '消息中心', icon: 'fa-bell', href: 'purchase_message.html' },
   { id: 'purchase_pending_list', label: '待采物资', icon: 'fa-cart-shopping', href: 'purchase_pending_list.html' },
   { id: 'purchase_request_list', label: '采购申请', icon: 'fa-file-invoice', href: 'purchase_request_list.html' },
   { id: 'purchase_execute_list', label: '物资采购', icon: 'fa-bag-shopping', href: 'purchase_execute_list.html' },
@@ -137,6 +136,7 @@ const WMS_NAV = [
   { id: 'config_unit_list', label: '计量单位', icon: 'fa-ruler', href: 'config_unit_list.html' },
   { id: 'config_material_catalog', label: '物资清单', icon: 'fa-list', href: 'config_material_catalog.html' },
   { id: 'config_acceptance_standard', label: '验收标准', icon: 'fa-clipboard-check', href: 'config_acceptance_standard.html' },
+  { id: 'config_eval_weight', label: '评价设置', icon: 'fa-sliders', href: 'config_eval_weight.html' },
   { id: 'config_location_list', label: '使用地点', icon: 'fa-map-pin', href: 'config_location_list.html' },
   { group: '系统' },
   { id: 'system_workflow', label: '流程配置', icon: 'fa-diagram-project', href: 'system_workflow.html' },
@@ -251,6 +251,13 @@ function initLayout() {
   initLocationList(root);
   initLocationForm(root);
   initLocationFormFromQuery(root);
+  initSupplierEvalForm(root);
+  initPurchasePendingApply(root);
+  initPurchaseRequestFromQuery(root);
+  initAcceptanceFormInteraction(root);
+  initSupplierEvalSelect(root);
+  initSupplierDetail(root);
+  initEvalConfig(root);
 }
 
 const WMS_MATERIAL_MINORS = {
@@ -530,8 +537,75 @@ function initListToolbar(root) {
     filterSelects.forEach(s => s.addEventListener('change', applyFilters));
     resetBtn?.addEventListener('click', resetFilters);
 
+    const urlTab = new URLSearchParams(window.location.search).get('tab');
+    if (urlTab && tabBtns.some(b => b.getAttribute('data-wms-list-tab') === urlTab)) {
+      activeTab = urlTab;
+      setListTabStyles(tabBtns, activeTab);
+    }
+
     applyFilters();
   });
+}
+
+function initPurchasePendingApply(root) {
+  if (root.dataset.page !== 'purchase_pending_list') return;
+  if (!(root.dataset.breadcrumb || '').includes('待采申请')) return;
+  const params = new URLSearchParams(window.location.search);
+  const planNo = params.get('planNo');
+  const code = params.get('code');
+  const name = params.get('name');
+  const qty = params.get('qty');
+  if (planNo) {
+    document.querySelector('[data-purchase-plan-no]')?.replaceChildren(document.createTextNode(planNo));
+  }
+  if (code || name) {
+    const label = [code, name].filter(Boolean).join(' · ');
+    const el = document.querySelector('[data-purchase-pending-material]');
+    if (el && label) el.textContent = label;
+  }
+  if (qty) {
+    const table = document.querySelector('.wms-purchase-form table tbody tr');
+    const qtyCell = table?.cells?.[9];
+    if (qtyCell) qtyCell.textContent = qty;
+  }
+  const titleEl = document.getElementById('wms-modal-title');
+  if (titleEl && planNo) titleEl.textContent = `待采采购申请 · ${planNo}`;
+}
+
+function initPurchaseRequestFromQuery(root) {
+  if (root.dataset.page !== 'purchase_request_list') return;
+  const title = root.dataset.title || '';
+  if (!title.includes('采购申请') && !title.includes('新建申请')) return;
+  const params = new URLSearchParams(window.location.search);
+  const requestNo = params.get('requestNo');
+  const showSupply = params.get('showSupply') === '1';
+  if (requestNo) {
+    const noInput = document.querySelector('[data-purchase-request-no]');
+    if (noInput) noInput.value = requestNo;
+    const titleEl = document.getElementById('wms-modal-title');
+    if (titleEl) titleEl.textContent = `${params.get('mode') === 'edit' ? '编辑' : '查看'}采购申请 · ${requestNo}`;
+  }
+  if (showSupply) {
+    document.querySelector('[data-wms-purchase-supply-orders]')?.classList.remove('hidden');
+  }
+}
+
+function initAcceptanceFormInteraction(root) {
+  if (root.dataset.page !== 'warehouse_acceptance_list') return;
+  if (!(root.dataset.title || '').includes('物资验收') && !(root.dataset.title || '').includes('执行验收')) return;
+  const scope = document.querySelector('[data-wms-acceptance-form]');
+  if (!scope) return;
+  const disposition = scope.querySelector('[data-accept-disposition]');
+  const unqualified = scope.querySelector('[data-accept-unqualified-qty]');
+  const hint = scope.querySelector('[data-accept-refund-hint]');
+  const syncHint = () => {
+    const qty = Number(unqualified?.value || 0);
+    const isRefund = disposition?.value === '退货';
+    hint?.classList.toggle('hidden', !(qty > 0 && isRefund));
+  };
+  disposition?.addEventListener('change', syncHint);
+  unqualified?.addEventListener('input', syncHint);
+  syncHint();
 }
 
 function initLocationList(root) {
@@ -1574,8 +1648,9 @@ function initSupplyCompleteFromQuery(root) {
       remark?.focus();
       return;
     }
-    showSupplyCompleteToast(fromAcceptance ? '已终结供货，验收待办已关闭' : '供货单已标记为已供货');
-    setTimeout(() => { window.location.href = backHref; }, 900);
+    const redirectHref = fromAcceptance ? backHref : 'warehouse_acceptance_list.html';
+    showSupplyCompleteToast(fromAcceptance ? '已终结供货，验收待办已关闭' : '供货完成，请前往物资验收');
+    setTimeout(() => { window.location.href = redirectHref; }, 900);
   });
 }
 
@@ -2815,7 +2890,15 @@ function initModal(root, title, contentHtml) {
 
   const backHref = modalSource.dataset.modalBack || '#';
   const size = modalSource.dataset.modalSize || 'md';
-  const sizeClass = { sm: 'wms-modal--sm', md: 'wms-modal--md', lg: 'wms-modal--lg', xl: 'wms-modal--xl' }[size] || 'wms-modal--md';
+  const sizeClass = {
+    sm: 'wms-modal--sm',
+    md: 'wms-modal--md',
+    lg: 'wms-modal--lg',
+    xl: 'wms-modal--xl',
+    'xl-detail': 'wms-modal--xl-detail',
+  }[size] || 'wms-modal--md';
+  const isSupplierDetail = size === 'xl-detail' || !!modalSource.querySelector('[data-wms-supplier-detail]');
+  const bodyExtraClass = isSupplierDetail ? ' wms-modal-body--supplier-detail' : '';
 
   const footerEl = modalSource.querySelector('.wms-modal-footer');
   let footerHtml = '';
@@ -2826,22 +2909,38 @@ function initModal(root, title, contentHtml) {
   const inner = modalSource.innerHTML;
   document.body.classList.add('wms-modal-open');
 
+  const preservedDataAttrs = [...modalSource.attributes]
+    .filter(a => a.name.startsWith('data-') && !['data-wms-modal', 'data-modal-back', 'data-modal-size'].includes(a.name))
+    .map(a => `${a.name}="${a.value.replace(/"/g, '&quot;')}"`)
+    .join(' ');
+
   const backdrop = document.createElement('div');
   backdrop.className = 'wms-modal-backdrop';
   backdrop.setAttribute('role', 'presentation');
+  backdrop.dataset.modalBack = backHref;
   backdrop.innerHTML = `
     <div class="wms-modal ${sizeClass}" role="dialog" aria-modal="true" aria-labelledby="wms-modal-title">
       <div class="wms-modal-header">
         <h2 id="wms-modal-title" class="wms-modal-title">${title}</h2>
         <a href="${backHref}" class="wms-modal-close" aria-label="关闭"><i class="fa-solid fa-xmark"></i></a>
       </div>
-      <div class="wms-modal-body">${inner}</div>
+      <div class="wms-modal-body${bodyExtraClass}"${preservedDataAttrs ? ` ${preservedDataAttrs}` : ''}>${inner}</div>
       ${footerHtml}
     </div>
   `;
 
   backdrop.addEventListener('click', (e) => {
     if (e.target === backdrop) window.location.href = backHref;
+  });
+  backdrop.addEventListener('click', (e) => {
+    const tabBtn = e.target.closest('[data-supplier-tab]');
+    if (!tabBtn || !backdrop.querySelector('[data-wms-supplier-tabs]')) return;
+    const tab = tabBtn.dataset.supplierTab;
+    const body = backdrop.querySelector('.wms-modal-body');
+    body?.querySelectorAll('[data-wms-supplier-tabs] .wms-tab-btn, [data-wms-supplier-detail] .wms-supplier-tabs .wms-tab-btn').forEach(b => b.classList.toggle('is-active', b === tabBtn));
+    body?.querySelectorAll('[data-supplier-panel]').forEach(p => {
+      p.classList.toggle('hidden', p.dataset.supplierPanel !== tab);
+    });
   });
 
   document.addEventListener('keydown', function onEsc(e) {
@@ -2859,6 +2958,402 @@ function initModal(root, title, contentHtml) {
     const mainWrap = shellDup.closest('.mx-auto');
     if (mainWrap) mainWrap.innerHTML = '';
     else shellDup.remove();
+  }
+}
+
+const WMS_EVAL_INDICATORS = [
+  { key: 'quality', name: '产品质量', weight: 0.4 },
+  { key: 'delivery', name: '交货及时性', weight: 0.2 },
+  { key: 'service', name: '售后服务', weight: 0.2 },
+  { key: 'price', name: '价格合理性', weight: 0.2 },
+];
+
+const WMS_EVAL_GRADES = [
+  { name: '优秀', min: 9, max: 10 },
+  { name: '良好', min: 7, max: 9 },
+  { name: '合格', min: 6, max: 7 },
+  { name: '不合格', min: 0, max: 6 },
+];
+
+const WMS_EVAL_BONUS_PENALTY_MAX = 2;
+
+const WMS_SUPPLIER_SAMPLES = {
+  GYS001: { code: 'GYS001', name: '科尼', shortName: '科尼', status: '正常', type: '设备配件供应商', contact: '李四', phone: '13912345678', address: '上海市浦东新区张江路 88 号', createdAt: '2024-03-15', latestScore: '8.60', latestGrade: '良好', latestEvalDate: '2025-12-30', latestEvalNo: 'PJ2025001', supplies: [{ no: 'GH2025001', material: '抓斗', qty: '10 / 10 个', status: '已供货', date: '2025-08-01' }], acceptances: [{ no: 'GH2025001-YS01', supplyNo: 'GH2025001', material: '抓斗', qualified: '10', unqualified: '0', date: '2025-08-08', status: '已验收' }], refunds: [], evalHistory: [{ evalNo: 'PJ2025001', evalName: '2025年度设备配件类供应商评价', period: '2025年度', score: '8.60', grade: '良好', evalDate: '2025-12-30', status: '审核通过' }, { evalNo: 'PJ2025002', evalName: '2025年度维修工具类供应商评价', period: '2025年度', score: '8.60', grade: '良好', evalDate: '2025-12-30', status: '审核中' }] },
+  GYS002: { code: 'GYS002', name: '上海佩纳', shortName: '上海佩纳', status: '正常', type: '设备配件供应商', contact: '李四', phone: '13912345678', address: '上海市嘉定区工业路 12 号', createdAt: '2024-05-20', latestScore: '8.10', latestGrade: '良好', latestEvalDate: '2025-12-30', latestEvalNo: 'PJ2025001', supplies: [{ no: 'GH2025002', material: '料斗', qty: '10 / 10 个', status: '已供货', date: '2025-09-01' }], acceptances: [{ no: 'GH2025002-YS01', supplyNo: 'GH2025002', material: '料斗', qualified: '10', unqualified: '0', date: '2025-11-16', status: '已验收' }], refunds: [], evalHistory: [{ evalNo: 'PJ2025001', evalName: '2025年度设备配件类供应商评价', period: '2025年度', score: '8.10', grade: '良好', evalDate: '2025-12-30', status: '审核通过' }] },
+  GYS003: { code: 'GYS003', name: '河南蒲瑞', shortName: '河南蒲瑞', status: '正常', type: '设备配件供应商', contact: '李经理', phone: '13800001234', address: '河南省郑州市高新区', createdAt: '2024-06-10', latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—', supplies: [{ no: 'GH2025003', material: '钢丝绳', qty: '100 / 50 m', status: '供货中', date: '2025-10-15' }], acceptances: [{ no: 'GH2025003-YS01', supplyNo: 'GH2025003', material: '钢丝绳', qualified: '50', unqualified: '0', date: '2025-11-20', status: '验收中' }], refunds: [{ no: 'TH20251121001', supplyNo: 'GH2025003', material: '钢丝绳', qty: '30 m', reason: '质量问题', date: '2025-11-21', status: '部分退货' }], evalHistory: [] },
+  GYS004: { code: 'GYS004', name: '江苏华能电子有限公司', shortName: '江苏华能', status: '正常', type: '耗材供应商', contact: '王工', phone: '13911112233', address: '江苏省南京市江宁区', createdAt: '2024-08-01', latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—', supplies: [{ no: 'GH2025004', material: '螺丝刀', qty: '20 / 10 个', status: '供货中', date: '2025-11-01' }], acceptances: [{ no: 'GH2025004-YS01', supplyNo: 'GH2025004', material: '螺丝刀', qualified: '9', unqualified: '1', date: '2025-11-22', status: '验收中' }], refunds: [{ no: 'GH2025004-YS02-TH', supplyNo: 'GH2025004', material: '螺丝刀', qty: '1 个', reason: '验收不合格', date: '—', status: '待退货' }], evalHistory: [] },
+  GYS005: { code: 'GYS005', name: '宁波北仑君威有限公司', shortName: '宁波北仑君威', status: '暂停', type: '耗材供应商', contact: '李四', phone: '13912345678', address: '浙江省宁波市北仑区', createdAt: '2024-09-12', latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—', supplies: [{ no: 'GH2025005', material: '扳手', qty: '20 / 0 个', status: '待供货', date: '2025-12-01' }], acceptances: [], refunds: [], evalHistory: [] },
+  GYS006: { code: 'GYS006', name: '华建物资有限公司', shortName: '华建物资', status: '正常', type: '电气材料供应商', contact: '陈经理', phone: '13888888221', address: '湖北省黄冈市武穴市', createdAt: '2026-01-15', latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—', supplies: [{ no: 'GH202605280002', material: '电缆 YJV-3×2.5', qty: '100 / 100 m', status: '已供货', date: '2026-05-28' }], acceptances: [], refunds: [{ no: 'TH202606030001', supplyNo: 'GH202605280002', material: '电缆 YJV-3×2.5', qty: '100 m', reason: '规格不符', date: '2026-06-03', status: '已退货' }], evalHistory: [] },
+  GYS007: { code: 'GYS007', name: '鄂东办公用品', shortName: '鄂东办公', status: '正常', type: '办公耗材供应商', contact: '刘主管', phone: '13933333002', address: '湖北省黄冈市', createdAt: '2026-02-20', latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—', supplies: [{ no: 'GH2025002', material: '安全帽', qty: '200 / 200 顶', status: '已供货', date: '2025-11-10' }], acceptances: [{ no: 'GH2025002-YS01', supplyNo: 'GH2025002', material: '安全帽', qualified: '200', unqualified: '0', date: '2025-11-16', status: '已验收' }], refunds: [{ no: 'RK202509002-TH01', supplyNo: 'GH2025002', material: '安全帽', qty: '50 顶', reason: '在库退货', date: '—', status: '待退货' }], evalHistory: [] },
+};
+
+const WMS_EVAL_ORDER_SAMPLES = {
+  PJ2025001: { no: 'PJ2025001', name: '2025年度设备配件类供应商评价', evaluator: '李四', evalDate: '2025-12-30', evalPeriod: '年度', periodStart: '2025-01-01', periodEnd: '2025-12-31', status: '审核通过', orderRemark: '年度例行评价', configVersion: 'V2026-001', lines: [{ code: 'GYS001', name: '科尼', quality: 9, delivery: 8, service: 8, price: 9, bonus: 0, penalty: 0, remark: '' }, { code: 'GYS002', name: '上海佩纳', quality: 8, delivery: 9, service: 7, price: 8, bonus: 0, penalty: 0, remark: '' }] },
+  PJ2025002: { no: 'PJ2025002', name: '2025年度维修工具类供应商评价', evaluator: '李四', evalDate: '2025-12-30', evalPeriod: '年度', periodStart: '2025-01-01', periodEnd: '2025-12-31', status: '审核中', orderRemark: '', configVersion: 'V2026-001', lines: [{ code: 'GYS001', name: '科尼', quality: 9, delivery: 8, service: 8, price: 9, bonus: 0, penalty: 0, remark: '' }] },
+  PJ2024001: { no: 'PJ2024001', name: '2024年度评价', evaluator: '李四', evalDate: '2025-12-28', evalPeriod: '年度', periodStart: '2024-01-01', periodEnd: '2024-12-31', status: '草稿', orderRemark: '', configVersion: 'V2026-001', lines: [] },
+  PJ2023001: { no: 'PJ2023001', name: '2023年度耗材类供应商评价', evaluator: '张三', evalDate: '2024-01-10', evalPeriod: '年度', periodStart: '2023-01-01', periodEnd: '2023-12-31', status: '已驳回', orderRemark: '', configVersion: 'V2025-002', rejectReason: '评价期间数据不完整，请补充供货记录后重提', lines: [] },
+};
+
+function wmsSupplierGradeBadge(grade) {
+  if (!grade || grade === '—') return '—';
+  const map = { 优秀: 'success', 良好: 'info', 合格: 'warning', 不合格: 'danger' };
+  return statusBadge(grade, map[grade] || 'info');
+}
+
+function wmsSupplierStatusBadge(status) {
+  const map = { 正常: 'success', 暂停: 'warning', 黑名单: 'danger' };
+  return statusBadge(status, map[status] || 'info');
+}
+
+function wmsEvalMatchGrade(score) {
+  const s = Number(score);
+  if (Number.isNaN(s)) return '—';
+  for (const g of WMS_EVAL_GRADES) {
+    const inMax = g.max === 10 ? s <= 10 : s < g.max;
+    if (s >= g.min && inMax) return g.name;
+  }
+  return '—';
+}
+
+function wmsEvalCalcLine(row) {
+  let weighted = 0;
+  let wSum = 0;
+  WMS_EVAL_INDICATORS.forEach(({ key, weight }) => {
+    const inp = row.querySelector(`[data-eval-dimension="${key}"]`);
+    const v = parseFloat(inp?.value);
+    if (!Number.isNaN(v)) {
+      weighted += v * weight;
+      wSum += weight;
+    }
+  });
+  let base = wSum > 0 ? weighted / wSum : 0;
+  const bonus = parseFloat(row.querySelector('[data-eval-field="bonus"]')?.value) || 0;
+  const penalty = parseFloat(row.querySelector('[data-eval-field="penalty"]')?.value) || 0;
+  let total = Math.min(10, Math.max(0, base + bonus - penalty));
+  total = Math.round(total * 100) / 100;
+  const totalEl = row.querySelector('[data-eval-total]');
+  const gradeEl = row.querySelector('[data-eval-grade-cell]');
+  const grade = wmsEvalMatchGrade(total);
+  if (totalEl) totalEl.textContent = wSum > 0 ? String(total) : '—';
+  if (gradeEl) {
+    const cls = grade === '优秀' ? 'text-emerald-700' : grade === '良好' ? 'text-blue-700' : grade === '合格' ? 'text-amber-700' : grade === '不合格' ? 'text-rose-700' : 'text-slate-500';
+    gradeEl.innerHTML = grade === '—' ? '—' : `<span class="font-medium ${cls}">${grade}</span>`;
+  }
+  return total;
+}
+
+function wmsEvalRenumberLines(tbody) {
+  tbody?.querySelectorAll('[data-wms-eval-line]').forEach((row, i) => {
+    const seq = row.querySelector('[data-eval-seq]');
+    if (seq) seq.textContent = String(i + 1);
+  });
+}
+
+function wmsEvalBindLineRow(row, tbody) {
+  row.querySelectorAll('[data-eval-dimension], [data-eval-field="bonus"], [data-eval-field="penalty"]').forEach(inp => {
+    inp.addEventListener('input', () => wmsEvalCalcLine(row));
+    inp.addEventListener('change', () => wmsEvalCalcLine(row));
+  });
+  const del = row.querySelector('[data-eval-line-delete]');
+  if (del) {
+    del.addEventListener('click', () => {
+      row.remove();
+      wmsEvalRenumberLines(tbody);
+    });
+  }
+  wmsEvalCalcLine(row);
+}
+
+function wmsEvalCreateLineRowHTML(line, readOnly = false) {
+  const inputCls = 'w-full min-w-[4rem] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200';
+  const roCls = 'w-full min-w-[4rem] rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm text-slate-600';
+  const cls = readOnly ? roCls : inputCls;
+  const dis = readOnly ? ' readonly' : '';
+  const indCells = WMS_EVAL_INDICATORS.map(i =>
+    `<td class="px-3 py-2 whitespace-nowrap"><input type="number" step="0.1" min="0" max="10" value="${line[i.key] ?? ''}" data-eval-dimension="${i.key}"${dis} class="${cls}" /></td>`
+  ).join('');
+  const delBtn = readOnly ? '' : '<button type="button" class="text-rose-600 hover:underline" data-eval-line-delete>删除</button>';
+  return `<tr class="border-t border-slate-100 hover:bg-slate-50/50" data-wms-eval-line data-supplier-code="${line.code}">
+    <td class="px-3 py-2 text-sm text-slate-500 whitespace-nowrap" data-eval-seq>1</td>
+    <td class="px-3 py-2 text-sm font-mono text-slate-600 whitespace-nowrap"><a href="supplier_detail.html?code=${line.code}" class="hover:underline">${line.code}</a></td>
+    <td class="px-3 py-2 text-sm text-slate-800 whitespace-nowrap">${line.name}</td>
+    ${indCells}
+    <td class="px-3 py-2 whitespace-nowrap"><input type="number" step="0.1" min="0" max="${WMS_EVAL_BONUS_PENALTY_MAX}" value="${line.bonus ?? 0}" data-eval-field="bonus"${dis} class="${cls}" /></td>
+    <td class="px-3 py-2 whitespace-nowrap"><input type="number" step="0.1" min="0" max="${WMS_EVAL_BONUS_PENALTY_MAX}" value="${line.penalty ?? 0}" data-eval-field="penalty"${dis} class="${cls}" /></td>
+    <td class="px-3 py-2 text-sm font-medium text-slate-900 whitespace-nowrap" data-eval-total>—</td>
+    <td class="px-3 py-2 whitespace-nowrap" data-eval-grade-cell>—</td>
+    <td class="px-3 py-2 whitespace-nowrap"><input type="text" value="${line.remark || ''}" placeholder="有加减分时必填" data-eval-field="lineRemark"${dis} class="${cls}" /></td>
+    <td class="wms-col-actions px-3 py-2 text-right text-sm whitespace-nowrap">${delBtn}</td>
+  </tr>`;
+}
+
+function wmsEvalRebuildLines(tbody, lines, readOnly = false) {
+  if (!tbody) return;
+  if (!lines?.length) {
+    tbody.innerHTML = '<tr data-wms-eval-empty><td colspan="20" class="px-4 py-8 text-center text-sm text-slate-400">请点击「选择供应商」添加评价对象</td></tr>';
+    return;
+  }
+  tbody.innerHTML = lines.map(l => wmsEvalCreateLineRowHTML(l, readOnly)).join('');
+  tbody.querySelectorAll('[data-wms-eval-line]').forEach(row => wmsEvalBindLineRow(row, tbody));
+  wmsEvalRenumberLines(tbody);
+}
+
+function wmsEvalValidateForm(form) {
+  const name = form.querySelector('[data-eval-field="evalName"]')?.value?.trim();
+  if (!name) { alert('请填写评价名称'); return false; }
+  const rows = [...form.querySelectorAll('[data-wms-eval-line]')];
+  if (!rows.length) { alert('请至少选择一家供应商'); return false; }
+  const codes = new Set();
+  for (const row of rows) {
+    const code = row.dataset.supplierCode;
+    if (codes.has(code)) { alert(`供应商 ${code} 重复，请删除重复行`); return false; }
+    codes.add(code);
+    for (const { key } of WMS_EVAL_INDICATORS) {
+      const v = parseFloat(row.querySelector(`[data-eval-dimension="${key}"]`)?.value);
+      if (Number.isNaN(v) || v < 0 || v > 10) { alert(`请为 ${code} 填写完整的维度评分（0～10）`); return false; }
+    }
+    const bonus = parseFloat(row.querySelector('[data-eval-field="bonus"]')?.value) || 0;
+    const penalty = parseFloat(row.querySelector('[data-eval-field="penalty"]')?.value) || 0;
+    const remark = row.querySelector('[data-eval-field="lineRemark"]')?.value?.trim();
+    if (bonus > WMS_EVAL_BONUS_PENALTY_MAX || penalty > WMS_EVAL_BONUS_PENALTY_MAX) {
+      alert(`特殊加分/扣分单项上限为 ${WMS_EVAL_BONUS_PENALTY_MAX} 分`); return false;
+    }
+    if ((bonus > 0 || penalty > 0) && !remark) {
+      alert(`供应商 ${code} 有加分或扣分时须填写行备注`); return false;
+    }
+  }
+  return true;
+}
+
+function wmsModalScope() {
+  return document.querySelector('.wms-modal-backdrop .wms-modal-body') || document.querySelector('[data-wms-modal]');
+}
+
+function initSupplierEvalForm(root) {
+  const form = wmsModalScope()?.matches('[data-wms-supplier-eval-form]')
+    ? wmsModalScope()
+    : wmsModalScope()?.querySelector('[data-wms-supplier-eval-form]') || document.querySelector('[data-wms-supplier-eval-form]');
+  if (!form) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const evalKey = params.get('evalKey');
+  const viewMode = params.get('mode') === 'view' || form.dataset.evalView === '1';
+  const sample = evalKey ? WMS_EVAL_ORDER_SAMPLES[evalKey] : null;
+  const readOnly = viewMode || ['审核通过', '审核中'].includes(sample?.status || form.dataset.evalStatus);
+
+  if (sample) {
+    const setVal = (sel, val) => { const el = form.querySelector(sel); if (el && val != null && val !== '') el.value = val; };
+    setVal('[data-eval-order-no]', sample.no);
+    setVal('[data-eval-field="evalName"]', sample.name);
+    setVal('[data-eval-field="evalDate"]', sample.evalDate);
+    setVal('[data-eval-field="evaluator"]', sample.evaluator);
+    setVal('[data-eval-field="evalPeriod"]', sample.evalPeriod);
+    setVal('[data-eval-field="periodStart"]', sample.periodStart);
+    setVal('[data-eval-field="periodEnd"]', sample.periodEnd);
+    setVal('[data-eval-field="orderRemark"]', sample.orderRemark);
+    setVal('[data-eval-config-version]', sample.configVersion);
+    const tbody = form.querySelector('[data-wms-eval-lines-tbody]');
+    wmsEvalRebuildLines(tbody, sample.lines, readOnly);
+    if (viewMode) {
+      document.title = '查看评价 · 物资管理系统';
+      const titleEl = document.getElementById('wms-modal-title');
+      if (titleEl) titleEl.textContent = '查看评价';
+    }
+  } else {
+    const picked = sessionStorage.getItem('wms_eval_picked_suppliers');
+    if (picked) {
+      try {
+        const suppliers = JSON.parse(picked);
+        const tbody = form.querySelector('[data-wms-eval-lines-tbody]');
+        const existing = new Set([...form.querySelectorAll('[data-wms-eval-line]')].map(r => r.dataset.supplierCode));
+        const newLines = suppliers.filter(s => !existing.has(s.code)).map(s => ({
+          code: s.code, name: s.name, quality: '', delivery: '', service: '', price: '', bonus: 0, penalty: 0, remark: '',
+        }));
+        const currentLines = [...form.querySelectorAll('[data-wms-eval-line]')].map(row => ({
+          code: row.dataset.supplierCode,
+          name: row.querySelector('td:nth-child(3)')?.textContent?.trim(),
+          quality: row.querySelector('[data-eval-dimension="quality"]')?.value,
+          delivery: row.querySelector('[data-eval-dimension="delivery"]')?.value,
+          service: row.querySelector('[data-eval-dimension="service"]')?.value,
+          price: row.querySelector('[data-eval-dimension="price"]')?.value,
+          bonus: row.querySelector('[data-eval-field="bonus"]')?.value || 0,
+          penalty: row.querySelector('[data-eval-field="penalty"]')?.value || 0,
+          remark: row.querySelector('[data-eval-field="lineRemark"]')?.value || '',
+        }));
+        wmsEvalRebuildLines(tbody, [...currentLines, ...newLines], false);
+      } catch (_) { /* ignore */ }
+      sessionStorage.removeItem('wms_eval_picked_suppliers');
+    }
+    const tbody = form.querySelector('[data-wms-eval-lines-tbody]');
+    if (tbody) {
+      tbody.querySelectorAll('[data-wms-eval-line]').forEach(row => wmsEvalBindLineRow(row, tbody));
+      wmsEvalRenumberLines(tbody);
+    }
+  }
+
+  form.querySelector('[data-eval-save-draft]')?.addEventListener('click', () => {
+    window.location.href = form.dataset.modalBack || 'supplier_eval_list.html';
+  });
+  form.querySelector('[data-eval-submit]')?.addEventListener('click', () => {
+    if (!wmsEvalValidateForm(form)) return;
+    window.location.href = form.dataset.modalBack || 'supplier_eval_list.html';
+  });
+}
+
+function initSupplierEvalSelect(root) {
+  const scope = wmsModalScope();
+  const page = scope?.matches('[data-wms-supplier-eval-select]')
+    ? scope
+    : scope?.querySelector('[data-wms-supplier-eval-select]') || document.querySelector('[data-wms-supplier-eval-select]');
+  if (!page) return;
+  page.querySelector('[data-eval-select-all]')?.addEventListener('change', e => {
+    page.querySelectorAll('[data-supplier-pick]:not(:disabled)').forEach(cb => { cb.checked = e.target.checked; });
+  });
+  page.querySelector('[data-eval-select-confirm]')?.addEventListener('click', () => {
+    const picked = [];
+    page.querySelectorAll('[data-supplier-pick-row]').forEach(row => {
+      const cb = row.querySelector('[data-supplier-pick]');
+      if (cb?.checked && !cb.disabled) {
+        picked.push({
+          code: row.dataset.supplierCode,
+          name: row.querySelector('td:nth-child(3)')?.textContent?.trim(),
+        });
+      }
+    });
+    if (!picked.length) { alert('请至少选择一家供应商'); return; }
+    sessionStorage.setItem('wms_eval_picked_suppliers', JSON.stringify(picked));
+    window.location.href = 'supplier_eval_form.html';
+  });
+}
+
+function initSupplierDetail(root) {
+  const scope = wmsModalScope();
+  const detail = scope?.matches('[data-wms-supplier-detail]')
+    ? scope
+    : scope?.querySelector('[data-wms-supplier-detail]') || document.querySelector('[data-wms-supplier-detail]');
+  if (!detail?.querySelector('[data-wms-supplier-tabs]')) return;
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code') || detail.dataset.supplierCode;
+  const s = WMS_SUPPLIER_SAMPLES[code];
+  if (!s) return;
+
+  detail.dataset.supplierCode = s.code;
+  const backHref = document.querySelector('.wms-modal-backdrop')?.dataset.modalBack || 'supplier_list.html';
+  detail.querySelector('a[href*="supplier_form"]')?.setAttribute('href', `supplier_form.html?code=${s.code}&mode=edit`);
+  document.querySelector('.wms-modal-backdrop .wms-modal-footer a[href*="supplier_list"]')?.setAttribute('href', backHref);
+  document.querySelector('.wms-modal-backdrop .wms-modal-close')?.setAttribute('href', backHref);
+  const setText = (field, val) => {
+    const el = detail.querySelector(`[data-supplier-field="${field}"]`);
+    if (el) el.textContent = val ?? '—';
+  };
+  const setHtml = (field, html) => {
+    const el = detail.querySelector(`[data-supplier-field="${field}"]`);
+    if (el) el.innerHTML = html;
+  };
+
+  setText('name', s.name);
+  setText('code', s.code);
+  setText('type', s.type);
+  setHtml('status', wmsSupplierStatusBadge(s.status));
+  setText('latestScore', s.latestScore);
+  setHtml('latestGrade', wmsSupplierGradeBadge(s.latestGrade));
+  setText('latestEvalDate', s.latestEvalDate);
+  setText('supplyCount', String((s.supplies || []).length));
+  setText('shortName', s.shortName);
+  setText('contact', s.contact);
+  setText('phone', s.phone);
+  setText('address', s.address);
+  setText('createdAt', s.createdAt);
+
+  if (s.latestEvalNo && s.latestEvalNo !== '—') {
+    const evalDd = detail.querySelector('[data-supplier-panel="profile"] dd:last-of-type');
+    const profileEvalCell = [...detail.querySelectorAll('[data-supplier-panel="profile"] dt')].find(dt => dt.textContent.includes('最近评价单号'))?.nextElementSibling;
+    const target = profileEvalCell || evalDd;
+    if (target) {
+      target.innerHTML = `<a href="supplier_eval_form.html?evalKey=${s.latestEvalNo}&mode=view" class="hover:underline font-mono text-xs">${s.latestEvalNo}</a>`;
+    }
+  }
+
+  const titleEl = document.getElementById('wms-modal-title');
+  if (titleEl) titleEl.textContent = `供应商详情 · ${s.name}`;
+  document.title = `供应商详情 · ${s.name} · 物资管理系统`;
+
+  const evalTbody = detail.querySelector('[data-supplier-panel="eval"] tbody');
+  if (evalTbody) {
+    const evalApproved = (s.evalHistory || []).filter(r => r.status === '审核通过');
+    evalTbody.innerHTML = evalApproved.map(r =>
+      `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 font-mono text-xs"><a href="supplier_eval_form.html?evalKey=${r.evalNo}&mode=view" class="hover:underline">${r.evalNo}</a></td><td class="px-3 py-2.5 text-sm">${r.evalName}</td><td class="px-3 py-2.5 text-sm">${r.period}</td><td class="px-3 py-2.5 text-sm font-medium">${r.score}</td><td class="px-3 py-2.5 text-sm">${wmsSupplierGradeBadge(r.grade)}</td><td class="px-3 py-2.5 text-sm text-slate-500">${r.evalDate}</td></tr>`
+    ).join('') || '<tr><td colspan="6" class="px-4 py-8 text-center text-sm text-slate-400">暂无已通过评价记录</td></tr>';
+  }
+
+  const supplyTbody = detail.querySelector('[data-supplier-supply-tbody]');
+  if (supplyTbody) {
+    supplyTbody.innerHTML = (s.supplies || []).map(r =>
+      `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 font-mono text-xs"><a href="warehouse_acceptance_detail.html?supplyNo=${r.no}" class="hover:underline">${r.no}</a></td><td class="px-3 py-2.5 text-sm">${r.material}</td><td class="px-3 py-2.5 text-sm">${r.qty}</td><td class="px-3 py-2.5 text-sm">${statusBadge(r.status, r.status === '已供货' ? 'success' : 'warning')}</td><td class="px-3 py-2.5 text-sm text-slate-500">${r.date}</td></tr>`
+    ).join('') || '<tr><td colspan="5" class="px-4 py-8 text-center text-sm text-slate-400">暂无供货记录</td></tr>';
+  }
+
+  const acceptTbody = detail.querySelector('[data-supplier-accept-tbody]');
+  if (acceptTbody) {
+    acceptTbody.innerHTML = (s.acceptances || []).map(r =>
+      `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 font-mono text-xs"><a href="warehouse_acceptance_record_detail.html?no=${r.no}" class="hover:underline">${r.no}</a></td><td class="px-3 py-2.5 text-sm font-mono text-xs">${r.supplyNo}</td><td class="px-3 py-2.5 text-sm">${r.material}</td><td class="px-3 py-2.5 text-sm">${r.qualified}</td><td class="px-3 py-2.5 text-sm">${r.unqualified}</td><td class="px-3 py-2.5 text-sm">${statusBadge(r.status, r.status === '已验收' ? 'success' : 'warning')}</td><td class="px-3 py-2.5 text-sm text-slate-500">${r.date}</td></tr>`
+    ).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-sm text-slate-400">暂无验收记录</td></tr>';
+  }
+
+  const refundTbody = detail.querySelector('[data-supplier-refund-tbody]');
+  if (refundTbody) {
+    refundTbody.innerHTML = (s.refunds || []).map(r =>
+      `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 font-mono text-xs"><a href="warehouse_refund_like_form.html?refundKey=${r.no}" class="hover:underline">${r.no}</a></td><td class="px-3 py-2.5 text-sm font-mono text-xs">${r.supplyNo}</td><td class="px-3 py-2.5 text-sm">${r.material}</td><td class="px-3 py-2.5 text-sm">${r.qty}</td><td class="px-3 py-2.5 text-sm">${r.reason}</td><td class="px-3 py-2.5 text-sm">${statusBadge(r.status, r.status === '已退货' ? 'success' : 'warning')}</td><td class="px-3 py-2.5 text-sm text-slate-500">${r.date}</td></tr>`
+    ).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-sm text-slate-400">暂无退货记录</td></tr>';
+  }
+
+}
+
+function initEvalConfig(root) {
+  const weightPage = document.querySelector('[data-wms-eval-weight-page]');
+  if (weightPage) {
+    const tbody = weightPage.querySelector('[data-wms-eval-weight-tbody]');
+    const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+    const addRow = () => {
+      const i = tbody.querySelectorAll('[data-wms-eval-weight-row]').length + 1;
+      const tr = document.createElement('tr');
+      tr.className = 'border-t border-slate-100';
+      tr.dataset.wmsEvalWeightRow = '';
+      tr.innerHTML = `<td class="px-4 py-3 text-sm text-slate-500">${i}</td>
+        <td class="px-4 py-3"><input type="text" placeholder="指标名称" data-eval-indicator-name class="${inputCls}" /></td>
+        <td class="px-4 py-3"><input type="number" step="0.01" min="0" max="1" value="0.1" data-eval-indicator-weight class="${inputCls} w-32" /></td>
+        <td class="px-4 py-3 text-right"><button type="button" class="text-sm text-rose-600 hover:underline" data-eval-weight-delete>删除</button></td>`;
+      tbody.appendChild(tr);
+      tr.querySelector('[data-eval-weight-delete]')?.addEventListener('click', () => { tr.remove(); });
+    };
+    weightPage.querySelector('[data-eval-weight-add]')?.addEventListener('click', addRow);
+    tbody?.querySelectorAll('[data-eval-weight-delete]').forEach(btn => {
+      btn.addEventListener('click', () => btn.closest('tr')?.remove());
+    });
+    weightPage.querySelector('[data-eval-weight-save]')?.addEventListener('click', () => alert('权重设置已保存（原型）'));
+  }
+
+  const gradePage = document.querySelector('[data-wms-eval-grade-page]');
+  if (gradePage) {
+    const tbody = gradePage.querySelector('[data-wms-eval-grade-tbody]');
+    const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+    gradePage.querySelector('[data-eval-grade-add]')?.addEventListener('click', () => {
+      const i = tbody.querySelectorAll('[data-wms-eval-grade-row]').length + 1;
+      const tr = document.createElement('tr');
+      tr.className = 'border-t border-slate-100';
+      tr.dataset.wmsEvalGradeRow = '';
+      tr.innerHTML = `<td class="px-4 py-3 text-sm text-slate-500">${i}</td>
+        <td class="px-4 py-3"><input type="text" placeholder="等级名称" data-eval-grade-name class="${inputCls}" /></td>
+        <td class="px-4 py-3"><input type="number" step="0.1" min="0" max="10" data-eval-grade-min class="${inputCls} w-28" /></td>
+        <td class="px-4 py-3"><input type="number" step="0.1" min="0" max="10" data-eval-grade-max class="${inputCls} w-28" /></td>
+        <td class="px-4 py-3 text-right"><button type="button" class="text-sm text-rose-600 hover:underline" data-eval-grade-delete>删除</button></td>`;
+      tbody.appendChild(tr);
+      tr.querySelector('[data-eval-grade-delete]')?.addEventListener('click', () => tr.remove());
+    });
+    tbody?.querySelectorAll('[data-eval-grade-delete]').forEach(btn => {
+      btn.addEventListener('click', () => btn.closest('tr')?.remove());
+    });
+    gradePage.querySelector('[data-eval-grade-save]')?.addEventListener('click', () => alert('评价等级已保存（原型）'));
   }
 }
 
