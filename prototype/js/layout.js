@@ -127,7 +127,7 @@ const WMS_ASSET_SAMPLES = {
 };
 
 const WMS_NAV = [
-  { id: 'dashboard', label: '工作台', icon: 'fa-gauge-high', href: '../index.html' },
+  { id: 'dashboard', label: '工作台', icon: 'fa-gauge-high', href: 'pc_home.html' },
   { group: '物资台账' },
   { id: 'ledger_material', label: '物资台账', icon: 'fa-boxes-stacked', href: 'ledger_material.html' },
   { id: 'ledger_warehouse', label: '仓库台账', icon: 'fa-warehouse', href: 'ledger_warehouse.html' },
@@ -151,6 +151,11 @@ const WMS_NAV = [
   { id: 'warehouse_return_list', label: '物资归还', icon: 'fa-undo', href: 'warehouse_return_list.html' },
   { id: 'warehouse_refund_list', label: '物资退货', icon: 'fa-box-open', href: 'warehouse_refund_list.html' },
   { id: 'warehouse_scrap_list', label: '物资作废', icon: 'fa-dumpster', href: 'warehouse_scrap_list.html' },
+  { group: '库场盘点' },
+  { id: 'count_plan_list', label: '盘点计划', icon: 'fa-calendar-check', href: 'count_plan_list.html' },
+  { id: 'count_task_list', label: '盘点任务', icon: 'fa-list-check', href: 'count_task_list.html' },
+  { id: 'count_diff_list', label: '差异处理', icon: 'fa-scale-unbalanced', href: 'count_diff_list.html' },
+  { id: 'count_adjust_list', label: '库存调整', icon: 'fa-sliders', href: 'count_adjust_list.html' },
   { group: '供应商管理' },
   { id: 'supplier_list', label: '供应商列表', icon: 'fa-building', href: 'supplier_list.html' },
   { id: 'supplier_eval_list', label: '供应商评价', icon: 'fa-star', href: 'supplier_eval_list.html' },
@@ -180,6 +185,31 @@ function renderSidebar(activeId, basePath) {
   }).join('');
 }
 
+function initAppCount(root) {
+  root.querySelector('[data-wms-app-scan-demo]')?.addEventListener('click', () => {
+    const el = document.getElementById('wms-app-scan-result');
+    if (el) el.classList.remove('hidden');
+  });
+  root.querySelectorAll('[data-wms-app-count-tabs] button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('[data-wms-app-count-tabs] button').forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+    });
+  });
+  root.querySelectorAll('[data-wms-count-submit]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const toast = document.getElementById('wms-count-toast');
+      if (toast) {
+        toast.textContent = '任务已提交，差异记录已生成';
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 2800);
+      } else {
+        alert('任务已提交，差异记录已生成');
+      }
+    });
+  });
+}
+
 function initLayout() {
   const root = document.body;
   const activeId = root.dataset.page || 'dashboard';
@@ -187,6 +217,11 @@ function initLayout() {
   const breadcrumb = root.dataset.breadcrumb || title;
   const isIndex = root.dataset.index === 'true';
   const pagesPrefix = isIndex ? 'pages/' : '';
+
+  if (root.classList.contains('wms-app-body')) {
+    initAppCount(root);
+    return;
+  }
 
   const mainContent = document.getElementById('main-content');
   if (!mainContent) return;
@@ -206,9 +241,12 @@ function initLayout() {
         </div>
       </div>
       <nav class="flex-1 overflow-y-auto px-3 py-4">${renderSidebar(activeId, pagesPrefix)}</nav>
-      <div class="border-t border-slate-200/80 p-4">
+      <div class="border-t border-slate-200/80 p-4 space-y-1">
         <a href="${isIndex ? 'pages/prototype_map.html' : 'prototype_map.html'}" class="flex items-center gap-2 rounded-xl px-3 py-2 text-xs text-slate-500 hover:bg-slate-100">
           <i class="fa-solid fa-table-cells"></i> 原型页面目录
+        </a>
+        <a href="${isIndex ? 'index.html' : '../index.html'}" class="flex items-center gap-2 rounded-xl px-3 py-2 text-xs text-slate-500 hover:bg-slate-100">
+          <i class="fa-solid fa-house"></i> 返回原型入口
         </a>
       </div>
     </aside>
@@ -290,6 +328,7 @@ function initLayout() {
   initSupplierEvalSelect(root);
   initSupplierDetail(root);
   initEvalConfig(root);
+  initAppCount(root);
 }
 
 const WMS_MATERIAL_MINORS = {
@@ -312,9 +351,16 @@ const WMS_MATERIAL_MAJORS_BY_TYPE = {
   consumable: ['耗材-办公耗材', '耗材-生产耗材', '耗材-劳保耗材'],
 };
 
+const WMS_MATERIAL_CATEGORY_DEFAULTS = {
+  '资产-固定资产|办公电脑': { needInventory: '是', needServiceLife: '是', serviceLifeYears: '5' },
+  '资产-固定资产|设备-配件': { needInventory: '是', needServiceLife: '是', serviceLifeYears: '10' },
+  '资产-类资产|电动工具': { needInventory: '是', needServiceLife: '是', serviceLifeYears: '5' },
+  '资产-类资产|防汛设备': { needInventory: '否', needServiceLife: '否', serviceLifeYears: '' },
+};
+
 const WMS_MATERIAL_FORM_SAMPLES = {
-  'GD001001-001': { type: 'fixed', major: '资产-固定资产', minor: '设备-配件', name: '抓斗', spec: '4m³-Q345B', mainUnit: '个', auxUnit: '箱', price: '10000.00', returnNeed: '需要' },
-  'LA-00456': { type: 'like', major: '资产-类资产', minor: '电动工具', name: '电钻', spec: '工业级', mainUnit: '台', price: '680.00', safeStock: '10', minStock: '5', maxStock: '20' },
+  'GD001001-001': { type: 'fixed', major: '资产-固定资产', minor: '设备-配件', name: '抓斗', spec: '4m³-Q345B', mainUnit: '个', auxUnit: '箱', price: '10000.00', returnNeed: '需要', needInventory: '是', needServiceLife: '是', serviceLifeYears: '10' },
+  'LA-00456': { type: 'like', major: '资产-类资产', minor: '电动工具', name: '电钻', spec: '工业级', mainUnit: '台', price: '680.00', needInventory: '是', needServiceLife: '是', serviceLifeYears: '5', safeStock: '10', minStock: '5', maxStock: '20' },
   'HC-00089': { type: 'consumable', major: '耗材-办公耗材', minor: '办公用纸', name: '打印纸 A4', spec: '70g/500张', mainUnit: '箱', price: '120.00', safeStock: '100', minStock: '50', maxStock: '300' },
   'GD001001-006': { type: 'consumable', major: '耗材-生产耗材', minor: '设备-配件', name: '润滑油', spec: 'CD 15W-40', mainUnit: '桶', auxUnit: '箱', price: '10000.00', safeStock: '50', minStock: '20', maxStock: '200' },
 };
@@ -361,6 +407,13 @@ function applyMaterialFormPrefill(form, d) {
   if (d.returnNeed) {
     form.querySelectorAll('[data-wms-material-return]').forEach(r => { r.checked = r.value === d.returnNeed; });
   }
+  if (d.needInventory) {
+    form.querySelectorAll('[data-wms-material-inventory]').forEach(r => { r.checked = r.value === d.needInventory; });
+  }
+  if (d.needServiceLife) {
+    form.querySelectorAll('[data-wms-material-service-life]').forEach(r => { r.checked = r.value === d.needServiceLife; });
+  }
+  setVal('[data-wms-material-service-life-years]', d.serviceLifeYears);
   const mainUnit = form.querySelector('[data-wms-material-unit="主计量单位"]');
   const auxUnit = form.querySelector('[data-wms-material-unit="辅计量单位"]');
   if (d.mainUnit && mainUnit) {
@@ -382,8 +435,73 @@ function initMaterialForm(root) {
   const minorSelect = form.querySelector('select[data-wms-material-minor]');
   const typeTabs = form.querySelectorAll('[data-wms-material-type-tab]');
   const returnSection = form.querySelector('[data-wms-material-business-return]');
+  const inventorySection = form.querySelector('[data-wms-material-business-inventory]');
   const stockSection = form.querySelector('[data-wms-material-business-stock]');
+  const inheritBanner = form.querySelector('[data-wms-material-inherit-banner]');
+  const inheritText = form.querySelector('[data-wms-material-inherit-text]');
+  const serviceLifeYearsWrap = form.querySelector('[data-wms-material-service-life-years-wrap]');
+  const serviceLifeYearsInput = form.querySelector('[data-wms-material-service-life-years]');
   if (!majorSelect) return;
+
+  let categoryDefaults = null;
+
+  function getCategoryDefaults(major, minor) {
+    if (!major || !minor) return null;
+    return WMS_MATERIAL_CATEGORY_DEFAULTS[`${major}|${minor}`] || null;
+  }
+
+  function getSelectedServiceLife() {
+    return form.querySelector('[data-wms-material-service-life]:checked')?.value || '是';
+  }
+
+  function toggleServiceLifeYears() {
+    const show = getSelectedServiceLife() === '是';
+    serviceLifeYearsWrap?.classList.toggle('hidden', !show);
+    if (serviceLifeYearsInput) {
+      serviceLifeYearsInput.required = show;
+      if (!show) serviceLifeYearsInput.value = '';
+    }
+  }
+
+  function updateInheritBanner() {
+    if (!inheritBanner || !inheritText) return;
+    const matType = form.dataset.materialType || 'fixed';
+    if (matType !== 'fixed' && matType !== 'like') {
+      inheritBanner.classList.add('hidden');
+      return;
+    }
+    const major = majorSelect.value;
+    const minor = minorSelect?.value;
+    categoryDefaults = getCategoryDefaults(major, minor);
+    if (!categoryDefaults) {
+      inheritBanner.classList.add('hidden');
+      return;
+    }
+    const parts = [`分类默认：盘点=${categoryDefaults.needInventory}`];
+    if (categoryDefaults.needServiceLife) parts.push(`使用年限=${categoryDefaults.needServiceLife}`);
+    if (categoryDefaults.needServiceLife === '是' && categoryDefaults.serviceLifeYears) {
+      parts.push(`建议 ${categoryDefaults.serviceLifeYears} 年`);
+    }
+    inheritText.textContent = `${parts.join(' · ')}。下方可覆盖`;
+    inheritBanner.classList.remove('hidden');
+  }
+
+  function applyCategoryDefaults(force = false) {
+    if (!categoryDefaults) return;
+    const patch = {
+      needInventory: categoryDefaults.needInventory,
+      needServiceLife: categoryDefaults.needServiceLife,
+      serviceLifeYears: categoryDefaults.serviceLifeYears,
+    };
+    if (force) applyMaterialFormPrefill(form, patch);
+    else {
+      const hasInventory = form.querySelector('[data-wms-material-inventory]:checked');
+      const hasServiceLife = form.querySelector('[data-wms-material-service-life]:checked');
+      if (!hasInventory || force) applyMaterialFormPrefill(form, { needInventory: patch.needInventory });
+      if (!hasServiceLife || force) applyMaterialFormPrefill(form, { needServiceLife: patch.needServiceLife, serviceLifeYears: patch.serviceLifeYears });
+    }
+    toggleServiceLifeYears();
+  }
 
   function setActiveTypeTab(matType) {
     form.dataset.materialType = matType;
@@ -398,6 +516,7 @@ function initMaterialForm(root) {
       tab.classList.toggle('hover:bg-slate-50', !on);
     });
     returnSection?.classList.toggle('hidden', matType !== 'fixed');
+    inventorySection?.classList.toggle('hidden', matType !== 'fixed' && matType !== 'like');
     stockSection?.classList.toggle('hidden', matType !== 'like' && matType !== 'consumable');
   }
 
@@ -422,20 +541,38 @@ function initMaterialForm(root) {
     const major = prefill.major || majorSelect.value || WMS_MATERIAL_MAJORS_BY_TYPE[matType][0];
     fillMinors(major, prefill.minor || '');
     applyMaterialFormPrefill(form, prefill);
+    categoryDefaults = getCategoryDefaults(majorSelect.value, minorSelect?.value);
+    updateInheritBanner();
+    toggleServiceLifeYears();
   }
 
   typeTabs.forEach(tab => {
     tab.addEventListener('click', () => {
       switchType(tab.getAttribute('data-wms-material-type-tab') || 'fixed');
+      applyCategoryDefaults(true);
     });
   });
-  majorSelect.addEventListener('change', () => fillMinors(majorSelect.value));
+  majorSelect.addEventListener('change', () => {
+    fillMinors(majorSelect.value);
+    updateInheritBanner();
+    applyCategoryDefaults(true);
+  });
+  minorSelect?.addEventListener('change', () => {
+    updateInheritBanner();
+    applyCategoryDefaults(true);
+  });
+  form.querySelectorAll('[data-wms-material-service-life]').forEach(r => {
+    r.addEventListener('change', toggleServiceLifeYears);
+  });
   form.addEventListener('wms-material-prefill', (e) => {
     const d = e.detail || {};
     switchType(d.type || form.dataset.materialType || 'fixed', d);
+    if (!d.needInventory && !d.needServiceLife) applyCategoryDefaults(true);
   });
 
   switchType(form.dataset.materialType || 'fixed');
+  updateInheritBanner();
+  toggleServiceLifeYears();
 }
 
 const WMS_LOCATION_SAMPLES = {

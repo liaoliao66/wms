@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>盘点 · WMS 移动盘点</title>
+  <link rel="stylesheet" href="../../css/tailwind.css" />
+  <link rel="stylesheet" href="../../css/custom.css" />
+  <link rel="stylesheet" href="../../vendor/fontawesome/css/all.min.css" />
+</head>
+<body class="wms-app-body" data-page="app_count" data-title="盘点">
+  <div class="wms-device-stage">
+    <div class="wms-iphone16">
+      <div class="wms-dynamic-island" aria-hidden="true"></div>
+      <div class="wms-app-screen">
+        <div class="wms-ios-status" aria-hidden="true">
+    <span class="wms-ios-time">9:41</span>
+    <div class="wms-ios-status-right">
+      <i class="fa-solid fa-signal"></i>
+      <i class="fa-solid fa-wifi"></i>
+      <span class="wms-ios-battery" title="电量 85%"><i class="fa-solid fa-battery-three-quarters"></i><span>85%</span></span>
+    </div>
+  </div>
+        
+        <main class="wms-app-main">
+          <div class="wms-app-large-title">
+    <p class="wms-app-large-eyebrow">黄冈武穴 · 现场盘点</p>
+    <h1 class="wms-app-large-heading">盘点</h1>
+    <p class="wms-app-large-sub">2026年中盘点 · 主仓库 A区</p>
+  </div>
+          
+    <div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-stack">
+        <div class="wms-app-hero">
+          <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=800&q=80" alt="仓库" class="wms-app-hero-bg" />
+          <div class="wms-app-hero-overlay"></div>
+          <div class="wms-app-hero-content">
+            <p class="text-xs font-medium text-white/70">当前计划</p>
+            <p class="mt-1 text-base font-semibold tracking-tight">进行中 · 明盘模式</p>
+            <dl class="wms-app-stat-row">
+              <div class="wms-app-stat-chip"><dt>我的任务</dt><dd>2</dd></div>
+              <div class="wms-app-stat-chip"><dt>待盘项</dt><dd>14</dd></div>
+              <div class="wms-app-stat-chip"><dt>差异</dt><dd style="color:#fbbf24">1</dd></div>
+            </dl>
+          </div>
+        </div>
+        <section class="wms-app-card p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="wms-app-section-title">待办任务</h2>
+            <a href="app_count_task_list.html" class="text-xs font-medium text-zinc-500">全部 <i class="fa-solid fa-chevron-right text-[10px]"></i></a>
+          </div>
+          <a href="app_count_execute.html?task=RW202606090001" class="wms-app-task-item wms-app-btn">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[11px] text-zinc-500">RW202606090001</span>
+              <span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">盘点中</span>
+            </div>
+            <p class="mt-1.5 text-sm font-semibold text-zinc-900">货架 A-01-06 · 28/42</p>
+            <p class="mt-0.5 text-xs text-zinc-500">2026 年中固定资产盘点</p>
+            <div class="wms-app-progress"><span style="width:67%"></span></div>
+          </a>
+          <a href="app_count_execute.html?task=RW202606090002" class="wms-app-task-item wms-app-btn">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[11px] text-zinc-500">RW202606090002</span>
+              <span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待盘点</span>
+            </div>
+            <p class="mt-1.5 text-sm font-semibold text-zinc-900">货架 A-02-03 · 0/36</p>
+            <div class="wms-app-progress"><span style="width:0%"></span></div>
+          </a>
+        </section>
+      </div>
+    </div>
+        </main>
+        
+        <nav class="wms-app-tabbar"><a href="app_count_home.html" class="wms-app-tab wms-app-btn is-active"><i class="fa-solid fa-house"></i><span>首页</span></a><a href="app_count_scan.html" class="wms-app-tab wms-app-btn"><i class="fa-solid fa-qrcode"></i><span>扫码</span></a><a href="app_count_profile.html" class="wms-app-tab wms-app-btn"><i class="fa-solid fa-user"></i><span>我的</span></a></nav>
+        <div class="wms-home-indicator" aria-hidden="true"></div>
+        
+      </div>
+    </div>
+  </div>
+  <script src="../../js/layout.js" charset="UTF-8"></script>
+</body></html>

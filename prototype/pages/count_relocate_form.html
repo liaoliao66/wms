@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>调货位 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="count_diff_list" data-title="调货位" data-breadcrumb="库场盘点 / 调货位">
+  <div id="main-content"><div data-wms-modal data-modal-back="count_diff_list.html" data-modal-size="lg">
+    <div class="wms-modal-form wms-warehouse-form">
+      <div class="md:col-span-2 rounded-lg border border-slate-200 bg-slate-50/80 p-3 text-sm">
+        <p class="font-medium text-slate-800">关联盘点：PD202606010002 · 六月日常类资产抽盘</p>
+        <p class="mt-1 text-slate-500">电钻（LA-00456）· 系统库存 8 · 实际库存 8 · 差异类型：货位不符</p>
+      </div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700">当前货位</label><input type="text" value="主仓库 / A区 / A-01-06" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 差异原因</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>存放错误</option><option>标签错误</option><option>其他</option></select></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 目标仓库</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>主仓库</option></select></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 目标分区</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>A区</option><option>B区</option></select></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 目标货架</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>A-02-03</option><option>B-01-02</option></select></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 处理方式</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>调货位</option></select></div>
+      <div class=" md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">补充说明</label><textarea rows="3" placeholder="0/500" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+      <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">现场照片</label><div class="wms-upload-zone">
+    <i class="fa-solid fa-cloud-arrow-up text-lg text-slate-400"></i>
+    <p class="mt-2 text-sm text-slate-600">上传文件</p>
+    <p class="mt-1 text-xs text-slate-400">支持 .rar .zip .doc .docx .pdf，单个文件不能超过 500MB</p>
+  </div></div>
+      <p class="md:col-span-2 text-xs text-slate-400">调货位仅变更存放位置，数量不变；提交后直接生效并写入 relocate 流水。</p>
+    </div>
+    <div class="wms-modal-footer"><a href="count_diff_list.html" class="wms-btn wms-btn-secondary">取消</a><button type="button" class="wms-btn wms-btn-primary">确定</button></div>
+  </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

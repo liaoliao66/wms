@@ -55,8 +55,33 @@
       <span>不需要</span>
     </label></div></div>
         </div>
+        <div class="md:col-span-2" data-wms-material-business-inventory>
+          
+          <p class="md:col-span-2 rounded-lg border border-sky-100 bg-sky-50/80 px-3 py-2 text-xs text-sky-900 hidden" data-wms-material-inherit-banner>
+            <i class="fa-solid fa-link mr-1 opacity-70"></i><span data-wms-material-inherit-text>选择物资子类后，将回显分类默认的盘点与使用年限规则</span>
+          </p>
+          <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 是否需要盘点</label><div class="flex flex-wrap gap-4 pt-1"><label class="inline-flex items-center gap-2 text-sm text-slate-700">
+      <input type="radio" name="needInventory" class="border-slate-300 text-slate-900" data-wms-material-inventory value="是" checked />
+      <span>是</span>
+    </label><label class="inline-flex items-center gap-2 text-sm text-slate-700">
+      <input type="radio" name="needInventory" class="border-slate-300 text-slate-900" data-wms-material-inventory value="否" />
+      <span>否</span>
+    </label></div><p class="mt-1.5 text-xs text-slate-400" data-wms-material-inventory-hint>默认继承分类；纳入盘点计划时按此标识筛选，可覆盖</p></div>
+          <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 是否需要使用年限</label><div class="flex flex-wrap gap-4 pt-1"><label class="inline-flex items-center gap-2 text-sm text-slate-700">
+      <input type="radio" name="needServiceLife" class="border-slate-300 text-slate-900" data-wms-material-service-life value="是" checked />
+      <span>是</span>
+    </label><label class="inline-flex items-center gap-2 text-sm text-slate-700">
+      <input type="radio" name="needServiceLife" class="border-slate-300 text-slate-900" data-wms-material-service-life value="否" />
+      <span>否</span>
+    </label></div><p class="mt-1.5 text-xs text-slate-400" data-wms-material-service-life-hint>默认继承分类；选「是」时需填写使用年限（年）</p></div>
+          <div class="" data-wms-material-service-life-years-wrap>
+              <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 使用年限（年）</label>
+              <input type="number" min="1" step="1" value="" placeholder="请输入" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-wms-material-service-life-years />
+              <p class="mt-1.5 text-xs text-amber-700"><i class="fa-solid fa-circle-info mr-1"></i>到达使用年限后，系统自动生成报废单并入待报废池</p>
+            </div>
+        </div>
         <div class="md:col-span-2 hidden" data-wms-material-business-stock>
-          <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">业务信息</h3></div>
+          
           <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 安全库存</label><input type="number" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" placeholder="请输入" data-wms-material-safe /></div>
           <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 库存下限</label><input type="number" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" placeholder="请输入" data-wms-material-min /></div>
           <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 库存上限</label><input type="number" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" placeholder="请输入" data-wms-material-max /></div>

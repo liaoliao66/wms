@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>查看盘点任务 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="count_task_list" data-title="查看盘点任务" data-breadcrumb="库场盘点 / 任务详情">
+  <div id="main-content"><div data-wms-modal data-modal-back="count_task_list.html" data-modal-size="xl">
+    <div class="space-y-5">
+      <div class="rounded-xl border border-sky-100 bg-sky-50/60 p-4">
+        <h3 class="text-sm font-semibold text-sky-900 mb-2"><i class="fa-solid fa-clipboard-list mr-1"></i>盘点计划</h3>
+        <dl class="grid gap-2 sm:grid-cols-2 text-sm text-sky-900">
+          <div><span class="text-sky-700/80">计划编号：</span><span class="font-mono">PD202606090001</span></div>
+          <div><span class="text-sky-700/80">计划名称：</span>2026 年中固定资产盘点</div>
+          <div><span class="text-sky-700/80">盘点类型：</span>专项盘点</div>
+          <div><span class="text-sky-700/80">盘点方法：</span>明盘</div>
+        </dl>
+      </div>
+      <div class="rounded-xl border border-slate-200 p-4">
+        <h3 class="text-sm font-semibold text-slate-800 mb-3"><i class="fa-solid fa-list-check mr-1 text-slate-400"></i>盘点任务</h3>
+        <dl class="grid gap-x-6 gap-y-3 sm:grid-cols-2 text-sm">
+          <div><dt class="text-slate-500">任务编号</dt><dd class="mt-0.5 font-mono">RW202606090001</dd></div>
+          <div><dt class="text-slate-500">盘点货架</dt><dd class="mt-0.5">A-01-06</dd></div>
+          <div><dt class="text-slate-500">负责人 / 执行人</dt><dd class="mt-0.5">张仓管 / 张仓管</dd></div>
+          <div><dt class="text-slate-500">任务状态</dt><dd class="mt-0.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">盘点中</span></dd></div>
+          <div><dt class="text-slate-500">应盘 / 已盘 / 差异</dt><dd class="mt-0.5">42 / 28 / 1</dd></div>
+        </dl>
+      </div>
+    </div>
+    <div class="wms-modal-footer mt-4">
+      <a href="count_task_list.html" class="wms-btn wms-btn-secondary">关闭</a>
+      <a href="count_execute_form.html?task=RW202606090001" class="wms-btn wms-btn-primary">进入执行</a>
+    </div>
+  </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

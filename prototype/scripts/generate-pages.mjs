@@ -108,12 +108,12 @@ function materialMinorOptionsByMajor(major) {
 
 /** 分类叶子节点（继承默认值来源） */
 const MATERIAL_CATEGORY_LEAVES = [
-  { code: 'ZC-GD-002', name: '设备-配件', major: '资产-固定资产', type: 'fixed', unit: '个', auxUnit: '箱', returnNeed: '需要', borrowMax: 30 },
-  { code: 'ZC-GD-001001', name: '一体机', major: '资产-固定资产', type: 'fixed', unit: '台', auxUnit: '—', returnNeed: '需要', borrowMax: 30 },
-  { code: 'ZC-GD-001002', name: '笔记本', major: '资产-固定资产', type: 'fixed', unit: '台', auxUnit: '—', returnNeed: '需要', borrowMax: 30 },
-  { code: 'LA-ZC-001001', name: '电钻', major: '资产-类资产', type: 'like', unit: '台', auxUnit: '—', returnNeed: '需要', borrowMax: 15, safeStock: 10, minStock: 5, maxStock: 20 },
-  { code: 'LA-ZC-001', name: '电动工具', major: '资产-类资产', type: 'like', unit: '台', auxUnit: '—', returnNeed: '需要', borrowMax: 15, safeStock: 8, minStock: 3, maxStock: 15 },
-  { code: 'LA-ZC-002', name: '抽水泵', major: '资产-类资产', type: 'like', unit: '台', auxUnit: '—', returnNeed: '需要', borrowMax: 7, safeStock: 5, minStock: 2, maxStock: 10 },
+  { code: 'ZC-GD-002', name: '设备-配件', major: '资产-固定资产', type: 'fixed', unit: '个', auxUnit: '箱', returnNeed: '需要', borrowMax: 30, needInventory: '是', needServiceLife: '是' },
+  { code: 'ZC-GD-001001', name: '一体机', major: '资产-固定资产', type: 'fixed', unit: '台', auxUnit: '—', returnNeed: '需要', borrowMax: 30, needInventory: '是', needServiceLife: '是' },
+  { code: 'ZC-GD-001002', name: '笔记本', major: '资产-固定资产', type: 'fixed', unit: '台', auxUnit: '—', returnNeed: '需要', borrowMax: 30, needInventory: '是', needServiceLife: '是' },
+  { code: 'LA-ZC-001001', name: '电钻', major: '资产-类资产', type: 'like', unit: '台', auxUnit: '—', returnNeed: '需要', borrowMax: 15, needInventory: '是', needServiceLife: '是', safeStock: 10, minStock: 5, maxStock: 20 },
+  { code: 'LA-ZC-001', name: '电动工具', major: '资产-类资产', type: 'like', unit: '台', auxUnit: '—', returnNeed: '需要', borrowMax: 15, needInventory: '是', needServiceLife: '是', safeStock: 8, minStock: 3, maxStock: 15 },
+  { code: 'LA-ZC-002', name: '抽水泵', major: '资产-类资产', type: 'like', unit: '台', auxUnit: '—', returnNeed: '需要', borrowMax: 7, needInventory: '否', needServiceLife: '否', safeStock: 5, minStock: 2, maxStock: 10 },
   { code: 'HC-BG-001002', name: '打印纸 A4', major: '耗材-办公耗材', type: 'consumable', unit: '箱', auxUnit: '—', safeStock: 100, minStock: 50, maxStock: 300 },
   { code: 'HC-BG-001', name: '办公用纸', major: '耗材-办公耗材', type: 'consumable', unit: '箱', auxUnit: '—', safeStock: 80, minStock: 40, maxStock: 200 },
   { code: 'HC-BG-002', name: '办公文具', major: '耗材-办公耗材', type: 'consumable', unit: '个', auxUnit: '—', safeStock: 50, minStock: 20, maxStock: 150 },
@@ -194,7 +194,7 @@ function materialCategorySelect(selectedCode, { disabled = false, filterType = n
   return `<select data-wms-material-category class="${cls}"${disabled ? ' disabled' : ''} required>
     ${placeholder}${Object.entries(groups).map(([g, groupLeaves]) =>
       `<optgroup label="${g}" data-wms-cat-group="${groupLeaves[0]?.type || ''}">${groupLeaves.map(l =>
-        `<option value="${l.code}" data-type="${l.type}" data-major="${l.major}" data-minor="${l.name}" data-unit="${l.unit}" data-aux="${l.auxUnit || '—'}" data-return="${l.returnNeed || ''}" data-borrow-max="${l.borrowMax || ''}" data-safe="${l.safeStock ?? ''}" data-min="${l.minStock ?? ''}" data-max="${l.maxStock ?? ''}"${selectedCode === l.code ? ' selected' : ''}>${l.name}（${l.code}）</option>`
+        `<option value="${l.code}" data-type="${l.type}" data-major="${l.major}" data-minor="${l.name}" data-unit="${l.unit}" data-aux="${l.auxUnit || '—'}" data-return="${l.returnNeed || ''}" data-borrow-max="${l.borrowMax || ''}" data-inventory="${l.needInventory || ''}" data-service-life="${l.needServiceLife || ''}" data-safe="${l.safeStock ?? ''}" data-min="${l.minStock ?? ''}" data-max="${l.maxStock ?? ''}"${selectedCode === l.code ? ' selected' : ''}>${l.name}（${l.code}）</option>`
       ).join('')}</optgroup>`
     ).join('')}
   </select>`;
@@ -219,6 +219,8 @@ function materialInheritHint(categoryCode) {
   const parts = [`分类 ${leaf.code} · ${leaf.name}`];
   if (leaf.returnNeed) parts.push(`归还=${leaf.returnNeed}`);
   if (leaf.borrowMax) parts.push(`借用周期≤${leaf.borrowMax}天`);
+  if (leaf.needInventory) parts.push(`盘点=${leaf.needInventory}`);
+  if (leaf.needServiceLife) parts.push(`使用年限=${leaf.needServiceLife}`);
   if (leaf.safeStock !== undefined) parts.push(`安全库存=${leaf.safeStock}`);
   return `<p class="md:col-span-2 rounded-lg border border-sky-100 bg-sky-50/80 px-3 py-2 text-xs text-sky-900" data-wms-inherit-hint>
     <i class="fa-solid fa-link mr-1 opacity-70"></i>继承自分类：${parts.join(' · ')}。下方字段可覆盖，<button type="button" class="font-medium underline hover:text-sky-700" data-wms-restore-inherit>恢复继承</button>
@@ -598,31 +600,31 @@ function ledgerMaterialListPage() {
   }).join('');
 
   const statCards = `
-    <div class="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-      <button type="button" class="card rounded-2xl bg-white p-4 text-left hover:ring-1 hover:ring-slate-200 transition" data-ledger-stat-tab="全部">
-        <div class="text-sm text-slate-500">在库物资种类</div>
-        <div class="mt-1 text-2xl font-semibold text-slate-900">6</div>
-        <div class="mt-1 text-xs text-slate-400">全公司汇总</div>
+    <div class="wms-ledger-stat-row mb-6">
+      <button type="button" class="wms-ledger-stat-card card rounded-2xl bg-white text-left hover:ring-1 hover:ring-slate-200 transition" data-ledger-stat-tab="全部">
+        <div class="text-xs text-slate-500">在库物资种类</div>
+        <div class="mt-1 text-xl font-semibold text-slate-900">6</div>
+        <div class="mt-0.5 text-[11px] text-slate-400">全公司汇总</div>
       </button>
-      <div class="card rounded-2xl bg-white p-4">
-        <div class="text-sm text-slate-500">在库总量（折算）</div>
-        <div class="mt-1 text-2xl font-semibold text-slate-900">335+</div>
-        <div class="mt-1 text-xs text-slate-400">含类资产/耗材</div>
+      <div class="wms-ledger-stat-card card rounded-2xl bg-white">
+        <div class="text-xs text-slate-500">在库总量（折算）</div>
+        <div class="mt-1 text-xl font-semibold text-slate-900">335+</div>
+        <div class="mt-0.5 text-[11px] text-slate-400">含类资产/耗材</div>
       </div>
-      <button type="button" class="card rounded-2xl bg-white p-4 text-left hover:ring-1 hover:ring-amber-200 transition" data-ledger-stat-tab="库存预警">
-        <div class="text-sm text-slate-500">库存预警</div>
-        <div class="mt-1 text-2xl font-semibold text-amber-600">1</div>
-        <div class="mt-1 text-xs text-amber-600">低于安全库存</div>
+      <button type="button" class="wms-ledger-stat-card card rounded-2xl bg-white text-left hover:ring-1 hover:ring-amber-200 transition" data-ledger-stat-tab="库存预警">
+        <div class="text-xs text-slate-500">库存预警</div>
+        <div class="mt-1 text-xl font-semibold text-amber-600">1</div>
+        <div class="mt-0.5 text-[11px] text-amber-600">低于安全库存</div>
       </button>
-      <button type="button" class="card rounded-2xl bg-white p-4 text-left hover:ring-1 hover:ring-slate-200 transition" data-ledger-stat-tab="固定资产">
-        <div class="text-sm text-slate-500">借出中</div>
-        <div class="mt-1 text-2xl font-semibold text-slate-900">63</div>
-        <div class="mt-1 text-xs text-slate-400">类资产+固资件数</div>
+      <button type="button" class="wms-ledger-stat-card card rounded-2xl bg-white text-left hover:ring-1 hover:ring-slate-200 transition" data-ledger-stat-tab="固定资产">
+        <div class="text-xs text-slate-500">借出中</div>
+        <div class="mt-1 text-xl font-semibold text-slate-900">63</div>
+        <div class="mt-0.5 text-[11px] text-slate-400">类资产+固资件数</div>
       </button>
-      <a href="warehouse_scrap_pending_pool.html" class="card rounded-2xl bg-white p-4 text-left hover:ring-1 hover:ring-rose-200 transition">
-        <div class="text-sm text-slate-500">待报废</div>
-        <div class="mt-1 text-2xl font-semibold text-rose-600">3</div>
-        <div class="mt-1 text-xs text-rose-600">待发起作废</div>
+      <a href="warehouse_scrap_pending_pool.html" class="wms-ledger-stat-card card rounded-2xl bg-white text-left hover:ring-1 hover:ring-rose-200 transition">
+        <div class="text-xs text-slate-500">待报废</div>
+        <div class="mt-1 text-xl font-semibold text-rose-600">3</div>
+        <div class="mt-0.5 text-[11px] text-rose-600">待发起作废</div>
       </a>
     </div>`;
 
@@ -3735,10 +3737,10 @@ function unitConversionField(main = '', aux = '') {
 }
 
 const MATERIAL_CATALOG_ROWS = [
-  { code: 'GD001001-001', type: 'fixed', enabled: true, categoryCode: 'ZC-GD-002', categoryPath: '资产类 / 固定资产 / 设备-配件 / 抓斗', name: '抓斗', spec: '4m³-Q345B', major: '资产-固定资产', minor: '设备-配件', unit: '个', price: '10000.00', returnNeed: '需要', borrowDays: '30天', currentStock: '—', availableStock: '—', alert: 'normal' },
-  { code: 'GD001001-002', type: 'fixed', enabled: true, categoryCode: 'ZC-GD-002', categoryPath: '资产类 / 固定资产 / 设备-配件 / 料斗', name: '料斗', spec: '10m³移动式', major: '资产-固定资产', minor: '设备-配件', unit: '个', price: '10000.00', returnNeed: '需要', borrowDays: '30天', currentStock: '—', availableStock: '—', alert: 'normal' },
-  { code: 'GD001001-004', type: 'fixed', enabled: false, categoryCode: 'ZC-GD-002', categoryPath: '资产类 / 固定资产 / 电动工具 / 螺丝刀', name: '螺丝刀', spec: '十字-PH2-300mm', major: '资产-固定资产', minor: '设备-配件', unit: '个', price: '10000.00', returnNeed: '不需要', borrowDays: '—', currentStock: '—', availableStock: '—', alert: 'normal' },
-  { code: 'LA-00456', type: 'like', enabled: true, categoryCode: 'LA-ZC-001001', categoryPath: '资产类 / 类资产 / 电动工具 / 电钻', name: '电钻', spec: '工业级', major: '资产-类资产', minor: '电钻', unit: '台', price: '680.00', returnNeed: '需要', borrowDays: '15天', safeStock: '10', minStock: '5', maxStock: '20', currentStock: '8', availableStock: '6', alert: 'normal' },
+  { code: 'GD001001-001', type: 'fixed', enabled: true, categoryCode: 'ZC-GD-002', categoryPath: '资产类 / 固定资产 / 设备-配件 / 抓斗', name: '抓斗', spec: '4m³-Q345B', major: '资产-固定资产', minor: '设备-配件', unit: '个', price: '10000.00', returnNeed: '需要', borrowDays: '30天', needInventory: '是', needServiceLife: '是', serviceLifeYears: '10', currentStock: '—', availableStock: '—', alert: 'normal' },
+  { code: 'GD001001-002', type: 'fixed', enabled: true, categoryCode: 'ZC-GD-002', categoryPath: '资产类 / 固定资产 / 设备-配件 / 料斗', name: '料斗', spec: '10m³移动式', major: '资产-固定资产', minor: '设备-配件', unit: '个', price: '10000.00', returnNeed: '需要', borrowDays: '30天', needInventory: '是', needServiceLife: '是', serviceLifeYears: '8', currentStock: '—', availableStock: '—', alert: 'normal' },
+  { code: 'GD001001-004', type: 'fixed', enabled: false, categoryCode: 'ZC-GD-002', categoryPath: '资产类 / 固定资产 / 电动工具 / 螺丝刀', name: '螺丝刀', spec: '十字-PH2-300mm', major: '资产-固定资产', minor: '设备-配件', unit: '个', price: '10000.00', returnNeed: '不需要', borrowDays: '—', needInventory: '否', needServiceLife: '否', serviceLifeYears: '—', currentStock: '—', availableStock: '—', alert: 'normal' },
+  { code: 'LA-00456', type: 'like', enabled: true, categoryCode: 'LA-ZC-001001', categoryPath: '资产类 / 类资产 / 电动工具 / 电钻', name: '电钻', spec: '工业级', major: '资产-类资产', minor: '电钻', unit: '台', price: '680.00', returnNeed: '需要', borrowDays: '15天', needInventory: '是', needServiceLife: '是', serviceLifeYears: '5', safeStock: '10', minStock: '5', maxStock: '20', currentStock: '8', availableStock: '6', alert: 'normal' },
   { code: 'GD001001-006', type: 'consumable', enabled: true, categoryCode: 'HC-SC-001', categoryPath: '耗材类 / 生产耗材 / 设备-配件 / 润滑油', name: '润滑油', spec: 'CD 15W-40', major: '耗材-生产耗材', minor: '设备-配件', unit: '桶', price: '10000.00', safeStock: '50', minStock: '20', maxStock: '200', currentStock: '18', availableStock: '15', alert: 'warning' },
   { code: 'HC-00089', type: 'consumable', enabled: true, categoryCode: 'HC-BG-001002', categoryPath: '耗材类 / 办公耗材 / 办公用纸 / 打印纸 A4', name: '打印纸 A4', spec: '70g/500张', major: '耗材-办公耗材', minor: '打印纸 A4', unit: '箱', price: '120.00', safeStock: '100', minStock: '50', maxStock: '300', currentStock: '186', availableStock: '170', alert: 'normal' },
 ];
@@ -3755,6 +3757,9 @@ const MATERIAL_LIST_COLUMNS = [
   { key: 'price', label: '参考单价（元）', tabs: ['all', 'fixed', 'like', 'consumable'] },
   { key: 'returnNeed', label: '归还', tabs: ['all', 'fixed', 'like'] },
   { key: 'borrowDays', label: '借用周期', tabs: ['all', 'fixed', 'like'] },
+  { key: 'needInventory', label: '是否需要盘点', tabs: ['all', 'fixed', 'like'] },
+  { key: 'needServiceLife', label: '是否需要使用年限', tabs: ['all', 'fixed', 'like'] },
+  { key: 'serviceLifeYears', label: '使用年限（年）', tabs: ['all', 'fixed', 'like'] },
   { key: 'safeStock', label: '安全库存', tabs: ['all', 'like', 'consumable'] },
   { key: 'minStock', label: '库存下限', tabs: ['all', 'like', 'consumable'] },
   { key: 'maxStock', label: '库存上限', tabs: ['all', 'like', 'consumable'] },
@@ -3792,6 +3797,9 @@ function materialCatalogRowCells(row, index) {
     price: row.price,
     returnNeed: row.returnNeed || '—',
     borrowDays: row.borrowDays || '—',
+    needInventory: row.needInventory || '—',
+    needServiceLife: row.needServiceLife || '—',
+    serviceLifeYears: row.serviceLifeYears || '—',
     safeStock: row.safeStock || '—',
     minStock: row.minStock || '—',
     maxStock: row.maxStock || '—',
@@ -3885,14 +3893,28 @@ function materialFormPage(options = {}) {
     code: '系统自动生成', name: '', type: 'fixed',
     major: '', minor: '', spec: '',
     mainUnit: '', auxUnit: '', price: '',
-    returnNeed: '需要', safeStock: '', minStock: '', maxStock: '',
+    returnNeed: '需要', needInventory: '是', needServiceLife: '是', serviceLifeYears: '',
+    safeStock: '', minStock: '', maxStock: '',
   };
   const matType = s.type || 'fixed';
   const isFixedForm = matType === 'fixed';
+  const isAssetForm = matType === 'fixed' || matType === 'like';
   const isStockForm = matType === 'like' || matType === 'consumable';
   const returnRadios = ['需要', '不需要'].map((o) =>
     `<label class="inline-flex items-center gap-2 text-sm text-slate-700">
       <input type="radio" name="returnNeed" class="border-slate-300 text-slate-900" data-wms-material-return value="${o}"${(s.returnNeed || '需要') === o ? ' checked' : ''} />
+      <span>${o}</span>
+    </label>`
+  ).join('');
+  const inventoryRadios = ['是', '否'].map((o) =>
+    `<label class="inline-flex items-center gap-2 text-sm text-slate-700">
+      <input type="radio" name="needInventory" class="border-slate-300 text-slate-900" data-wms-material-inventory value="${o}"${(s.needInventory || '是') === o ? ' checked' : ''} />
+      <span>${o}</span>
+    </label>`
+  ).join('');
+  const serviceLifeRadios = ['是', '否'].map((o) =>
+    `<label class="inline-flex items-center gap-2 text-sm text-slate-700">
+      <input type="radio" name="needServiceLife" class="border-slate-300 text-slate-900" data-wms-material-service-life value="${o}"${(s.needServiceLife || '是') === o ? ' checked' : ''} />
       <span>${o}</span>
     </label>`
   ).join('');
@@ -3917,8 +3939,23 @@ function materialFormPage(options = {}) {
           ${formSection('业务信息')}
           ${ro ? field('归还', s.returnNeed || '—') : `<div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 归还</label><div class="flex flex-wrap gap-4 pt-1">${returnRadios}</div></div>`}
         </div>
+        <div class="md:col-span-2${isAssetForm ? '' : ' hidden'}" data-wms-material-business-inventory>
+          ${isFixedForm ? '' : formSection('业务信息')}
+          <p class="md:col-span-2 rounded-lg border border-sky-100 bg-sky-50/80 px-3 py-2 text-xs text-sky-900 hidden" data-wms-material-inherit-banner>
+            <i class="fa-solid fa-link mr-1 opacity-70"></i><span data-wms-material-inherit-text>选择物资子类后，将回显分类默认的盘点与使用年限规则</span>
+          </p>
+          ${ro ? field('是否需要盘点', s.needInventory || '—') : `<div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 是否需要盘点</label><div class="flex flex-wrap gap-4 pt-1">${inventoryRadios}</div><p class="mt-1.5 text-xs text-slate-400" data-wms-material-inventory-hint>默认继承分类；纳入盘点计划时按此标识筛选，可覆盖</p></div>`}
+          ${ro ? field('是否需要使用年限', s.needServiceLife || '—') : `<div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 是否需要使用年限</label><div class="flex flex-wrap gap-4 pt-1">${serviceLifeRadios}</div><p class="mt-1.5 text-xs text-slate-400" data-wms-material-service-life-hint>默认继承分类；选「是」时需填写使用年限（年）</p></div>`}
+          ${ro
+    ? field('使用年限（年）', s.serviceLifeYears || '—')
+    : `<div class="${(s.needServiceLife || '是') === '是' ? '' : 'hidden'}" data-wms-material-service-life-years-wrap>
+              <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 使用年限（年）</label>
+              <input type="number" min="1" step="1" value="${s.serviceLifeYears || ''}" placeholder="请输入" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-wms-material-service-life-years />
+              <p class="mt-1.5 text-xs text-amber-700"><i class="fa-solid fa-circle-info mr-1"></i>到达使用年限后，系统自动生成报废单并入待报废池</p>
+            </div>`}
+        </div>
         <div class="md:col-span-2${isStockForm ? '' : ' hidden'}" data-wms-material-business-stock>
-          ${formSection('业务信息')}
+          ${matType === 'consumable' ? formSection('业务信息') : ''}
           ${field('安全库存', s.safeStock ?? '', true, 'number', 'data-wms-material-safe')}
           ${field('库存下限', s.minStock ?? '', true, 'number', 'data-wms-material-min')}
           ${field('库存上限', s.maxStock ?? '', true, 'number', 'data-wms-material-max')}
@@ -3941,10 +3978,10 @@ function materialDetailPage() {
     code: 'LA-00456', name: '电钻', categoryCode: 'LA-ZC-001001', type: 'like',
     major: '资产-类资产', minor: '电钻', spec: '工业级', enabled: true,
     mainUnit: '台', auxUnit: '—', conversion: '—', price: '680.00',
-    returnNeed: '需要', borrowDays: '15天',
+    returnNeed: '需要', borrowDays: '15天', needInventory: '是', needServiceLife: '是', serviceLifeYears: '5',
     safeStock: '10', minStock: '5', maxStock: '20',
     currentStock: '8', availableStock: '6', lockedStock: '2',
-    inherit: { returnNeed: '需要', borrowDays: '15天', safeStock: '10', minStock: '5', maxStock: '20' },
+    inherit: { returnNeed: '需要', borrowDays: '15天', needInventory: '是', needServiceLife: '是', serviceLifeYears: '5', safeStock: '10', minStock: '5', maxStock: '20' },
     refs: [
       { type: '计划', no: 'JH202606070002', name: '六月电动工具补充', qty: '5', date: '2026-06-08' },
       { type: '采购', no: 'CG202606050012', name: '电钻直采', qty: '3', date: '2026-06-05' },
@@ -3986,6 +4023,10 @@ function materialDetailPage() {
           <h3 class="mb-1 text-sm font-semibold text-slate-800">业务规则 <span class="font-normal text-slate-400">（默认继承分类，可覆盖）</span></h3>
           ${inheritRow('归还', s.returnNeed, s.inherit.returnNeed)}
           ${inheritRow('借用周期', s.borrowDays, s.inherit.borrowDays)}
+          ${inheritRow('是否需要盘点', s.needInventory, s.inherit.needInventory)}
+          ${inheritRow('是否需要使用年限', s.needServiceLife, s.inherit.needServiceLife)}
+          ${s.needServiceLife === '是' ? inheritRow('使用年限（年）', s.serviceLifeYears, s.inherit.serviceLifeYears) : ''}
+          ${s.needServiceLife === '是' ? `<p class="mt-2 rounded-lg border border-amber-100 bg-amber-50/80 px-3 py-2 text-xs text-amber-800"><i class="fa-solid fa-triangle-exclamation mr-1"></i>该物资已启用使用年限管理：自入库/启用日起计 ${s.serviceLifeYears} 年，到期后系统自动生成报废单并入待报废池。</p>` : ''}
           ${inheritRow('安全库存', s.safeStock, s.inherit.safeStock)}
           ${inheritRow('库存下限', s.minStock, s.inherit.minStock)}
           ${inheritRow('库存上限', s.maxStock, s.inherit.maxStock)}
@@ -4322,7 +4363,7 @@ function categoryRowActions(isLevel1, type = 'fixed') {
 }
 
 function categorySubTableAsset(type, rows) {
-  const cols = ['序号', '分类编码', '分类名称', '计量单位', '备注'];
+  const cols = ['序号', '分类编码', '分类名称', '计量单位', '是否需要盘点', '是否需要使用年限', '备注'];
   const th = cols.map(c => `<th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('') +
     actionTh('px-3 py-2.5');
   const tr = rows.map(r => {
@@ -4335,6 +4376,8 @@ function categorySubTableAsset(type, rows) {
       <td class="px-3 py-3 font-mono text-xs text-slate-700 whitespace-nowrap">${r.code}</td>
       <td class="px-3 py-3 text-sm text-slate-700 whitespace-nowrap">${r.name}</td>
       <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">${r.unit || '—'}</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">${r.needInventory || (r.level === 2 ? '是' : '—')}</td>
+      <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">${r.needServiceLife || (r.level === 2 ? '是' : '—')}</td>
       <td class="px-3 py-3 text-sm text-slate-500 whitespace-nowrap">${r.remark || '—'}</td>
       ${actionTd(categoryRowActions(r.level === 1, type), 'px-3 py-3')}
     </tr>`;
@@ -4376,10 +4419,10 @@ function categoryDetailHeader(items) {
 }
 
 const CATEGORY_ASSET_SUB_ROWS = [
-  { level: 1, expanded: true, seq: '1', code: 'ZC-GD-001', name: '办公电脑', unit: '', remark: '' },
-  { level: 2, seq: '1.1', code: 'ZC-GD-001001', name: '一体机', unit: '台', remark: '' },
-  { level: 2, seq: '1.2', code: 'ZC-GD-001002', name: '笔记本', unit: '台', remark: '' },
-  { level: 1, expanded: false, seq: '2', code: 'ZC-GD-002', name: '设备配件', unit: '', remark: '' },
+  { level: 1, expanded: true, seq: '1', code: 'ZC-GD-001', name: '办公电脑', unit: '', needInventory: '是', needServiceLife: '是', remark: '' },
+  { level: 2, seq: '1.1', code: 'ZC-GD-001001', name: '一体机', unit: '台', needInventory: '是', needServiceLife: '是', remark: '' },
+  { level: 2, seq: '1.2', code: 'ZC-GD-001002', name: '笔记本', unit: '台', needInventory: '是', needServiceLife: '是', remark: '' },
+  { level: 1, expanded: false, seq: '2', code: 'ZC-GD-002', name: '设备配件', unit: '', needInventory: '是', needServiceLife: '是', remark: '' },
 ];
 
 const CATEGORY_CONSUMABLE_SUB_ROWS = [
@@ -4483,10 +4526,10 @@ function categoryConfigPage() {
         ${listSearchInput('分类编码、分类名称').replace(/data-wms-list-search/g, 'data-wms-category-search')}
       </div>
       <div class="mb-4">${primaryAddBtn('config_category_sub_fixed.html', 'data-wms-category-add')}</div>
-      <div data-wms-category-panel="fixed">${categoryDetailHeader({ title: '固定资产（ZC-GD）', fields: [['归还', '需要']] })}${assetTable}</div>
-      <div class="hidden" data-wms-category-panel="like">${categoryDetailHeader({ title: '类资产（LA-ZC）', fields: [['归还', '需要'], ['库存下限', '需要'], ['库存上限', '需要']] })}${categorySubTableAsset('like', [
-        { level: 1, expanded: true, seq: '1', code: 'LA-ZC-001', name: '电动工具', unit: '', remark: '' },
-        { level: 2, seq: '1.1', code: 'LA-ZC-001001', name: '电钻', unit: '台', remark: '' },
+      <div data-wms-category-panel="fixed">${categoryDetailHeader({ title: '固定资产（ZC-GD）', fields: [['归还', '需要'], ['是否需要盘点', '是'], ['是否需要使用年限', '是']] })}${assetTable}</div>
+      <div class="hidden" data-wms-category-panel="like">${categoryDetailHeader({ title: '类资产（LA-ZC）', fields: [['归还', '需要'], ['是否需要盘点', '是'], ['是否需要使用年限', '是'], ['库存下限', '需要'], ['库存上限', '需要']] })}${categorySubTableAsset('like', [
+        { level: 1, expanded: true, seq: '1', code: 'LA-ZC-001', name: '电动工具', unit: '', needInventory: '是', needServiceLife: '是', remark: '' },
+        { level: 2, seq: '1.1', code: 'LA-ZC-001001', name: '电钻', unit: '台', needInventory: '是', needServiceLife: '是', remark: '' },
       ])}</div>
       <div class="hidden" data-wms-category-panel="consumable">${categoryDetailHeader({ title: '办公耗材（HC-BG）', fields: [['归还', '需要'], ['库存下限', '需要'], ['库存上限', '需要'], ['安全库存', '需要']] })}${consumableTable}</div>
     </div>
@@ -4522,10 +4565,10 @@ function categorySubForm(backHref, { title, level = 1, type = 'fixed' }) {
   const isConsumable = type === 'consumable';
   const section = `<div class="md:col-span-2"><h3 class="wms-form-section-title">${level === 1 ? '子类信息' : '子类信息 · 二级'}</h3></div>`;
   const parentField = level === 2 ? formField('父级分类', 'select', [{ label: '办公电脑 (ZC-GD-001)', selected: true }], true) : '';
-  const inheritTable = level === 1 && !isConsumable ? `<div class="md:col-span-2 rounded-lg border border-slate-200 overflow-hidden text-sm"><table class="min-w-full"><thead class="bg-slate-50"><tr><th class="px-3 py-2 text-left text-xs text-slate-500">分类编码</th><th class="px-3 py-2 text-left text-xs text-slate-500">分类名称</th><th class="px-3 py-2 text-left text-xs text-slate-500">归还</th></tr></thead><tbody><tr class="border-t"><td class="px-3 py-2 font-mono text-xs">ZC-GD</td><td class="px-3 py-2">${title.replace(' · 新增子类', '')}</td><td class="px-3 py-2">需要</td></tr></tbody></table></div>` : '';
+  const inheritTable = level === 1 && !isConsumable ? `<div class="md:col-span-2 rounded-lg border border-slate-200 overflow-hidden text-sm"><table class="min-w-full"><thead class="bg-slate-50"><tr><th class="px-3 py-2 text-left text-xs text-slate-500">分类编码</th><th class="px-3 py-2 text-left text-xs text-slate-500">分类名称</th><th class="px-3 py-2 text-left text-xs text-slate-500">归还</th><th class="px-3 py-2 text-left text-xs text-slate-500">是否需要盘点</th><th class="px-3 py-2 text-left text-xs text-slate-500">是否需要使用年限</th></tr></thead><tbody><tr class="border-t"><td class="px-3 py-2 font-mono text-xs">ZC-GD</td><td class="px-3 py-2">${title.replace(' · 新增子类', '')}</td><td class="px-3 py-2">需要</td><td class="px-3 py-2">是</td><td class="px-3 py-2">是</td></tr></tbody></table></div>` : '';
   const extraFields = isConsumable
     ? `${formField('库存下限', 'select', ['需要', '不需要'], false)}${formField('库存上限', 'select', ['需要', '不需要'], false)}${formField('安全库存', 'select', ['需要', '不需要'], false)}`
-    : `${formField('归还', 'select', ['需要', '不需要'], true)}${level === 2 ? formField('借用周期（天）', 'number', '90', false) : ''}`;
+    : `${formField('归还', 'select', ['需要', '不需要'], true)}${formField('是否需要盘点', 'select', ['是', '否'], true)}${formField('是否需要使用年限', 'select', ['是', '否'], true)}${level === 2 ? formField('借用周期（天）', 'number', '90', false) : ''}`;
   return `<div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg">
     <div class="wms-modal-form wms-warehouse-form">
       ${section}
@@ -5060,6 +5103,693 @@ function supplierEvalSelectSupplierPage() {
     </div>`;
 }
 
+/** ── 库场盘点（V2.0）──────────────────────────────────────── */
+const COUNT_PLAN_SAMPLES = {
+  PD202606090001: { no: 'PD202606090001', name: '2026 年中固定资产盘点', type: '专项盘点', method: '明盘', scope: '主仓库 / A区', venue: '场内', freeze: true, start: '2026-06-10 08:00', end: '2026-06-12 18:00', owner: '张仓管', status: '盘点中', total: 128, done: 86, diff: 3, created: '2026-06-09 10:00' },
+  PD202606010002: { no: 'PD202606010002', name: '六月日常类资产抽盘', type: '日常盘点', method: '明盘', scope: '主仓库 / 全部分区', venue: '场内', freeze: false, start: '2026-06-01 09:00', end: '2026-06-01 17:00', owner: '李仓管', status: '待差异处理', total: 45, done: 45, diff: 2, created: '2026-05-30 14:00' },
+  PD202605200003: { no: 'PD202605200003', name: '场外资产专项盘点', type: '专项盘点', method: '明盘', scope: '场外 / 全部地点', venue: '场外', freeze: false, start: '2026-05-20 08:00', end: '2026-05-22 18:00', owner: '王工', status: '已完成', total: 18, done: 18, diff: 0, created: '2026-05-18 09:00', finished: '2026-05-22 16:30' },
+};
+
+const COUNT_TASK_SAMPLES = {
+  RW202606090001: { no: 'RW202606090001', planNo: 'PD202606090001', planName: '2026 年中固定资产盘点', shelf: 'A-01-06', owner: '张仓管', executor: '张仓管', type: '专项盘点', method: '明盘', status: '盘点中', total: 42, done: 28, diff: 1 },
+  RW202606090002: { no: 'RW202606090002', planNo: 'PD202606090001', planName: '2026 年中固定资产盘点', shelf: 'A-02-03', owner: '张仓管', executor: '李仓管', type: '专项盘点', method: '明盘', status: '待盘点', total: 36, done: 0, diff: 0 },
+  RW202606010003: { no: 'RW202606010003', planNo: 'PD202606010002', planName: '六月日常类资产抽盘', shelf: 'B-01-02', owner: '李仓管', executor: '李仓管', type: '日常盘点', method: '明盘', status: '待差异处理', total: 45, done: 45, diff: 2 },
+};
+
+function countPlanStatusBadge(s) {
+  const m = { '草稿': 'info', '待盘点': 'warning', '盘点中': 'info', '待差异处理': 'warning', '已完成': 'success', '已取消': 'danger' };
+  return badge(s, m[s] || 'info');
+}
+
+function countTaskStatusBadge(s) {
+  const m = { '待盘点': 'warning', '盘点中': 'info', '已提交': 'info', '待差异处理': 'warning', '已完成': 'success' };
+  return badge(s, m[s] || 'info');
+}
+
+function countDiffStatusBadge(s) {
+  const m = { '待处理': 'warning', '处理中': 'info', '已处理': 'success', '已关闭': 'info' };
+  return badge(s, m[s] || 'info');
+}
+
+function countDiffTypeBadge(t) {
+  const m = { '盘盈': 'success', '盘亏': 'danger', '货位不符': 'warning', '状态异常': 'danger' };
+  return badge(t, m[t] || 'info');
+}
+
+function countAdjustStatusBadge(s) {
+  const m = { '草稿': 'info', '审核中': 'warning', '已通过': 'success', '已驳回': 'danger' };
+  return badge(s, m[s] || 'info');
+}
+
+function countPlanListPage() {
+  const rows = Object.values(COUNT_PLAN_SAMPLES).map(p => ({
+    cells: [p.no, p.name, p.type, p.method, p.start, p.end, p.scope, countPlanStatusBadge(p.status), p.owner, p.created],
+    tab: p.status,
+    actions: `<a href="count_plan_detail.html?no=${p.no}" class="mr-2 hover:underline">查看</a>${p.status === '盘点中' ? `<a href="count_task_list.html?plan=${p.no}" class="mr-2 hover:underline">任务</a>` : ''}${p.status === '待差异处理' ? `<a href="count_diff_list.html?plan=${p.no}" class="text-amber-700 hover:underline">差异</a>` : ''}`,
+  }));
+  rows.push({
+    cells: ['PD202606080004', '固定资产抽盘（草稿）', '日常盘点', '明盘', '—', '—', '主仓库 / B区', countPlanStatusBadge('草稿'), '张仓管', '2026-06-08 11:00'],
+    tab: '草稿',
+    actions: '<a href="count_plan_form.html?mode=edit" class="mr-2 hover:underline">编辑</a><a href="#" class="text-slate-400">删除</a>',
+  });
+  return listPage({
+    desc: '创建盘点计划并发布任务；仅纳入<strong>是否需要盘点=是</strong>的资产类物资。发布时快照账存，默认冻结范围内出入库。',
+    addBtn: true, addHref: 'count_plan_form.html',
+    tabs: ['全部', '草稿', '待盘点', '盘点中', '待差异处理', '已完成'],
+    tabColumn: 7,
+    searchPlaceholder: '盘点编号、名称、负责人',
+    filters: [
+      { label: '盘点类型', key: 'type', column: 2, options: ['全部', '日常盘点', '专项盘点'] },
+      { label: '盘点方法', key: 'method', column: 3, options: ['全部', '明盘', '盲盘'] },
+    ],
+    columns: ['盘点编号', '盘点名称', '盘点类型', '盘点方法', '开始时间', '结束时间', '盘点范围', '盘点状态', '负责人', '创建时间'],
+    rows,
+  });
+}
+
+function countPlanFormPage(backHref = 'count_plan_list.html') {
+  return `<div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg">
+    <div class="wms-modal-form wms-warehouse-form">
+      <div class="md:col-span-2"><h3 class="wms-form-section-title">计划信息</h3></div>
+      ${formField('盘点编号', 'text', '系统生成', false, { readonly: true })}
+      ${formField('盘点名称', 'text', '', true)}
+      ${formField('盘点类型', 'select', ['日常盘点', '专项盘点'], true)}
+      ${formField('盘点方法', 'select', ['明盘', '盲盘'], true)}
+      ${formField('场内外范围', 'select', ['场内', '场外', '全部'], true)}
+      ${formField('盘点范围', 'select', ['全库', '指定仓库', '指定分区', '指定货架', '指定物资大类'], true)}
+      ${formField('仓库', 'select', ['主仓库'], false)}
+      ${formField('分区', 'select', ['A区', 'B区'], false)}
+      ${formField('开始时间', 'text', '', true)}
+      ${formField('结束时间', 'text', '', true)}
+      ${formField('盘点负责人', 'select', ['张仓管', '李仓管'], true)}
+      <div class="md:col-span-2 flex items-center gap-3 rounded-lg border border-amber-100 bg-amber-50/80 px-3 py-2.5 text-sm text-amber-900">
+        <input type="checkbox" checked class="rounded border-amber-300" id="count-freeze" />
+        <label for="count-freeze">发布时冻结范围内出入库（入库/出库/归还/退货按钮禁用）</label>
+      </div>
+      ${formField('备注', 'textarea', '', false, { colSpan: 2 })}
+      <div class="md:col-span-2 rounded-lg border border-sky-100 bg-sky-50/80 px-3 py-2 text-xs text-sky-900">
+        <i class="fa-solid fa-circle-info mr-1"></i>发布后将按「是否需要盘点=是」自动生成盘点明细，并按货架拆分为盘点任务。
+      </div>
+    </div>
+    <div class="wms-modal-footer">
+      <a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a>
+      <button type="button" class="wms-btn wms-btn-secondary">保存草稿</button>
+      <button type="button" class="wms-btn wms-btn-primary">发布计划</button>
+    </div>
+  </div>`;
+}
+
+function countPlanDetailPage() {
+  const p = COUNT_PLAN_SAMPLES.PD202606090001;
+  const progress = Math.round((p.done / p.total) * 100);
+  return `<div class="space-y-6">
+    <div class="flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h2 class="text-lg font-semibold text-slate-900">${p.name}</h2>
+        <p class="mt-0.5 font-mono text-sm text-slate-500">${p.no} · ${countPlanStatusBadge(p.status)} ${p.freeze ? badge('已冻结', 'warning') : ''}</p>
+      </div>
+      <div class="flex gap-2">
+        <a href="count_task_list.html?plan=${p.no}" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-list-check text-xs"></i>查看任务</a>
+        <a href="count_diff_list.html?plan=${p.no}" class="inline-flex items-center gap-1.5 rounded-xl bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"><i class="fa-solid fa-scale-unbalanced text-xs"></i>差异处理</a>
+      </div>
+    </div>
+    <div class="grid gap-4 sm:grid-cols-4">
+      <div class="rounded-2xl border border-slate-200 bg-white p-4"><p class="text-xs text-slate-500">应盘项</p><p class="mt-1 text-2xl font-semibold">${p.total}</p></div>
+      <div class="rounded-2xl border border-slate-200 bg-white p-4"><p class="text-xs text-slate-500">已盘项</p><p class="mt-1 text-2xl font-semibold text-emerald-700">${p.done}</p></div>
+      <div class="rounded-2xl border border-slate-200 bg-white p-4"><p class="text-xs text-slate-500">差异项</p><p class="mt-1 text-2xl font-semibold text-amber-700">${p.diff}</p></div>
+      <div class="rounded-2xl border border-slate-200 bg-white p-4"><p class="text-xs text-slate-500">完成率</p><p class="mt-1 text-2xl font-semibold">${progress}%</p></div>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-5">
+      <h3 class="mb-3 text-sm font-semibold text-slate-800">计划信息</h3>
+      <dl class="grid gap-x-6 gap-y-3 sm:grid-cols-2 text-sm">
+        <div><dt class="text-slate-500">盘点类型</dt><dd class="mt-0.5">${p.type}</dd></div>
+        <div><dt class="text-slate-500">盘点方法</dt><dd class="mt-0.5">${p.method}</dd></div>
+        <div><dt class="text-slate-500">盘点范围</dt><dd class="mt-0.5">${p.scope} · ${p.venue}</dd></div>
+        <div><dt class="text-slate-500">计划时间</dt><dd class="mt-0.5">${p.start} ~ ${p.end}</dd></div>
+        <div><dt class="text-slate-500">负责人</dt><dd class="mt-0.5">${p.owner}</dd></div>
+        <div><dt class="text-slate-500">创建时间</dt><dd class="mt-0.5">${p.created}</dd></div>
+      </dl>
+    </div>
+    <div class="rounded-2xl border border-slate-200 bg-white p-5">
+      <h3 class="mb-3 text-sm font-semibold text-slate-800">关联任务</h3>
+      <div class="overflow-x-auto wms-modal-table-wrap"><table class="min-w-full text-sm wms-data-table"><thead class="bg-slate-50/80"><tr>
+        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">任务编号</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">盘点货架</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">执行人</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">进度</th>
+        <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">状态</th>
+        <th class="px-3 py-2 text-right text-xs font-semibold text-slate-500">操作</th>
+      </tr></thead><tbody>
+        <tr class="border-t border-slate-100"><td class="px-3 py-3 font-mono text-xs">RW202606090001</td><td class="px-3 py-3">A-01-06</td><td class="px-3 py-3">张仓管</td><td class="px-3 py-3">28/42</td><td class="px-3 py-3">${countTaskStatusBadge('盘点中')}</td><td class="px-3 py-3 text-right"><a href="count_execute_form.html?task=RW202606090001" class="hover:underline">执行</a></td></tr>
+        <tr class="border-t border-slate-100"><td class="px-3 py-3 font-mono text-xs">RW202606090002</td><td class="px-3 py-3">A-02-03</td><td class="px-3 py-3">李仓管</td><td class="px-3 py-3">0/36</td><td class="px-3 py-3">${countTaskStatusBadge('待盘点')}</td><td class="px-3 py-3 text-right"><a href="count_task_detail.html?no=RW202606090002" class="hover:underline">查看</a></td></tr>
+      </tbody></table></div>
+    </div>
+    <div class="flex gap-2"><a href="count_plan_list.html" class="wms-btn wms-btn-secondary">返回列表</a></div>
+  </div>`;
+}
+
+function countTaskListPage() {
+  const rows = Object.values(COUNT_TASK_SAMPLES).map(t => ({
+    cells: [t.no, t.planNo, t.planName, t.shelf, t.executor, t.type, t.method, `${t.done}/${t.total}`, countTaskStatusBadge(t.status)],
+    tab: t.status,
+    actions: `<a href="count_task_detail.html?no=${t.no}" class="mr-2 hover:underline">查看</a><a href="count_execute_form.html?task=${t.no}" class="font-medium hover:underline">执行</a>`,
+  }));
+  return listPage({
+    desc: '由盘点计划自动拆分；执行人仅可见分配给自己的任务。提交后自动生成差异记录。',
+    tabs: ['全部', '待盘点', '盘点中', '待差异处理', '已完成'],
+    tabColumn: 8,
+    searchPlaceholder: '任务编号、计划名称、货架、执行人',
+    filters: [{ label: '盘点类型', key: 'type', column: 5, options: ['全部', '日常盘点', '专项盘点'] }],
+    columns: ['任务编号', '计划编号', '计划名称', '盘点货架', '执行人', '盘点类型', '盘点方法', '进度', '任务状态'],
+    rows,
+  });
+}
+
+function countTaskDetailPage() {
+  const t = COUNT_TASK_SAMPLES.RW202606090001;
+  return `<div data-wms-modal data-modal-back="count_task_list.html" data-modal-size="xl">
+    <div class="space-y-5">
+      <div class="rounded-xl border border-sky-100 bg-sky-50/60 p-4">
+        <h3 class="text-sm font-semibold text-sky-900 mb-2"><i class="fa-solid fa-clipboard-list mr-1"></i>盘点计划</h3>
+        <dl class="grid gap-2 sm:grid-cols-2 text-sm text-sky-900">
+          <div><span class="text-sky-700/80">计划编号：</span><span class="font-mono">${t.planNo}</span></div>
+          <div><span class="text-sky-700/80">计划名称：</span>${t.planName}</div>
+          <div><span class="text-sky-700/80">盘点类型：</span>${t.type}</div>
+          <div><span class="text-sky-700/80">盘点方法：</span>${t.method}</div>
+        </dl>
+      </div>
+      <div class="rounded-xl border border-slate-200 p-4">
+        <h3 class="text-sm font-semibold text-slate-800 mb-3"><i class="fa-solid fa-list-check mr-1 text-slate-400"></i>盘点任务</h3>
+        <dl class="grid gap-x-6 gap-y-3 sm:grid-cols-2 text-sm">
+          <div><dt class="text-slate-500">任务编号</dt><dd class="mt-0.5 font-mono">${t.no}</dd></div>
+          <div><dt class="text-slate-500">盘点货架</dt><dd class="mt-0.5">${t.shelf}</dd></div>
+          <div><dt class="text-slate-500">负责人 / 执行人</dt><dd class="mt-0.5">${t.owner} / ${t.executor}</dd></div>
+          <div><dt class="text-slate-500">任务状态</dt><dd class="mt-0.5">${countTaskStatusBadge(t.status)}</dd></div>
+          <div><dt class="text-slate-500">应盘 / 已盘 / 差异</dt><dd class="mt-0.5">${t.total} / ${t.done} / ${t.diff}</dd></div>
+        </dl>
+      </div>
+    </div>
+    <div class="wms-modal-footer mt-4">
+      <a href="count_task_list.html" class="wms-btn wms-btn-secondary">关闭</a>
+      <a href="count_execute_form.html?task=${t.no}" class="wms-btn wms-btn-primary">进入执行</a>
+    </div>
+  </div>`;
+}
+
+function countExecuteFormPage(backHref = 'count_task_list.html') {
+  const t = COUNT_TASK_SAMPLES.RW202606090001;
+  const pct = Math.round((t.done / t.total) * 100);
+  const fixedRows = [
+    { shelf: 'A-01-06', code: 'ZC-GD-001002', name: '笔记本', spec: '14寸', unit: '台', asset: 'ZC202606001', sys: '在库', actual: '在库', result: '正常' },
+    { shelf: 'A-01-06', code: 'ZC-GD-001001', name: '一体机', spec: '23.8寸', unit: '台', asset: 'ZC202606002', sys: '在库', actual: '在库', result: '正常' },
+    { shelf: 'A-01-06', code: 'GC-20001', name: '工程测量仪', spec: '全站仪', unit: '台', asset: 'ZC202605012', sys: '借出', actual: '', result: '差异', diff: '状态异常' },
+  ];
+  const likeRows = [
+    { shelf: 'A-01-06', code: 'LA-00456', name: '电钻', spec: '650W', unit: '台', sys: '6', actual: '6', result: '正常' },
+    { shelf: 'A-01-06', code: 'LA-00457', name: '钢丝绳', spec: 'Φ18', unit: 'm', sys: '100', actual: '98', result: '差异', diff: '盘亏 -2' },
+  ];
+  const tr = [...fixedRows, ...likeRows].map((r, i) => {
+    const isDiff = r.result === '差异';
+    const actualCell = r.asset
+      ? `<select class="rounded-lg border border-slate-200 px-2 py-1 text-sm"><option>在库</option><option>借出</option><option>未盘到</option></select>`
+      : `<input type="number" value="${r.actual}" class="w-20 rounded-lg border border-slate-200 px-2 py-1 text-sm" />`;
+    return `<tr class="border-t border-slate-100 ${isDiff ? 'bg-amber-50/40' : ''}">
+      <td class="px-3 py-3 text-sm">${i + 1}</td>
+      <td class="px-3 py-3 text-sm">${r.shelf}</td>
+      <td class="px-3 py-3 font-mono text-xs">${r.code}</td>
+      <td class="px-3 py-3 text-sm">${r.name}</td>
+      <td class="px-3 py-3 text-sm text-slate-500">${r.spec}</td>
+      <td class="px-3 py-3 text-sm">${r.unit}</td>
+      <td class="px-3 py-3 font-mono text-xs">${r.asset || '—'}</td>
+      <td class="px-3 py-3 text-sm">${r.sys}</td>
+      <td class="px-3 py-3">${actualCell}</td>
+      <td class="px-3 py-3 text-sm">${isDiff ? countDiffTypeBadge(r.diff?.includes('盘亏') ? '盘亏' : '状态异常') : badge('正常', 'success')}</td>
+    </tr>`;
+  }).join('');
+  return `<div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-count-execute>
+    <div class="mb-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p class="text-sm font-semibold text-slate-900">${t.planName}</p>
+          <p class="mt-0.5 text-xs text-slate-500 font-mono">任务 ${t.no} · 货架 ${t.shelf} · ${countTaskStatusBadge(t.status)}</p>
+        </div>
+        <div class="text-right text-sm">
+          <p class="text-slate-500">进度 <span class="font-semibold text-slate-900">${t.done}/${t.total}</span>（${pct}%）</p>
+          <div class="mt-1 h-1.5 w-40 rounded-full bg-slate-200 overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width:${pct}%"></div></div>
+        </div>
+      </div>
+      <p class="mt-2 text-xs text-slate-500"><i class="fa-solid fa-eye mr-1"></i>明盘模式：显示发布时快照账存。固定资产按资产编码确认，类资产录入实盘数量。</p>
+    </div>
+    <div class="wms-modal-table-wrap overflow-x-auto max-h-[420px] overflow-y-auto"><table class="min-w-full text-sm wms-data-table sticky top-0"><thead class="bg-slate-50/90"><tr>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">序号</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">货位</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">物资编码</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">物资名称</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">规格</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">单位</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">资产编码</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">系统库存</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">实际库存</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">盘点结果</th>
+    </tr></thead><tbody>${tr}</tbody></table></div>
+    <div class="wms-modal-footer">
+      <a href="${backHref}" class="wms-btn wms-btn-secondary">返回</a>
+      <button type="button" class="wms-btn wms-btn-secondary">保存进度</button>
+      <button type="button" class="wms-btn wms-btn-primary" data-wms-count-submit>提交任务</button>
+    </div>
+  </div>`;
+}
+
+function countDiffListPage() {
+  const rows = [
+    { cells: ['主仓库', 'A-01-06', 'LA-00457', '钢丝绳', 'Φ18×100m', 'm', '资产-类资产', '防汛设备', '100', '98', '-2', '2%', countDiffTypeBadge('盘亏'), countDiffStatusBadge('待处理'), '—', '—'], tab: '待处理', actions: '<a href="count_adjust_form.html?diff=1" class="mr-2 hover:underline">调整库存</a><a href="count_relocate_form.html" class="hover:underline">调货位</a>' },
+    { cells: ['主仓库', 'A-01-06', 'GC-20001', '工程测量仪', '全站仪 TS06', '台', '资产-固定资产', '办公设备', '1', '0', '-1', '100%', countDiffTypeBadge('状态异常'), countDiffStatusBadge('待处理'), '—', '—'], tab: '待处理', actions: '<a href="count_adjust_form.html?diff=2" class="mr-2 hover:underline">调整库存</a><a href="warehouse_scrap_form.html" class="text-rose-600 hover:underline">关联报废</a>' },
+    { cells: ['主仓库', 'B-01-02', 'LA-00456', '电钻', '650W', '台', '资产-类资产', '电动工具', '8', '8', '0', '0%', countDiffTypeBadge('货位不符'), countDiffStatusBadge('已处理'), '张仓管', '2026-06-01'], tab: '已处理', actions: '<a href="count_relocate_form.html?mode=view" class="hover:underline">查看</a>' },
+  ];
+  return `
+    <div data-wms-list-page>
+      <p class="mb-4 text-sm text-slate-500">盘点执行提交后自动生成差异记录。数量差异走<strong>库存调整</strong>（需审批），货位错误走<strong>调货位</strong>（免审批）。</p>
+      <div class="mb-4 grid gap-3 sm:grid-cols-3">
+        <div class="rounded-xl border border-amber-100 bg-amber-50/60 px-4 py-3 text-sm"><span class="text-amber-800">差异项数</span><p class="text-2xl font-semibold text-amber-900">3</p></div>
+        <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"><span class="text-slate-500">待处理</span><p class="text-2xl font-semibold text-slate-900">2</p></div>
+        <div class="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"><span class="text-slate-500">差异率</span><p class="text-2xl font-semibold text-slate-900">2.3%</p></div>
+      </div>
+      ${listPageActions({ searchPlaceholder: '物资编码、名称、货架', filters: [{ label: '处理状态', key: 'status', column: 13, options: ['全部', '待处理', '已处理'] }, { label: '差异类型', key: 'diff', column: 12, options: ['全部', '盘盈', '盘亏', '货位不符', '状态异常'] }] })}
+      <div class="card overflow-hidden rounded-2xl bg-white shadow-sm">
+        <div class="overflow-x-auto wms-modal-table-wrap"><table class="min-w-full wms-data-table text-sm"><thead class="bg-slate-50/80"><tr>
+          ${['库场', '货架', '物资编号', '物资名称', '规格', '单位', '物资大类', '物资小类', '系统库存', '实际库存', '差异数量', '差异率', '差异类型', '处理状态', '处理人', '处理时间'].map(c => `<th class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('')}
+          ${actionTh('px-3 py-3')}
+        </tr></thead><tbody>${rows.map(r => `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-tab="${r.tab}">${r.cells.map(c => `<td class="px-3 py-3.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('')}${actionTd(r.actions, 'px-3 py-3.5')}</tr>`).join('')}</tbody></table></div>
+        ${listTableFooter(3)}
+      </div>
+    </div>`;
+}
+
+function countRelocateFormPage(backHref = 'count_diff_list.html') {
+  return `<div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg">
+    <div class="wms-modal-form wms-warehouse-form">
+      <div class="md:col-span-2 rounded-lg border border-slate-200 bg-slate-50/80 p-3 text-sm">
+        <p class="font-medium text-slate-800">关联盘点：PD202606010002 · 六月日常类资产抽盘</p>
+        <p class="mt-1 text-slate-500">电钻（LA-00456）· 系统库存 8 · 实际库存 8 · 差异类型：货位不符</p>
+      </div>
+      ${formField('当前货位', 'text', '主仓库 / A区 / A-01-06', false, { readonly: true })}
+      ${formField('差异原因', 'select', ['存放错误', '标签错误', '其他'], true)}
+      ${formField('目标仓库', 'select', ['主仓库'], true)}
+      ${formField('目标分区', 'select', ['A区', 'B区'], true)}
+      ${formField('目标货架', 'select', ['A-02-03', 'B-01-02'], true)}
+      ${formField('处理方式', 'select', ['调货位'], true)}
+      ${formField('补充说明', 'textarea', '', false, { colSpan: 2 })}
+      <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">现场照片</label>${uploadZone()}</div>
+      <p class="md:col-span-2 text-xs text-slate-400">调货位仅变更存放位置，数量不变；提交后直接生效并写入 relocate 流水。</p>
+    </div>
+    <div class="wms-modal-footer"><a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a><button type="button" class="wms-btn wms-btn-primary">确定</button></div>
+  </div>`;
+}
+
+function countAdjustListPage() {
+  return listPage({
+    desc: '由差异处理生成的库存调整单；审批通过后更新<a href="ledger_warehouse.html" class="font-medium text-slate-800 hover:underline">仓库台账</a>并写入 adjust 流水。',
+    tabs: ['全部', '审核中', '已通过', '已驳回'],
+    tabColumn: 5,
+    searchPlaceholder: '处理编号、盘点编号、差异原因',
+    columns: ['处理编号', '差异原因', '盘点编号', '盘点名称', '审核状态', '审批人', '审核时间', '创建人', '创建时间'],
+    rows: [
+      { cells: ['TZ202606090001', '盘亏', 'PD202606010002', '六月日常类资产抽盘', countAdjustStatusBadge('审核中'), '物资管理部门', '—', '李仓管', '2026-06-01 17:30'], tab: '审核中', actions: '<a href="count_adjust_detail.html?no=TZ202606090001" class="hover:underline">查看</a>' },
+      { cells: ['TZ202606080002', '状态异常', 'PD202606090001', '2026 年中固定资产盘点', countAdjustStatusBadge('草稿'), '—', '—', '张仓管', '2026-06-09 15:00'], tab: '草稿', actions: '<a href="count_adjust_form.html?no=TZ202606080002" class="hover:underline">编辑</a>' },
+      { cells: ['TZ202605220001', '盘盈', 'PD202605200003', '场外资产专项盘点', countAdjustStatusBadge('已通过'), '物资管理部门', '2026-05-22 16:00', '王工', '2026-05-22 15:00'], tab: '已通过', actions: '<a href="count_adjust_detail.html?no=TZ202605220001" class="hover:underline">查看</a>' },
+    ],
+  });
+}
+
+function countAdjustFormPage(backHref = 'count_diff_list.html') {
+  return `<div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg">
+    <div class="wms-modal-form wms-warehouse-form">
+      <div class="md:col-span-2 rounded-lg border border-amber-100 bg-amber-50/80 p-3 text-sm text-amber-900">
+        <i class="fa-solid fa-scale-unbalanced mr-1"></i>差异：盘亏 · 钢丝绳（LA-00457）· 账存 100 → 实盘 98 · 调整 -2 m
+      </div>
+      ${formField('调整单号', 'text', '系统生成', false, { readonly: true })}
+      ${formField('关联盘点', 'text', 'PD202606010002', false, { readonly: true })}
+      ${formField('差异原因', 'select', ['破损', '丢失', '计量误差', '其他'], true)}
+      ${formField('调整前数量', 'text', '100', false, { readonly: true })}
+      ${formField('调整后数量', 'text', '98', true)}
+      ${formField('调整说明', 'textarea', '', false, { colSpan: 2 })}
+      <p class="md:col-span-2 text-xs text-amber-700"><i class="fa-solid fa-circle-info mr-1"></i>提交后进入基础平台审批；通过后扣减台账并写入 adjust 审计流水。</p>
+    </div>
+    <div class="wms-modal-footer"><a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a><button type="button" class="wms-btn wms-btn-secondary">保存草稿</button><button type="button" class="wms-btn wms-btn-primary">提交审批</button></div>
+  </div>`;
+}
+
+function countAdjustDetailPage() {
+  return `<div data-wms-modal data-modal-back="count_adjust_list.html" data-modal-size="lg">
+    <div class="space-y-4">
+      <div class="flex items-center justify-between"><h3 class="text-lg font-semibold">TZ202606090001</h3>${countAdjustStatusBadge('审核中')}</div>
+      <dl class="grid gap-3 sm:grid-cols-2 text-sm">
+        <div><dt class="text-slate-500">盘点计划</dt><dd>PD202606010002 · 六月日常类资产抽盘</dd></div>
+        <div><dt class="text-slate-500">差异原因</dt><dd>盘亏</dd></div>
+        <div><dt class="text-slate-500">物资</dt><dd>LA-00457 · 钢丝绳</dd></div>
+        <div><dt class="text-slate-500">调整数量</dt><dd class="text-rose-700 font-medium">-2 m</dd></div>
+        <div><dt class="text-slate-500">审批节点</dt><dd>申请人 → 仓库管理员 → 物资管理部门</dd></div>
+        <div><dt class="text-slate-500">创建人</dt><dd>李仓管 · 2026-06-01 17:30</dd></div>
+      </dl>
+    </div>
+    <div class="wms-modal-footer mt-4"><a href="count_adjust_list.html" class="wms-btn wms-btn-secondary">关闭</a></div>
+  </div>`;
+}
+
+const appPagesDir = path.join(__dirname, '..', 'pages', 'app');
+
+const appHead = `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>{{TITLE}} · WMS 移动盘点</title>
+  <link rel="stylesheet" href="../../css/tailwind.css" />
+  <link rel="stylesheet" href="../../css/custom.css" />
+  <link rel="stylesheet" href="../../vendor/fontawesome/css/all.min.css" />
+</head>`;
+
+const APP_HERO_IMG = 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=800&q=80';
+
+function appStatusBar() {
+  return `<div class="wms-ios-status" aria-hidden="true">
+    <span class="wms-ios-time">9:41</span>
+    <div class="wms-ios-status-right">
+      <i class="fa-solid fa-signal"></i>
+      <i class="fa-solid fa-wifi"></i>
+      <span class="wms-ios-battery" title="电量 85%"><i class="fa-solid fa-battery-three-quarters"></i><span>85%</span></span>
+    </div>
+  </div>`;
+}
+
+function appTabBar(activeTab) {
+  const tabs = [
+    { id: 'home', href: 'app_count_home.html', icon: 'fa-house', label: '首页' },
+    { id: 'scan', href: 'app_count_scan.html', icon: 'fa-qrcode', label: '扫码' },
+    { id: 'profile', href: 'app_count_profile.html', icon: 'fa-user', label: '我的' },
+  ];
+  return `<nav class="wms-app-tabbar">${tabs.map(t =>
+    `<a href="${t.href}" class="wms-app-tab wms-app-btn${activeTab === t.id ? ' is-active' : ''}"><i class="fa-solid ${t.icon}"></i><span>${t.label}</span></a>`
+  ).join('')}</nav>`;
+}
+
+function appPageShell({
+  title,
+  body,
+  backHref = 'app_count_home.html',
+  showTab = true,
+  activeTab = 'home',
+  largeTitle = false,
+  subtitle = '',
+  footer = '',
+  toast = false,
+} = {}) {
+  const nav = largeTitle ? '' : `<header class="wms-app-nav">
+    ${backHref ? `<a href="${backHref}" class="wms-app-back wms-app-btn" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></a>` : '<span class="wms-app-back-spacer"></span>'}
+    <h1 class="wms-app-nav-title">${title}</h1>
+    <span class="wms-app-back-spacer"></span>
+  </header>`;
+
+  const largeTitleBlock = largeTitle ? `<div class="wms-app-large-title">
+    <p class="wms-app-large-eyebrow">黄冈武穴 · 现场盘点</p>
+    <h1 class="wms-app-large-heading">${title}</h1>
+    ${subtitle ? `<p class="wms-app-large-sub">${subtitle}</p>` : ''}
+  </div>` : '';
+
+  const toastEl = toast ? `<div id="wms-count-toast" class="hidden" role="status"></div>` : '';
+
+  return `${appHead.replace('{{TITLE}}', title)}
+<body class="wms-app-body" data-page="app_count" data-title="${title}">
+  <div class="wms-device-stage">
+    <div class="wms-iphone16">
+      <div class="wms-dynamic-island" aria-hidden="true"></div>
+      <div class="wms-app-screen">
+        ${appStatusBar()}
+        ${nav}
+        <main class="wms-app-main">
+          ${largeTitleBlock}
+          ${body}
+        </main>
+        ${footer}
+        ${showTab ? appTabBar(activeTab) : ''}
+        <div class="wms-home-indicator" aria-hidden="true"></div>
+        ${toastEl}
+      </div>
+    </div>
+  </div>
+  <script src="../../js/layout.js" charset="UTF-8"></script>
+</body></html>`;
+}
+
+function appQuickAction(href, icon, label, tone) {
+  const tones = {
+    zinc: 'background:#f4f4f5;color:#3f3f46',
+    stone: 'background:#f5f5f4;color:#57534e',
+    neutral: 'background:#f5f5f5;color:#525252',
+    slate: 'background:#f1f5f9;color:#475569',
+  };
+  return `<a href="${href}" class="wms-app-quick wms-app-btn">
+    <div class="wms-app-quick-icon" style="${tones[tone] || tones.zinc}"><i class="fa-solid ${icon}"></i></div>
+    <span class="wms-app-quick-label">${label}</span>
+  </a>`;
+}
+
+function appCountHomePage() {
+  return appPageShell({
+    title: '盘点',
+    largeTitle: true,
+    subtitle: '2026年中盘点 · 主仓库 A区',
+    activeTab: 'home',
+    backHref: '',
+    body: `
+    <div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-stack">
+        <div class="wms-app-hero">
+          <img src="${APP_HERO_IMG}" alt="仓库" class="wms-app-hero-bg" />
+          <div class="wms-app-hero-overlay"></div>
+          <div class="wms-app-hero-content">
+            <p class="text-xs font-medium text-white/70">当前计划</p>
+            <p class="mt-1 text-base font-semibold tracking-tight">进行中 · 明盘模式</p>
+            <dl class="wms-app-stat-row">
+              <div class="wms-app-stat-chip"><dt>我的任务</dt><dd>2</dd></div>
+              <div class="wms-app-stat-chip"><dt>待盘项</dt><dd>14</dd></div>
+              <div class="wms-app-stat-chip"><dt>差异</dt><dd style="color:#fbbf24">1</dd></div>
+            </dl>
+          </div>
+        </div>
+        <section class="wms-app-card p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="wms-app-section-title">待办任务</h2>
+            <a href="app_count_task_list.html" class="text-xs font-medium text-zinc-500">全部 <i class="fa-solid fa-chevron-right text-[10px]"></i></a>
+          </div>
+          <a href="app_count_execute.html?task=RW202606090001" class="wms-app-task-item wms-app-btn">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[11px] text-zinc-500">RW202606090001</span>
+              ${countTaskStatusBadge('盘点中')}
+            </div>
+            <p class="mt-1.5 text-sm font-semibold text-zinc-900">货架 A-01-06 · 28/42</p>
+            <p class="mt-0.5 text-xs text-zinc-500">2026 年中固定资产盘点</p>
+            <div class="wms-app-progress"><span style="width:67%"></span></div>
+          </a>
+          <a href="app_count_execute.html?task=RW202606090002" class="wms-app-task-item wms-app-btn">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[11px] text-zinc-500">RW202606090002</span>
+              ${countTaskStatusBadge('待盘点')}
+            </div>
+            <p class="mt-1.5 text-sm font-semibold text-zinc-900">货架 A-02-03 · 0/36</p>
+            <div class="wms-app-progress"><span style="width:0%"></span></div>
+          </a>
+        </section>
+      </div>
+    </div>`,
+  });
+}
+
+function appCountTaskListPage() {
+  const tasks = Object.values(COUNT_TASK_SAMPLES);
+  const cards = tasks.map(t => {
+    const pct = Math.round((t.done / t.total) * 100);
+    return `<a href="app_count_execute.html?task=${t.no}" class="wms-app-card block p-4 wms-app-btn">
+      <div class="flex items-center justify-between gap-2">
+        <span class="font-mono text-[11px] text-zinc-500">${t.no}</span>
+        ${countTaskStatusBadge(t.status)}
+      </div>
+      <p class="mt-2 text-base font-semibold text-zinc-900">${t.shelf}</p>
+      <p class="mt-0.5 text-xs text-zinc-500">${t.planName}</p>
+      <div class="mt-3 flex items-center justify-between text-sm">
+        <span class="text-zinc-500">进度 ${t.done}/${t.total}</span>
+        <span class="font-semibold text-zinc-800">执行 <i class="fa-solid fa-chevron-right text-[10px] text-zinc-400"></i></span>
+      </div>
+      <div class="wms-app-progress"><span style="width:${pct}%"></span></div>
+    </a>`;
+  }).join('');
+  return appPageShell({
+    title: '我的任务',
+    activeTab: '',
+    backHref: 'app_count_home.html',
+    body: `<div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-stack">
+        <div class="wms-app-card--glass wms-app-card flex items-center gap-3 p-3">
+          <i class="fa-solid fa-magnifying-glass text-zinc-400 pl-1"></i>
+          <span class="text-sm text-zinc-400">搜索任务单号、货架…</span>
+        </div>
+        ${cards}
+      </div>
+    </div>`,
+  });
+}
+
+function appCountExecutePage() {
+  const t = COUNT_TASK_SAMPLES.RW202606090001;
+  const items = [
+    { name: '笔记本', asset: 'ZC202606001', sys: '在库', done: true },
+    { name: '一体机', asset: 'ZC202606002', sys: '在库', done: true },
+    { name: '工程测量仪', asset: 'ZC202605012', sys: '借出', done: false, diff: true },
+    { name: '电钻', asset: '', sys: '6', done: false, qty: true },
+    { name: '钢丝绳', asset: '', sys: '100', done: false, qty: true, diff: true },
+  ];
+  const itemCards = items.map(it => `<div class="wms-app-card p-4${it.diff ? ' ring-1 ring-amber-200/80' : ''}" data-wms-app-count-item style="${it.diff ? 'background:rgba(255,251,235,0.5)' : ''}">
+    <div class="flex items-start justify-between gap-2">
+      <div>
+        <p class="font-semibold text-zinc-900">${it.name}</p>
+        ${it.asset ? `<p class="mt-0.5 font-mono text-[11px] text-zinc-500">${it.asset}</p>` : ''}
+        <p class="mt-1 text-xs text-zinc-500">账存：${it.sys}</p>
+      </div>
+      ${it.done ? badge('已盘', 'success') : badge('待盘', 'warning')}
+    </div>
+    ${it.qty ? `<div class="wms-app-field mt-3"><label>实盘数量</label><input type="number" placeholder="请输入实盘数量" /></div>` : ''}
+    ${!it.qty && !it.done ? `<div class="mt-3 flex gap-2">
+      <button type="button" class="wms-app-cta flex-1 wms-app-btn" data-wms-app-count-confirm>确认在库</button>
+      <button type="button" class="wms-app-cta wms-app-cta--secondary wms-app-btn px-4" style="width:auto;flex:0 0 auto">未盘到</button>
+    </div>` : ''}
+  </div>`).join('');
+  return appPageShell({
+    title: '执行盘点',
+    activeTab: '',
+    showTab: false,
+    backHref: 'app_count_task_list.html',
+    toast: true,
+    body: `<div class="wms-app-pad wms-app-pad--top space-y-4" style="padding-bottom:0.5rem">
+      <div class="wms-app-card--glass wms-app-card p-3 text-xs text-zinc-600">
+        <p class="font-semibold text-zinc-900">${t.planName}</p>
+        <p class="mt-0.5">货架 ${t.shelf} · 明盘 · 已完成 ${t.done}/${t.total}</p>
+      </div>
+      <div class="wms-app-segment" data-wms-app-count-tabs>
+        <button type="button" class="is-active wms-app-btn" data-tab="pending">待盘 3</button>
+        <button type="button" class="wms-app-btn" data-tab="done">已盘 2</button>
+        <button type="button" class="wms-app-btn" data-tab="diff">差异 1</button>
+      </div>
+      <div class="space-y-3">${itemCards}</div>
+    </div>`,
+    footer: `<div class="wms-app-sticky-footer">
+      <button type="button" class="wms-app-cta wms-app-btn" data-wms-count-submit>提交任务</button>
+    </div>`,
+  });
+}
+
+function appCountScanPage() {
+  return appPageShell({
+    title: '扫码盘点',
+    activeTab: 'scan',
+    backHref: 'app_count_home.html',
+    body: `<div class="wms-app-pad wms-app-pad--top space-y-4">
+      <div class="wms-app-scan-stage">
+        <div class="wms-app-scan-frame"></div>
+        <div class="wms-app-scan-corner wms-app-scan-corner--tl"></div>
+        <div class="wms-app-scan-corner wms-app-scan-corner--tr"></div>
+        <div class="wms-app-scan-corner wms-app-scan-corner--bl"></div>
+        <div class="wms-app-scan-corner wms-app-scan-corner--br"></div>
+        <div class="wms-app-scan-line"></div>
+        <div class="absolute inset-0 flex flex-col items-center justify-end pb-8 px-6 text-center">
+          <p class="text-sm font-medium text-white/90">对准资产二维码</p>
+          <p class="mt-1 text-xs text-white/50">自动识别固定资产编码</p>
+          <button type="button" class="wms-app-cta wms-app-btn mt-5 max-w-[200px]" data-wms-app-scan-demo>模拟扫码</button>
+        </div>
+      </div>
+      <div id="wms-app-scan-result" class="hidden wms-app-card p-4 ring-1 ring-zinc-200">
+        <p class="text-xs font-semibold text-zinc-700"><i class="fa-solid fa-circle-check mr-1 text-zinc-600"></i>识别成功</p>
+        <p class="mt-2 text-base font-semibold text-zinc-900">笔记本</p>
+        <p class="font-mono text-[11px] text-zinc-500">ZC202606001 · A-01-06</p>
+        <p class="mt-1 text-xs text-zinc-500">账存：在库</p>
+        <button type="button" class="wms-app-cta wms-app-btn mt-4">标记已盘</button>
+      </div>
+      <p class="text-center text-xs text-zinc-400 leading-relaxed">固定资产优先扫码盘点<br/>类资产请前往执行页录入数量</p>
+    </div>`,
+  });
+}
+
+function appCountProfilePage() {
+  const PROFILE_IMG = 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=128&h=128&q=80';
+  return appPageShell({
+    title: '个人中心',
+    largeTitle: true,
+    subtitle: '仓库管理员 · 主仓库 A 区',
+    activeTab: 'profile',
+    backHref: '',
+    body: `<div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-stack">
+        <div class="wms-app-profile-card">
+          <img src="${PROFILE_IMG}" alt="用户头像" class="wms-app-profile-avatar" />
+          <div class="min-w-0">
+            <p class="text-base font-semibold text-zinc-900">张明</p>
+            <p class="mt-0.5 text-xs text-zinc-500">仓库管理员 · 盘点执行人</p>
+            <p class="mt-1 text-xs text-zinc-400">工号 WH-1024 · 主仓库 A 区</p>
+          </div>
+        </div>
+        <dl class="wms-app-profile-stats">
+          <div class="wms-app-profile-stat"><dt>本月盘点</dt><dd>6</dd></div>
+          <div class="wms-app-profile-stat"><dt>已完成</dt><dd>4</dd></div>
+          <div class="wms-app-profile-stat"><dt>待处理差异</dt><dd>1</dd></div>
+        </dl>
+        <nav class="wms-app-menu">
+          <a href="app_count_task_list.html" class="wms-app-menu-item wms-app-btn"><i class="fa-solid fa-list-check"></i><span>我的盘点任务</span><i class="fa-solid fa-chevron-right"></i></a>
+          <a href="app_count_offbook.html" class="wms-app-menu-item wms-app-btn"><i class="fa-solid fa-circle-plus"></i><span>账外资产登记</span><i class="fa-solid fa-chevron-right"></i></a>
+          <a href="../count_diff_list.html" class="wms-app-menu-item wms-app-btn"><i class="fa-solid fa-triangle-exclamation"></i><span>差异处理记录</span><i class="fa-solid fa-chevron-right"></i></a>
+          <a href="../count_plan_list.html" class="wms-app-menu-item wms-app-btn"><i class="fa-solid fa-desktop"></i><span>PC 端管理</span><i class="fa-solid fa-chevron-right"></i></a>
+        </nav>
+        <nav class="wms-app-menu">
+          <a href="#" class="wms-app-menu-item wms-app-btn"><i class="fa-solid fa-bell"></i><span>消息通知</span><i class="fa-solid fa-chevron-right"></i></a>
+          <a href="#" class="wms-app-menu-item wms-app-btn"><i class="fa-solid fa-gear"></i><span>设置</span><i class="fa-solid fa-chevron-right"></i></a>
+          <a href="../../index.html" class="wms-app-menu-item wms-app-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>退出到原型入口</span><i class="fa-solid fa-chevron-right"></i></a>
+        </nav>
+      </div>
+    </div>`,
+  });
+}
+
+function appCountOffbookPage() {
+  return appPageShell({
+    title: '账外资产',
+    showTab: false,
+    backHref: 'app_count_home.html',
+    body: `<div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-stack">
+      <div class="wms-app-card p-3 text-xs leading-relaxed text-zinc-700" style="background:rgba(255,251,235,0.65);border-color:#fde68a">
+        <i class="fa-solid fa-circle-info mr-1 text-zinc-500"></i>
+        现场发现账外资产时登记，提交后生成资产确认单（待审核），审核通过后写入台账。
+      </div>
+      <div class="wms-app-card p-4 space-y-4">
+        <div class="wms-app-field"><label>资产名称 <span class="text-red-500">*</span></label><input type="text" placeholder="请输入资产名称" /></div>
+        <div class="wms-app-field"><label>物资大类 <span class="text-red-500">*</span></label><select><option>资产-固定资产</option><option>资产-类资产</option></select></div>
+        <div class="wms-app-field"><label>使用地点 <span class="text-red-500">*</span></label><input type="text" placeholder="如：武穴大桥施工点" /></div>
+        <div class="wms-app-field"><label>数量</label><input type="number" value="1" /></div>
+        <div class="wms-app-field"><label>备注</label><textarea rows="2" placeholder="盘盈说明、现场情况…"></textarea></div>
+      </div>
+      <button type="button" class="wms-app-cta wms-app-btn">提交确认单</button>
+      </div>
+    </div>`,
+  });
+}
+
+const appPages = {
+  app_count_home: appCountHomePage(),
+  app_count_task_list: appCountTaskListPage(),
+  app_count_execute: appCountExecutePage(),
+  app_count_scan: appCountScanPage(),
+  app_count_offbook: appCountOffbookPage(),
+  app_count_profile: appCountProfilePage(),
+};
+
 const pages = {
   ledger_material: page('ledger_material', '物资台账', '物资台账 / 库存总览', ledgerMaterialListPage()),
 
@@ -5268,6 +5998,16 @@ const pages = {
 
   warehouse_scrap_pending_pool: page('warehouse_scrap_list', '待报废池', '物资管理 / 待报废池', warehouseScrapPendingPoolPage()),
 
+  count_plan_list: page('count_plan_list', '盘点计划', '库场盘点 / 盘点计划', countPlanListPage()),
+
+  count_plan_detail: page('count_plan_list', '盘点计划详情', '库场盘点 / 计划详情', countPlanDetailPage()),
+
+  count_task_list: page('count_task_list', '盘点任务', '库场盘点 / 盘点任务', countTaskListPage()),
+
+  count_diff_list: page('count_diff_list', '差异处理', '库场盘点 / 差异处理', countDiffListPage()),
+
+  count_adjust_list: page('count_adjust_list', '库存调整', '库场盘点 / 库存调整', countAdjustListPage()),
+
   supplier_list: page('supplier_list', '供应商列表', '供应商管理 / 供应商列表', listPage({
     desc: '供应商档案与供货状态；审批通过的评价结果自动回写最新等级与评分',
     addBtn: true, addHref: 'supplier_form.html',
@@ -5361,6 +6101,7 @@ const pages = {
       ['WF-PURCHASE-URGENT', '急件采购申请', '采购员 → 采购负责人 → 分管领导', badge('启用','success'), '2026-06-01'],
       ['WF-SUPPLIER-EVAL', '供应商评价', '评价人 → 采购负责人', badge('启用','success'), '2026-06-09'],
       ['WF-SCRAP', '物资作废', '申请人 → 仓库管理员 → 物资管理部门', badge('启用','success'), '2026-06-09'],
+      ['WF-COUNT-ADJUST', '盘点库存调整', '申请人 → 仓库管理员 → 物资管理部门', badge('启用','success'), '2026-06-09'],
     ],
     actions: '<a href="#" class="hover:underline">编辑</a>',
   })),
@@ -5608,11 +6349,11 @@ const forms = {
   supplier_eval_select_supplier: page('supplier_eval_list', '选择供应商', '供应商管理 / 选择供应商', supplierEvalSelectSupplierPage()),
 
   config_category_major_fixed: page('config_category', '固定资产', '基础配置 / 查看大类', categoryViewMajorModal('固定资产', 'config_category.html', [
-    ['分类编码', 'ZC-GD'], ['分类名称', '固定资产'], ['归还', '需要'],
+    ['分类编码', 'ZC-GD'], ['分类名称', '固定资产'], ['归还', '需要'], ['是否需要盘点', '是'], ['是否需要使用年限', '是'],
   ])),
 
   config_category_major_like: page('config_category', '类资产', '基础配置 / 查看大类', categoryViewMajorModal('类资产', 'config_category.html', [
-    ['分类编码', 'LA-ZC'], ['分类名称', '类资产'], ['归还', '需要'], ['库存下限', '需要'], ['库存上限', '需要'],
+    ['分类编码', 'LA-ZC'], ['分类名称', '类资产'], ['归还', '需要'], ['是否需要盘点', '是'], ['是否需要使用年限', '是'], ['库存下限', '需要'], ['库存上限', '需要'],
   ])),
 
   config_category_major_consumable_form: page('config_category', '大类', '基础配置 / 新增耗材大类', categoryMajorConsumableForm('config_category.html')),
@@ -5620,13 +6361,13 @@ const forms = {
   config_category_sub_fixed: page('config_category', '固定资产 · 新增子类', '基础配置 / 新增子类', categorySubForm('config_category.html', { title: '固定资产 · 新增子类', level: 1, type: 'fixed' })),
 
   config_category_sub_fixed_view: page('config_category', '查看子类', '基础配置 / 查看子类', categoryViewMajorModal('办公电脑', 'config_category.html', [
-    ['分类编码', 'ZC-GD-001'], ['分类名称', '办公电脑'], ['计量单位', '—'], ['归还', '需要'],
+    ['分类编码', 'ZC-GD-001'], ['分类名称', '办公电脑'], ['计量单位', '—'], ['归还', '需要'], ['是否需要盘点', '是'], ['是否需要使用年限', '是'],
   ])),
 
   config_category_sub_like: page('config_category', '类资产 · 新增子类', '基础配置 / 新增子类', categorySubForm('config_category.html', { title: '类资产 · 新增子类', level: 1, type: 'like' })),
 
   config_category_sub_like_view: page('config_category', '查看子类', '基础配置 / 查看子类', categoryViewMajorModal('电动工具', 'config_category.html', [
-    ['分类编码', 'LA-ZC-001'], ['分类名称', '电动工具'], ['计量单位', '—'], ['归还', '需要'],
+    ['分类编码', 'LA-ZC-001'], ['分类名称', '电动工具'], ['计量单位', '—'], ['归还', '需要'], ['是否需要盘点', '是'], ['是否需要使用年限', '是'],
   ])),
 
   config_category_sub_consumable: page('config_category', '耗材 · 新增子类', '基础配置 / 新增子类', categorySubForm('config_category.html', { title: '办公耗材 · 新增子类', level: 1, type: 'consumable' })),
@@ -5644,8 +6385,20 @@ const forms = {
   ], 'system_workflow.html', { buttons: ['cancel', 'save'] })),
 
   config_category_detail: page('config_category', '查看子类', '基础配置 / 查看子类', categoryViewMajorModal('一体机', 'config_category.html', [
-    ['分类编码', 'ZC-GD-001001'], ['分类名称', '一体机'], ['计量单位', '台'], ['归还', '需要'],
+    ['分类编码', 'ZC-GD-001001'], ['分类名称', '一体机'], ['计量单位', '台'], ['归还', '需要'], ['是否需要盘点', '是'], ['是否需要使用年限', '是'],
   ])),
+
+  count_plan_form: page('count_plan_list', '新增盘点计划', '库场盘点 / 新增计划', countPlanFormPage('count_plan_list.html')),
+
+  count_task_detail: page('count_task_list', '查看盘点任务', '库场盘点 / 任务详情', countTaskDetailPage()),
+
+  count_execute_form: page('count_task_list', '盘点执行', '库场盘点 / 盘点执行', countExecuteFormPage('count_task_list.html')),
+
+  count_relocate_form: page('count_diff_list', '调货位', '库场盘点 / 调货位', countRelocateFormPage('count_diff_list.html')),
+
+  count_adjust_form: page('count_diff_list', '调整库存', '库场盘点 / 调整库存', countAdjustFormPage('count_diff_list.html')),
+
+  count_adjust_detail: page('count_adjust_list', '调整单详情', '库场盘点 / 调整详情', countAdjustDetailPage()),
 };
 
 function formBody(title, fields, backHref, options = {}) {
@@ -5682,10 +6435,17 @@ Object.entries({ ...pages, ...forms }).forEach(([name, html]) => {
   console.log('wrote', name);
 });
 
-console.log('Done:', Object.keys({ ...pages, ...forms }).length, 'pages');
+if (!fs.existsSync(appPagesDir)) fs.mkdirSync(appPagesDir, { recursive: true });
+Object.entries(appPages).forEach(([name, html]) => {
+  fs.writeFileSync(path.join(appPagesDir, `${name}.html`), html, 'utf8');
+  console.log('wrote app/', name);
+});
+
+console.log('Done:', Object.keys({ ...pages, ...forms }).length, 'PC pages,', Object.keys(appPages).length, 'APP pages');
 
 const mapLabels = {
-  '../index.html': ['工作台', '首页'],
+  '../index.html': ['原型入口', '首页'],
+  pc_home: ['PC 工作台', '首页 · PC'],
   ledger_material: ['物资台账', '物资台账'],
   ledger_material_detail: ['物资库存详情', '物资台账 · 表单'],
   ledger_warehouse: ['仓库台账', '物资台账'],
@@ -5753,6 +6513,23 @@ const mapLabels = {
   warehouse_scrap_execute: ['执行作废', '物资管理 · 表单'],
   warehouse_scrap_success: ['作废成功', '物资管理 · 确认'],
   warehouse_scrap_add_material: ['添加作废物资', '物资管理 · 表单'],
+  count_plan_list: ['盘点计划', '库场盘点'],
+  count_plan_form: ['新增盘点计划', '库场盘点 · 表单'],
+  count_plan_detail: ['盘点计划详情', '库场盘点'],
+  count_task_list: ['盘点任务', '库场盘点'],
+  count_task_detail: ['盘点任务详情', '库场盘点 · 表单'],
+  count_execute_form: ['盘点执行', '库场盘点 · 表单'],
+  count_diff_list: ['差异处理', '库场盘点'],
+  count_relocate_form: ['调货位', '库场盘点 · 表单'],
+  count_adjust_list: ['库存调整', '库场盘点'],
+  count_adjust_form: ['调整库存', '库场盘点 · 表单'],
+  count_adjust_detail: ['调整单详情', '库场盘点 · 表单'],
+  app_count_home: ['盘点首页', '移动端 · 库场盘点'],
+  app_count_task_list: ['我的盘点任务', '移动端 · 库场盘点'],
+  app_count_execute: ['移动盘点执行', '移动端 · 库场盘点'],
+  app_count_scan: ['扫码盘点', '移动端 · 库场盘点'],
+  app_count_offbook: ['账外资产确认', '移动端 · 库场盘点'],
+  app_count_profile: ['个人中心', '移动端 · 库场盘点'],
   warehouse_refund_form: ['新增退货', '物资管理 · 入口'],
   warehouse_refund_pre_form: ['验收不合格退货', '物资管理 · 表单'],
   warehouse_refund_fixed_form: ['固定资产退货', '物资管理 · 表单'],
@@ -5799,11 +6576,20 @@ const mapLabels = {
   system_workflow_form: ['新增流程', '系统 · 表单'],
 };
 
-const mapEntries = [['../index.html', ...mapLabels['../index.html']]];
+const mapEntries = [
+  ['../index.html', ...mapLabels['../index.html']],
+  ['pc_home.html', ...mapLabels.pc_home],
+];
 Object.keys({ ...pages, ...forms }).forEach(name => {
   const label = mapLabels[name] || [name, '页面'];
   mapEntries.push([`${name}.html`, ...label]);
 });
+Object.keys(appPages).forEach(name => {
+  const label = mapLabels[name] || [name, '移动端'];
+  mapEntries.push([`app/${name}.html`, ...label]);
+});
+const pcTotal = Object.keys({ ...pages, ...forms }).length;
+const appTotal = Object.keys(appPages).length;
 const total = mapEntries.length;
 const mapHtml = `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -5817,7 +6603,7 @@ const mapHtml = `<!DOCTYPE html>
 </head>
 <body data-page="dashboard" data-title="原型目录" data-breadcrumb="系统 / 原型页面目录">
   <div id="main-content">
-    <p class="mb-6 text-sm text-slate-500">共 ${total} 个 PC 端原型页面，点击可在新标签打开。PRD 文档：<code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs">docs/prd.md</code></p>
+    <p class="mb-6 text-sm text-slate-500">共 ${pcTotal} 个 PC 端 + ${appTotal} 个 APP 端原型页面（合计 ${total}），点击可在新标签打开。移动端建议用浏览器开发者工具切换手机视口预览。PRD：<code class="rounded bg-slate-100 px-1.5 py-0.5 text-xs">docs/prd.md</code></p>
     <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" id="page-grid"></div>
   </div>
   <script>

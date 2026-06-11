@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>工作台 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="dashboard" data-title="工作台" data-breadcrumb="首页 / 工作台">
+  <div id="main-content">
+    <div class="wms-dash-stats mb-6">
+      <a href="purchase_pending_list.html?tab=待申请" class="wms-dash-stat card">
+        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待采物资</span><i class="fa-solid fa-cart-shopping wms-dash-stat-icon"></i></div>
+        <div class="wms-dash-stat-num">4</div>
+        <span class="wms-dash-stat-link">去申请 →</span>
+      </a>
+      <a href="warehouse_pending_check.html" class="wms-dash-stat card">
+        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待验物资</span><i class="fa-solid fa-clipboard-check wms-dash-stat-icon"></i></div>
+        <div class="wms-dash-stat-num">3</div>
+        <span class="wms-dash-stat-link">去验收 →</span>
+      </a>
+      <a href="warehouse_inbound_list.html?tab=待入库" class="wms-dash-stat card">
+        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待入库</span><i class="fa-solid fa-arrow-down-to-bracket wms-dash-stat-icon"></i></div>
+        <div class="wms-dash-stat-num">3</div>
+        <span class="wms-dash-stat-link">去入库 →</span>
+      </a>
+      <a href="warehouse_outbound_list.html?tab=待出库" class="wms-dash-stat card">
+        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待出库</span><i class="fa-solid fa-arrow-up-from-bracket wms-dash-stat-icon"></i></div>
+        <div class="wms-dash-stat-num">4</div>
+        <span class="wms-dash-stat-link">去出库 →</span>
+      </a>
+      <a href="count_task_list.html" class="wms-dash-stat card">
+        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">盘点任务</span><i class="fa-solid fa-clipboard-list wms-dash-stat-icon text-violet-300"></i></div>
+        <div class="wms-dash-stat-num text-violet-700">2</div>
+        <span class="wms-dash-stat-link">去盘点 →</span>
+      </a>
+      <a href="purchase_supply_list.html?tab=待供货" class="wms-dash-stat card">
+        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">供货逾期</span><i class="fa-solid fa-truck wms-dash-stat-icon text-amber-300"></i></div>
+        <div class="wms-dash-stat-num text-amber-600">1</div>
+        <span class="wms-dash-stat-link">查看供货单 →</span>
+      </a>
+      <a href="mine_pending_return.html" class="wms-dash-stat card">
+        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待还超期</span><i class="fa-solid fa-triangle-exclamation wms-dash-stat-icon text-rose-300"></i></div>
+        <div class="wms-dash-stat-num text-rose-600">2</div>
+        <span class="wms-dash-stat-link">去处理 →</span>
+      </a>
+      <a href="warehouse_scrap_pending_pool.html" class="wms-dash-stat card">
+        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待报废</span><i class="fa-solid fa-dumpster wms-dash-stat-icon text-rose-300"></i></div>
+        <div class="wms-dash-stat-num text-rose-600">3</div>
+        <span class="wms-dash-stat-link">待报废池 →</span>
+      </a>
+      <a href="warehouse_scrap_list.html?tab=待执行" class="wms-dash-stat card">
+        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待执行作废</span><i class="fa-solid fa-file-circle-xmark wms-dash-stat-icon text-orange-300"></i></div>
+        <div class="wms-dash-stat-num text-orange-600">1</div>
+        <span class="wms-dash-stat-link">去执行 →</span>
+      </a>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-3">
+      <div class="card lg:col-span-2 overflow-hidden rounded-2xl bg-white">
+        <div class="border-b border-slate-100 px-6 py-4">
+          <h2 class="font-semibold text-slate-900">作业待办</h2>
+          <p class="mt-0.5 text-xs text-slate-400">验收、入库、出库、采购等业务执行队列</p>
+        </div>
+        <ul class="divide-y divide-slate-100">
+          <li class="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/80">
+            <span class="rounded-lg bg-violet-50 px-2 py-1 text-xs font-medium text-violet-700">待采</span>
+            <span class="flex-1 text-sm text-slate-700">急件计划 JJJH202606080001 · 防汛沙袋 待申请采购</span>
+            <a href="purchase_pending_apply.html?planNo=JJJH202606080001&amp;code=XF-00102&amp;name=防汛沙袋&amp;qty=500" class="text-sm font-medium text-slate-900 hover:underline">申请</a>
+          </li>
+          <li class="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/80">
+            <span class="rounded-lg bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700">验收</span>
+            <span class="flex-1 text-sm text-slate-700">供货单 GH2025005 · 扳手 待验收</span>
+            <a href="warehouse_acceptance_form.html?no=GH2025005&amp;back=warehouse_pending_check.html" class="text-sm font-medium text-slate-900 hover:underline">验收</a>
+          </li>
+          <li class="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/80">
+            <span class="rounded-lg bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">入库</span>
+            <span class="flex-1 text-sm text-slate-700">验收单 GH2025001-YS01 · 抓斗 待入库</span>
+            <a href="warehouse_inbound_fixed_form.html?acceptNo=GH2025001-YS01&amp;back=warehouse_inbound_list.html" class="text-sm font-medium text-slate-900 hover:underline">入库</a>
+          </li>
+          <li class="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/80">
+            <span class="rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">出库</span>
+            <span class="flex-1 text-sm text-slate-700">领用单 LY202606070002 · 工程测量仪 待出库</span>
+            <a href="warehouse_outbound_fixed_form.html?lineKey=LY202606070002-L1&amp;back=warehouse_outbound_list.html" class="text-sm font-medium text-slate-900 hover:underline">出库</a>
+          </li>
+          <li class="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/80">
+            <span class="rounded-lg bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700">供货</span>
+            <span class="flex-1 text-sm text-slate-700">供货单 GH2025005 · 约定交期已逾期</span>
+            <a href="purchase_supply_complete.html?no=GH2025005&amp;back=purchase_supply_list.html" class="text-sm font-medium text-slate-900 hover:underline">处理</a>
+          </li>
+          <li class="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/80">
+            <span class="rounded-lg bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700">作废</span>
+            <span class="flex-1 text-sm text-slate-700">作废单 ZF202606090001 · 手持对讲机 待执行</span>
+            <a href="warehouse_scrap_execute.html?scrapKey=ZF202606090001&amp;back=warehouse_scrap_list.html" class="text-sm font-medium text-slate-900 hover:underline">执行</a>
+          </li>
+          <li class="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/80">
+            <span class="rounded-lg bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700">待报废</span>
+            <span class="flex-1 text-sm text-slate-700">打印纸 A4 · 受潮霉变 12 箱待发起作废</span>
+            <a href="warehouse_scrap_form.html?poolKey=POOL-HC089&amp;back=warehouse_scrap_pending_pool.html" class="text-sm font-medium text-slate-900 hover:underline">发起</a>
+          </li>
+          <li class="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/80">
+            <span class="rounded-lg bg-violet-50 px-2 py-1 text-xs font-medium text-violet-700">盘点</span>
+            <span class="flex-1 text-sm text-slate-700">任务 RW202606090001 · 货架 A-01-06 盘点中 28/42</span>
+            <a href="count_execute_form.html?task=RW202606090001" class="text-sm font-medium text-slate-900 hover:underline">执行</a>
+          </li>
+        </ul>
+      </div>
+      <div class="card overflow-hidden rounded-2xl bg-white">
+        <div class="border-b border-slate-100 px-6 py-4"><h2 class="font-semibold text-slate-900">库存概览</h2></div>
+        <div class="p-6">
+          <img src="https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=600&q=80" alt="仓库" class="mb-4 h-32 w-full rounded-xl object-cover" />
+          <dl class="space-y-3 text-sm">
+            <div class="flex justify-between"><dt class="text-slate-500">在库物资种类</dt><dd class="font-semibold text-slate-900"><a href="ledger_material.html" class="hover:underline">1,248</a></dd></div>
+            <div class="flex justify-between"><dt class="text-slate-500">本月出入库</dt><dd class="font-semibold text-slate-900"><a href="ledger_transaction.html" class="hover:underline">326 笔</a></dd></div>
+            <div class="flex justify-between"><dt class="text-slate-500">库存下限预警</dt><dd class="font-semibold text-amber-600">12 种</dd></div>
+          </dl>
+          <div class="mt-4 grid gap-2">
+            <a href="ledger_material.html" class="flex w-full items-center justify-center rounded-xl bg-slate-900 py-2.5 text-sm font-medium text-white hover:bg-slate-800">物资台账总览</a>
+            <a href="ledger_warehouse.html" class="flex w-full items-center justify-center rounded-xl bg-white py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50">仓库台账</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 card rounded-2xl bg-white p-6">
+      <h2 class="mb-4 font-semibold text-slate-900">快捷入口</h2>
+      <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+        <a href="apply_plan_form.html" class="flex flex-col items-center gap-2 rounded-xl p-4 text-center hover:bg-slate-50"><i class="fa-solid fa-clipboard-list text-lg text-slate-600"></i><span class="text-xs text-slate-600">新增计划</span></a>
+        <a href="purchase_pending_list.html" class="flex flex-col items-center gap-2 rounded-xl p-4 text-center hover:bg-slate-50"><i class="fa-solid fa-cart-shopping text-lg text-slate-600"></i><span class="text-xs text-slate-600">待采物资</span></a>
+        <a href="purchase_request_form.html" class="flex flex-col items-center gap-2 rounded-xl p-4 text-center hover:bg-slate-50"><i class="fa-solid fa-file-invoice text-lg text-slate-600"></i><span class="text-xs text-slate-600">采购申请</span></a>
+        <a href="warehouse_acceptance_list.html" class="flex flex-col items-center gap-2 rounded-xl p-4 text-center hover:bg-slate-50"><i class="fa-solid fa-clipboard-check text-lg text-slate-600"></i><span class="text-xs text-slate-600">物资验收</span></a>
+        <a href="warehouse_inbound_list.html" class="flex flex-col items-center gap-2 rounded-xl p-4 text-center hover:bg-slate-50"><i class="fa-solid fa-arrow-down-to-bracket text-lg text-slate-600"></i><span class="text-xs text-slate-600">物资入库</span></a>
+        <a href="purchase_supply_list.html" class="flex flex-col items-center gap-2 rounded-xl p-4 text-center hover:bg-slate-50"><i class="fa-solid fa-truck text-lg text-slate-600"></i><span class="text-xs text-slate-600">供货单</span></a>
+        <a href="warehouse_scrap_list.html" class="flex flex-col items-center gap-2 rounded-xl p-4 text-center hover:bg-slate-50"><i class="fa-solid fa-dumpster text-lg text-slate-600"></i><span class="text-xs text-slate-600">物资作废</span></a>
+        <a href="ledger_material.html" class="flex flex-col items-center gap-2 rounded-xl p-4 text-center hover:bg-slate-50"><i class="fa-solid fa-boxes-stacked text-lg text-slate-600"></i><span class="text-xs text-slate-600">物资台账</span></a>
+        <a href="count_plan_list.html" class="flex flex-col items-center gap-2 rounded-xl p-4 text-center hover:bg-slate-50"><i class="fa-solid fa-calendar-check text-lg text-slate-600"></i><span class="text-xs text-slate-600">盘点计划</span></a>
+        <a href="app/app_count_home.html" class="flex flex-col items-center gap-2 rounded-xl p-4 text-center hover:bg-slate-50"><i class="fa-solid fa-mobile-screen text-lg text-violet-600"></i><span class="text-xs text-slate-600">移动盘点</span></a>
+      </div>
+    </div>
+  </div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body>
+</html>

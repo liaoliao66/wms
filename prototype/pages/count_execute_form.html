@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>盘点执行 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="count_task_list" data-title="盘点执行" data-breadcrumb="库场盘点 / 盘点执行">
+  <div id="main-content"><div data-wms-modal data-modal-back="count_task_list.html" data-modal-size="xl" data-wms-count-execute>
+    <div class="mb-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p class="text-sm font-semibold text-slate-900">2026 年中固定资产盘点</p>
+          <p class="mt-0.5 text-xs text-slate-500 font-mono">任务 RW202606090001 · 货架 A-01-06 · <span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">盘点中</span></p>
+        </div>
+        <div class="text-right text-sm">
+          <p class="text-slate-500">进度 <span class="font-semibold text-slate-900">28/42</span>（67%）</p>
+          <div class="mt-1 h-1.5 w-40 rounded-full bg-slate-200 overflow-hidden"><div class="h-full rounded-full bg-emerald-500" style="width:67%"></div></div>
+        </div>
+      </div>
+      <p class="mt-2 text-xs text-slate-500"><i class="fa-solid fa-eye mr-1"></i>明盘模式：显示发布时快照账存。固定资产按资产编码确认，类资产录入实盘数量。</p>
+    </div>
+    <div class="wms-modal-table-wrap overflow-x-auto max-h-[420px] overflow-y-auto"><table class="min-w-full text-sm wms-data-table sticky top-0"><thead class="bg-slate-50/90"><tr>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">序号</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">货位</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">物资编码</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">物资名称</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">规格</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">单位</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">资产编码</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">系统库存</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">实际库存</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">盘点结果</th>
+    </tr></thead><tbody><tr class="border-t border-slate-100 ">
+      <td class="px-3 py-3 text-sm">1</td>
+      <td class="px-3 py-3 text-sm">A-01-06</td>
+      <td class="px-3 py-3 font-mono text-xs">ZC-GD-001002</td>
+      <td class="px-3 py-3 text-sm">笔记本</td>
+      <td class="px-3 py-3 text-sm text-slate-500">14寸</td>
+      <td class="px-3 py-3 text-sm">台</td>
+      <td class="px-3 py-3 font-mono text-xs">ZC202606001</td>
+      <td class="px-3 py-3 text-sm">在库</td>
+      <td class="px-3 py-3"><select class="rounded-lg border border-slate-200 px-2 py-1 text-sm"><option>在库</option><option>借出</option><option>未盘到</option></select></td>
+      <td class="px-3 py-3 text-sm"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">正常</span></td>
+    </tr><tr class="border-t border-slate-100 ">
+      <td class="px-3 py-3 text-sm">2</td>
+      <td class="px-3 py-3 text-sm">A-01-06</td>
+      <td class="px-3 py-3 font-mono text-xs">ZC-GD-001001</td>
+      <td class="px-3 py-3 text-sm">一体机</td>
+      <td class="px-3 py-3 text-sm text-slate-500">23.8寸</td>
+      <td class="px-3 py-3 text-sm">台</td>
+      <td class="px-3 py-3 font-mono text-xs">ZC202606002</td>
+      <td class="px-3 py-3 text-sm">在库</td>
+      <td class="px-3 py-3"><select class="rounded-lg border border-slate-200 px-2 py-1 text-sm"><option>在库</option><option>借出</option><option>未盘到</option></select></td>
+      <td class="px-3 py-3 text-sm"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">正常</span></td>
+    </tr><tr class="border-t border-slate-100 bg-amber-50/40">
+      <td class="px-3 py-3 text-sm">3</td>
+      <td class="px-3 py-3 text-sm">A-01-06</td>
+      <td class="px-3 py-3 font-mono text-xs">GC-20001</td>
+      <td class="px-3 py-3 text-sm">工程测量仪</td>
+      <td class="px-3 py-3 text-sm text-slate-500">全站仪</td>
+      <td class="px-3 py-3 text-sm">台</td>
+      <td class="px-3 py-3 font-mono text-xs">ZC202605012</td>
+      <td class="px-3 py-3 text-sm">借出</td>
+      <td class="px-3 py-3"><select class="rounded-lg border border-slate-200 px-2 py-1 text-sm"><option>在库</option><option>借出</option><option>未盘到</option></select></td>
+      <td class="px-3 py-3 text-sm"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-rose-50 text-rose-700 ring-rose-600/20">状态异常</span></td>
+    </tr><tr class="border-t border-slate-100 ">
+      <td class="px-3 py-3 text-sm">4</td>
+      <td class="px-3 py-3 text-sm">A-01-06</td>
+      <td class="px-3 py-3 font-mono text-xs">LA-00456</td>
+      <td class="px-3 py-3 text-sm">电钻</td>
+      <td class="px-3 py-3 text-sm text-slate-500">650W</td>
+      <td class="px-3 py-3 text-sm">台</td>
+      <td class="px-3 py-3 font-mono text-xs">—</td>
+      <td class="px-3 py-3 text-sm">6</td>
+      <td class="px-3 py-3"><input type="number" value="6" class="w-20 rounded-lg border border-slate-200 px-2 py-1 text-sm" /></td>
+      <td class="px-3 py-3 text-sm"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">正常</span></td>
+    </tr><tr class="border-t border-slate-100 bg-amber-50/40">
+      <td class="px-3 py-3 text-sm">5</td>
+      <td class="px-3 py-3 text-sm">A-01-06</td>
+      <td class="px-3 py-3 font-mono text-xs">LA-00457</td>
+      <td class="px-3 py-3 text-sm">钢丝绳</td>
+      <td class="px-3 py-3 text-sm text-slate-500">Φ18</td>
+      <td class="px-3 py-3 text-sm">m</td>
+      <td class="px-3 py-3 font-mono text-xs">—</td>
+      <td class="px-3 py-3 text-sm">100</td>
+      <td class="px-3 py-3"><input type="number" value="98" class="w-20 rounded-lg border border-slate-200 px-2 py-1 text-sm" /></td>
+      <td class="px-3 py-3 text-sm"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-rose-50 text-rose-700 ring-rose-600/20">盘亏</span></td>
+    </tr></tbody></table></div>
+    <div class="wms-modal-footer">
+      <a href="count_task_list.html" class="wms-btn wms-btn-secondary">返回</a>
+      <button type="button" class="wms-btn wms-btn-secondary">保存进度</button>
+      <button type="button" class="wms-btn wms-btn-primary" data-wms-count-submit>提交任务</button>
+    </div>
+  </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

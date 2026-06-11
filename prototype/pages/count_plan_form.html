@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新增盘点计划 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="count_plan_list" data-title="新增盘点计划" data-breadcrumb="库场盘点 / 新增计划">
+  <div id="main-content"><div data-wms-modal data-modal-back="count_plan_list.html" data-modal-size="lg">
+    <div class="wms-modal-form wms-warehouse-form">
+      <div class="md:col-span-2"><h3 class="wms-form-section-title">计划信息</h3></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700">盘点编号</label><input type="text" value="系统生成" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 盘点名称</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 盘点类型</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>日常盘点</option><option>专项盘点</option></select></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 盘点方法</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>明盘</option><option>盲盘</option></select></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 场内外范围</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>场内</option><option>场外</option><option>全部</option></select></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 盘点范围</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>全库</option><option>指定仓库</option><option>指定分区</option><option>指定货架</option><option>指定物资大类</option></select></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700">仓库</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>主仓库</option></select></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700">分区</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>A区</option><option>B区</option></select></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 开始时间</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 结束时间</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 盘点负责人</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>张仓管</option><option>李仓管</option></select></div>
+      <div class="md:col-span-2 flex items-center gap-3 rounded-lg border border-amber-100 bg-amber-50/80 px-3 py-2.5 text-sm text-amber-900">
+        <input type="checkbox" checked class="rounded border-amber-300" id="count-freeze" />
+        <label for="count-freeze">发布时冻结范围内出入库（入库/出库/归还/退货按钮禁用）</label>
+      </div>
+      <div class=" md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">备注</label><textarea rows="3" placeholder="0/500" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+      <div class="md:col-span-2 rounded-lg border border-sky-100 bg-sky-50/80 px-3 py-2 text-xs text-sky-900">
+        <i class="fa-solid fa-circle-info mr-1"></i>发布后将按「是否需要盘点=是」自动生成盘点明细，并按货架拆分为盘点任务。
+      </div>
+    </div>
+    <div class="wms-modal-footer">
+      <a href="count_plan_list.html" class="wms-btn wms-btn-secondary">取消</a>
+      <button type="button" class="wms-btn wms-btn-secondary">保存草稿</button>
+      <button type="button" class="wms-btn wms-btn-primary">发布计划</button>
+    </div>
+  </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

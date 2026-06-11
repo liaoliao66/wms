@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>调整库存 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="count_diff_list" data-title="调整库存" data-breadcrumb="库场盘点 / 调整库存">
+  <div id="main-content"><div data-wms-modal data-modal-back="count_diff_list.html" data-modal-size="lg">
+    <div class="wms-modal-form wms-warehouse-form">
+      <div class="md:col-span-2 rounded-lg border border-amber-100 bg-amber-50/80 p-3 text-sm text-amber-900">
+        <i class="fa-solid fa-scale-unbalanced mr-1"></i>差异：盘亏 · 钢丝绳（LA-00457）· 账存 100 → 实盘 98 · 调整 -2 m
+      </div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700">调整单号</label><input type="text" value="系统生成" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700">关联盘点</label><input type="text" value="PD202606010002" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 差异原因</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>破损</option><option>丢失</option><option>计量误差</option><option>其他</option></select></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700">调整前数量</label><input type="text" value="100" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+      <div class=""><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 调整后数量</label><input type="text" value="98" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+      <div class=" md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">调整说明</label><textarea rows="3" placeholder="0/500" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+      <p class="md:col-span-2 text-xs text-amber-700"><i class="fa-solid fa-circle-info mr-1"></i>提交后进入基础平台审批；通过后扣减台账并写入 adjust 审计流水。</p>
+    </div>
+    <div class="wms-modal-footer"><a href="count_diff_list.html" class="wms-btn wms-btn-secondary">取消</a><button type="button" class="wms-btn wms-btn-secondary">保存草稿</button><button type="button" class="wms-btn wms-btn-primary">提交审批</button></div>
+  </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

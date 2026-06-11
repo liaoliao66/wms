@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>执行盘点 · WMS 移动盘点</title>
+  <link rel="stylesheet" href="../../css/tailwind.css" />
+  <link rel="stylesheet" href="../../css/custom.css" />
+  <link rel="stylesheet" href="../../vendor/fontawesome/css/all.min.css" />
+</head>
+<body class="wms-app-body" data-page="app_count" data-title="执行盘点">
+  <div class="wms-device-stage">
+    <div class="wms-iphone16">
+      <div class="wms-dynamic-island" aria-hidden="true"></div>
+      <div class="wms-app-screen">
+        <div class="wms-ios-status" aria-hidden="true">
+    <span class="wms-ios-time">9:41</span>
+    <div class="wms-ios-status-right">
+      <i class="fa-solid fa-signal"></i>
+      <i class="fa-solid fa-wifi"></i>
+      <span class="wms-ios-battery" title="电量 85%"><i class="fa-solid fa-battery-three-quarters"></i><span>85%</span></span>
+    </div>
+  </div>
+        <header class="wms-app-nav">
+    <a href="app_count_task_list.html" class="wms-app-back wms-app-btn" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></a>
+    <h1 class="wms-app-nav-title">执行盘点</h1>
+    <span class="wms-app-back-spacer"></span>
+  </header>
+        <main class="wms-app-main">
+          
+          <div class="wms-app-pad wms-app-pad--top space-y-4" style="padding-bottom:0.5rem">
+      <div class="wms-app-card--glass wms-app-card p-3 text-xs text-zinc-600">
+        <p class="font-semibold text-zinc-900">2026 年中固定资产盘点</p>
+        <p class="mt-0.5">货架 A-01-06 · 明盘 · 已完成 28/42</p>
+      </div>
+      <div class="wms-app-segment" data-wms-app-count-tabs>
+        <button type="button" class="is-active wms-app-btn" data-tab="pending">待盘 3</button>
+        <button type="button" class="wms-app-btn" data-tab="done">已盘 2</button>
+        <button type="button" class="wms-app-btn" data-tab="diff">差异 1</button>
+      </div>
+      <div class="space-y-3"><div class="wms-app-card p-4" data-wms-app-count-item style="">
+    <div class="flex items-start justify-between gap-2">
+      <div>
+        <p class="font-semibold text-zinc-900">笔记本</p>
+        <p class="mt-0.5 font-mono text-[11px] text-zinc-500">ZC202606001</p>
+        <p class="mt-1 text-xs text-zinc-500">账存：在库</p>
+      </div>
+      <span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">已盘</span>
+    </div>
+    
+    
+  </div><div class="wms-app-card p-4" data-wms-app-count-item style="">
+    <div class="flex items-start justify-between gap-2">
+      <div>
+        <p class="font-semibold text-zinc-900">一体机</p>
+        <p class="mt-0.5 font-mono text-[11px] text-zinc-500">ZC202606002</p>
+        <p class="mt-1 text-xs text-zinc-500">账存：在库</p>
+      </div>
+      <span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">已盘</span>
+    </div>
+    
+    
+  </div><div class="wms-app-card p-4 ring-1 ring-amber-200/80" data-wms-app-count-item style="background:rgba(255,251,235,0.5)">
+    <div class="flex items-start justify-between gap-2">
+      <div>
+        <p class="font-semibold text-zinc-900">工程测量仪</p>
+        <p class="mt-0.5 font-mono text-[11px] text-zinc-500">ZC202605012</p>
+        <p class="mt-1 text-xs text-zinc-500">账存：借出</p>
+      </div>
+      <span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待盘</span>
+    </div>
+    
+    <div class="mt-3 flex gap-2">
+      <button type="button" class="wms-app-cta flex-1 wms-app-btn" data-wms-app-count-confirm>确认在库</button>
+      <button type="button" class="wms-app-cta wms-app-cta--secondary wms-app-btn px-4" style="width:auto;flex:0 0 auto">未盘到</button>
+    </div>
+  </div><div class="wms-app-card p-4" data-wms-app-count-item style="">
+    <div class="flex items-start justify-between gap-2">
+      <div>
+        <p class="font-semibold text-zinc-900">电钻</p>
+        
+        <p class="mt-1 text-xs text-zinc-500">账存：6</p>
+      </div>
+      <span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待盘</span>
+    </div>
+    <div class="wms-app-field mt-3"><label>实盘数量</label><input type="number" placeholder="请输入实盘数量" /></div>
+    
+  </div><div class="wms-app-card p-4 ring-1 ring-amber-200/80" data-wms-app-count-item style="background:rgba(255,251,235,0.5)">
+    <div class="flex items-start justify-between gap-2">
+      <div>
+        <p class="font-semibold text-zinc-900">钢丝绳</p>
+        
+        <p class="mt-1 text-xs text-zinc-500">账存：100</p>
+      </div>
+      <span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待盘</span>
+    </div>
+    <div class="wms-app-field mt-3"><label>实盘数量</label><input type="number" placeholder="请输入实盘数量" /></div>
+    
+  </div></div>
+    </div>
+        </main>
+        <div class="wms-app-sticky-footer">
+      <button type="button" class="wms-app-cta wms-app-btn" data-wms-count-submit>提交任务</button>
+    </div>
+        
+        <div class="wms-home-indicator" aria-hidden="true"></div>
+        <div id="wms-count-toast" class="hidden" role="status"></div>
+      </div>
+    </div>
+  </div>
+  <script src="../../js/layout.js" charset="UTF-8"></script>
+</body></html>
