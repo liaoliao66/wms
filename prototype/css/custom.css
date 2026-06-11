@@ -235,6 +235,24 @@ body.wms-modal-open .wms-app-shell {
 
 .wms-requisition-form .wms-requisition-section {
   grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.wms-requisition-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.wms-requisition-material-table th,
+.wms-requisition-material-table td {
+  vertical-align: middle;
+}
+
+.wms-requisition-material-table .wms-col-actions {
+  position: static;
+  min-width: auto;
+  box-shadow: none;
+  background: transparent;
 }
 
 .wms-requisition-add-btn {
@@ -686,6 +704,19 @@ table tbody tr:hover .wms-col-actions {
 
 .wms-material-tree-toggle.is-expanded {
   transform: rotate(90deg);
+}
+
+/* 弹窗物资选择：左树右表 */
+.wms-picker-layout {
+  grid-template-columns: 220px minmax(0, 1fr);
+}
+
+.wms-picker-layout .wms-material-tree {
+  min-height: 360px;
+}
+
+.wms-picker-layout .wms-material-tree-scroll {
+  max-height: 380px;
 }
 
 .wms-tree-node--all.is-active,

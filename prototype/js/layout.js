@@ -54,11 +54,12 @@ const WMS_OUTBOUND_REQUISITION_SAMPLES = {
 const WMS_OUTBOUND_TYPE_LABELS = { fixed: '固定资产出库', like: '类资产出库', consumable: '耗材出库' };
 
 const WMS_RETURN_PENDING_SAMPLES = {
-  'LY202606010003-ZC202605012': { returnKey: 'LY202606010003-ZC202605012', requisitionNo: 'LY202606010003', outboundNo: 'CK202606010003', assetCode: 'ZC202605012', code: 'GD001001-005', name: '工程测量仪', major: '资产-固定资产', minor: '办公设备', spec: '全站仪 TS06', unit: '台', borrower: '张三', borrowerDept: '工程部', outboundDate: '2026-06-01', dueDate: '2026-06-15', extendedDueDate: '', outboundQty: '1', returnedQty: '0', pendingQty: '1', materialType: 'fixed', status: '待归还', returnNo: '', returnDate: '', condition: '', operator: '', department: '', remark: '', locations: [] },
-  'LY202605200008-LA-00331': { returnKey: 'LY202605200008-LA-00331', requisitionNo: 'LY202605200008', outboundNo: 'LY202605200008-CK001', assetCode: 'LA-00331', code: 'LA-00330', name: '铝合金梯', major: '资产-类资产', minor: '登高工具', spec: '3m', unit: '架', borrower: '王工', borrowerDept: '工程部', outboundDate: '2026-05-20', dueDate: '2026-06-05', extendedDueDate: '2026-06-20', outboundQty: '1', returnedQty: '0', pendingQty: '1', materialType: 'like', status: '已延期', returnNo: '', returnDate: '', condition: '', operator: '', department: '', remark: '', locations: [] },
-  'LY202606070003-L1': { returnKey: 'LY202606070003-L1', requisitionNo: 'LY202606070003', outboundNo: '—', assetCode: '', code: 'LA-00456', name: '电钻', major: '资产-类资产', minor: '电动工具', spec: '650W', unit: '台', borrower: '李工', borrowerDept: '设备部', outboundDate: '—', dueDate: '2026-07-09', extendedDueDate: '', outboundQty: '3', returnedQty: '0', pendingQty: '3', materialType: 'like', status: '待归还', returnNo: '', returnDate: '', condition: '', operator: '', department: '', remark: '', locations: [] },
-  'LY202606070005-L1': { returnKey: 'LY202606070005-L1', requisitionNo: 'LY202606070005', outboundNo: 'LY202606070005-CK001', assetCode: '', code: 'LA-00457', name: '钢丝绳', major: '资产-类资产', minor: '防汛设备', spec: 'Φ18×100m', unit: 'm', borrower: '赵六', borrowerDept: '维保部', outboundDate: '2026-06-08', dueDate: '2026-08-08', extendedDueDate: '', outboundQty: '60', returnedQty: '40', pendingQty: '20', materialType: 'like', status: '部分归还', returnNo: 'HK20260608001', returnDate: '2026-06-10', condition: '完好', operator: '李仓管', department: '物资管理部', remark: '首批归还', locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ002', level: '1层', qty: '40' }] },
-  'LY202510006-GD007': { returnKey: 'LY202510006-GD007', requisitionNo: 'LY202510006', outboundNo: 'LY202510006-CK001', assetCode: 'GD001001-007', code: 'GD001001-007', name: '螺丝刀', major: '资产-类资产', minor: '设备-配件', spec: '455', unit: '个', borrower: '王五', borrowerDept: '设备部', outboundDate: '2025-07-15', dueDate: '2025-08-05', extendedDueDate: '', outboundQty: '8', returnedQty: '8', pendingQty: '0', materialType: 'like', status: '已归还', returnNo: 'HK20250715001', returnDate: '2025-08-04', condition: '完好', operator: '张仓管', department: '物资管理部', remark: '按时归还', locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ001', level: '1层', qty: '8' }] },
+  'LY202606010003-ZC202605012': { returnKey: 'LY202606010003-ZC202605012', requisitionNo: 'LY202606010003', outboundNo: 'CK202606010003', assetCode: 'ZC202605012', code: 'GD001001-005', name: '工程测量仪', major: '资产-固定资产', minor: '办公设备', spec: '全站仪 TS06', unit: '台', borrower: '张三', borrowerDept: '工程部', outboundDate: '2026-06-01', dueDate: '2026-06-15', extendedDueDate: '', outboundQty: '1', returnedQty: '0', pendingQty: '1', materialType: 'fixed', status: '待归还', returnNo: '', returnDate: '', condition: '', returnPerson: '', operator: '', department: '', remark: '', locations: [], requisitionName: '工程部测量仪领用', requisitionReason: '施工现场测量' },
+  'LY202605200008-LA-00331': { returnKey: 'LY202605200008-LA-00331', requisitionNo: 'LY202605200008', outboundNo: 'LY202605200008-CK001', assetCode: 'LA-00331', code: 'LA-00330', name: '铝合金梯', major: '资产-类资产', minor: '登高工具', spec: '3m', unit: '架', borrower: '王工', borrowerDept: '工程部', outboundDate: '2026-05-20', dueDate: '2026-06-05', extendedDueDate: '2026-06-20', outboundQty: '1', returnedQty: '0', pendingQty: '1', materialType: 'like', status: '已延期', returnNo: '', returnDate: '', condition: '', returnPerson: '', operator: '', department: '', remark: '', locations: [], requisitionName: '工程部登高工具领用', requisitionReason: '设备检修' },
+  'LY202606070003-L1': { returnKey: 'LY202606070003-L1', requisitionNo: 'LY202606070003', outboundNo: '—', assetCode: '', code: 'LA-00456', name: '电钻', major: '资产-类资产', minor: '电动工具', spec: '650W', unit: '台', borrower: '李工', borrowerDept: '设备部', outboundDate: '—', dueDate: '2026-07-09', extendedDueDate: '', outboundQty: '3', returnedQty: '0', pendingQty: '3', materialType: 'like', status: '待归还', returnNo: '', returnDate: '', condition: '', returnPerson: '', operator: '', department: '', remark: '', locations: [], requisitionName: '设备部工具领用', requisitionReason: '设备维修' },
+  'LY202606070005-L1': { returnKey: 'LY202606070005-L1', requisitionNo: 'LY202606070005', outboundNo: 'LY202606070005-CK001', assetCode: '', code: 'LA-00457', name: '钢丝绳', major: '资产-类资产', minor: '防汛设备', spec: 'Φ18×100m', unit: 'm', borrower: '赵六', borrowerDept: '维保部', outboundDate: '2026-06-08', dueDate: '2026-08-08', extendedDueDate: '', outboundQty: '60', returnedQty: '40', pendingQty: '20', materialType: 'like', status: '部分归还', returnNo: 'HK20260608001', returnDate: '2026-06-10', condition: '完好', returnPerson: '赵六', operator: '李仓管', department: '物资管理部', remark: '首批归还', locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ002', level: '1层', qty: '40' }], requisitionName: '维保部钢丝绳领用', requisitionReason: '项目用料' },
+  'LY202510006-GD007': { returnKey: 'LY202510006-GD007', requisitionNo: 'LY202510006', outboundNo: 'LY202510006-CK001', assetCode: 'GD001001-007', code: 'GD001001-007', name: '螺丝刀', major: '资产-类资产', minor: '设备-配件', spec: '455', unit: '个', borrower: '王五', borrowerDept: '设备部', outboundDate: '2025-07-15', dueDate: '2025-08-05', extendedDueDate: '', outboundQty: '8', returnedQty: '8', pendingQty: '0', materialType: 'like', status: '已归还', returnNo: 'HK20250715001', returnDate: '2025-08-04', condition: '完好', returnPerson: '王五', operator: '张仓管', department: '物资管理部', remark: '按时归还', locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ001', level: '1层', qty: '8' }], requisitionName: '设备部工具领用', requisitionReason: '日常办公' },
+  'LY20260608001-LA-002': { returnKey: 'LY20260608001-LA-002', requisitionNo: 'LY20260608001', outboundNo: 'CK20260608001', assetCode: 'LA-00501', code: 'LA-00500', name: '手持对讲机', major: '资产-类资产', minor: '通讯设备', spec: 'UHF 400-470MHz', unit: '台', borrower: '张三', borrowerDept: '工程部', outboundDate: '2026-06-05', dueDate: '2026-06-20', extendedDueDate: '', outboundQty: '2', returnedQty: '2', pendingQty: '0', materialType: 'like', status: '待确认', returnNo: 'HK20260608002', returnDate: '2026-06-08', condition: '完好', returnPerson: '张三', operator: '张仓管', department: '物资管理部', remark: '设备检修完毕归还', thisReturnQty: '2', locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ002', level: '1层', qty: '2' }], requisitionName: '工程部对讲机领用', requisitionReason: '施工现场通讯' },
 };
 
 const WMS_RETURN_TYPE_LABELS = { fixed: '固定资产归还', like: '类资产归还' };
@@ -237,6 +238,7 @@ function initLayout() {
   initOutboundSuccessFromQuery(root);
   initOutboundSelectAsset(root);
   initReturnFromQuery(root);
+  initReturnConfirmFromQuery(root);
   initReturnScrapFromQuery(root);
   initReturnSuccessFromQuery(root);
   initRefundFromQuery(root);
@@ -247,6 +249,7 @@ function initLayout() {
   initMaterialFormFromQuery(root);
   initMaterialCatalogSidebar(root);
   initMaterialCatalog(root);
+  initMaterialPicker(root);
   initListToolbar(root);
   initLocationList(root);
   initLocationForm(root);
@@ -254,6 +257,7 @@ function initLayout() {
   initSupplierEvalForm(root);
   initPurchasePendingApply(root);
   initPurchaseRequestFromQuery(root);
+  initRequisitionForm(root);
   initAcceptanceFormInteraction(root);
   initSupplierEvalSelect(root);
   initSupplierDetail(root);
@@ -570,6 +574,46 @@ function initPurchasePendingApply(root) {
   }
   const titleEl = document.getElementById('wms-modal-title');
   if (titleEl && planNo) titleEl.textContent = `待采采购申请 · ${planNo}`;
+}
+
+function initRequisitionForm(root) {
+  const form = document.querySelector('[data-wms-requisition-form]');
+  if (!form || form.dataset.wmsRequisitionInit) return;
+  form.dataset.wmsRequisitionInit = '1';
+
+  const validateQty = (input) => {
+    const type = input.dataset.materialType;
+    if (type === 'fixed') return true;
+    const max = Number(input.dataset.maxStock || 0);
+    const val = Number(input.value);
+    input.classList.remove('border-rose-400', 'ring-rose-200');
+    if (!input.value || val < 1) {
+      input.classList.add('border-rose-400', 'ring-rose-200');
+      return false;
+    }
+    if (max > 0 && val > max) {
+      input.value = String(max);
+      showSupplyCompleteToast(`申请数量不能超过可用库存（${max}）`);
+      return true;
+    }
+    return true;
+  };
+
+  form.querySelectorAll('[data-requisition-qty]').forEach(input => {
+    input.addEventListener('change', () => validateQty(input));
+    input.addEventListener('blur', () => validateQty(input));
+  });
+
+  form.querySelector('.wms-btn-primary')?.addEventListener('click', (e) => {
+    const invalid = [...form.querySelectorAll('[data-requisition-qty]')].filter(inp => {
+      const type = inp.dataset.materialType;
+      return type !== 'fixed' && !validateQty(inp);
+    });
+    if (invalid.length) {
+      e.preventDefault();
+      showSupplyCompleteToast('类资产、耗材须填写申请领用数量');
+    }
+  });
 }
 
 function initPurchaseRequestFromQuery(root) {
@@ -1055,6 +1099,52 @@ function initMaterialCatalogSidebar(root) {
     applySearch();
     searchInput?.focus();
   });
+}
+
+function initMaterialPicker(root) {
+  const picker = root.querySelector('[data-wms-material-picker]');
+  if (!picker) return;
+
+  const sidebar = picker.querySelector('[data-wms-material-sidebar]');
+  const tableRows = [...picker.querySelectorAll('[data-wms-picker-row]')];
+  const searchInput = picker.querySelector('[data-wms-picker-search]');
+  const searchClear = picker.querySelector('[data-wms-picker-search-clear]');
+  const countEl = picker.querySelector('[data-wms-picker-count]');
+
+  function applyFilter() {
+    const matType = sidebar?.dataset.materialType || 'all';
+    const categoryFilter = sidebar?.dataset.wmsFilterValue || '';
+    const q = (searchInput?.value || '').trim().toLowerCase();
+    let visible = 0;
+    tableRows.forEach(row => {
+      const type = row.dataset.materialType;
+      let show = true;
+      if (matType === 'asset') {
+        if (type !== 'fixed' && type !== 'like') show = false;
+      } else if (matType === 'fixed' || matType === 'like' || matType === 'consumable') {
+        if (type !== matType) show = false;
+      }
+      const rowPath = row.dataset.materialCategoryPath || '';
+      if (categoryFilter && !rowPath.startsWith(categoryFilter)) show = false;
+      if (q && !row.textContent.toLowerCase().includes(q)) show = false;
+      row.classList.toggle('hidden', !show);
+      if (show) visible += 1;
+    });
+    if (countEl) countEl.textContent = `共 ${visible} 条可选物资`;
+  }
+
+  sidebar?.addEventListener('wms-category-filter', applyFilter);
+  searchInput?.addEventListener('input', () => {
+    searchClear?.classList.toggle('hidden', !(searchInput.value || '').trim());
+    applyFilter();
+  });
+  searchClear?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    searchClear.classList.add('hidden');
+    applyFilter();
+    searchInput?.focus();
+  });
+  applyFilter();
 }
 
 function initCategoryConfig(root) {
@@ -2335,6 +2425,7 @@ function initReturnFromQuery(root) {
 
   const submitBtn = document.querySelector('[data-return-submit]');
   submitBtn?.addEventListener('click', () => {
+    const returnPerson = scope?.querySelector('[data-return-field="returnPerson"]');
     const operator = scope?.querySelector('[data-return-field="operator"]');
     const department = scope?.querySelector('[data-return-field="department"]');
     const dateInput = scope?.querySelector('[data-return-field="returnDate"]');
@@ -2342,6 +2433,7 @@ function initReturnFromQuery(root) {
 
     if (!dateInput?.value) { showSupplyCompleteToast('请选择归还日期'); return; }
     if (!condition?.value || condition.selectedIndex <= 0) { showSupplyCompleteToast('请选择实物状态'); return; }
+    if (!returnPerson?.value || returnPerson.selectedIndex <= 0) { showSupplyCompleteToast('请选择归还人员'); return; }
     if (!operator?.value || operator.selectedIndex <= 0) { showSupplyCompleteToast('请选择验收人员'); return; }
     if (!department?.value || department.selectedIndex <= 0) { showSupplyCompleteToast('请选择验收部门'); return; }
 
@@ -2387,6 +2479,51 @@ function initReturnFromQuery(root) {
 
     showSupplyCompleteToast(`${WMS_RETURN_TYPE_LABELS[sample.materialType] || '归还'}成功`);
     setTimeout(() => { window.location.href = backHref; }, 900);
+  });
+}
+
+function initReturnConfirmFromQuery(root) {
+  if (root.dataset.page !== 'mine_pending_return') return;
+  if (!(root.dataset.title || '').includes('确认归还')) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const returnKey = params.get('returnKey');
+  const backHref = params.get('back') || 'mine_pending_return.html';
+  if (!returnKey || !WMS_RETURN_PENDING_SAMPLES[returnKey]) return;
+
+  const sample = WMS_RETURN_PENDING_SAMPLES[returnKey];
+  document.querySelectorAll('[data-return-confirm-field]').forEach(el => {
+    const key = el.dataset.returnConfirmField;
+    if (key === 'outboundQty' && sample.outboundQty) {
+      el.textContent = `${sample.outboundQty} ${sample.unit || ''}`.trim();
+      return;
+    }
+    if (key === 'thisReturnQty') {
+      el.textContent = `${sample.thisReturnQty || sample.returnedQty} ${sample.unit || ''}`.trim();
+      return;
+    }
+    if (sample[key] !== undefined) el.textContent = sample[key];
+  });
+
+  const locBody = document.querySelector('[data-return-confirm-locations]');
+  if (locBody && sample.locations?.length) {
+    locBody.innerHTML = sample.locations.map((loc, i) =>
+      `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm text-slate-700">${i + 1}</td><td class="px-3 py-2.5 text-sm text-slate-800">${loc.warehouse}</td><td class="px-3 py-2.5 text-sm text-slate-800">${loc.shelf}</td><td class="px-3 py-2.5 text-sm text-slate-800">${loc.level}</td><td class="px-3 py-2.5 text-sm font-medium text-slate-900">${loc.qty}</td></tr>`
+    ).join('');
+  }
+
+  document.querySelectorAll('[data-return-confirm-back], .wms-modal-close').forEach(a => {
+    a.setAttribute('href', backHref);
+  });
+  const backdrop = document.querySelector('.wms-modal-backdrop');
+  if (backdrop) backdrop.onclick = (e) => { if (e.target === backdrop) window.location.href = backHref; };
+
+  const titleEl = document.getElementById('wms-modal-title');
+  if (titleEl) titleEl.textContent = `确认归还 · ${sample.requisitionNo}`;
+
+  document.querySelector('[data-return-confirm-submit]')?.addEventListener('click', () => {
+    showSupplyCompleteToast('归还确认成功，状态已更新为已归还');
+    setTimeout(() => { window.location.href = `${backHref}?tab=${encodeURIComponent('已归还')}`; }, 900);
   });
 }
 

@@ -225,9 +225,9 @@ function materialInheritHint(categoryCode) {
   </p>`;
 }
 
-function materialCategoryPathCounts() {
-  const counts = { '': MATERIAL_CATALOG_ROWS.length };
-  MATERIAL_CATALOG_ROWS.forEach(r => {
+function materialCategoryPathCounts(rows) {
+  const counts = { '': rows.length };
+  rows.forEach(r => {
     const parts = (r.categoryPath || '').split(' / ');
     let acc = '';
     parts.forEach((p, i) => {
@@ -244,8 +244,8 @@ function materialMajorType(label) {
   return 'consumable';
 }
 
-function materialCatalogSidebarTree() {
-  const counts = materialCategoryPathCounts();
+function materialPickerSidebarTree(rows) {
+  const counts = materialCategoryPathCounts(rows);
   const esc = (s) => String(s).replace(/"/g, '&quot;');
   const countBadge = (path) => {
     const n = counts[path] ?? 0;
@@ -294,8 +294,8 @@ function materialCatalogSidebarTree() {
       <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2" data-wms-material-tree-children>${g.majors.map(m => renderMajor(g.group, m)).join('')}</ul>
     </li>`).join('');
 
-  return `<aside class="wms-material-tree card rounded-2xl bg-white p-4" data-wms-material-sidebar data-wms-filter-value="" data-material-type="all">
-    <div class="mb-3 text-sm font-semibold text-slate-900">物资分类</div>
+  return `<aside class="wms-material-tree rounded-xl border border-slate-200 bg-white p-3" data-wms-material-sidebar data-wms-filter-value="" data-material-type="all">
+    <div class="mb-2 text-sm font-semibold text-slate-900">物资分类</div>
     <div class="relative mb-3">
       <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400"></i>
       <input type="search" data-wms-material-tree-search placeholder="搜索分类…" class="w-full rounded-lg border border-slate-200 py-2 pl-8 pr-8 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
@@ -312,6 +312,18 @@ function materialCatalogSidebarTree() {
     </div>
   </aside>`;
 }
+
+function materialCatalogSidebarTree() {
+  return materialPickerSidebarTree(MATERIAL_CATALOG_ROWS);
+}
+
+const REQUISITION_PICKER_ROWS = [
+  { code: 'GD001001-002', name: '料斗', type: 'fixed', unit: '个', stock: '8', warehouse: '主仓库/A区', categoryPath: '资产类 / 固定资产 / 设备-配件 / 料斗' },
+  { code: 'LA-00456', name: '电钻', type: 'like', unit: '台', stock: '6', warehouse: '主仓库/B区', categoryPath: '资产类 / 类资产 / 电动工具 / 电钻' },
+  { code: 'LA-00457', name: '钢丝绳', type: 'like', unit: 'm', stock: '320', warehouse: '主仓库/B区', categoryPath: '资产类 / 固定资产 / 设备-配件 / 钢丝绳' },
+  { code: 'HC-00089', name: '打印纸 A4', type: 'consumable', unit: '箱', stock: '170', warehouse: '主仓库/A区', categoryPath: '耗材类 / 办公耗材 / 办公用纸 / 打印纸 A4' },
+  { code: 'HC-00128', name: '安全帽', type: 'consumable', unit: '顶', stock: '85', warehouse: '主仓库/C区', categoryPath: '耗材类 / 劳保耗材 / 安全防护 / 安全帽' },
+];
 
 function assetQrImg(assetCode, size = 128) {
   const data = encodeURIComponent(`wms://asset/${assetCode}`);
@@ -928,6 +940,39 @@ function selectPicker(id, title, breadcrumb, backHref, cfg) {
     </div>`);
 }
 
+function selectPickerWithTree(id, title, breadcrumb, backHref, cfg) {
+  const confirmHref = cfg.confirmHref || backHref;
+  const pickerRows = cfg.pickerRows || [];
+  const th = `<th class="w-10 px-4 py-3"><input type="checkbox" class="rounded border-slate-300" /></th>` +
+    cfg.columns.map(c => `<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('');
+  const tr = pickerRows.map((row, i) => {
+    const cells = cfg.renderCells(row);
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-picker-row data-material-type="${row.type}" data-material-category-path="${row.categoryPath || ''}">
+      <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300"${i < (cfg.checkedCount ?? 0) ? ' checked' : ''} /></td>
+      ${cells.map(c => `<td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('')}
+    </tr>`;
+  }).join('');
+  const search = listSearchInput(cfg.searchPlaceholder || '搜索物资编码、名称…').replace(/data-wms-list-search/g, 'data-wms-picker-search').replace(/data-wms-list-search-clear/g, 'data-wms-picker-search-clear');
+  return page(id, title, breadcrumb, `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="${cfg.modalSize || 'xl'}" data-wms-material-picker>
+      <div class="wms-modal-toolbar">
+        <p class="text-sm text-slate-500">${cfg.heading || title}</p>
+        ${search}
+      </div>
+      <div class="wms-material-layout wms-picker-layout">
+        ${materialPickerSidebarTree(pickerRows)}
+        <div class="min-w-0">
+          <div class="wms-modal-table-wrap max-h-[420px] overflow-auto"><table class="min-w-full text-sm"><thead class="bg-slate-50/80 sticky top-0"><tr>${th}</tr></thead><tbody>${tr}</tbody></table></div>
+          <p class="mt-2 text-xs text-slate-500" data-wms-picker-count>共 ${pickerRows.length} 条可选物资</p>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a>
+        <a href="${confirmHref}" class="wms-btn wms-btn-primary">${cfg.confirmLabel || '确认选择'}</a>
+      </div>
+    </div>`);
+}
+
 function listToolbar(cfg = {}) {
   return `<div class="mb-4 flex flex-wrap items-center gap-3">
     <div class="relative flex-1 min-w-[200px] max-w-sm">
@@ -1214,7 +1259,11 @@ function pendingReturnRowActions(returnKey, status) {
   const sample = RETURN_PENDING_SAMPLES[returnKey];
   const type = sample?.materialType || 'fixed';
   const formHref = returnFormPage(type);
+  const confirmHref = `mine_return_confirm.html?returnKey=${encodeURIComponent(returnKey)}&back=mine_pending_return.html`;
   const q = (extra = {}) => new URLSearchParams({ returnKey, back: 'mine_pending_return.html', ...extra }).toString();
+  if (status === '待确认') {
+    return `<a href="${formHref}?${q({ mode: 'view' })}" class="mr-2 hover:underline">查看</a><a href="${confirmHref}" class="font-medium text-slate-900 hover:underline">确认</a>`;
+  }
   if (status === '已归还' || status === '已作废') {
     return `<a href="${formHref}?${q({ mode: 'view' })}" class="hover:underline">查看</a>`;
   }
@@ -1349,26 +1398,66 @@ function purchaseMaterialTable(rows, { editable = true } = {}) {
   </div>`;
 }
 
-function requisitionMaterialTable(rows, { addHref = 'apply_requisition_add_material.html' } = {}) {
-  const cols = ['序号', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '操作'];
-  const th = cols.map(c => c === '操作' ? actionTh('px-3 py-2.5') : `<th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('');
+const REQUISITION_FORM_SAMPLE_ROWS = [
+  { seq: 1, code: 'GD001001-001', name: '抓斗', spec: '4m³-Q345B', major: '资产-固定资产', minor: '设备-配件', unit: '个', available: '10', materialType: 'fixed', qty: '1', plannedDate: '2026-06-15', remark: '施工现场吊装用' },
+  { seq: 2, code: 'LA-00456', name: '电钻', spec: '650W', major: '资产-类资产', minor: '电动工具', unit: '台', available: '6', materialType: 'like', qty: '3', plannedDate: '2026-06-12', remark: '设备部维修班组' },
+  { seq: 3, code: 'HC-00089', name: '打印纸 A4', spec: 'A4/80g/500张', major: '耗材-办公耗材', minor: '办公用纸', unit: '箱', available: '170', materialType: 'consumable', qty: '50', plannedDate: '2026-06-10', remark: '行政部二季度补充' },
+];
+
+function requisitionQtyCell(row) {
+  const inputCls = 'w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200';
+  const roCls = 'w-20 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm text-slate-600';
+  if (row.materialType === 'fixed') {
+    return `<input type="number" value="1" readonly class="${roCls}" title="固定资产按件领用，数量为 1" data-requisition-qty data-material-type="fixed" /><span class="ml-1 text-[10px] text-slate-400">固定</span>`;
+  }
+  const placeholder = row.materialType === 'like' ? '请输入台数' : '请输入数量';
+  return `<input type="number" min="1" max="${row.available}" value="${row.qty || ''}" placeholder="${placeholder}" class="${inputCls}" data-requisition-qty data-material-type="${row.materialType}" data-max-stock="${row.available}" />`;
+}
+
+function requisitionMaterialTable(rows = REQUISITION_FORM_SAMPLE_ROWS, { addHref = 'apply_requisition_add_material.html' } = {}) {
+  const cols = ['序号', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '计量单位', '可用库存数量', '申请领用数量', '计划领用日期', '备注', '操作'];
+  const th = cols.map(c => {
+    if (c === '操作') return '<th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th>';
+    const req = c === '申请领用数量' ? '<span class="text-rose-500">*</span> ' : '';
+    return `<th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${req}${c}</th>`;
+  }).join('');
+  const dateCls = 'w-[132px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200';
+  const remarkCls = 'w-[120px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200';
   const tr = rows.map(r => {
-    const dataCells = r.map((c, i) => {
-      const content = i === 1 ? `<span class="font-mono text-xs">${c}</span>` : c;
-      return `<td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${content}</td>`;
-    }).join('');
-    const actions = actionTd('<a href="#" class="mr-3 wms-link-primary hover:underline">编辑</a><button type="button" class="wms-link-primary hover:underline">删除</button>', 'px-3 py-2.5');
-    return `<tr class="border-t border-slate-100 hover:bg-slate-50/60">${dataCells}${actions}</tr>`;
+    const typeHint = r.materialType === 'fixed'
+      ? '<span class="ml-1 text-[10px] text-slate-400">按件</span>'
+      : r.materialType === 'like'
+        ? '<span class="ml-1 text-[10px] text-amber-600">类资产</span>'
+        : '<span class="ml-1 text-[10px] text-emerald-600">耗材</span>';
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/60" data-requisition-row data-material-type="${r.materialType}">
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.seq}</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">${r.code}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.name}${typeHint}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.spec}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.major}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.minor}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.unit}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.available}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${requisitionQtyCell(r)}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="date" value="${r.plannedDate || ''}" class="${dateCls}" /></td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="text" value="${r.remark || ''}" placeholder="备注" class="${remarkCls}" /></td>
+      <td class="px-3 py-2.5 text-right text-sm whitespace-nowrap"><button type="button" class="text-sm text-rose-600 hover:underline">删除</button></td>
+    </tr>`;
   }).join('');
   return `<div class="wms-requisition-section md:col-span-2">
     <h3 class="wms-form-section-title mb-3">申请物资</h3>
-    <div class="overflow-hidden rounded-xl border border-slate-200">
+    <div class="rounded-xl border border-slate-200">
       <div class="flex justify-end border-b border-slate-100 bg-white px-3 py-2">
         <a href="${addHref}" class="wms-requisition-add-btn"><i class="fa-solid fa-plus text-[10px]"></i> 添加</a>
       </div>
-      <div class="wms-modal-table-wrap rounded-none border-0">
-        <table class="min-w-full text-sm wms-data-table"><thead class="bg-slate-50/90 sticky top-0"><tr>${th}</tr></thead><tbody>${tr}</tbody></table>
+      <div class="wms-requisition-table-wrap overflow-x-auto wms-modal-table-wrap rounded-none border-0">
+        <table class="min-w-[1100px] w-full text-sm wms-requisition-material-table"><thead class="bg-slate-50/90"><tr>${th}</tr></thead><tbody>${tr}</tbody></table>
       </div>
+      <p class="border-t border-slate-100 bg-slate-50/80 px-3 py-2 text-xs text-slate-500">
+        <i class="fa-solid fa-circle-info mr-1 text-sky-500"></i>
+        <strong>固定资产</strong>按件领用，数量固定为 1；
+        <strong>类资产、耗材</strong>须填写申请领用数量，且不得超过可用库存。
+      </p>
     </div>
   </div>`;
 }
@@ -1376,17 +1465,13 @@ function requisitionMaterialTable(rows, { addHref = 'apply_requisition_add_mater
 function requisitionFormPage(backHref = 'apply_requisition_list.html') {
   const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
   const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
-  const rows = [
-    ['1', 'GD001001-001', '抓斗', '455', '资产-固定资产', '设备-配件'],
-    ['2', 'GD001001-002', '料斗', '455', '资产-固定资产', '设备-配件'],
-  ];
   return `
-    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl">
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-requisition-form>
       <div class="wms-modal-form wms-warehouse-form wms-requisition-form">
         ${formSection('基础信息')}
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请单号</label><input type="text" value="系统自动生成" readonly class="${roCls}" /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请事由</label><select class="${inputCls}"><option value="" disabled selected>请选择</option><option>日常办公</option><option>设备维修</option><option>项目用料</option><option>应急领用</option></select></div>
-        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请名称</label><input type="text" placeholder="请输入" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请事由</label><select class="${inputCls}"><option value="" disabled>请选择</option><option selected>设备维修</option><option>日常办公</option><option>项目用料</option><option>应急领用</option></select></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 申请名称</label><input type="text" value="六月设备维修及办公耗材领用" class="${inputCls}" /></div>
         <div class="md:col-span-2">
           <label class="mb-1.5 block text-sm font-medium text-slate-700">关联计划单号</label>
           <div class="flex flex-wrap gap-2">
@@ -1394,7 +1479,7 @@ function requisitionFormPage(backHref = 'apply_requisition_list.html') {
             <select class="min-w-0 flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>月度采购（ID: JH202509001）</option><option>JH202606090001 六月办公物资计划</option></select>
           </div>
         </div>
-        ${requisitionMaterialTable(rows)}
+        ${requisitionMaterialTable(REQUISITION_FORM_SAMPLE_ROWS)}
         ${formSection('其他')}
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">说明</label><textarea rows="4" placeholder="0/500" class="${inputCls}"></textarea></div>
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">凭证</label>${uploadZone()}</div>
@@ -2261,7 +2346,8 @@ const RETURN_PENDING_SAMPLES = {
     spec: '全站仪 TS06', unit: '台', borrower: '张三', borrowerDept: '工程部',
     outboundDate: '2026-06-01', dueDate: '2026-06-15', extendedDueDate: '',
     outboundQty: '1', returnedQty: '0', pendingQty: '1', materialType: 'fixed', status: '待归还',
-    returnNo: '', returnDate: '', condition: '', operator: '', department: '', remark: '', locations: [],
+    returnNo: '', returnDate: '', condition: '', returnPerson: '', operator: '', department: '', remark: '', locations: [],
+    requisitionName: '工程部测量仪领用', requisitionReason: '施工现场测量',
   },
   'LY202605200008-LA-00331': {
     returnKey: 'LY202605200008-LA-00331', requisitionNo: 'LY202605200008', outboundNo: 'LY202605200008-CK001',
@@ -2269,7 +2355,8 @@ const RETURN_PENDING_SAMPLES = {
     spec: '3m', unit: '架', borrower: '王工', borrowerDept: '工程部',
     outboundDate: '2026-05-20', dueDate: '2026-06-05', extendedDueDate: '2026-06-20',
     outboundQty: '1', returnedQty: '0', pendingQty: '1', materialType: 'like', status: '已延期',
-    returnNo: '', returnDate: '', condition: '', operator: '', department: '', remark: '', locations: [],
+    returnNo: '', returnDate: '', condition: '', returnPerson: '', operator: '', department: '', remark: '', locations: [],
+    requisitionName: '工程部登高工具领用', requisitionReason: '设备检修',
   },
   'LY202606070003-L1': {
     returnKey: 'LY202606070003-L1', requisitionNo: 'LY202606070003', outboundNo: '—',
@@ -2277,7 +2364,8 @@ const RETURN_PENDING_SAMPLES = {
     spec: '650W', unit: '台', borrower: '李工', borrowerDept: '设备部',
     outboundDate: '—', dueDate: '2026-07-09', extendedDueDate: '',
     outboundQty: '3', returnedQty: '0', pendingQty: '3', materialType: 'like', status: '待归还',
-    returnNo: '', returnDate: '', condition: '', operator: '', department: '', remark: '', locations: [],
+    returnNo: '', returnDate: '', condition: '', returnPerson: '', operator: '', department: '', remark: '', locations: [],
+    requisitionName: '设备部工具领用', requisitionReason: '设备维修',
   },
   'LY202606070005-L1': {
     returnKey: 'LY202606070005-L1', requisitionNo: 'LY202606070005', outboundNo: 'LY202606070005-CK001',
@@ -2285,8 +2373,9 @@ const RETURN_PENDING_SAMPLES = {
     spec: 'Φ18×100m', unit: 'm', borrower: '赵六', borrowerDept: '维保部',
     outboundDate: '2026-06-08', dueDate: '2026-08-08', extendedDueDate: '',
     outboundQty: '60', returnedQty: '40', pendingQty: '20', materialType: 'like', status: '部分归还',
-    returnNo: 'HK20260608001', returnDate: '2026-06-10', condition: '完好', operator: '李仓管', department: '物资管理部',
+    returnNo: 'HK20260608001', returnDate: '2026-06-10', condition: '完好', returnPerson: '赵六', operator: '李仓管', department: '物资管理部',
     remark: '首批归还', locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ002', level: '1层', qty: '40' }],
+    requisitionName: '维保部钢丝绳领用', requisitionReason: '项目用料',
   },
   'LY202510006-GD007': {
     returnKey: 'LY202510006-GD007', requisitionNo: 'LY202510006', outboundNo: 'LY202510006-CK001',
@@ -2294,8 +2383,21 @@ const RETURN_PENDING_SAMPLES = {
     spec: '455', unit: '个', borrower: '王五', borrowerDept: '设备部',
     outboundDate: '2025-07-15', dueDate: '2025-08-05', extendedDueDate: '',
     outboundQty: '8', returnedQty: '8', pendingQty: '0', materialType: 'like', status: '已归还',
-    returnNo: 'HK20250715001', returnDate: '2025-08-04', condition: '完好', operator: '张仓管', department: '物资管理部',
+    returnNo: 'HK20250715001', returnDate: '2025-08-04', condition: '完好', returnPerson: '王五', operator: '张仓管', department: '物资管理部',
     remark: '按时归还', locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ001', level: '1层', qty: '8' }],
+    requisitionName: '设备部工具领用', requisitionReason: '日常办公',
+  },
+  'LY20260608001-LA-002': {
+    returnKey: 'LY20260608001-LA-002', requisitionNo: 'LY20260608001', outboundNo: 'CK20260608001',
+    assetCode: 'LA-00501', code: 'LA-00500', name: '手持对讲机', major: '资产-类资产', minor: '通讯设备',
+    spec: 'UHF 400-470MHz', unit: '台', borrower: '张三', borrowerDept: '工程部',
+    outboundDate: '2026-06-05', dueDate: '2026-06-20', extendedDueDate: '',
+    outboundQty: '2', returnedQty: '2', pendingQty: '0', materialType: 'like', status: '待确认',
+    returnNo: 'HK20260608002', returnDate: '2026-06-08', condition: '完好', returnPerson: '张三',
+    operator: '张仓管', department: '物资管理部', remark: '设备检修完毕归还',
+    thisReturnQty: '2',
+    locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ002', level: '1层', qty: '2' }],
+    requisitionName: '工程部对讲机领用', requisitionReason: '施工现场通讯',
   },
 };
 
@@ -2309,7 +2411,7 @@ function returnFormPage(materialType) {
 }
 
 function returnStatusBadge(status) {
-  const map = { '待归还': 'info', '已延期': 'danger', '部分归还': 'warning', '已归还': 'success', '已作废': 'danger' };
+  const map = { '待归还': 'info', '已延期': 'danger', '部分归还': 'warning', '待确认': 'warning', '已归还': 'success', '已作废': 'danger' };
   return badge(status, map[status] || 'info');
 }
 
@@ -2322,6 +2424,9 @@ function returnRowActions(returnKey, status) {
     const p = new URLSearchParams({ returnKey, back: 'warehouse_return_list.html', ...extra });
     return p.toString();
   };
+  if (status === '待确认') {
+    return `<a href="${formHref}?${q({ mode: 'view' })}" class="hover:underline">查看</a>`;
+  }
   if (status === '已归还' || status === '已作废') {
     return `<a href="${formHref}?${q({ mode: 'view' })}" class="hover:underline">查看</a>`;
   }
@@ -2329,7 +2434,7 @@ function returnRowActions(returnKey, status) {
 }
 
 function returnRow(cells, status, returnKey) {
-  const tabMap = { '待归还': '待归还', '部分归还': '待归还', '已延期': '已延期', '已归还': '已归还', '已作废': '已作废' };
+  const tabMap = { '待归还': '待归还', '部分归还': '待归还', '已延期': '已延期', '待确认': '待确认', '已归还': '已归还', '已作废': '已作废' };
   return { cells, tab: tabMap[status] || '待归还', actions: returnRowActions(returnKey, status) };
 }
 
@@ -2465,6 +2570,7 @@ function warehouseReturnFormPage(backHref = 'warehouse_return_list.html', sample
         ${formSection('其他信息')}
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">归还说明</label><textarea rows="3" placeholder="0/500" data-return-field="remark"${disAttr} ${viewMode ? `readonly class="${roCls}"` : `class="${inputCls}"`}>${d.remark || ''}</textarea></div>
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">归还照片</label>${viewMode ? '<p class="text-sm text-slate-400">—</p>' : photoUploadZone()}</div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 归还人员</label><select data-return-field="returnPerson"${disAttr} class="${inputCls}"><option value="" disabled${!d.returnPerson && !d.borrower ? ' selected' : ''}>请选择</option><option${(d.returnPerson || d.borrower) === '张三' ? ' selected' : ''}>张三</option><option${(d.returnPerson || d.borrower) === '王工' ? ' selected' : ''}>王工</option><option${(d.returnPerson || d.borrower) === '李工' ? ' selected' : ''}>李工</option><option${(d.returnPerson || d.borrower) === '赵六' ? ' selected' : ''}>赵六</option><option${(d.returnPerson || d.borrower) === '王五' ? ' selected' : ''}>王五</option></select></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 验收人员</label><select data-return-field="operator"${disAttr} class="${inputCls}"><option value="" disabled${!d.operator ? ' selected' : ''}>请选择</option><option${d.operator === '张仓管' ? ' selected' : ''}>张仓管</option><option${d.operator === '李仓管' ? ' selected' : ''}>李仓管</option></select></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 验收部门</label><select data-return-field="department"${disAttr} class="${inputCls}"><option value="" disabled${!d.department ? ' selected' : ''}>请选择</option><option${d.department === '物资管理部' ? ' selected' : ''}>物资管理部</option><option${d.department === '设备部' ? ' selected' : ''}>设备部</option></select></div>
       </div>
@@ -2496,6 +2602,60 @@ function warehouseReturnScrapPage(backHref = 'warehouse_return_list.html', sampl
     </div>`;
 }
 
+function returnConfirmPage(backHref = 'mine_pending_return.html', sample = {}) {
+  const d = { ...RETURN_PENDING_SAMPLES['LY20260608001-LA-002'], ...sample };
+  const locRows = (d.locations || []).map((loc, i) =>
+    `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm text-slate-700">${i + 1}</td><td class="px-3 py-2.5 text-sm text-slate-800">${loc.warehouse}</td><td class="px-3 py-2.5 text-sm text-slate-800">${loc.shelf}</td><td class="px-3 py-2.5 text-sm text-slate-800">${loc.level}</td><td class="px-3 py-2.5 text-sm font-medium text-slate-900">${loc.qty}</td></tr>`
+  ).join('');
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg" data-wms-return-confirm data-return-key="${d.returnKey}">
+      <div class="wms-return-confirm">
+        <div class="mb-5 rounded-xl border border-amber-100 bg-amber-50/60 p-4 text-sm text-slate-700">
+          <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>
+          仓管员已完成归还入库，请核对下方领用与归还信息无误后确认；确认后状态变为<strong>已归还</strong>。
+        </div>
+        <h4 class="mb-3 text-sm font-semibold text-slate-900">领用信息</h4>
+        <dl class="mb-6 grid gap-4 sm:grid-cols-2 text-sm">
+          <div><dt class="text-slate-500">领用单号</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-return-confirm-field="requisitionNo">${d.requisitionNo}</dd></div>
+          <div><dt class="text-slate-500">申请名称</dt><dd class="mt-1 text-slate-900" data-return-confirm-field="requisitionName">${d.requisitionName || '—'}</dd></div>
+          <div><dt class="text-slate-500">申请事由</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="requisitionReason">${d.requisitionReason || '—'}</dd></div>
+          <div><dt class="text-slate-500">借用人</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="borrower">${d.borrower}</dd></div>
+          <div><dt class="text-slate-500">借用人部门</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="borrowerDept">${d.borrowerDept}</dd></div>
+          <div><dt class="text-slate-500">出库单号</dt><dd class="mt-1 font-mono text-slate-800" data-return-confirm-field="outboundNo">${d.outboundNo}</dd></div>
+          <div><dt class="text-slate-500">出库日期</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="outboundDate">${d.outboundDate}</dd></div>
+          <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 text-slate-900" data-return-confirm-field="name">${d.name}</dd></div>
+          <div><dt class="text-slate-500">规格型号</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="spec">${d.spec}</dd></div>
+          <div><dt class="text-slate-500">物资编码</dt><dd class="mt-1 font-mono text-slate-800" data-return-confirm-field="code">${d.code}</dd></div>
+          <div><dt class="text-slate-500">出库数量</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="outboundQty">${d.outboundQty} ${d.unit}</dd></div>
+        </dl>
+        <h4 class="mb-3 text-sm font-semibold text-slate-900">归还信息</h4>
+        <dl class="mb-4 grid gap-4 sm:grid-cols-2 text-sm">
+          <div><dt class="text-slate-500">归还单号</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-return-confirm-field="returnNo">${d.returnNo}</dd></div>
+          <div><dt class="text-slate-500">归还日期</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="returnDate">${d.returnDate}</dd></div>
+          <div><dt class="text-slate-500">归还人员</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="returnPerson">${d.returnPerson}</dd></div>
+          <div><dt class="text-slate-500">实物状态</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="condition">${d.condition}</dd></div>
+          <div><dt class="text-slate-500">本次归还数量</dt><dd class="mt-1 font-medium text-slate-900" data-return-confirm-field="thisReturnQty">${d.thisReturnQty || d.returnedQty} ${d.unit}</dd></div>
+          <div><dt class="text-slate-500">验收人员</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="operator">${d.operator}</dd></div>
+          <div><dt class="text-slate-500">验收部门</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="department">${d.department}</dd></div>
+          <div class="sm:col-span-2"><dt class="text-slate-500">归还说明</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="remark">${d.remark || '—'}</dd></div>
+        </dl>
+        <div class="overflow-hidden rounded-xl border border-slate-200">
+          <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">序号</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">仓库</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">货架</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">架层</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">数量</th>
+          </tr></thead><tbody data-return-confirm-locations>${locRows}</tbody></table>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary" data-return-confirm-back>取消</a>
+        <button type="button" class="wms-btn wms-btn-primary" data-return-confirm-submit>确认归还</button>
+      </div>
+    </div>`;
+}
+
 function returnSuccessPage() {
   return `
     <div class="mx-auto max-w-2xl" data-wms-return-success>
@@ -2503,6 +2663,7 @@ function returnSuccessPage() {
         <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><i class="fa-solid fa-check text-2xl"></i></div>
         <h2 class="text-xl font-semibold text-slate-900" data-return-success-title>归还成功</h2>
         <p class="mt-2 text-sm text-slate-500" data-return-success-desc>归还单号 HK202606090001 · 领用单 LY202606010003</p>
+        <p class="mt-1 text-xs text-amber-700" data-return-success-hint>已通知借用人确认归还，确认前状态为「待确认」</p>
         <dl class="mt-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-left text-sm sm:grid-cols-2">
           <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 font-medium text-slate-900" data-return-success-name>工程测量仪</dd></div>
           <div><dt class="text-slate-500">实物状态</dt><dd class="mt-1 text-slate-800" data-return-success-condition>完好</dd></div>
@@ -2523,11 +2684,12 @@ function warehouseReturnListPage() {
     returnRow(['LY202605200008', 'LY202605200008-CK001', 'LA-00331', 'LA-00330', '铝合金梯', '3m', '资产-类资产', '王工', '工程部', '1', '0', '1', '2026-06-20', returnStatusBadge('已延期')], '已延期', 'LY202605200008-LA-00331'),
     returnRow(['LY202606070003', '—', '—', 'LA-00456', '电钻', '650W', '资产-类资产', '李工', '设备部', '3', '0', '3', '2026-07-09', returnStatusBadge('待归还')], '待归还', 'LY202606070003-L1'),
     returnRow(['LY202606070005', 'LY202606070005-CK001', '—', 'LA-00457', '钢丝绳', 'Φ18×100m', '资产-类资产', '赵六', '维保部', '60', '40', '20', '2026-08-08', returnStatusBadge('部分归还')], '部分归还', 'LY202606070005-L1'),
+    returnRow(['LY20260608001', 'CK20260608001', 'LA-00501', 'LA-00500', '手持对讲机', 'UHF 400-470MHz', '资产-类资产', '张三', '工程部', '2', '2', '0', '2026-06-20', returnStatusBadge('待确认')], '待确认', 'LY20260608001-LA-002'),
     returnRow(['LY202510006', 'LY202510006-CK001', 'GD001001-007', 'GD001001-007', '螺丝刀', '455', '资产-类资产', '王五', '设备部', '8', '8', '0', '2025-08-05', returnStatusBadge('已归还')], '已归还', 'LY202510006-GD007'),
   ];
   return listPage({
-    desc: '出库时标记需归还的物资自动生成；支持分批归还、延期与作废',
-    tabs: ['待归还', '已延期', '已归还', '已作废'],
+    desc: '出库时标记需归还的物资自动生成；仓管入库后待借用人确认，支持分批归还、延期与作废',
+    tabs: ['全部', '待归还', '已延期', '待确认', '已归还', '已作废'],
     tabColumn: 13,
     searchPlaceholder: '领用单号、出库单号、资产编码、物资名称、借用人',
     filters: [{ label: '应还日期', key: 'dueDate', column: -1, options: ['全部', '近7天', '已超期'] }],
@@ -4265,8 +4427,8 @@ const pages = {
   })),
 
   mine_pending_return: page('mine_pending_return', '待还物资', '我的物资 / 待还物资', listPage({
-    desc: '需归还且尚未完成归还的物资；与仓管「物资归还」数据同步',
-    tabs: ['全部', '待归还', '已延期', '已归还'],
+    desc: '需归还且尚未完成归还的物资；仓管入库后进入「待确认」，借用人确认后变为已归还',
+    tabs: ['全部', '待归还', '已延期', '待确认', '已归还'],
     tabColumn: 9,
     tabMap: { '部分归还': '待归还' },
     searchPlaceholder: '领用单号、资产编码、物资名称、出库单号',
@@ -4276,9 +4438,12 @@ const pages = {
       pendingReturnRow(['2', 'LY202605200008', 'LA-00331', '铝合金梯', '3m', '架', '资产-类资产', '王工', returnStatusBadge('已延期'), 'LY202605200008-CK001', '2026-05-20', '1', '2026-06-20', '1'], '已延期', 'LY202605200008-LA-00331', '已延期'),
       pendingReturnRow(['3', 'LY202606070003', '—', '电钻', '650W', '台', '资产-类资产', '李工', returnStatusBadge('待归还'), '—', '—', '3', '2026-07-09', '3'], '待归还', 'LY202606070003-L1', '待归还'),
       pendingReturnRow(['4', 'LY202606070005', '—', '钢丝绳', 'Φ18×100m', 'm', '资产-类资产', '赵六', returnStatusBadge('部分归还'), 'LY202606070005-CK001', '2026-06-08', '60', '2026-08-08', '20'], '待归还', 'LY202606070005-L1', '部分归还'),
-      pendingReturnRow(['5', 'LY202510006', 'GD001001-007', '螺丝刀', '455', '个', '资产-类资产', '王五', returnStatusBadge('已归还'), 'LY202510006-CK001', '2025-07-15', '8', '2025-08-05', '0'], '已归还', 'LY202510006-GD007', '已归还'),
+      pendingReturnRow(['5', 'LY20260608001', 'LA-00501', '手持对讲机', 'UHF 400-470MHz', '台', '资产-类资产', '张三', returnStatusBadge('待确认'), 'CK20260608001', '2026-06-05', '2', '2026-06-20', '0'], '待确认', 'LY20260608001-LA-002', '待确认'),
+      pendingReturnRow(['6', 'LY202510006', 'GD001001-007', '螺丝刀', '455', '个', '资产-类资产', '王五', returnStatusBadge('已归还'), 'LY202510006-CK001', '2025-07-15', '8', '2025-08-05', '0'], '已归还', 'LY202510006-GD007', '已归还'),
     ],
   })),
+
+  mine_return_confirm: page('mine_pending_return', '确认归还', '我的物资 / 确认归还', returnConfirmPage('mine_pending_return.html')),
 
   mine_requisition_record: page('mine_pending_return', '领用记录', '我的物资 / 领用记录', requisitionRecordModal('mine_pending_return.html', REQUISITION_RECORD_SAMPLES.LY202510001)),
 
@@ -4659,13 +4824,12 @@ const forms = {
     ],
   }),
 
-  apply_requisition_add_material: selectPicker('apply_requisition_list', '添加物资', '物资申请 / 添加领用物资', 'apply_requisition_form.html', {
-    heading: '选择领用物资（仅启用物资，显示可用库存）',
-    columns: ['物资编码', '物资名称', '类型', '可用库存', '仓库'],
-    rows: [
-      ['HC-00089', '打印纸 A4', materialTypeBadge('consumable'), '170', '主仓库/A区'],
-      ['LA-00456', '电钻', materialTypeBadge('like'), '6', '主仓库/B区'],
-    ],
+  apply_requisition_add_material: selectPickerWithTree('apply_requisition_list', '添加物资', '物资申请 / 添加领用物资', 'apply_requisition_form.html', {
+    heading: '选择领用物资（仅启用物资，显示可用库存；类资产/耗材需填写领用数量）',
+    columns: ['物资编码', '物资名称', '类型', '计量单位', '可用库存', '仓库'],
+    pickerRows: REQUISITION_PICKER_ROWS,
+    renderCells: (row) => [row.code, row.name, materialTypeBadge(row.type), row.unit, row.stock, row.warehouse],
+    checkedCount: 0,
   }),
 
   // --- 采购：待采/执行/计划 ---
@@ -4852,6 +5016,7 @@ const mapLabels = {
   ledger_transaction_detail: ['流水详情', '物资台账'],
   mine_pending_pickup: ['待领物资', '我的物资'],
   mine_pending_return: ['待还物资', '我的物资'],
+  mine_return_confirm: ['确认归还', '我的物资 · 表单'],
   mine_requisition_record: ['领用记录', '我的物资 · 表单'],
   apply_plan_list: ['物资计划', '物资申请'],
   apply_plan_form: ['新增物资计划', '物资申请 · 表单'],

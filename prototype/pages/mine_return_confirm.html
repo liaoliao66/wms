@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>确认归还 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="mine_pending_return" data-title="确认归还" data-breadcrumb="我的物资 / 确认归还">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="mine_pending_return.html" data-modal-size="lg" data-wms-return-confirm data-return-key="LY20260608001-LA-002">
+      <div class="wms-return-confirm">
+        <div class="mb-5 rounded-xl border border-amber-100 bg-amber-50/60 p-4 text-sm text-slate-700">
+          <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>
+          仓管员已完成归还入库，请核对下方领用与归还信息无误后确认；确认后状态变为<strong>已归还</strong>。
+        </div>
+        <h4 class="mb-3 text-sm font-semibold text-slate-900">领用信息</h4>
+        <dl class="mb-6 grid gap-4 sm:grid-cols-2 text-sm">
+          <div><dt class="text-slate-500">领用单号</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-return-confirm-field="requisitionNo">LY20260608001</dd></div>
+          <div><dt class="text-slate-500">申请名称</dt><dd class="mt-1 text-slate-900" data-return-confirm-field="requisitionName">工程部对讲机领用</dd></div>
+          <div><dt class="text-slate-500">申请事由</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="requisitionReason">施工现场通讯</dd></div>
+          <div><dt class="text-slate-500">借用人</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="borrower">张三</dd></div>
+          <div><dt class="text-slate-500">借用人部门</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="borrowerDept">工程部</dd></div>
+          <div><dt class="text-slate-500">出库单号</dt><dd class="mt-1 font-mono text-slate-800" data-return-confirm-field="outboundNo">CK20260608001</dd></div>
+          <div><dt class="text-slate-500">出库日期</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="outboundDate">2026-06-05</dd></div>
+          <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 text-slate-900" data-return-confirm-field="name">手持对讲机</dd></div>
+          <div><dt class="text-slate-500">规格型号</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="spec">UHF 400-470MHz</dd></div>
+          <div><dt class="text-slate-500">物资编码</dt><dd class="mt-1 font-mono text-slate-800" data-return-confirm-field="code">LA-00500</dd></div>
+          <div><dt class="text-slate-500">出库数量</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="outboundQty">2 台</dd></div>
+        </dl>
+        <h4 class="mb-3 text-sm font-semibold text-slate-900">归还信息</h4>
+        <dl class="mb-4 grid gap-4 sm:grid-cols-2 text-sm">
+          <div><dt class="text-slate-500">归还单号</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-return-confirm-field="returnNo">HK20260608002</dd></div>
+          <div><dt class="text-slate-500">归还日期</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="returnDate">2026-06-08</dd></div>
+          <div><dt class="text-slate-500">归还人员</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="returnPerson">张三</dd></div>
+          <div><dt class="text-slate-500">实物状态</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="condition">完好</dd></div>
+          <div><dt class="text-slate-500">本次归还数量</dt><dd class="mt-1 font-medium text-slate-900" data-return-confirm-field="thisReturnQty">2 台</dd></div>
+          <div><dt class="text-slate-500">验收人员</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="operator">张仓管</dd></div>
+          <div><dt class="text-slate-500">验收部门</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="department">物资管理部</dd></div>
+          <div class="sm:col-span-2"><dt class="text-slate-500">归还说明</dt><dd class="mt-1 text-slate-800" data-return-confirm-field="remark">设备检修完毕归还</dd></div>
+        </dl>
+        <div class="overflow-hidden rounded-xl border border-slate-200">
+          <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">序号</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">仓库</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">货架</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">架层</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">数量</th>
+          </tr></thead><tbody data-return-confirm-locations><tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm text-slate-700">1</td><td class="px-3 py-2.5 text-sm text-slate-800">主仓库</td><td class="px-3 py-2.5 text-sm text-slate-800">CK001001-HJ002</td><td class="px-3 py-2.5 text-sm text-slate-800">1层</td><td class="px-3 py-2.5 text-sm font-medium text-slate-900">2</td></tr></tbody></table>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="mine_pending_return.html" class="wms-btn wms-btn-secondary" data-return-confirm-back>取消</a>
+        <button type="button" class="wms-btn wms-btn-primary" data-return-confirm-submit>确认归还</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>
