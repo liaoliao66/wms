@@ -398,11 +398,200 @@ const FIXED_ASSET_LEDGER_ROWS = [
   { code: 'ZC202605012', materialCode: 'GC-20001', name: '工程测量仪', category: '固定资产', qty: '1', location: '主仓库/B区/B-01', status: '借出', time: '2026-06-01 09:00' },
 ];
 
+const WAREHOUSE_OTHER_LEDGER_ROWS = [
+  { code: 'HC-00089', name: '打印纸 A4', category: '耗材', qty: '186', location: '主仓库/A区/A-02', status: '在库', time: '2026-06-08 16:00' },
+  { code: 'LA-00456', name: '电钻', category: '类资产', qty: '8', location: '主仓库/A区/A-02', status: '在库', time: '2026-06-07 09:15' },
+];
+
+const WAREHOUSE_LEDGER_DETAIL_SAMPLES = {
+  'HC-00089@主仓库/A区/A-02': {
+    code: 'HC-00089', name: '打印纸 A4', spec: '70g/500张', category: '耗材', major: '耗材-办公耗材', minor: '办公用纸', unit: '箱',
+    location: '主仓库/A区/A-02', warehouse: '主仓库', zone: 'A区', shelf: 'A-02',
+    qty: '186', available: '170', locked: '16', borrowed: '0', status: '在库',
+    inboundTime: '2026-03-15 10:00', changeTime: '2026-06-08 16:00', companyTotalQty: '186',
+    transactions: [
+      { no: 'RK202603150008', type: '入库', qty: '200 箱', time: '2026-03-15 10:00' },
+      { no: 'CK202606010003', type: '出库', qty: '50 箱', time: '2026-06-01 09:30' },
+    ],
+  },
+  'LA-00456@主仓库/A区/A-02': {
+    code: 'LA-00456', name: '电钻', spec: '650W', category: '类资产', major: '资产-类资产', minor: '电动工具', unit: '台',
+    location: '主仓库/A区/A-02', warehouse: '主仓库', zone: 'A区', shelf: 'A-02',
+    qty: '8', available: '6', locked: '0', borrowed: '2', status: '在库',
+    safeStock: '10', minStock: '5', maxStock: '20',
+    inboundTime: '2026-01-20 14:00', changeTime: '2026-06-07 09:15', companyTotalQty: '8',
+    transactions: [
+      { no: 'HK202606090003', type: '归还', qty: '1 台', time: '2026-06-08 16:45' },
+      { no: 'CK202606090008', type: '出库', qty: '2 台', time: '2026-06-07 14:20' },
+    ],
+  },
+};
+
+function ledgerWarehouseRowActions(row, isFixed) {
+  const back = encodeURIComponent('ledger_warehouse.html');
+  if (isFixed) {
+    return `<a href="ledger_asset_detail.html?code=${encodeURIComponent(row.code)}&back=${back}" class="mr-2 hover:underline">查看</a><a href="ledger_asset_qrcode.html?code=${encodeURIComponent(row.code)}&back=${back}" class="mr-2 hover:underline">二维码</a><button type="button" class="wms-qr-download-single hover:underline" data-asset-code="${row.code}">下载</button>`;
+  }
+  const loc = encodeURIComponent(row.location);
+  return `<a href="ledger_warehouse_detail.html?code=${encodeURIComponent(row.code)}&location=${loc}&back=${back}" class="mr-2 hover:underline">查看</a><a href="ledger_material_detail.html?code=${encodeURIComponent(row.code)}&back=${back}" class="mr-2 hover:underline">库存</a><a href="ledger_transaction.html" class="hover:underline">流水</a>`;
+}
+
+const LEDGER_WAREHOUSE_TREE = [
+  {
+    id: 'wh-main',
+    label: '主仓库',
+    path: '主仓库',
+    level: 'warehouse',
+    expanded: true,
+    isContext: true,
+    children: [
+      {
+        id: 'zone-a',
+        label: 'A区 · 通用物资',
+        path: '主仓库/A区',
+        level: 'zone',
+        expanded: true,
+        children: [
+          { id: 'shelf-a01', label: 'A-01 货架', path: '主仓库/A区/A-01', level: 'shelf' },
+          { id: 'shelf-a02', label: 'A-02 货架', path: '主仓库/A区/A-02', level: 'shelf', isActive: true },
+        ],
+      },
+      {
+        id: 'zone-b',
+        label: 'B区 · 设备',
+        path: '主仓库/B区',
+        level: 'zone',
+        expanded: false,
+        children: [
+          { id: 'shelf-b01', label: 'B-01 货架', path: '主仓库/B区/B-01', level: 'shelf' },
+          { id: 'shelf-b03', label: 'B-03 货架', path: '主仓库/B区/B-03', level: 'shelf' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'wh-sub',
+    label: '辅仓库',
+    path: '辅仓库',
+    level: 'warehouse',
+    expanded: false,
+    children: [
+      {
+        id: 'zone-c',
+        label: 'C区 · 备件',
+        path: '辅仓库/C区',
+        level: 'zone',
+        expanded: false,
+        children: [
+          { id: 'shelf-c01', label: 'C-01 货架', path: '辅仓库/C区/C-01', level: 'shelf' },
+        ],
+      },
+    ],
+  },
+];
+
+function ledgerWarehouseTreeNode(node, depth = 0) {
+  const hasChildren = node.children?.length;
+  const branchCls = hasChildren ? ' data-wms-ledger-tree-branch' : '';
+  const expanded = node.expanded ? 'true' : 'false';
+  const levelCls = `wms-tree-node--${node.level}`;
+  const activeCls = node.isActive ? ' is-active' : '';
+  const contextCls = node.isContext ? ' is-context' : '';
+  const icon = node.level === 'warehouse'
+    ? 'fa-solid fa-warehouse'
+    : node.level === 'zone'
+      ? 'fa-solid fa-folder-open'
+      : '';
+  const iconHtml = icon ? `<i class="${icon} shrink-0 text-xs w-4 text-center"></i>` : '<span class="w-4 shrink-0"></span>';
+
+  if (!hasChildren) {
+    return `<li data-wms-ledger-tree-item${branchCls} data-ledger-tree-path="${node.path}">
+      <button type="button" class="wms-tree-node wms-tree-node--ledger ${levelCls}${activeCls} w-full rounded-lg py-1.5 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-ledger-tree-pick data-ledger-tree-path="${node.path}" data-ledger-tree-level="${node.level}" data-ledger-tree-label="${node.label}">
+        <span class="flex items-center gap-2 truncate">${iconHtml}<span class="truncate">${node.label}</span></span>
+      </button>
+    </li>`;
+  }
+
+  const childrenHtml = node.children.map(child => ledgerWarehouseTreeNode(child, depth + 1)).join('');
+  return `<li data-wms-ledger-tree-branch data-wms-ledger-tree-item data-ledger-tree-path="${node.path}" data-wms-ledger-expanded="${expanded}">
+    <div class="flex items-center gap-0.5">
+      <button type="button" class="wms-ledger-tree-toggle${node.expanded ? ' is-expanded' : ''} flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-ledger-tree-toggle aria-expanded="${node.expanded ? 'true' : 'false'}" aria-label="${node.expanded ? '收起' : '展开'}"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+      <button type="button" class="wms-tree-node wms-tree-node--ledger ${levelCls}${activeCls}${contextCls} flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-50" data-wms-ledger-tree-pick data-ledger-tree-path="${node.path}" data-ledger-tree-level="${node.level}" data-ledger-tree-label="${node.label}">
+        ${iconHtml}<span class="truncate">${node.label}</span>
+      </button>
+    </div>
+    <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2${node.expanded ? '' : ' hidden'}" data-wms-ledger-tree-children>${childrenHtml}</ul>
+  </li>`;
+}
+
+function ledgerWarehouseSidebarTree() {
+  const treeHtml = LEDGER_WAREHOUSE_TREE.map(node => ledgerWarehouseTreeNode(node)).join('');
+  return `<aside class="wms-ledger-tree card rounded-2xl bg-white p-4 lg:col-span-3" data-wms-ledger-tree data-ledger-tree-path="主仓库/A区/A-02">
+    <h3 class="mb-3 px-2 text-xs font-semibold uppercase tracking-wide text-slate-400">仓库目录</h3>
+    <div class="wms-ledger-tree-scroll">
+      <ul class="wms-tree space-y-0.5 text-sm" data-wms-ledger-tree-root>${treeHtml}</ul>
+    </div>
+    <p class="mt-3 border-t border-slate-100 px-2 pt-3 text-xs text-slate-500" data-wms-ledger-tree-breadcrumb>当前：<span class="font-medium text-slate-700">主仓库 › A区 › A-02 货架</span></p>
+  </aside>`;
+}
+
+function ledgerWarehouseDetailPage(backHref = 'ledger_warehouse.html', sample = {}) {
+  const d = { ...WAREHOUSE_LEDGER_DETAIL_SAMPLES['LA-00456@主仓库/A区/A-02'], ...sample };
+  const statusBadge = d.status === '在库' ? badge('在库', 'success') : badge(d.status || '在库', 'warning');
+  const categoryBadge = badge(d.category, 'info');
+  const txRows = (d.transactions || []).map(tx =>
+    `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 font-mono text-xs text-slate-800">${tx.no}</td><td class="px-3 py-2.5 text-sm">${transactionTypeBadge(tx.type)}</td><td class="px-3 py-2.5 text-sm text-slate-700">${tx.qty}</td><td class="px-3 py-2.5 text-sm text-slate-500">${tx.time}</td><td class="px-3 py-2.5 text-right text-sm"><a href="ledger_transaction_detail.html?no=${encodeURIComponent(tx.no)}" class="hover:underline">详情</a></td></tr>`
+  ).join('');
+  const stockFields = d.category === '类资产' && d.safeStock
+    ? `<div><dt class="text-slate-500">安全库存</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="safeStock">${d.safeStock} ${d.unit}</dd></div>
+       <div><dt class="text-slate-500">库存下限</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="minStock">${d.minStock} ${d.unit}</dd></div>
+       <div><dt class="text-slate-500">库存上限</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="maxStock">${d.maxStock} ${d.unit}</dd></div>`
+    : '';
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-ledger-warehouse-detail>
+      <div class="mb-4 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-700">
+        <i class="fa-solid fa-location-dot mr-1 text-slate-500"></i>货位 <span class="font-medium text-slate-900" data-wh-ledger-field="location">${d.location}</span>
+        <span class="mx-2 text-slate-300">·</span>全公司在库 <span class="font-medium" data-wh-ledger-field="companyTotalQty">${d.companyTotalQty}</span> ${d.unit}
+      </div>
+      <dl class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+        <div><dt class="text-slate-500">物资编码</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-wh-ledger-field="code">${d.code}</dd></div>
+        <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 text-slate-900" data-wh-ledger-field="name">${d.name}</dd></div>
+        <div><dt class="text-slate-500">规格型号</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="spec">${d.spec}</dd></div>
+        <div><dt class="text-slate-500">大类</dt><dd class="mt-1">${categoryBadge}</dd></div>
+        <div><dt class="text-slate-500">本货位数量</dt><dd class="mt-1 text-lg font-semibold text-slate-900"><span data-wh-ledger-field="qty">${d.qty}</span> ${d.unit}</dd></div>
+        <div><dt class="text-slate-500">可用数量</dt><dd class="mt-1 font-semibold text-emerald-700" data-wh-ledger-field="available">${d.available} ${d.unit}</dd></div>
+        <div><dt class="text-slate-500">锁定/预留</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="locked">${d.locked || '0'} ${d.unit}</dd></div>
+        ${d.borrowed !== undefined ? `<div><dt class="text-slate-500">借出数量</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="borrowed">${d.borrowed} ${d.unit}</dd></div>` : ''}
+        <div><dt class="text-slate-500">状态</dt><dd class="mt-1">${statusBadge}</dd></div>
+        <div><dt class="text-slate-500">首次入库</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="inboundTime">${d.inboundTime}</dd></div>
+        <div><dt class="text-slate-500">最近变动</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="changeTime">${d.changeTime}</dd></div>
+        ${stockFields}
+      </dl>
+      <h4 class="mb-3 text-sm font-semibold text-slate-900">本货位最近流水</h4>
+      <div class="mb-4 overflow-hidden rounded-xl border border-slate-200">
+        <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">单号</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">类型</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">数量</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">时间</th>
+          <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">操作</th>
+        </tr></thead><tbody>${txRows}</tbody></table>
+      </div>
+      <div class="flex flex-wrap gap-3 text-sm">
+        <a href="ledger_material_detail.html?code=${encodeURIComponent(d.code)}&back=${encodeURIComponent(backHref)}" class="text-slate-600 hover:underline"><i class="fa-solid fa-boxes-stacked mr-1"></i>物资库存详情</a>
+        <a href="config_material_detail.html?code=${encodeURIComponent(d.code)}" class="text-slate-600 hover:underline"><i class="fa-solid fa-list mr-1"></i>物资清单</a>
+        <a href="ledger_transaction.html" class="text-slate-600 hover:underline"><i class="fa-solid fa-right-left mr-1"></i>全部流水</a>
+      </div>
+      <div class="wms-modal-footer mt-6">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary" data-wh-ledger-back>关闭</a>
+      </div>
+    </div>`;
+}
+
 function ledgerWarehousePage() {
-  const fixedRows = FIXED_ASSET_LEDGER_ROWS.map((r, i) => {
+  const fixedRows = FIXED_ASSET_LEDGER_ROWS.map((r) => {
     const statusBadge = r.status === '在库' ? badge('在库', 'success') : badge('借出', 'warning');
-    const actions = `<a href="ledger_asset_detail.html?code=${r.code}" class="mr-2 hover:underline">查看</a><a href="ledger_asset_qrcode.html?code=${r.code}" class="mr-2 hover:underline">二维码</a><button type="button" class="wms-qr-download-single hover:underline" data-asset-code="${r.code}">下载</button>`;
-    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-ledger-row data-is-fixed="true">
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-ledger-row data-is-fixed="true" data-ledger-location="${r.location}">
       <td class="px-4 py-3.5"><input type="checkbox" class="wms-ledger-check rounded border-slate-300" data-asset-code="${r.code}" checked /></td>
       <td class="px-4 py-3.5 font-mono text-xs">${r.code}</td>
       <td class="px-4 py-3.5">${r.name}</td>
@@ -411,23 +600,24 @@ function ledgerWarehousePage() {
       <td class="px-4 py-3.5">${r.location}</td>
       <td class="px-4 py-3.5">${statusBadge}</td>
       <td class="px-4 py-3.5 text-slate-500">${r.time}</td>
-      ${actionTd(actions, 'px-4 py-3.5')}
+      ${actionTd(ledgerWarehouseRowActions(r, true), 'px-4 py-3.5')}
     </tr>`;
   }).join('');
-  const otherRows = [
-    ['HC-00089', '打印纸 A4', badge('耗材', 'info'), '186', '主仓库/A区/A-02', badge('在库', 'success'), '2026-06-08 16:00'],
-    ['LA-00456', '电钻', badge('类资产', 'info'), '8', '主仓库/A区/A-02', badge('在库', 'success'), '2026-06-07 09:15'],
-  ].map(r => `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-ledger-row data-is-fixed="false">
+  const otherRows = WAREHOUSE_OTHER_LEDGER_ROWS.map(r => {
+    const catBadge = badge(r.category, 'info');
+    const statusBadge = r.status === '在库' ? badge('在库', 'success') : badge(r.status, 'warning');
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-ledger-row data-is-fixed="false" data-ledger-location="${r.location}">
       <td class="px-4 py-3.5"><input type="checkbox" class="wms-ledger-check rounded border-slate-300" disabled title="仅固定资产支持资产二维码" /></td>
-      <td class="px-4 py-3.5 font-mono text-xs">${r[0]}</td>
-      <td class="px-4 py-3.5">${r[1]}</td>
-      <td class="px-4 py-3.5">${r[2]}</td>
-      <td class="px-4 py-3.5">${r[3]}</td>
-      <td class="px-4 py-3.5">${r[4]}</td>
-      <td class="px-4 py-3.5">${r[5]}</td>
-      <td class="px-4 py-3.5 text-slate-500">${r[6]}</td>
-      ${actionTd('<a href="#" class="hover:underline">查看</a><span class="ml-2 text-slate-300" title="非固定资产无专属资产码">—</span>', 'px-4 py-3.5')}
-    </tr>`).join('');
+      <td class="px-4 py-3.5 font-mono text-xs">${r.code}</td>
+      <td class="px-4 py-3.5">${r.name}</td>
+      <td class="px-4 py-3.5">${catBadge}</td>
+      <td class="px-4 py-3.5">${r.qty}</td>
+      <td class="px-4 py-3.5">${r.location}</td>
+      <td class="px-4 py-3.5">${statusBadge}</td>
+      <td class="px-4 py-3.5 text-slate-500">${r.time}</td>
+      ${actionTd(ledgerWarehouseRowActions(r, false), 'px-4 py-3.5')}
+    </tr>`;
+  }).join('');
   return `
     <p class="mb-4 text-sm text-slate-500">按仓库树形结构查看库存；<strong class="font-medium text-slate-700">固定资产</strong>一物一码，可查看/下载专属资产二维码</p>
     <div class="mb-4 flex flex-wrap items-center gap-3">
@@ -440,17 +630,7 @@ function ledgerWarehousePage() {
       <button type="button" id="wms-ledger-batch-qr" class="ml-auto inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-qrcode text-xs"></i>批量下载资产二维码</button>
     </div>
     <div class="wms-ledger-layout grid gap-4 lg:grid-cols-12">
-      <div class="card rounded-2xl bg-white p-4 lg:col-span-3">
-        <h3 class="mb-3 px-2 text-xs font-semibold uppercase tracking-wide text-slate-400">仓库目录</h3>
-        <ul class="space-y-0.5 text-sm">
-          <li><button type="button" class="flex w-full items-center gap-2 rounded-xl bg-slate-900 px-3 py-2 text-left text-white"><i class="fa-solid fa-warehouse w-4"></i>主仓库</button></li>
-          <li class="pl-4"><button type="button" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-slate-700 hover:bg-slate-50"><i class="fa-solid fa-folder-open w-4 text-slate-400"></i>A区 · 通用物资</button></li>
-          <li class="pl-8"><button type="button" class="w-full rounded-lg px-3 py-1.5 text-left text-slate-600 hover:bg-slate-50">A-01 货架</button></li>
-          <li class="pl-8"><button type="button" class="w-full rounded-lg bg-slate-100 px-3 py-1.5 text-left font-medium text-slate-900">A-02 货架</button></li>
-          <li class="pl-4"><button type="button" class="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-slate-700 hover:bg-slate-50"><i class="fa-solid fa-folder-open w-4 text-slate-400"></i>B区 · 设备</button></li>
-          <li><button type="button" class="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-slate-700 hover:bg-slate-50"><i class="fa-solid fa-warehouse w-4 text-slate-400"></i>辅仓库</button></li>
-        </ul>
-      </div>
+      ${ledgerWarehouseSidebarTree()}
       <div class="card overflow-hidden rounded-2xl bg-white lg:col-span-9" data-wms-ledger-panel>
         <div class="overflow-x-auto wms-modal-table-wrap">
           <table class="min-w-full text-sm wms-data-table">
@@ -471,7 +651,7 @@ function ledgerWarehousePage() {
           </table>
         </div>
         <div class="flex items-center justify-between border-t border-slate-100 px-4 py-3 text-sm text-slate-500">
-          <span>共 248 条 · 已选 <span id="wms-ledger-selected-count">3</span> 条固定资产</span>
+          <span>共 <span data-wms-ledger-total>248</span> 条 · 已选 <span id="wms-ledger-selected-count">3</span> 条固定资产</span>
           <div class="flex gap-1"><span class="rounded-lg bg-slate-900 px-3 py-1 text-white">1</span><span class="rounded-lg px-3 py-1 hover:bg-slate-100">2</span><span class="rounded-lg px-3 py-1 hover:bg-slate-100">…</span></div>
         </div>
       </div>
@@ -601,16 +781,6 @@ function ledgerMaterialListPage() {
 
   const statCards = `
     <div class="wms-ledger-stat-row mb-6">
-      <button type="button" class="wms-ledger-stat-card card rounded-2xl bg-white text-left hover:ring-1 hover:ring-slate-200 transition" data-ledger-stat-tab="全部">
-        <div class="text-xs text-slate-500">在库物资种类</div>
-        <div class="mt-1 text-xl font-semibold text-slate-900">6</div>
-        <div class="mt-0.5 text-[11px] text-slate-400">全公司汇总</div>
-      </button>
-      <div class="wms-ledger-stat-card card rounded-2xl bg-white">
-        <div class="text-xs text-slate-500">在库总量（折算）</div>
-        <div class="mt-1 text-xl font-semibold text-slate-900">335+</div>
-        <div class="mt-0.5 text-[11px] text-slate-400">含类资产/耗材</div>
-      </div>
       <button type="button" class="wms-ledger-stat-card card rounded-2xl bg-white text-left hover:ring-1 hover:ring-amber-200 transition" data-ledger-stat-tab="库存预警">
         <div class="text-xs text-slate-500">库存预警</div>
         <div class="mt-1 text-xl font-semibold text-amber-600">1</div>
@@ -818,32 +988,60 @@ function transactionDetailModal(backHref, tx) {
   const sourceHrefMap = { inbound: 'warehouse_inbound_form.html', outbound: 'warehouse_outbound_fixed_form.html', return: 'warehouse_return_fixed_form.html', refund: 'warehouse_refund_pre_form.html' };
   const sourceHref = tx.sourceHref || sourceHrefMap[tx.typeKey] || '#';
   const sourceLabelMap = { inbound: '查看入库单', outbound: '查看出库单', return: '查看归还单', refund: '查看退货单' };
+  const typeIconMap = { inbound: 'fa-arrow-down-to-bracket', outbound: 'fa-arrow-up-from-bracket', return: 'fa-rotate-left', refund: 'fa-box-open' };
+  const typeIcon = typeIconMap[tx.typeKey] || 'fa-right-left';
+  const locationPath = [tx.warehouse, tx.location].filter(Boolean).join('/');
+  const extraRows = [
+    { key: 'supplier', label: '供应商' },
+    { key: 'recipient', label: '领用人' },
+    { key: 'assetCode', label: '资产编码', mono: true },
+    { key: 'returnStatus', label: '归还状态', badge: true },
+    { key: 'refundReason', label: '退货原因' },
+    { key: 'remark', label: '备注', span: true },
+  ].map(row => {
+    const val = tx[row.key];
+    const display = row.badge && val ? badge(val, 'success') : (val || '—');
+    const cellCls = row.mono ? 'font-mono text-slate-800' : 'text-slate-800';
+    return `<tr class="border-t border-slate-100${val && val !== '—' ? '' : ' hidden'}" data-tx-row="${row.key}">
+      <td class="w-36 shrink-0 bg-slate-50/50 px-3 py-2.5 text-xs font-medium uppercase tracking-wide text-slate-500">${row.label}</td>
+      <td class="px-3 py-2.5 text-sm ${cellCls}" data-tx-field="${row.key}">${display}</td>
+    </tr>`;
+  }).join('');
+  const matDetailHref = tx.assetCode
+    ? `ledger_asset_detail.html?code=${encodeURIComponent(tx.assetCode)}&back=${encodeURIComponent(backHref)}`
+    : `ledger_material_detail.html?code=${encodeURIComponent(tx.materialCode)}&back=${encodeURIComponent(backHref)}`;
+  const matDetailLabel = tx.assetCode ? '资产详情' : '物资库存详情';
+  const matDetailIcon = tx.assetCode ? 'fa-barcode' : 'fa-boxes-stacked';
   return `
-    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg">
-      <div class="wms-transaction-detail">
-        <dl class="grid gap-4 sm:grid-cols-2 text-sm">
-          <div><dt class="text-slate-500">流水单号</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-tx-field="no">${tx.no}</dd></div>
-          <div><dt class="text-slate-500">操作类型</dt><dd class="mt-1" data-tx-field="type">${transactionTypeBadge(tx.type)}</dd></div>
-          <div><dt class="text-slate-500">物资编码</dt><dd class="mt-1 font-mono text-slate-800" data-tx-field="materialCode">${tx.materialCode}</dd></div>
-          <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 text-slate-900" data-tx-field="materialName">${tx.materialName}</dd></div>
-          <div><dt class="text-slate-500">物资大类</dt><dd class="mt-1" data-tx-field="category">${badge(tx.category, 'info')}</dd></div>
-          <div><dt class="text-slate-500">数量</dt><dd class="mt-1 text-slate-800" data-tx-field="qty">${tx.qty} ${tx.unit || ''}</dd></div>
-          <div><dt class="text-slate-500">仓库</dt><dd class="mt-1 text-slate-800" data-tx-field="warehouse">${tx.warehouse}</dd></div>
-          <div><dt class="text-slate-500">货位</dt><dd class="mt-1 text-slate-800" data-tx-field="location">${tx.location || '—'}</dd></div>
-          <div><dt class="text-slate-500">操作时间</dt><dd class="mt-1 text-slate-800" data-tx-field="time">${tx.time}</dd></div>
-          <div><dt class="text-slate-500">操作人</dt><dd class="mt-1 text-slate-800" data-tx-field="operator">${tx.operator}</dd></div>
-          <div><dt class="text-slate-500" data-tx-label="related">${tx.relatedLabel || '关联单号'}</dt><dd class="mt-1 font-mono text-slate-800" data-tx-field="relatedNo">${tx.relatedNo || '—'}</dd></div>
-          <div data-tx-row="supplier"><dt class="text-slate-500">供应商</dt><dd class="mt-1 text-slate-800" data-tx-field="supplier">${tx.supplier || '—'}</dd></div>
-          <div data-tx-row="refundReason"><dt class="text-slate-500">退货原因</dt><dd class="mt-1 text-slate-800" data-tx-field="refundReason">${tx.refundReason || '—'}</dd></div>
-          <div data-tx-row="recipient"><dt class="text-slate-500">领用人</dt><dd class="mt-1 text-slate-800" data-tx-field="recipient">${tx.recipient || '—'}</dd></div>
-          <div data-tx-row="assetCode"><dt class="text-slate-500">资产编码</dt><dd class="mt-1 font-mono text-slate-800" data-tx-field="assetCode">${tx.assetCode || '—'}</dd></div>
-          <div data-tx-row="returnStatus"><dt class="text-slate-500">归还状态</dt><dd class="mt-1" data-tx-field="returnStatus">${tx.returnStatus ? badge(tx.returnStatus, 'success') : '—'}</dd></div>
-          <div class="sm:col-span-2"><dt class="text-slate-500">备注</dt><dd class="mt-1 text-slate-700" data-tx-field="remark">${tx.remark || '—'}</dd></div>
-        </dl>
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-transaction-detail>
+      <div class="mb-4 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-700">
+        <i class="fa-solid ${typeIcon} mr-1 text-slate-500" data-tx-banner="icon"></i>流水 <span class="font-mono font-medium text-slate-900" data-tx-banner="no">${tx.no}</span>
+        <span class="mx-2 text-slate-300">·</span><span data-tx-banner="type">${transactionTypeBadge(tx.type)}</span>
+        <span class="mx-2 text-slate-300">·</span>货位 <span class="font-medium text-slate-900" data-tx-banner="location">${locationPath || '—'}</span>
       </div>
-      <div class="wms-modal-footer">
-        <a href="${backHref}" class="wms-btn wms-btn-secondary">关闭</a>
-        <a href="${sourceHref}" class="wms-btn wms-btn-primary" data-tx-source-link>${sourceLabelMap[tx.typeKey] || '查看源单据'}</a>
+      <dl class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+        <div><dt class="text-slate-500">物资编码</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-tx-field="materialCode">${tx.materialCode}</dd></div>
+        <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 text-slate-900" data-tx-field="materialName">${tx.materialName}</dd></div>
+        <div><dt class="text-slate-500">物资大类</dt><dd class="mt-1" data-tx-field="category">${badge(tx.category, 'info')}</dd></div>
+        <div><dt class="text-slate-500">操作人</dt><dd class="mt-1 text-slate-800" data-tx-field="operator">${tx.operator}</dd></div>
+        <div><dt class="text-slate-500">变动数量</dt><dd class="mt-1 text-lg font-semibold text-slate-900" data-tx-field="qty">${tx.qty} ${tx.unit || ''}</dd></div>
+        <div><dt class="text-slate-500">仓库</dt><dd class="mt-1 text-slate-800" data-tx-field="warehouse">${tx.warehouse}</dd></div>
+        <div><dt class="text-slate-500">货架货位</dt><dd class="mt-1 text-slate-800" data-tx-field="location">${tx.location || '—'}</dd></div>
+        <div><dt class="text-slate-500">操作时间</dt><dd class="mt-1 text-slate-800" data-tx-field="time">${tx.time}</dd></div>
+        <div><dt class="text-slate-500" data-tx-label="related">${tx.relatedLabel || '关联单号'}</dt><dd class="mt-1 font-mono text-slate-800" data-tx-field="relatedNo">${tx.relatedNo || '—'}</dd></div>
+      </dl>
+      <h4 class="mb-3 text-sm font-semibold text-slate-900">附加信息</h4>
+      <div class="mb-4 overflow-hidden rounded-xl border border-slate-200" data-tx-extra-wrap>
+        <table class="min-w-full text-sm"><tbody>${extraRows}</tbody></table>
+      </div>
+      <div class="flex flex-wrap gap-3 text-sm">
+        <a href="${sourceHref}" class="text-slate-600 hover:underline" data-tx-source-link><i class="fa-solid fa-file-lines mr-1"></i>${sourceLabelMap[tx.typeKey] || '查看源单据'}</a>
+        <a href="${matDetailHref}" class="text-slate-600 hover:underline" data-tx-material-link><i class="fa-solid ${matDetailIcon} mr-1"></i>${matDetailLabel}</a>
+        <a href="ledger_warehouse.html" class="text-slate-600 hover:underline"><i class="fa-solid fa-warehouse mr-1"></i>仓库台账</a>
+        <a href="ledger_transaction.html" class="text-slate-600 hover:underline"><i class="fa-solid fa-right-left mr-1"></i>全部流水</a>
+      </div>
+      <div class="wms-modal-footer mt-6">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary" data-tx-back>关闭</a>
       </div>
     </div>`;
 }
@@ -1292,6 +1490,100 @@ function purchasePendingApplyHref(planNo, code, name, qty) {
   return `purchase_pending_apply.html?${p.toString()}`;
 }
 
+function purchasePendingPlanViewHref(planNo) {
+  const p = new URLSearchParams({ planNo, back: 'purchase_pending_list.html' });
+  return `purchase_pending_plan_detail.html?${p.toString()}`;
+}
+
+const APPLY_PLAN_SAMPLES = {
+  JJJH202606080001: {
+    no: 'JJJH202606080001', name: '防汛应急采购', planType: '急件计划', status: '审核通过',
+    reporter: '李四', department: '设备部', applyDate: '2026-06-08', needDate: '2026-06-12',
+    remark: '汛期临近，需尽快补齐防汛物资库存。',
+    lines: [
+      { code: 'XF-00102', name: '防汛沙袋', spec: '50×80cm', major: '耗材-防汛物资', minor: '防汛物资', unit: '条', qty: '500' },
+    ],
+  },
+  JJJH202510001: {
+    no: 'JJJH202510001', name: '设备配件补库', planType: '急件计划', status: '审核通过',
+    reporter: '李四', department: '设备部', applyDate: '2026-05-04', needDate: '2026-06-15',
+    remark: '抓斗备件库存不足，申请补库。',
+    lines: [
+      { code: 'GD001001-001', name: '抓斗', spec: '4m³-Q345B', major: '资产-固定资产', minor: '设备-配件', unit: '个', qty: '10' },
+    ],
+  },
+  JJJH202510002: {
+    no: 'JJJH202510002', name: '设备配件补库', planType: '急件计划', status: '审核通过',
+    reporter: '李四', department: '设备部', applyDate: '2026-05-04', needDate: '2026-06-15',
+    remark: '料斗备件补库。',
+    lines: [
+      { code: 'GD001001-002', name: '料斗', spec: '4m³', major: '资产-固定资产', minor: '设备-配件', unit: '个', qty: '10' },
+    ],
+  },
+  JJJH202606050001: {
+    no: 'JJJH202606050001', name: '维保耗材采购', planType: '急件计划', status: '审核通过',
+    reporter: '王五', department: '维保部', applyDate: '2026-06-05', needDate: '2026-06-18',
+    remark: '维保季度集中采购。',
+    lines: [
+      { code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', major: '资产-类资产', minor: '防汛设备', unit: '台', qty: '5' },
+    ],
+  },
+};
+
+function applyPlanDetailModal(backHref, plan) {
+  const p = plan;
+  const typeBadge = p.planType === '急件计划' ? badge('急件计划', 'warning') : badge(p.planType || '一般计划', 'info');
+  const statusBadge = badge(p.status || '审核通过', 'success');
+  const lineRows = (p.lines || []).map((line, i) =>
+    `<tr class="border-t border-slate-100">
+      <td class="px-3 py-2.5 text-sm text-slate-700">${i + 1}</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-800">${line.code}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800">${line.name}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.spec}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.major}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.minor}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.unit}</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900">${line.qty}</td>
+    </tr>`
+  ).join('');
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-apply-plan-detail>
+      <div class="mb-4 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-700">
+        <i class="fa-solid fa-clipboard-list mr-1 text-slate-500" data-apply-plan-banner="icon"></i>计划 <span class="font-mono font-medium text-slate-900" data-apply-plan-field="no">${p.no}</span>
+        <span class="mx-2 text-slate-300">·</span><span data-apply-plan-banner="planType">${typeBadge}</span>
+        <span class="mx-2 text-slate-300">·</span><span data-apply-plan-banner="status">${statusBadge}</span>
+      </div>
+      <dl class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+        <div><dt class="text-slate-500">计划名称</dt><dd class="mt-1 font-semibold text-slate-900" data-apply-plan-field="name">${p.name}</dd></div>
+        <div><dt class="text-slate-500">填报人</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="reporter">${p.reporter}</dd></div>
+        <div><dt class="text-slate-500">填报部门</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="department">${p.department}</dd></div>
+        <div><dt class="text-slate-500">申请日期</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="applyDate">${p.applyDate}</dd></div>
+        <div><dt class="text-slate-500">最早需求日</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="needDate">${p.needDate}</dd></div>
+        <div class="sm:col-span-2 lg:col-span-3"><dt class="text-slate-500">需求说明</dt><dd class="mt-1 text-slate-700" data-apply-plan-field="remark">${p.remark || '—'}</dd></div>
+      </dl>
+      <h4 class="mb-3 text-sm font-semibold text-slate-900">计划明细</h4>
+      <div class="mb-4 overflow-hidden rounded-xl border border-slate-200">
+        <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">序号</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资编码</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资名称</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">规格型号</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资大类</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资子类</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">单位</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">需求数量</th>
+        </tr></thead><tbody data-apply-plan-lines>${lineRows}</tbody></table>
+      </div>
+      <div class="flex flex-wrap gap-3 text-sm">
+        <a href="apply_plan_list.html" class="text-slate-600 hover:underline"><i class="fa-solid fa-list mr-1"></i>物资计划列表</a>
+        <a href="purchase_pending_list.html" class="text-slate-600 hover:underline"><i class="fa-solid fa-cart-shopping mr-1"></i>待采物资</a>
+      </div>
+      <div class="wms-modal-footer mt-6">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary" data-apply-plan-back>关闭</a>
+      </div>
+    </div>`;
+}
+
 function purchasePendingListPage() {
   const cols = ['序号', '计划单号', '计划名称', '计划类型', '物资编码', '物资名称', '状态', '规格型号', '物资大类', '物资子类', '填报人', '填报部门', '申请日期', '计量单位', '计划需求数量', '申请数量', '采购申请单号', '采购数量', '采购方式', '采购日期'];
   const th = cols.map(c => `<th class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('') +
@@ -1299,11 +1591,11 @@ function purchasePendingListPage() {
   const dash = '<span class="text-slate-400">—</span>';
   const rows = [
     ['1', 'JJJH202606080001', '防汛应急采购', badge('急件计划', 'warning'), 'XF-00102', '防汛沙袋', badge('待申请', 'info'), '50×80cm', '耗材-防汛物资', '防汛物资', '李四', '设备部', '2026-06-08', '条', '500', dash, dash, dash, dash, dash,
-      `<a href="apply_plan_list.html" class="mr-2 hover:underline">查看计划</a><a href="${purchasePendingApplyHref('JJJH202606080001', 'XF-00102', '防汛沙袋', 500)}" class="font-medium text-slate-900 hover:underline">申请</a>`],
+      `<a href="${purchasePendingPlanViewHref('JJJH202606080001')}" class="mr-2 hover:underline">查看计划</a><a href="${purchasePendingApplyHref('JJJH202606080001', 'XF-00102', '防汛沙袋', 500)}" class="font-medium text-slate-900 hover:underline">申请</a>`],
     ['2', 'JJJH202510001', '设备配件补库', badge('急件计划', 'warning'), 'GD001001-001', '抓斗', badge('待申请', 'info'), '4m³-Q345B', '资产-固定资产', '设备-配件', '李四', '设备部', '2026-05-04', '个', '10', dash, dash, dash, dash, dash,
-      `<a href="apply_plan_list.html" class="mr-2 hover:underline">查看计划</a><a href="${purchasePendingApplyHref('JJJH202510001', 'GD001001-001', '抓斗', 10)}" class="font-medium text-slate-900 hover:underline">申请</a>`],
+      `<a href="${purchasePendingPlanViewHref('JJJH202510001')}" class="mr-2 hover:underline">查看计划</a><a href="${purchasePendingApplyHref('JJJH202510001', 'GD001001-001', '抓斗', 10)}" class="font-medium text-slate-900 hover:underline">申请</a>`],
     ['3', 'JJJH202510002', '设备配件补库', badge('急件计划', 'warning'), 'GD001001-002', '料斗', badge('待申请', 'info'), '4m³', '资产-固定资产', '设备-配件', '李四', '设备部', '2026-05-04', '个', '10', dash, dash, dash, dash, dash,
-      `<a href="apply_plan_list.html" class="mr-2 hover:underline">查看计划</a><a href="${purchasePendingApplyHref('JJJH202510002', 'GD001001-002', '料斗', 10)}" class="font-medium text-slate-900 hover:underline">申请</a>`],
+      `<a href="${purchasePendingPlanViewHref('JJJH202510002')}" class="mr-2 hover:underline">查看计划</a><a href="${purchasePendingApplyHref('JJJH202510002', 'GD001001-002', '料斗', 10)}" class="font-medium text-slate-900 hover:underline">申请</a>`],
     ['4', 'JJJH202606050001', '维保耗材采购', badge('急件计划', 'warning'), 'XF-00105', '抽水泵', badge('已申请', 'success'), 'QZ10-15', '资产-类资产', '防汛设备', '王五', '维保部', '2026-06-05', '台', '5', '5', '<a href="purchase_request_list.html" class="font-mono text-xs hover:underline">JJSQ202606050001</a>', dash, dash, dash,
       '<a href="purchase_request_form.html?mode=view&amp;requestNo=JJSQ202606050001" class="hover:underline">查看申请</a>'],
   ];
@@ -2649,7 +2941,7 @@ function outboundSuccessPage() {
         </div>
         <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
           <button type="button" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-print"></i> 打印领用单</button>
-          <a href="mine_pending_pickup.html" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-hand-holding"></i> 待领物资</a>
+          <a href="mine_pending_pickup.html" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-hand-holding"></i> 领取记录</a>
           <a href="warehouse_outbound_list.html" class="text-sm text-slate-500 hover:text-slate-900">返回出库列表</a>
         </div>
       </div>
@@ -4159,15 +4451,9 @@ function warehouseConfigPage() {
       </ul>
     </aside>
     <div class="wms-warehouse-main card rounded-2xl bg-white p-5 min-w-0">
-      <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div class="wms-warehouse-tabs" data-wms-warehouse-tabs>
-          <button type="button" class="wms-tab-btn" data-tab="warehouse">仓库</button>
-          <button type="button" class="wms-tab-btn is-active" data-tab="shelf">货架</button>
-        </div>
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs text-slate-500">已选 <strong id="wms-shelf-selected-count" class="text-slate-800">${shelfTableRows.filter(r => r.zone === 'A区' && r.enabled).length}</strong> 个启用货架</span>
-          <button type="button" id="wms-warehouse-batch-loc-qr" data-zone-name="A区" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50" title="批量下载当前分区已勾选货架的货位码标签（ZIP）"><i class="fa-solid fa-qrcode text-xs text-slate-400"></i> 下载货位二维码</button>
-        </div>
+      <div class="mb-4 flex flex-wrap items-center justify-end gap-2">
+        <span class="text-xs text-slate-500">已选 <strong id="wms-shelf-selected-count" class="text-slate-800">${shelfTableRows.filter(r => r.zone === 'A区' && r.enabled).length}</strong> 个启用货架</span>
+        <button type="button" id="wms-warehouse-batch-loc-qr" data-zone-name="A区" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50" title="批量下载当前分区已勾选货架的货位码标签（ZIP）"><i class="fa-solid fa-qrcode text-xs text-slate-400"></i> 下载货位二维码</button>
       </div>
       ${warehouseShelfToolbar()}
       ${listAddRow({ addBtn: true, addHref: 'config_shelf_form.html' })}
@@ -4180,8 +4466,7 @@ function warehouseConfigPage() {
           <div class="flex gap-2 items-center"><dt class="text-slate-500 shrink-0">负责人：</dt><dd class="text-slate-800">张飞 <a href="#" class="ml-1 text-blue-600 hover:underline">查看</a></dd></div>
         </dl>
       </div>
-      <div data-wms-tab-panel="shelf">${warehouseShelfTable()}</div>
-      <div class="hidden py-12 text-center text-sm text-slate-500" data-wms-tab-panel="warehouse">请切换至「货架」标签管理货架与货位码</div>
+      ${warehouseShelfTable()}
       <div class="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 text-sm text-slate-500">
         <span data-wms-shelf-total>共 ${shelfTableRows.filter(r => r.zone === 'A区').length} 条</span>
         <div class="flex gap-1"><span class="rounded-lg bg-slate-900 px-3 py-1 text-white">1</span><span class="rounded-lg px-3 py-1 hover:bg-slate-100">2</span></div>
@@ -5797,7 +6082,7 @@ const pages = {
 
   ledger_transaction: page('ledger_transaction', '出入库记录', '物资台账 / 出入库记录', ledgerTransactionPage()),
 
-  mine_pending_pickup: page('mine_pending_pickup', '待领物资', '我的物资 / 待领物资', listPage({
+  mine_pending_pickup: page('mine_pending_pickup', '领取记录', '我的物资 / 领取记录', listPage({
     desc: '领用申请审核通过后的物资领取明细',
     tabs: ['全部', '待领取', '已领取'],
     searchPlaceholder: '领用申请单号、物资编码、物资名称、出库单号',
@@ -5811,7 +6096,7 @@ const pages = {
     ],
   })),
 
-  mine_pending_return: page('mine_pending_return', '待还物资', '我的物资 / 待还物资', listPage({
+  mine_pending_return: page('mine_pending_return', '借还记录', '我的物资 / 借还记录', listPage({
     desc: '需归还且尚未完成归还的物资；仓管入库后进入「待确认」，借用人确认后变为已归还',
     tabs: ['全部', '待归还', '已延期', '待确认', '已归还'],
     tabColumn: 9,
@@ -6266,6 +6551,8 @@ const forms = {
 
   purchase_pending_apply: page('purchase_pending_list', '采购申请', '采购管理 / 待采申请', purchaseRequestForm('purchase_pending_list.html', { fromPending: true, total: '28600.00' })),
 
+  purchase_pending_plan_detail: page('purchase_pending_list', '物资计划详情', '采购管理 / 物资计划详情', applyPlanDetailModal('purchase_pending_list.html', APPLY_PLAN_SAMPLES.JJJH202606080001)),
+
   purchase_execute_direct: page('purchase_execute_list', '直采-采购', '采购管理 / 直采-采购', purchaseExecuteFormPage({
     title: '直采采购', method: '直采', quoteSectionTitle: '直采信息', mode: 'direct',
   })),
@@ -6316,6 +6603,8 @@ const forms = {
   ledger_material_detail: page('ledger_material', '物资库存详情', '物资台账 / 物资库存详情', ledgerMaterialDetailPage('ledger_material.html', MATERIAL_LEDGER_DETAIL_SAMPLES['LA-00456'])),
 
   ledger_asset_detail: page('ledger_warehouse', '资产详情', '物资台账 / 资产详情', assetDetailModal('ledger_warehouse.html', FIXED_ASSET_LEDGER_ROWS[0])),
+
+  ledger_warehouse_detail: page('ledger_warehouse', '货位库存详情', '物资台账 / 货位库存详情', ledgerWarehouseDetailPage('ledger_warehouse.html', WAREHOUSE_LEDGER_DETAIL_SAMPLES['LA-00456@主仓库/A区/A-02'])),
 
   ledger_asset_qrcode: page('ledger_warehouse', '资产二维码', '物资台账 / 资产二维码', assetQrcodeModal('ledger_warehouse.html', FIXED_ASSET_LEDGER_ROWS[0])),
 
@@ -6449,12 +6738,13 @@ const mapLabels = {
   ledger_material: ['物资台账', '物资台账'],
   ledger_material_detail: ['物资库存详情', '物资台账 · 表单'],
   ledger_warehouse: ['仓库台账', '物资台账'],
+  ledger_warehouse_detail: ['货位库存详情', '物资台账 · 表单'],
   ledger_asset_detail: ['资产详情', '物资台账 · 二维码'],
   ledger_asset_qrcode: ['资产二维码', '物资台账 · 二维码'],
   ledger_transaction: ['出入库记录', '物资台账'],
   ledger_transaction_detail: ['流水详情', '物资台账'],
-  mine_pending_pickup: ['待领物资', '我的物资'],
-  mine_pending_return: ['待还物资', '我的物资'],
+  mine_pending_pickup: ['领取记录', '我的物资'],
+  mine_pending_return: ['借还记录', '我的物资'],
   mine_return_confirm: ['确认归还', '我的物资 · 表单'],
   mine_requisition_record: ['领用记录', '我的物资 · 表单'],
   apply_plan_list: ['物资计划', '物资申请'],
@@ -6466,6 +6756,7 @@ const mapLabels = {
   purchase_pending_list: ['待采物资', '采购管理'],
   purchase_pending_select: ['选择待采物资', '采购管理 · 表单'],
   purchase_pending_apply: ['待采申请', '采购管理 · 表单'],
+  purchase_pending_plan_detail: ['物资计划详情', '采购管理 · 表单'],
   purchase_request_list: ['采购申请', '采购管理'],
   purchase_request_form: ['新建采购申请', '采购管理 · 表单'],
   purchase_plan_apply: ['计划采购申请', '采购管理'],

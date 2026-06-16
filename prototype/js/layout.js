@@ -5,6 +5,13 @@ const WMS_TRANSACTION_SAMPLES = {
   TH202606030001: { no: 'TH202606030001', type: '退货', typeKey: 'refund', materialCode: 'DL-00234', materialName: '电缆 YJV-3×2.5', category: '类资产', qty: '100 m', warehouse: '主仓库/A区', location: 'A-01', time: '2026-06-03 10:15', operator: '张仓管', relatedNo: 'GH202605280002', relatedLabel: '供货单号', supplier: '华建物资有限公司', refundReason: '质量问题', sourceHref: 'warehouse_refund_like_form.html?refundKey=TH202606030001&mode=view', remark: '规格不符退供应商' },
 };
 
+const WMS_APPLY_PLAN_SAMPLES = {
+  JJJH202606080001: { no: 'JJJH202606080001', name: '防汛应急采购', planType: '急件计划', status: '审核通过', reporter: '李四', department: '设备部', applyDate: '2026-06-08', needDate: '2026-06-12', remark: '汛期临近，需尽快补齐防汛物资库存。', lines: [{ code: 'XF-00102', name: '防汛沙袋', spec: '50×80cm', major: '耗材-防汛物资', minor: '防汛物资', unit: '条', qty: '500' }] },
+  JJJH202510001: { no: 'JJJH202510001', name: '设备配件补库', planType: '急件计划', status: '审核通过', reporter: '李四', department: '设备部', applyDate: '2026-05-04', needDate: '2026-06-15', remark: '抓斗备件库存不足，申请补库。', lines: [{ code: 'GD001001-001', name: '抓斗', spec: '4m³-Q345B', major: '资产-固定资产', minor: '设备-配件', unit: '个', qty: '10' }] },
+  JJJH202510002: { no: 'JJJH202510002', name: '设备配件补库', planType: '急件计划', status: '审核通过', reporter: '李四', department: '设备部', applyDate: '2026-05-04', needDate: '2026-06-15', remark: '料斗备件补库。', lines: [{ code: 'GD001001-002', name: '料斗', spec: '4m³', major: '资产-固定资产', minor: '设备-配件', unit: '个', qty: '10' }] },
+  JJJH202606050001: { no: 'JJJH202606050001', name: '维保耗材采购', planType: '急件计划', status: '审核通过', reporter: '王五', department: '维保部', applyDate: '2026-06-05', needDate: '2026-06-18', remark: '维保季度集中采购。', lines: [{ code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', major: '资产-类资产', minor: '防汛设备', unit: '台', qty: '5' }] },
+};
+
 const WMS_REQUISITION_RECORD_SAMPLES = {
   LY202510001: { no: 'LY202510001', name: '生产部备件领用', reason: '项目用料', plan: 'JH202509001 月度采购', status: '审核通过', applicant: '李四', dept: '生产部', applyTime: '2025-08-28', outboundNo: '—', outboundDate: '—', outboundQty: '—', materials: [{ code: 'GD001001-001', name: '抓斗', spec: '455', unit: '个', qty: '5' }, { code: 'GD001001-002', name: '料斗', spec: '455', unit: '个', qty: '10' }] },
   LY202510002: { no: 'LY202510002', name: '设备部工具领用', reason: '设备维修', plan: '—', status: '审核通过', applicant: '李四', dept: '设备部', applyTime: '2025-08-30', outboundNo: 'LY202510002-CK001', outboundDate: '2025-09-03', outboundQty: '10', materials: [{ code: 'GD001001-003', name: '螺丝刀', spec: '455', unit: '个', qty: '10' }] },
@@ -71,6 +78,11 @@ const WMS_MATERIAL_LEDGER_SAMPLES = {
   'ZC202605012': { code: 'GC-20001', assetCode: 'ZC202605012', name: '工程测量仪', spec: '全站仪 TS06', major: '资产-固定资产', minor: '办公设备', unit: '台', totalQty: '1', availableQty: '0', lockedQty: '0', borrowedQty: '1', pendingScrapQty: '0', stockStatus: 'normal', assetStatus: '借出', borrower: '王工', location: '武穴大桥施工点', warehouses: [{ warehouse: '场外', zone: '武穴大桥施工点', shelf: '—', qty: '1', available: '0', status: '借出' }], transactions: [{ no: 'CK202606090008', type: '出库', qty: '1 台', time: '2026-06-01 09:00' }] },
 };
 
+const WMS_WAREHOUSE_LEDGER_SAMPLES = {
+  'HC-00089@主仓库/A区/A-02': { code: 'HC-00089', name: '打印纸 A4', spec: '70g/500张', category: '耗材', major: '耗材-办公耗材', minor: '办公用纸', unit: '箱', location: '主仓库/A区/A-02', warehouse: '主仓库', zone: 'A区', shelf: 'A-02', qty: '186', available: '170', locked: '16', borrowed: '0', status: '在库', inboundTime: '2026-03-15 10:00', changeTime: '2026-06-08 16:00', companyTotalQty: '186', transactions: [{ no: 'RK202603150008', type: '入库', qty: '200 箱', time: '2026-03-15 10:00' }, { no: 'CK202606010003', type: '出库', qty: '50 箱', time: '2026-06-01 09:30' }] },
+  'LA-00456@主仓库/A区/A-02': { code: 'LA-00456', name: '电钻', spec: '650W', category: '类资产', major: '资产-类资产', minor: '电动工具', unit: '台', location: '主仓库/A区/A-02', warehouse: '主仓库', zone: 'A区', shelf: 'A-02', qty: '8', available: '6', locked: '0', borrowed: '2', status: '在库', safeStock: '10', minStock: '5', maxStock: '20', inboundTime: '2026-01-20 14:00', changeTime: '2026-06-07 09:15', companyTotalQty: '8', transactions: [{ no: 'HK202606090003', type: '归还', qty: '1 台', time: '2026-06-08 16:45' }, { no: 'CK202606090008', type: '出库', qty: '2 台', time: '2026-06-07 14:20' }] },
+};
+
 const WMS_PENDING_SCRAP_POOL = {
   'POOL-LA-00502': { poolKey: 'POOL-LA-00502', assetCode: 'LA-00502', code: 'LA-00500', name: '手持对讲机', spec: 'UHF 400-470MHz', major: '资产-类资产', unit: '台', qty: '1', location: '主仓库/待报废区', assetStatus: '待报废', sourceType: '归还损坏', sourceDocNo: 'HK20260608004', inboundDate: '2026-06-09', remark: '归还验收判定损坏，主板烧毁' },
   'POOL-GD008': { poolKey: 'POOL-GD008', assetCode: 'GD001001-008', code: 'GD001001-008', name: '铝合金梯', spec: '3m', major: '资产-固定资产', unit: '架', qty: '1', location: '主仓库/待报废区', assetStatus: '待报废', sourceType: '归还损坏', sourceDocNo: 'HK20260607002', inboundDate: '2026-06-08', remark: '梯框变形无法修复' },
@@ -133,8 +145,8 @@ const WMS_NAV = [
   { id: 'ledger_warehouse', label: '仓库台账', icon: 'fa-warehouse', href: 'ledger_warehouse.html' },
   { id: 'ledger_transaction', label: '出入库记录', icon: 'fa-right-left', href: 'ledger_transaction.html' },
   { group: '我的物资' },
-  { id: 'mine_pending_pickup', label: '待领物资', icon: 'fa-hand-holding-box', href: 'mine_pending_pickup.html' },
-  { id: 'mine_pending_return', label: '待还物资', icon: 'fa-rotate-left', href: 'mine_pending_return.html' },
+  { id: 'mine_pending_pickup', label: '领取记录', icon: 'fa-hand-holding-box', href: 'mine_pending_pickup.html' },
+  { id: 'mine_pending_return', label: '借还记录', icon: 'fa-rotate-left', href: 'mine_pending_return.html' },
   { group: '物资申请' },
   { id: 'apply_plan_list', label: '物资计划', icon: 'fa-clipboard-list', href: 'apply_plan_list.html' },
   { id: 'apply_requisition_list', label: '领用申请', icon: 'fa-file-signature', href: 'apply_requisition_list.html' },
@@ -284,6 +296,7 @@ function initLayout() {
   initAcceptanceStandard(root);
   initLedgerMaterial(root);
   initLedgerMaterialDetailFromQuery(root);
+  initLedgerWarehouseDetailFromQuery(root);
   initLedgerWarehouse(root);
   initAssetQrActions(root);
   initWarehouseLocQr(root);
@@ -322,6 +335,7 @@ function initLayout() {
   initLocationFormFromQuery(root);
   initSupplierEvalForm(root);
   initPurchasePendingApply(root);
+  initApplyPlanDetailFromQuery(root);
   initPurchaseRequestFromQuery(root);
   initRequisitionForm(root);
   initAcceptanceFormInteraction(root);
@@ -1609,9 +1623,58 @@ function initLedgerMaterialDetailFromQuery(root) {
   if (titleEl) titleEl.textContent = `物资库存 · ${sample.name}`;
 }
 
+function initLedgerWarehouseDetailFromQuery(root) {
+  if (root.dataset.page !== 'ledger_warehouse') return;
+  if (!(root.dataset.title || '').includes('货位')) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  const location = params.get('location');
+  const backHref = params.get('back') || 'ledger_warehouse.html';
+  if (!code) return;
+
+  const key = location ? `${code}@${location}` : code;
+  let sample = WMS_WAREHOUSE_LEDGER_SAMPLES[key];
+  if (!sample && location) {
+    sample = Object.values(WMS_WAREHOUSE_LEDGER_SAMPLES).find(s => s.code === code && s.location === location);
+  }
+  if (!sample) {
+    const mat = WMS_MATERIAL_LEDGER_SAMPLES[code];
+    if (mat && location) {
+      const wh = mat.warehouses?.find(w => `${w.warehouse}/${w.zone}/${w.shelf}` === location.replace(/区\//, '区/')) || mat.warehouses?.[0];
+      sample = {
+        code: mat.code, name: mat.name, spec: mat.spec, category: mat.major?.includes('类资产') ? '类资产' : '耗材',
+        major: mat.major, minor: mat.minor, unit: mat.unit, location,
+        qty: wh?.qty || mat.totalQty, available: wh?.available || mat.availableQty,
+        locked: mat.lockedQty, borrowed: mat.borrowedQty, status: wh?.status || '在库',
+        changeTime: '—', inboundTime: '—', companyTotalQty: mat.totalQty,
+        safeStock: mat.safeStock, minStock: mat.minStock, maxStock: mat.maxStock,
+        transactions: mat.transactions || [],
+      };
+    }
+  }
+  if (!sample) return;
+
+  document.querySelectorAll('[data-wh-ledger-field]').forEach(el => {
+    const key = el.dataset.whLedgerField;
+    if (sample[key] !== undefined) el.textContent = sample[key];
+  });
+
+  document.querySelectorAll('[data-wh-ledger-back], .wms-modal-close').forEach(a => {
+    a.setAttribute('href', backHref);
+  });
+  const backdrop = document.querySelector('.wms-modal-backdrop');
+  if (backdrop) backdrop.onclick = (e) => { if (e.target === backdrop) window.location.href = backHref; };
+
+  const titleEl = document.getElementById('wms-modal-title');
+  if (titleEl) titleEl.textContent = `货位库存 · ${sample.name}`;
+}
+
 function initLedgerWarehouse(root) {
   const panel = root.querySelector('[data-wms-ledger-panel]');
   if (!panel) return;
+
+  initLedgerWarehouseTree(root);
 
   const checkAll = root.querySelector('#wms-ledger-check-all');
   const countEl = root.querySelector('#wms-ledger-selected-count');
@@ -1642,6 +1705,138 @@ function initLedgerWarehouse(root) {
   updateCount();
 }
 
+function initLedgerWarehouseTree(root) {
+  const tree = root.querySelector('[data-wms-ledger-tree]');
+  if (!tree) return;
+
+  const panel = root.querySelector('[data-wms-ledger-panel]');
+  const breadcrumb = tree.querySelector('[data-wms-ledger-tree-breadcrumb]');
+  const totalEl = panel?.querySelector('[data-wms-ledger-total]');
+  const rows = () => [...panel.querySelectorAll('[data-ledger-row]')];
+  const picks = () => [...tree.querySelectorAll('[data-wms-ledger-tree-pick]')];
+
+  function setExpanded(branch, open) {
+    branch.dataset.wmsLedgerExpanded = open ? 'true' : 'false';
+    const toggle = branch.querySelector(':scope > div [data-wms-ledger-tree-toggle]');
+    const children = branch.querySelector(':scope > [data-wms-ledger-tree-children]');
+    toggle?.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle?.setAttribute('aria-label', open ? '收起' : '展开');
+    toggle?.classList.toggle('is-expanded', open);
+    children?.classList.toggle('hidden', !open);
+  }
+
+  function expandAncestors(el) {
+    let node = el?.parentElement;
+    while (node && node !== tree) {
+      if (node.matches('[data-wms-ledger-tree-branch]')) setExpanded(node, true);
+      node = node.parentElement;
+    }
+  }
+
+  function pathLabel(path) {
+    return path
+      .replace(/^主仓库/, '主仓库')
+      .split('/')
+      .map((part, i, arr) => {
+        if (i === 1 && part === 'A区') return 'A区';
+        if (i === 1 && part === 'B区') return 'B区';
+        if (i === 1 && part === 'C区') return 'C区';
+        if (part === 'A区') return 'A区';
+        if (part === 'B区') return 'B区';
+        if (part === 'C区') return 'C区';
+        if (/货架$/.test(part) || /^[A-Z]-\d+/.test(part)) return part.includes('货架') ? part : `${part} 货架`;
+        return part;
+      })
+      .join(' › ');
+  }
+
+  function updateBreadcrumb(path, label) {
+    if (!breadcrumb) return;
+    const text = path ? pathLabel(path) : label;
+    breadcrumb.innerHTML = `当前：<span class="font-medium text-slate-700">${text}</span>`;
+  }
+
+  function rowMatchesPath(location, path) {
+    if (!path) return true;
+    const loc = location || '';
+    if (loc === path) return true;
+    if (loc.startsWith(`${path}/`)) return true;
+    const pathSlash = path.replace(/\//g, '/');
+  const zoneShelf = path.match(/^(主仓库|辅仓库)\/([A-Z])区(?:\/(.+))?$/);
+    if (zoneShelf) {
+      const [, wh, zone, shelf] = zoneShelf;
+      const prefix = `${wh}/${zone}区`;
+      if (shelf) return loc.startsWith(`${prefix}/${shelf}`) || loc === `${prefix}/${shelf}`;
+      return loc.startsWith(prefix);
+    }
+    return loc.startsWith(path);
+  }
+
+  function applyFilter(path) {
+    tree.dataset.ledgerTreePath = path || '';
+    let visible = 0;
+    rows().forEach(row => {
+      const loc = row.getAttribute('data-ledger-location') || '';
+      const show = rowMatchesPath(loc, path);
+      row.classList.toggle('hidden', !show);
+      if (show) visible += 1;
+    });
+    if (totalEl) totalEl.textContent = String(visible);
+  }
+
+  function selectNode(btn) {
+    const path = btn.getAttribute('data-ledger-tree-path') || '';
+    const level = btn.getAttribute('data-ledger-tree-level') || '';
+    const label = btn.getAttribute('data-ledger-tree-label') || '';
+
+    picks().forEach(el => {
+      el.classList.remove('is-active', 'is-context', 'bg-blue-50/80', 'text-blue-600', 'bg-slate-100', 'font-medium', 'text-slate-900');
+      if (el.classList.contains('wms-tree-node--warehouse')) {
+        el.classList.add('text-slate-700');
+      } else {
+        el.classList.add('text-slate-600');
+      }
+    });
+
+    btn.classList.add('is-active');
+    btn.classList.remove('text-slate-600', 'text-slate-700');
+
+    if (level === 'warehouse') {
+      btn.classList.add('is-context');
+      picks().forEach(el => {
+        if (el.classList.contains('wms-tree-node--warehouse')) el.classList.remove('is-context');
+      });
+      btn.classList.add('is-context');
+    } else if (level === 'zone' || level === 'shelf') {
+      btn.classList.add('bg-slate-100', 'font-medium', 'text-slate-900');
+      const whPath = path.split('/')[0];
+      picks().forEach(el => {
+        if (el.getAttribute('data-ledger-tree-path') === whPath) el.classList.add('is-context');
+      });
+    }
+
+    expandAncestors(btn.closest('[data-wms-ledger-tree-item]'));
+    updateBreadcrumb(path, label);
+    applyFilter(path);
+  }
+
+  tree.querySelectorAll('[data-wms-ledger-tree-toggle]').forEach(toggle => {
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const branch = toggle.closest('[data-wms-ledger-tree-branch]');
+      if (!branch) return;
+      setExpanded(branch, branch.dataset.wmsLedgerExpanded !== 'true');
+    });
+  });
+
+  picks().forEach(btn => btn.addEventListener('click', () => selectNode(btn)));
+
+  const defaultPath = tree.dataset.ledgerTreePath || '主仓库/A区/A-02';
+  const defaultBtn = picks().find(b => b.getAttribute('data-ledger-tree-path') === defaultPath)
+    || picks().find(b => b.getAttribute('data-ledger-tree-path') === '主仓库');
+  if (defaultBtn) selectNode(defaultBtn);
+}
+
 function initTransactionPageFromQuery(root) {
   if (root.dataset.page !== 'ledger_transaction') return;
   const params = new URLSearchParams(window.location.search);
@@ -1649,6 +1844,7 @@ function initTransactionPageFromQuery(root) {
   if (!no || !WMS_TRANSACTION_SAMPLES[no]) return;
 
   const tx = WMS_TRANSACTION_SAMPLES[no];
+  const backHref = params.get('back') || 'ledger_transaction.html';
   const typeBadgeMap = { 入库: 'success', 出库: 'warning', 归还: 'info', 退货: 'danger' };
   const typeBadgeClass = {
     success: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
@@ -1656,20 +1852,32 @@ function initTransactionPageFromQuery(root) {
     info: 'bg-slate-100 text-slate-700 ring-slate-600/10',
     danger: 'bg-rose-50 text-rose-700 ring-rose-600/20',
   };
+  const typeIconMap = { inbound: 'fa-arrow-down-to-bracket', outbound: 'fa-arrow-up-from-bracket', return: 'fa-rotate-left', refund: 'fa-box-open' };
+
+  const bannerNo = document.querySelector('[data-tx-banner="no"]');
+  if (bannerNo) bannerNo.textContent = tx.no;
+  const bannerType = document.querySelector('[data-tx-banner="type"]');
+  if (bannerType) {
+    const cls = typeBadgeClass[typeBadgeMap[tx.type]] || typeBadgeClass.info;
+    bannerType.innerHTML = `<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${cls}">${tx.type}</span>`;
+  }
+  const bannerLoc = document.querySelector('[data-tx-banner="location"]');
+  if (bannerLoc) bannerLoc.textContent = [tx.warehouse, tx.location].filter(Boolean).join('/') || '—';
+  const bannerIcon = document.querySelector('[data-tx-banner="icon"]');
+  if (bannerIcon) bannerIcon.className = `fa-solid ${typeIconMap[tx.typeKey] || 'fa-right-left'} mr-1 text-slate-500`;
 
   document.querySelectorAll('[data-tx-field]').forEach(el => {
     const key = el.dataset.txField;
-    if (key === 'type') {
-      const cls = typeBadgeClass[typeBadgeMap[tx.type]] || typeBadgeClass.info;
-      el.innerHTML = `<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${cls}">${tx.type}</span>`;
-      return;
-    }
     if (key === 'category') {
       el.innerHTML = `<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">${tx.category}</span>`;
       return;
     }
     if (key === 'returnStatus' && tx.returnStatus) {
       el.innerHTML = `<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">${tx.returnStatus}</span>`;
+      return;
+    }
+    if (key === 'qty') {
+      el.textContent = `${tx.qty} ${tx.unit || ''}`.trim();
       return;
     }
     if (tx[key] !== undefined) el.textContent = tx[key];
@@ -1684,15 +1892,101 @@ function initTransactionPageFromQuery(root) {
     row.classList.toggle('hidden', !hasValue);
   });
 
+  const extraWrap = document.querySelector('[data-tx-extra-wrap]');
+  if (extraWrap) {
+    const anyVisible = [...extraWrap.querySelectorAll('[data-tx-row]')].some(r => !r.classList.contains('hidden'));
+    extraWrap.classList.toggle('hidden', !anyVisible);
+    const extraHeading = extraWrap.previousElementSibling;
+    if (extraHeading?.tagName === 'H4') extraHeading.classList.toggle('hidden', !anyVisible);
+  }
+
   const sourceLink = document.querySelector('[data-tx-source-link]');
   if (sourceLink && tx.sourceHref) {
     sourceLink.href = tx.sourceHref;
     const sourceLabel = { inbound: '查看入库单', outbound: '查看出库单', return: '查看归还单', refund: '查看退货单' };
-    if (sourceLabel[tx.typeKey]) sourceLink.textContent = sourceLabel[tx.typeKey];
+    if (sourceLabel[tx.typeKey]) {
+      sourceLink.innerHTML = `<i class="fa-solid fa-file-lines mr-1"></i>${sourceLabel[tx.typeKey]}`;
+    }
   }
 
+  const matLink = document.querySelector('[data-tx-material-link]');
+  if (matLink) {
+    if (tx.assetCode) {
+      matLink.href = `ledger_asset_detail.html?code=${encodeURIComponent(tx.assetCode)}&back=${encodeURIComponent(backHref)}`;
+      matLink.innerHTML = '<i class="fa-solid fa-barcode mr-1"></i>资产详情';
+    } else {
+      matLink.href = `ledger_material_detail.html?code=${encodeURIComponent(tx.materialCode)}&back=${encodeURIComponent(backHref)}`;
+      matLink.innerHTML = '<i class="fa-solid fa-boxes-stacked mr-1"></i>物资库存详情';
+    }
+  }
+
+  document.querySelectorAll('[data-tx-back], .wms-modal-close').forEach(a => {
+    a.setAttribute('href', backHref);
+  });
+  const backdrop = document.querySelector('.wms-modal-backdrop');
+  if (backdrop) backdrop.onclick = (e) => { if (e.target === backdrop) window.location.href = backHref; };
+
   const titleEl = document.getElementById('wms-modal-title');
-  if (titleEl) titleEl.textContent = `流水详情 · ${no}`;
+  if (titleEl) titleEl.textContent = `流水 · ${tx.type} · ${tx.materialName}`;
+}
+
+function initApplyPlanDetailFromQuery(root) {
+  if (root.dataset.page !== 'purchase_pending_list') return;
+  if (!(root.dataset.breadcrumb || '').includes('物资计划详情')) return;
+  const params = new URLSearchParams(window.location.search);
+  const planNo = params.get('planNo');
+  if (!planNo || !WMS_APPLY_PLAN_SAMPLES[planNo]) return;
+
+  const plan = WMS_APPLY_PLAN_SAMPLES[planNo];
+  const backHref = params.get('back') || 'purchase_pending_list.html';
+  const badgeClass = {
+    success: 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+    warning: 'bg-amber-50 text-amber-700 ring-amber-600/20',
+    info: 'bg-slate-100 text-slate-700 ring-slate-600/10',
+  };
+
+  const bannerNo = document.querySelector('[data-apply-plan-field="no"]');
+  if (bannerNo) bannerNo.textContent = plan.no;
+  const bannerType = document.querySelector('[data-apply-plan-banner="planType"]');
+  if (bannerType) {
+    const cls = plan.planType === '急件计划' ? badgeClass.warning : badgeClass.info;
+    bannerType.innerHTML = `<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${cls}">${plan.planType}</span>`;
+  }
+  const bannerStatus = document.querySelector('[data-apply-plan-banner="status"]');
+  if (bannerStatus) {
+    bannerStatus.innerHTML = `<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${badgeClass.success}">${plan.status}</span>`;
+  }
+
+  document.querySelectorAll('[data-apply-plan-field]').forEach(el => {
+    const key = el.dataset.applyPlanField;
+    if (key === 'no') return;
+    if (plan[key] !== undefined) el.textContent = plan[key] || '—';
+  });
+
+  const tbody = document.querySelector('[data-apply-plan-lines]');
+  if (tbody && plan.lines?.length) {
+    tbody.innerHTML = plan.lines.map((line, i) =>
+      `<tr class="border-t border-slate-100">
+        <td class="px-3 py-2.5 text-sm text-slate-700">${i + 1}</td>
+        <td class="px-3 py-2.5 font-mono text-xs text-slate-800">${line.code}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-800">${line.name}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700">${line.spec}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700">${line.major}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700">${line.minor}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700">${line.unit}</td>
+        <td class="px-3 py-2.5 text-sm font-medium text-slate-900">${line.qty}</td>
+      </tr>`
+    ).join('');
+  }
+
+  document.querySelectorAll('[data-apply-plan-back], .wms-modal-close').forEach(a => {
+    a.setAttribute('href', backHref);
+  });
+  const backdrop = document.querySelector('.wms-modal-backdrop');
+  if (backdrop) backdrop.dataset.modalBack = backHref;
+
+  const titleEl = document.getElementById('wms-modal-title');
+  if (titleEl) titleEl.textContent = `物资计划 · ${plan.name}`;
 }
 
 function initRequisitionRecordFromQuery(root) {
@@ -3340,6 +3634,8 @@ function initRefundSelectAsset(root) {
 function initAssetPageFromQuery(root) {
   const page = root.dataset.page;
   if (page !== 'ledger_warehouse') return;
+  const title = root.dataset.title || '';
+  if (title.includes('货位')) return;
   const params = new URLSearchParams(window.location.search);
   const code = params.get('code');
   if (!code) return;
@@ -3391,26 +3687,14 @@ function initAssetPageFromQuery(root) {
   }
 
   const titleEl = document.getElementById('wms-modal-title');
-  if (titleEl && /资产|二维码/.test(root.dataset.title || '')) {
-    titleEl.textContent = `${root.dataset.title} · ${code}`;
+  if (titleEl && /资产|二维码/.test(title)) {
+    titleEl.textContent = `${title} · ${code}`;
   }
 }
 
 function initWarehouseConfig(root) {
   const layout = root.querySelector('.wms-warehouse-layout');
   if (!layout) return;
-
-  const tabBtns = layout.querySelectorAll('[data-wms-warehouse-tabs] .wms-tab-btn');
-  const panels = layout.querySelectorAll('[data-wms-tab-panel]');
-  tabBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const tab = btn.dataset.tab;
-      tabBtns.forEach(b => b.classList.toggle('is-active', b === btn));
-      panels.forEach(p => {
-        p.classList.toggle('hidden', p.dataset.wmsTabPanel !== tab);
-      });
-    });
-  });
 
   const zoneNodes = layout.querySelectorAll('.wms-tree-node--zone');
   const detail = layout.querySelector('[data-wms-zone-detail]');

@@ -4,6 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>物资管理系统 · 原型入口</title>
+  <!-- GitHub Pages 访问 /wms（无尾部斜杠）时，相对路径会解析到站点根目录；用 base 固定为当前目录 -->
+  <base id="wms-base" href="./" />
+  <script>
+    (function () {
+      var path = location.pathname;
+      var base = path.endsWith('/')
+        ? path
+        : (/\.[a-z0-9]+$/i.test((path.split('/').pop() || ''))
+          ? path.replace(/\/[^/]*$/, '/')
+          : path + '/');
+      document.getElementById('wms-base').href = base;
+    })();
+  </script>
   <link rel="stylesheet" href="css/tailwind.css" />
   <link rel="stylesheet" href="css/custom.css" />
   <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
@@ -60,10 +73,15 @@
     </div>
 
     <div class="wms-portal-links">
+      <a href="pages/prd.html" class="wms-portal-link">
+        <i class="fa-solid fa-file-lines"></i>
+        <span>产品需求文档</span>
+        <span class="text-slate-400">PRD · 浏览器阅读</span>
+      </a>
       <a href="pages/prototype_map.html" class="wms-portal-link">
         <i class="fa-solid fa-table-cells"></i>
         <span>原型页面目录</span>
-        <span class="text-slate-400">131 页索引</span>
+        <span class="text-slate-400">133 页索引</span>
       </a>
       <a href="pages/pc_home.html" class="wms-portal-link">
         <i class="fa-solid fa-gauge-high"></i>
@@ -78,7 +96,9 @@
     </div>
 
     <footer class="wms-portal-footer">
-      <span>PRD 文档：<code class="rounded bg-white/80 px-1.5 py-0.5 text-xs ring-1 ring-slate-200">docs/prd.md</code></span>
+      <a href="pages/prd.html" class="text-slate-500 hover:text-slate-700">查看 PRD 文档</a>
+      <span class="mx-2 text-slate-300">·</span>
+      <span>源文件 <code class="rounded bg-white/80 px-1.5 py-0.5 text-xs ring-1 ring-slate-200">docs/prd.md</code></span>
     </footer>
   </div>
 </body>

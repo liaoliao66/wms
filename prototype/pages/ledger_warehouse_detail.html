@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>货位库存详情 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="ledger_warehouse" data-title="货位库存详情" data-breadcrumb="物资台账 / 货位库存详情">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="ledger_warehouse.html" data-modal-size="xl" data-wms-ledger-warehouse-detail>
+      <div class="mb-4 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-700">
+        <i class="fa-solid fa-location-dot mr-1 text-slate-500"></i>货位 <span class="font-medium text-slate-900" data-wh-ledger-field="location">主仓库/A区/A-02</span>
+        <span class="mx-2 text-slate-300">·</span>全公司在库 <span class="font-medium" data-wh-ledger-field="companyTotalQty">8</span> 台
+      </div>
+      <dl class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+        <div><dt class="text-slate-500">物资编码</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-wh-ledger-field="code">LA-00456</dd></div>
+        <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 text-slate-900" data-wh-ledger-field="name">电钻</dd></div>
+        <div><dt class="text-slate-500">规格型号</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="spec">650W</dd></div>
+        <div><dt class="text-slate-500">大类</dt><dd class="mt-1"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">类资产</span></dd></div>
+        <div><dt class="text-slate-500">本货位数量</dt><dd class="mt-1 text-lg font-semibold text-slate-900"><span data-wh-ledger-field="qty">8</span> 台</dd></div>
+        <div><dt class="text-slate-500">可用数量</dt><dd class="mt-1 font-semibold text-emerald-700" data-wh-ledger-field="available">6 台</dd></div>
+        <div><dt class="text-slate-500">锁定/预留</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="locked">0 台</dd></div>
+        <div><dt class="text-slate-500">借出数量</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="borrowed">2 台</dd></div>
+        <div><dt class="text-slate-500">状态</dt><dd class="mt-1"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">在库</span></dd></div>
+        <div><dt class="text-slate-500">首次入库</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="inboundTime">2026-01-20 14:00</dd></div>
+        <div><dt class="text-slate-500">最近变动</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="changeTime">2026-06-07 09:15</dd></div>
+        <div><dt class="text-slate-500">安全库存</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="safeStock">10 台</dd></div>
+       <div><dt class="text-slate-500">库存下限</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="minStock">5 台</dd></div>
+       <div><dt class="text-slate-500">库存上限</dt><dd class="mt-1 text-slate-800" data-wh-ledger-field="maxStock">20 台</dd></div>
+      </dl>
+      <h4 class="mb-3 text-sm font-semibold text-slate-900">本货位最近流水</h4>
+      <div class="mb-4 overflow-hidden rounded-xl border border-slate-200">
+        <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">单号</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">类型</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">数量</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">时间</th>
+          <th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">操作</th>
+        </tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2.5 font-mono text-xs text-slate-800">HK202606090003</td><td class="px-3 py-2.5 text-sm"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">归还</span></td><td class="px-3 py-2.5 text-sm text-slate-700">1 台</td><td class="px-3 py-2.5 text-sm text-slate-500">2026-06-08 16:45</td><td class="px-3 py-2.5 text-right text-sm"><a href="ledger_transaction_detail.html?no=HK202606090003" class="hover:underline">详情</a></td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2.5 font-mono text-xs text-slate-800">CK202606090008</td><td class="px-3 py-2.5 text-sm"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">出库</span></td><td class="px-3 py-2.5 text-sm text-slate-700">2 台</td><td class="px-3 py-2.5 text-sm text-slate-500">2026-06-07 14:20</td><td class="px-3 py-2.5 text-right text-sm"><a href="ledger_transaction_detail.html?no=CK202606090008" class="hover:underline">详情</a></td></tr></tbody></table>
+      </div>
+      <div class="flex flex-wrap gap-3 text-sm">
+        <a href="ledger_material_detail.html?code=LA-00456&back=ledger_warehouse.html" class="text-slate-600 hover:underline"><i class="fa-solid fa-boxes-stacked mr-1"></i>物资库存详情</a>
+        <a href="config_material_detail.html?code=LA-00456" class="text-slate-600 hover:underline"><i class="fa-solid fa-list mr-1"></i>物资清单</a>
+        <a href="ledger_transaction.html" class="text-slate-600 hover:underline"><i class="fa-solid fa-right-left mr-1"></i>全部流水</a>
+      </div>
+      <div class="wms-modal-footer mt-6">
+        <a href="ledger_warehouse.html" class="wms-btn wms-btn-secondary" data-wh-ledger-back>关闭</a>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

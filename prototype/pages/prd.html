@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>产品需求文档 · WMS PRD</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body class="wms-prd-body">
+  <header class="wms-prd-header">
+    <div class="wms-prd-header-inner">
+      <a href="../index.html" class="wms-prd-back">
+        <i class="fa-solid fa-arrow-left"></i>
+        返回原型入口
+      </a>
+      <div class="wms-prd-header-title">
+        <h1>物资仓库管理系统 · PRD</h1>
+        <p id="prd-meta">加载中…</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="wms-prd-main">
+    <article id="prd-content" class="wms-prd-prose">
+      <p class="text-slate-500">正在加载文档…</p>
+    </article>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
+  <script>
+    (function () {
+      var contentEl = document.getElementById('prd-content');
+      var metaEl = document.getElementById('prd-meta');
+
+      marked.setOptions({ gfm: true, breaks: false });
+
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: 'neutral',
+        securityLevel: 'loose',
+        flowchart: { htmlLabels: true, curve: 'basis' },
+        stateDiagram: { htmlLabels: true },
+        sequence: { mirrorActors: false, showSequenceNumbers: true },
+      });
+
+      function decodeCode(html) {
+        return html
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&amp;/g, '&')
+          .replace(/&quot;/g, '"');
+      }
+
+      function renderMermaid(html) {
+        return html.replace(
+          /<pre><code class="language-mermaid">([\s\S]*?)<\/code><\/pre>/g,
+          function (_, code) {
+            return '<div class="mermaid">' + decodeCode(code) + '</div>';
+          }
+        );
+      }
+
+      function extractMeta(md) {
+        var version = (md.match(/\|\s*文档版本\s*\|\s*([^|]+)\|/) || [])[1];
+        var updated = (md.match(/\|\s*最后更新\s*\|\s*([^|]+)\|/) || [])[1];
+        var parts = [];
+        if (version) parts.push('版本 ' + version.trim());
+        if (updated) parts.push('更新 ' + updated.trim());
+        return parts.join(' · ') || 'docs/prd.md';
+      }
+
+      fetch('../docs/prd.md')
+        .then(function (res) {
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.text();
+        })
+        .then(function (md) {
+          metaEl.textContent = extractMeta(md);
+          var html = marked.parse(md);
+          html = renderMermaid(html);
+          contentEl.innerHTML = html;
+          return mermaid.run({ nodes: contentEl.querySelectorAll('.mermaid') });
+        })
+        .catch(function (err) {
+          metaEl.textContent = '加载失败';
+          contentEl.innerHTML =
+            '<div class="wms-prd-error">' +
+            '<p><strong>无法加载 PRD 文档</strong></p>' +
+            '<p class="mt-2 text-sm">请通过本地 HTTP 服务或 GitHub Pages 访问（file:// 协议不支持 fetch）。</p>' +
+            '<p class="mt-2 text-sm text-slate-500">' + err.message + '</p>' +
+            '<p class="mt-4 text-sm">也可在仓库中直接打开 <code>docs/prd.md</code>。</p>' +
+            '</div>';
+        });
+    })();
+  </script>
+</body>
+</html>

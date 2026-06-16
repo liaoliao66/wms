@@ -682,6 +682,29 @@ table tbody tr:hover .wms-col-actions {
   transform: none;
 }
 
+/* 仓库台账：左侧仓库目录树 */
+.wms-ledger-tree-scroll {
+  max-height: 520px;
+  overflow-y: auto;
+}
+
+.wms-ledger-tree-toggle {
+  transition: transform 0.15s ease;
+}
+
+.wms-ledger-tree-toggle.is-expanded {
+  transform: rotate(90deg);
+}
+
+.wms-tree-node--ledger.wms-tree-node--warehouse.is-context {
+  background: #0f172a;
+  color: #fff;
+}
+
+.wms-tree-node--ledger.wms-tree-node--warehouse.is-context i {
+  color: rgba(255, 255, 255, 0.75);
+}
+
 /* 物资清单：左树右表 */
 .wms-material-layout {
   display: grid;
@@ -1836,7 +1859,13 @@ body.wms-app-body .wms-app-card:hover {
 
 @media (min-width: 640px) {
   .wms-portal-links {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .wms-portal-links {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 
@@ -1873,4 +1902,204 @@ body.wms-app-body .wms-app-card:hover {
   text-align: center;
   font-size: 0.75rem;
   color: #94a3b8;
+}
+
+/* PRD 文档浏览器 */
+.wms-prd-body {
+  min-height: 100vh;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.wms-prd-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border-bottom: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+}
+
+.wms-prd-header-inner {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+}
+
+.wms-prd-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+  color: #64748b;
+  text-decoration: none;
+}
+
+.wms-prd-back:hover {
+  color: #0f172a;
+}
+
+.wms-prd-header-title {
+  margin-top: 0.75rem;
+}
+
+.wms-prd-header-title h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.wms-prd-header-title p {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: #64748b;
+}
+
+.wms-prd-main {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.wms-prd-prose {
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  color: #334155;
+}
+
+.wms-prd-prose > :first-child {
+  margin-top: 0;
+}
+
+.wms-prd-prose h1,
+.wms-prd-prose h2,
+.wms-prd-prose h3,
+.wms-prd-prose h4 {
+  color: #0f172a;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  scroll-margin-top: 5rem;
+}
+
+.wms-prd-prose h1 {
+  font-size: 1.75rem;
+  margin: 2rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.wms-prd-prose h2 {
+  font-size: 1.375rem;
+  margin: 2.5rem 0 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.wms-prd-prose h3 {
+  font-size: 1.125rem;
+  margin: 1.75rem 0 0.5rem;
+}
+
+.wms-prd-prose h4 {
+  font-size: 1rem;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.wms-prd-prose p,
+.wms-prd-prose ul,
+.wms-prd-prose ol,
+.wms-prd-prose blockquote,
+.wms-prd-prose pre,
+.wms-prd-prose table,
+.wms-prd-prose .mermaid {
+  margin: 0.75rem 0;
+}
+
+.wms-prd-prose ul,
+.wms-prd-prose ol {
+  padding-left: 1.5rem;
+}
+
+.wms-prd-prose li + li {
+  margin-top: 0.25rem;
+}
+
+.wms-prd-prose blockquote {
+  padding: 0.75rem 1rem;
+  border-left: 3px solid #cbd5e1;
+  background: #f8fafc;
+  color: #475569;
+}
+
+.wms-prd-prose code {
+  font-size: 0.85em;
+  padding: 0.15em 0.4em;
+  border-radius: 0.25rem;
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.wms-prd-prose pre {
+  overflow-x: auto;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+.wms-prd-prose pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.wms-prd-prose table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  display: block;
+  overflow-x: auto;
+}
+
+.wms-prd-prose th,
+.wms-prd-prose td {
+  border: 1px solid #e2e8f0;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.wms-prd-prose th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.wms-prd-prose hr {
+  margin: 2rem 0;
+  border: 0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.wms-prd-prose .mermaid {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  overflow-x: auto;
+}
+
+.wms-prd-error {
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  background: #fff;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+}
+
+.wms-prd-error code {
+  background: #fef2f2;
+  padding: 0.15em 0.35em;
+  border-radius: 0.25rem;
 }

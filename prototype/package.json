@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "build:css": "tailwindcss -i ./css/tailwind.input.css -o ./css/tailwind.css --minify",
+    "copy:docs": "node scripts/copy-docs.mjs",
+    "build": "npm run build:css && npm run copy:docs",
     "vendor:fa": "node scripts/copy-vendor.mjs",
-    "postinstall": "npm run vendor:fa"
+    "postinstall": "npm run vendor:fa && npm run copy:docs"
   },
   "keywords": [],
   "author": "",

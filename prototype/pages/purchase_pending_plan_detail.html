@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>物资计划详情 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="purchase_pending_list" data-title="物资计划详情" data-breadcrumb="采购管理 / 物资计划详情">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="purchase_pending_list.html" data-modal-size="xl" data-wms-apply-plan-detail>
+      <div class="mb-4 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-700">
+        <i class="fa-solid fa-clipboard-list mr-1 text-slate-500" data-apply-plan-banner="icon"></i>计划 <span class="font-mono font-medium text-slate-900" data-apply-plan-field="no">JJJH202606080001</span>
+        <span class="mx-2 text-slate-300">·</span><span data-apply-plan-banner="planType"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">急件计划</span></span>
+        <span class="mx-2 text-slate-300">·</span><span data-apply-plan-banner="status"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">审核通过</span></span>
+      </div>
+      <dl class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
+        <div><dt class="text-slate-500">计划名称</dt><dd class="mt-1 font-semibold text-slate-900" data-apply-plan-field="name">防汛应急采购</dd></div>
+        <div><dt class="text-slate-500">填报人</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="reporter">李四</dd></div>
+        <div><dt class="text-slate-500">填报部门</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="department">设备部</dd></div>
+        <div><dt class="text-slate-500">申请日期</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="applyDate">2026-06-08</dd></div>
+        <div><dt class="text-slate-500">最早需求日</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="needDate">2026-06-12</dd></div>
+        <div class="sm:col-span-2 lg:col-span-3"><dt class="text-slate-500">需求说明</dt><dd class="mt-1 text-slate-700" data-apply-plan-field="remark">汛期临近，需尽快补齐防汛物资库存。</dd></div>
+      </dl>
+      <h4 class="mb-3 text-sm font-semibold text-slate-900">计划明细</h4>
+      <div class="mb-4 overflow-hidden rounded-xl border border-slate-200">
+        <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">序号</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资编码</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资名称</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">规格型号</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资大类</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资子类</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">单位</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">需求数量</th>
+        </tr></thead><tbody data-apply-plan-lines><tr class="border-t border-slate-100">
+      <td class="px-3 py-2.5 text-sm text-slate-700">1</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-800">XF-00102</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800">防汛沙袋</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">50×80cm</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">耗材-防汛物资</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">防汛物资</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">条</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900">500</td>
+    </tr></tbody></table>
+      </div>
+      <div class="flex flex-wrap gap-3 text-sm">
+        <a href="apply_plan_list.html" class="text-slate-600 hover:underline"><i class="fa-solid fa-list mr-1"></i>物资计划列表</a>
+        <a href="purchase_pending_list.html" class="text-slate-600 hover:underline"><i class="fa-solid fa-cart-shopping mr-1"></i>待采物资</a>
+      </div>
+      <div class="wms-modal-footer mt-6">
+        <a href="purchase_pending_list.html" class="wms-btn wms-btn-secondary" data-apply-plan-back>关闭</a>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>
