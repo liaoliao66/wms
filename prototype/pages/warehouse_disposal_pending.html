@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>待处置物资 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_disposal_list" data-title="待处置物资" data-breadcrumb="物资管理 / 待处置物资">
+  <div id="main-content">
+    <div class="mb-4"><a href="warehouse_disposal_list.html" class="text-sm text-slate-500 hover:text-slate-900"><i class="fa-solid fa-arrow-left mr-1"></i>返回处置列表</a></div>
+    <div data-wms-list-page>
+      <p class="mb-4 text-sm text-slate-500">作废单<strong>已执行</strong>后，实物进入报废暂存区，状态为「已作废·待处置」；须在本模块选择处置、丢弃或堆放并完成现场执行后，才从待处置队列清除。</p>
+      <div class="mb-4 rounded-xl border border-sky-100 bg-sky-50/60 p-4 text-sm text-slate-700">
+        <i class="fa-solid fa-circle-info mr-1 text-sky-600"></i>
+        <strong>处置</strong>须登记买方与金额；<strong>丢弃</strong>须登记丢弃地点与见证人；<strong>堆放</strong>须指定堆放位置与预计清运日期。
+      </div>
+      <div class="mb-4 flex w-full flex-nowrap items-center justify-end gap-2 overflow-x-auto" data-wms-list-toolbar><div class="relative shrink-0 w-[280px]">
+    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+    <input type="search" data-wms-list-search placeholder="作废单号、资产编码、物资编码、名称" class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-9 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+    <button type="button" data-wms-list-search-clear class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" title="清空"><i class="fa-solid fa-xmark text-xs"></i></button>
+  </div><button type="button" class="hidden shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-100" data-wms-list-reset><i class="fa-solid fa-rotate-left text-xs"></i>重置</button></div>
+      <div class="card overflow-hidden rounded-2xl bg-white shadow-sm">
+        <div class="overflow-x-auto wms-modal-table-wrap"><table class="min-w-full wms-data-table"><thead class="bg-slate-50/80"><tr>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">状态</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">作废单号</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">资产编码</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">规格型号</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资大类</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">暂存位置</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">数量</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">作废日期</th>
+          <th class="wms-col-actions px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th>
+        </tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/80"><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待处置</span></td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">ZF202606080002</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">—</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">GD001001-006</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">润滑油</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">CD 15W-40</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">耗材-生产耗材</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">主仓库/报废暂存区</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">5 桶</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2026-06-08</td><td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="warehouse_disposal_form.html?poolKey=DISP-ZF080002-L1&back=warehouse_disposal_pending.html" class="font-medium text-emerald-700 hover:underline">发起处置</a></td></tr><tr class="border-t border-slate-100 hover:bg-slate-50/80"><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待处置</span></td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">ZF202606050005</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">LA-00331</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">LA-00330</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">铝合金梯</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">3m</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">资产-类资产</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">主仓库/报废暂存区</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">1 架</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2026-06-05</td><td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="warehouse_disposal_form.html?poolKey=DISP-ZF050005-L1&back=warehouse_disposal_pending.html" class="font-medium text-emerald-700 hover:underline">发起处置</a></td></tr><tr class="border-t border-slate-100 hover:bg-slate-50/80"><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待处置</span></td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">ZF202606090001</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">LA-00502</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">LA-00500</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">手持对讲机</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">UHF 400-470MHz</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">资产-类资产</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">主仓库/报废暂存区</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">1 台</td><td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2026-06-09</td><td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="warehouse_disposal_form.html?poolKey=DISP-ZF090001-L1&back=warehouse_disposal_pending.html" class="font-medium text-emerald-700 hover:underline">发起处置</a></td></tr></tbody></table></div>
+        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 text-sm text-slate-500">
+    <span data-wms-list-count>共 3 条</span>
+    <div class="flex flex-wrap items-center gap-2">
+      <div class="flex gap-1"><span class="rounded-lg bg-slate-900 px-3 py-1 text-white">1</span></div>
+      <span class="text-slate-400">10 条/页</span>
+    </div>
+  </div>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

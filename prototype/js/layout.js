@@ -97,6 +97,35 @@ const WMS_SCRAP_SAMPLES = {
   'ZF202606050005': { scrapKey: 'ZF202606050005', scrapNo: 'ZF202606050005', scrapType: 'return_loss', sourceType: '归还灭失', sourceDocNo: 'LY202605200008', returnKey: 'LY202605200008-LA-00331', status: '已执行', reason: '丢失', remark: '借用人确认铝合金梯在工地丢失，无法找回。', applicant: '张仓管', department: '物资管理部', warehouse: '主仓库', applyDate: '2026-06-05', executedDate: '2026-06-05', lineCount: '1', totalQty: '1', lines: [{ seq: 1, materialType: 'like', code: 'LA-00330', assetCode: 'LA-00331', name: '铝合金梯', spec: '3m', major: '资产-类资产', location: '借出中', available: '1', scrapQty: '1', remark: '工地丢失' }] },
 };
 
+const WMS_PENDING_DISPOSAL_POOL = {
+  'DISP-ZF080002-L1': { poolKey: 'DISP-ZF080002-L1', scrapNo: 'ZF202606080002', scrapKey: 'ZF202606080002', assetCode: '—', code: 'GD001001-006', name: '润滑油', spec: 'CD 15W-40', major: '耗材-生产耗材', unit: '桶', qty: '5', location: '主仓库/报废暂存区', scrapDate: '2026-06-08', remark: '过期批次作废' },
+  'DISP-ZF050005-L1': { poolKey: 'DISP-ZF050005-L1', scrapNo: 'ZF202606050005', scrapKey: 'ZF202606050005', assetCode: 'LA-00331', code: 'LA-00330', name: '铝合金梯', spec: '3m', major: '资产-类资产', unit: '架', qty: '1', location: '主仓库/报废暂存区', scrapDate: '2026-06-05', remark: '工地丢失灭失' },
+  'DISP-ZF090001-L1': { poolKey: 'DISP-ZF090001-L1', scrapNo: 'ZF202606090001', scrapKey: 'ZF202606090001', assetCode: 'LA-00502', code: 'LA-00500', name: '手持对讲机', spec: 'UHF 400-470MHz', major: '资产-类资产', unit: '台', qty: '1', location: '主仓库/报废暂存区', scrapDate: '2026-06-09', remark: '归还损坏作废' },
+};
+
+const WMS_DISPOSAL_SAMPLES = {
+  CZ202606100001: {
+    disposalKey: 'CZ202606100001', disposalNo: 'CZ202606100001', method: '处置', status: '待执行',
+    scrapNo: 'ZF202606080002', materialSummary: '润滑油', qty: '5 桶', amount: '1,200.00',
+    buyer: '黄冈废旧物资回收站', operator: '张仓管', department: '物资管理部', applyDate: '2026-06-10',
+    lines: [{ name: '润滑油', code: 'GD001001-006', qty: '5', unit: '桶' }],
+  },
+  CZ202606090002: {
+    disposalKey: 'CZ202606090002', disposalNo: 'CZ202606090002', method: '丢弃', status: '已完成',
+    scrapNo: 'ZF202606050005', materialSummary: '铝合金梯', qty: '1 架',
+    discardLocation: '武穴项目现场建筑垃圾填埋点', witness: '李工、王工', operator: '张仓管', department: '物资管理部',
+    executedDate: '2026-06-09', applyDate: '2026-06-09',
+    lines: [{ name: '铝合金梯', assetCode: 'LA-00331', qty: '1', unit: '架' }],
+  },
+  CZ202606080003: {
+    disposalKey: 'CZ202606080003', disposalNo: 'CZ202606080003', method: '堆放', status: '处置中',
+    scrapNo: 'ZF202606090001', materialSummary: '手持对讲机', qty: '1 台',
+    stockpileLocation: '主仓库/场外堆放区 B-01', expectedClearDate: '2026-07-15', custodian: '张仓管',
+    operator: '李仓管', department: '物资管理部', applyDate: '2026-06-08',
+    lines: [{ name: '手持对讲机', assetCode: 'LA-00502', qty: '1', unit: '台' }],
+  },
+};
+
 const WMS_REFUND_BY_ACCEPT = {
   'GH2025004-YS02': 'GH2025004-YS02-TH',
   'GH2025003-YS01': 'GH2025003-YS01-TH',
@@ -163,6 +192,7 @@ const WMS_NAV = [
   { id: 'warehouse_return_list', label: '物资归还', icon: 'fa-undo', href: 'warehouse_return_list.html' },
   { id: 'warehouse_refund_list', label: '物资退货', icon: 'fa-box-open', href: 'warehouse_refund_list.html' },
   { id: 'warehouse_scrap_list', label: '物资作废', icon: 'fa-dumpster', href: 'warehouse_scrap_list.html' },
+  { id: 'warehouse_disposal_list', label: '物资处置', icon: 'fa-recycle', href: 'warehouse_disposal_list.html' },
   { group: '库场盘点' },
   { id: 'count_plan_list', label: '盘点计划', icon: 'fa-calendar-check', href: 'count_plan_list.html' },
   { id: 'count_task_list', label: '盘点任务', icon: 'fa-list-check', href: 'count_task_list.html' },
@@ -320,6 +350,9 @@ function initLayout() {
   initScrapFromQuery(root);
   initScrapExecuteFromQuery(root);
   initScrapSuccessFromQuery(root);
+  initDisposalFromQuery(root);
+  initDisposalExecuteFromQuery(root);
+  initDisposalSuccessFromQuery(root);
   initRefundFromQuery(root);
   initRefundSuccessFromQuery(root);
   initRefundSelectAsset(root);
@@ -3331,6 +3364,145 @@ function initScrapSuccessFromQuery(root) {
   if (sourceEl) sourceEl.textContent = sample?.sourceType || '—';
   if (qtyEl) qtyEl.textContent = `${qty} ${unit}`;
   if (nameEl) nameEl.textContent = line?.name || '—';
+}
+
+function disposalSampleFromPool(poolKey) {
+  const p = WMS_PENDING_DISPOSAL_POOL[poolKey];
+  if (!p) return null;
+  return {
+    poolKey,
+    scrapNo: p.scrapNo,
+    remark: p.remark,
+    lines: [{ code: p.code, assetCode: p.assetCode, name: p.name, qty: p.qty, unit: p.unit }],
+  };
+}
+
+function renderDisposalLineRows(lines) {
+  const tbody = document.querySelector('[data-disposal-lines]');
+  if (!tbody || !lines?.length) return;
+  tbody.innerHTML = lines.map((r, i) => `<tr class="border-t border-slate-100">
+    <td class="px-3 py-2.5 text-sm text-slate-700">${i + 1}</td>
+    <td class="px-3 py-2.5 font-mono text-xs text-slate-700">${r.assetCode || '—'}</td>
+    <td class="px-3 py-2.5 font-mono text-xs text-slate-700">${r.code || '—'}</td>
+    <td class="px-3 py-2.5 text-sm text-slate-700">${r.name}</td>
+    <td class="px-3 py-2.5 text-sm font-medium text-slate-900">${r.qty} ${r.unit || ''}</td>
+  </tr>`).join('');
+}
+
+function initDisposalFromQuery(root) {
+  if (root.dataset.page !== 'warehouse_disposal_list') return;
+  const title = root.dataset.title || '';
+  if (!title.includes('处置') || title.includes('执行') || title.includes('成功')) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const disposalKey = params.get('disposalKey');
+  const poolKey = params.get('poolKey');
+  const viewMode = params.get('mode') === 'view';
+  const backHref = params.get('back') || 'warehouse_disposal_list.html';
+
+  let sample = { viewMode };
+  if (disposalKey && WMS_DISPOSAL_SAMPLES[disposalKey]) {
+    sample = { ...WMS_DISPOSAL_SAMPLES[disposalKey], viewMode };
+  } else if (poolKey) {
+    sample = { ...disposalSampleFromPool(poolKey), viewMode: false };
+  }
+
+  const scope = document.querySelector('[data-wms-disposal-form]');
+  if (sample.disposalNo) {
+    const noInput = scope?.querySelector('input[readonly]');
+    if (noInput) noInput.value = sample.disposalNo;
+  }
+  if (sample.scrapNo) {
+    scope?.querySelectorAll('input[readonly]').forEach(el => {
+      if (el.value?.startsWith('ZF')) el.value = sample.scrapNo;
+    });
+  }
+  if (sample.remark) {
+    const remark = scope?.querySelector('textarea');
+    if (remark) remark.value = sample.remark;
+  }
+  if (sample.lines) renderDisposalLineRows(sample.lines);
+
+  document.querySelectorAll('.wms-modal-footer a, .wms-modal-close').forEach(a => {
+    if (a.getAttribute('href')?.includes('warehouse_disposal')) a.setAttribute('href', backHref);
+  });
+  const backdrop = document.querySelector('.wms-modal-backdrop');
+  if (backdrop) backdrop.onclick = (e) => { if (e.target === backdrop) window.location.href = backHref; };
+
+  const titleEl = document.getElementById('wms-modal-title');
+  if (titleEl) {
+    if (viewMode && sample.disposalNo) titleEl.textContent = `处置详情 · ${sample.disposalNo}`;
+    else if (poolKey) titleEl.textContent = '从待处置发起';
+    else if (title === '处置' || sample.method === '处置') titleEl.textContent = '处置';
+    else if (title.includes('丢弃')) titleEl.textContent = '丢弃处置';
+    else if (title.includes('堆放')) titleEl.textContent = '堆放处置';
+    else titleEl.textContent = '新建处置单';
+  }
+
+  if (viewMode) {
+    scope?.querySelectorAll('input, select, textarea').forEach(el => { el.disabled = true; });
+    scope?.querySelectorAll('button').forEach(el => { el.style.display = 'none'; });
+  }
+
+  scope?.querySelector('.wms-btn-primary')?.addEventListener('click', () => {
+    showSupplyCompleteToast('处置单已提交');
+    setTimeout(() => { window.location.href = `${backHref}?tab=${encodeURIComponent('待执行')}`; }, 900);
+  });
+}
+
+function initDisposalExecuteFromQuery(root) {
+  if (root.dataset.page !== 'warehouse_disposal_list') return;
+  if (!(root.dataset.title || '').includes('执行处置')) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const disposalKey = params.get('disposalKey') || 'CZ202606100001';
+  const backHref = params.get('back') || 'warehouse_disposal_list.html';
+  const sample = WMS_DISPOSAL_SAMPLES[disposalKey];
+  if (!sample) return;
+
+  const scope = document.querySelector('[data-wms-disposal-execute]');
+  scope?.querySelectorAll('dd').forEach(dd => {
+    const dt = dd.previousElementSibling;
+    if (!dt) return;
+    const label = dt.textContent?.trim();
+    if (label === '处置单号') dd.textContent = sample.disposalNo;
+    if (label === '来源作废单') dd.textContent = sample.scrapNo;
+    if (label === '经办人') dd.textContent = `${sample.operator} · ${sample.department}`;
+    if (label === '买方' && sample.buyer) dd.textContent = sample.buyer;
+    if (label === '处置金额' && sample.amount) dd.textContent = `¥ ${sample.amount}`;
+    if (label === '丢弃地点' && sample.discardLocation) dd.textContent = sample.discardLocation;
+    if (label === '见证人' && sample.witness) dd.textContent = sample.witness;
+    if (label === '堆放位置' && sample.stockpileLocation) dd.textContent = sample.stockpileLocation;
+    if (label === '预计清运' && sample.expectedClearDate) dd.textContent = sample.expectedClearDate;
+  });
+
+  const tbody = scope?.querySelector('tbody');
+  if (tbody && sample.lines) {
+    tbody.innerHTML = sample.lines.map((r, i) => `<tr class="border-t border-slate-100">
+      <td class="px-3 py-2.5 text-sm">${i + 1}</td>
+      <td class="px-3 py-2.5 text-sm">${r.name}</td>
+      <td class="px-3 py-2.5 text-sm font-medium">${r.qty} ${r.unit || ''}</td>
+    </tr>`).join('');
+  }
+
+  document.querySelectorAll('.wms-modal-footer a').forEach(a => { a.setAttribute('href', backHref); });
+
+  scope?.querySelector('.wms-btn-primary')?.addEventListener('click', () => {
+    window.location.href = `warehouse_disposal_success.html?disposalKey=${encodeURIComponent(disposalKey)}&back=${encodeURIComponent(backHref)}`;
+  });
+}
+
+function initDisposalSuccessFromQuery(root) {
+  if (root.dataset.page !== 'warehouse_disposal_list') return;
+  if (!(root.dataset.title || '').includes('处置成功')) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const disposalKey = params.get('disposalKey') || 'CZ202606100001';
+  const sample = WMS_DISPOSAL_SAMPLES[disposalKey];
+  if (!sample) return;
+
+  const descEl = document.querySelector('[data-wms-disposal-success] p');
+  if (descEl) descEl.textContent = `处置单号 ${sample.disposalNo} · ${sample.method} · 已从待处置队列清除`;
 }
 
 function initReturnSuccessFromQuery(root) {

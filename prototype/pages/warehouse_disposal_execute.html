@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>执行处置 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_disposal_list" data-title="执行处置" data-breadcrumb="物资管理 / 执行处置">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="warehouse_disposal_list.html" data-modal-size="lg" data-wms-disposal-execute data-disposal-key="CZ202606100001">
+      <div class="mb-5 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4 text-sm text-slate-700">
+        <i class="fa-solid fa-circle-check mr-1 text-emerald-600"></i>
+        请现场核对物资与处置方式一致后确认执行。执行后将更新处置单状态为<strong>已完成</strong>，并从待处置队列移除；处置类（转让）写入处置收入记录。
+      </div>
+      <dl class="mb-6 grid gap-4 sm:grid-cols-2 text-sm">
+        <div><dt class="text-slate-500">处置单号</dt><dd class="mt-1 font-mono font-semibold text-slate-900">CZ202606100001</dd></div>
+        <div><dt class="text-slate-500">处置方式</dt><dd class="mt-1"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">处置</span></dd></div>
+        <div><dt class="text-slate-500">来源作废单</dt><dd class="mt-1 font-mono text-xs">ZF202606080002</dd></div>
+        <div><dt class="text-slate-500">经办人</dt><dd class="mt-1 text-slate-800">张仓管 · 物资管理部</dd></div>
+        <div><dt class="text-slate-500">买方</dt><dd class="mt-1 text-slate-800">黄冈废旧物资回收站</dd></div><div><dt class="text-slate-500">处置金额</dt><dd class="mt-1 font-medium text-emerald-700">¥ 1,200.00</dd></div>
+      </dl>
+      <h4 class="mb-3 text-sm font-semibold text-slate-900">处置明细</h4>
+      <div class="mb-4 overflow-hidden rounded-xl border border-slate-200">
+        <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">序号</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">物资名称</th>
+          <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">数量</th>
+        </tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">1</td><td class="px-3 py-2.5 text-sm">润滑油</td><td class="px-3 py-2.5 text-sm font-medium">5 桶</td></tr></tbody></table>
+      </div>
+      <div class="wms-modal-footer mt-2">
+        <a href="warehouse_disposal_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-primary bg-emerald-600 hover:bg-emerald-700">确认执行处置</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

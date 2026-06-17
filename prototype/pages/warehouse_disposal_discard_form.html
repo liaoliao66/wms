@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>丢弃处置 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_disposal_list" data-title="丢弃处置" data-breadcrumb="物资管理 / 丢弃处置">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="warehouse_disposal_list.html" data-modal-size="xl" data-wms-disposal-form data-disposal-key="">
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">基本信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">处置单号</label><input type="text" value="系统自动生成" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 处置方式</label><select data-disposal-field="method" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>处置</option><option selected>丢弃</option><option>堆放</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">来源作废单</label><input type="text" value="ZF202606080002" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div class="md:col-span-2 flex flex-wrap gap-2 text-sm">
+    <span class="text-slate-500">切换方式：</span>
+    <a href="warehouse_disposal_sell_form.html" class="rounded-lg px-2 py-1 ring-1 ring-emerald-200 text-emerald-700 hover:bg-emerald-50">处置</a>
+    <a href="warehouse_disposal_discard_form.html" class="rounded-lg px-2 py-1 ring-1 ring-rose-200 text-rose-700 hover:bg-rose-50">丢弃</a>
+    <a href="warehouse_disposal_stockpile_form.html" class="rounded-lg px-2 py-1 ring-1 ring-amber-200 text-amber-700 hover:bg-amber-50">堆放</a>
+  </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">处置信息</h3></div>
+        
+      <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 丢弃地点</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" placeholder="具体地点或填埋场" /></div>
+      <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 见证人</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" placeholder="至少一名现场见证人" /></div>
+      <div><label class="mb-1.5 block text-sm font-medium text-slate-700">现场照片</label><div class="wms-photo-upload">
+    <button type="button" class="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50">
+      <i class="fa-solid fa-plus text-lg"></i>
+      <span class="mt-1 text-xs">上传图片</span>
+    </button>
+    <p class="mt-2 text-xs text-slate-400">支持 .jpg .jpeg .png，单个文件不能超过 100MB</p>
+  </div></div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">处置物资</h3></div>
+        <div class="md:col-span-2 rounded-xl border border-slate-200 overflow-hidden">
+    <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">序号</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">资产编码</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">物资编码</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">名称</th>
+      <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">数量</th>
+    </tr></thead><tbody data-disposal-lines><tr class="border-t border-slate-100">
+    <td class="px-3 py-2.5 text-sm">1</td>
+    <td class="px-3 py-2.5 font-mono text-xs">—</td>
+    <td class="px-3 py-2.5 font-mono text-xs">GD001001-006</td>
+    <td class="px-3 py-2.5 text-sm">润滑油</td>
+    <td class="px-3 py-2.5 text-sm font-medium">5 桶</td>
+  </tr></tbody></table>
+  </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">其他</h3></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">说明</label><textarea rows="3" placeholder="0/500" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 经办人</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>张仓管</option><option>李仓管</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 经办部门</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>物资管理部</option><option>设备部</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="warehouse_disposal_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-secondary">保存</button>
+        <button type="button" class="wms-btn wms-btn-primary">提交处置</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>
