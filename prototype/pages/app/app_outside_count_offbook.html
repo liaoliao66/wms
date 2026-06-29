@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>账外资产 · WMS 移动盘点</title>
+  <link rel="stylesheet" href="../../css/tailwind.css" />
+  <link rel="stylesheet" href="../../css/custom.css" />
+  <link rel="stylesheet" href="../../vendor/fontawesome/css/all.min.css" />
+</head>
+<body class="wms-app-body" data-page="app_outside_count" data-title="账外资产">
+  <div class="wms-device-stage">
+    <div class="wms-iphone16">
+      <div class="wms-dynamic-island" aria-hidden="true"></div>
+      <div class="wms-app-screen">
+        <div class="wms-ios-status" aria-hidden="true">
+    <span class="wms-ios-time">9:41</span>
+    <div class="wms-ios-status-right">
+      <i class="fa-solid fa-signal"></i>
+      <i class="fa-solid fa-wifi"></i>
+      <span class="wms-ios-battery" title="电量 85%"><i class="fa-solid fa-battery-three-quarters"></i><span>85%</span></span>
+    </div>
+  </div>
+        <header class="wms-app-nav">
+    <a href="app_outside_count_home.html" class="wms-app-back wms-app-btn" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></a>
+    <h1 class="wms-app-nav-title">账外资产</h1>
+    <span class="wms-app-back-spacer"></span>
+  </header>
+        <main class="wms-app-main">
+          
+          <div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-stack">
+        <div class="wms-app-card p-3 text-xs leading-relaxed text-zinc-700" style="background:rgba(255,251,235,0.65);border-color:#fde68a">
+          <i class="fa-solid fa-circle-info mr-1 text-zinc-500"></i>
+          现场发现账外资产时登记，提交后进入审批流程；审批通过后写入台账并计入盘盈。
+        </div>
+        <button type="button" class="wms-app-cta wms-app-cta--secondary wms-app-btn" data-wms-app-outside-scan-demo><i class="fa-solid fa-qrcode mr-1"></i>扫描临时二维码标签</button>
+        <div class="wms-app-card p-4 space-y-4">
+          <div class="wms-app-field"><label>资产名称 <span class="text-red-500">*</span></label><input type="text" placeholder="请输入资产名称" /></div>
+          <div class="wms-app-field"><label>资产类型 <span class="text-red-500">*</span></label><select><option>固定资产</option><option>类资产</option></select></div>
+          <div class="wms-app-field"><label>使用地点 <span class="text-red-500">*</span></label><input type="text" placeholder="如：城东项目部" /></div>
+          <div class="wms-app-field"><label>现场归属人</label><input type="text" placeholder="建议填写实际保管人" /></div>
+          <div class="wms-app-field"><label>备注</label><textarea rows="2" placeholder="盘盈说明、现场情况等…"></textarea></div>
+          <div class="wms-app-field">
+            <label>现场照片</label>
+            <button type="button" class="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-zinc-300 bg-zinc-50 text-zinc-400 wms-app-btn"><i class="fa-solid fa-camera"></i></button>
+          </div>
+        </div>
+        <button type="button" class="wms-app-cta wms-app-btn" data-wms-outside-offbook-submit>提交审批</button>
+      </div>
+    </div>
+        </main>
+        
+        
+        <div class="wms-home-indicator" aria-hidden="true"></div>
+        <div id="wms-outside-count-toast" class="hidden" role="status"></div>
+      </div>
+    </div>
+  </div>
+  <script src="../../js/layout.js" charset="UTF-8"></script>
+</body></html>

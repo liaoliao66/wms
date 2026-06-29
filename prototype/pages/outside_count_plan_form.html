@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新建/编辑盘点计划 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="outside_count_plan_list" data-title="新建/编辑盘点计划" data-breadcrumb="库外盘点 / 计划表单">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="outside_count_plan_list.html" data-modal-size="xl" data-wms-outside-count-plan-form>
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">计划信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">计划编号</label><input type="text" value="系统自动生成" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 计划名称</label><input type="text" value="6月库外固定资产盘点" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 资产类型</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>固定资产</option><option>类资产</option><option>固定资产/类资产</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 口径日期</label><input type="date" value="2026-06-29" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">盘点范围（物资）</h3></div>
+        <div class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-sm text-slate-600">
+          <div class="font-medium text-slate-800 mb-1">说明</div>
+          <div class="text-slate-600">盘点范围界定<strong>应盘哪些库外物资</strong>（按物资大类/子类、使用地点或指定清单筛选），与执行人无关。选定后按口径日冻结应盘清单。</div>
+        </div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 范围方式</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>指定物资大类</option><option>全部库外资产</option><option>指定子类</option><option>指定使用地点</option><option>指定物资清单</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">使用地点（可选）</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="">不限</option><option>城东项目部</option><option>武穴大桥施工点</option><option>维保部仓库</option></select></div>
+        <div class="md:col-span-2">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 物资大类</label>
+          <div class="flex flex-wrap gap-2">
+            <span class="inline-flex items-center rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">设备-仪器 <button type="button" class="ml-1.5 text-slate-400 hover:text-slate-600" aria-label="移除">×</button></span>
+            <span class="inline-flex items-center rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">设备-工具 <button type="button" class="ml-1.5 text-slate-400 hover:text-slate-600" aria-label="移除">×</button></span>
+            <button type="button" class="inline-flex items-center rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-plus mr-1 text-xs text-slate-400"></i>选择大类</button>
+          </div>
+        </div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <div class="text-sm font-medium text-slate-800">应盘物资预览（口径日冻结 · 共 128 项）</div>
+            <button type="button" class="text-xs font-medium text-slate-600 hover:underline">查看全部</button>
+          </div>
+          <div class="overflow-x-auto wms-modal-table-wrap">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50/80">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">资产编码</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资大类</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">使用地点</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">当前归属</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-slate-100"><td class="px-4 py-3.5 font-mono text-xs">ZC202605012</td><td class="px-4 py-3.5">工程测量仪</td><td class="px-4 py-3.5">设备-仪器</td><td class="px-4 py-3.5">武穴大桥施工点</td><td class="px-4 py-3.5">王工</td></tr>
+                <tr class="border-t border-slate-100"><td class="px-4 py-3.5 font-mono text-xs">LA-00331</td><td class="px-4 py-3.5">铝合金梯</td><td class="px-4 py-3.5">设备-工具</td><td class="px-4 py-3.5">城东项目部</td><td class="px-4 py-3.5">王工</td></tr>
+                <tr class="border-t border-slate-100"><td class="px-4 py-3.5 font-mono text-xs">ZC202604088</td><td class="px-4 py-3.5">便携式发电机</td><td class="px-4 py-3.5">设备-工具</td><td class="px-4 py-3.5">城东项目部</td><td class="px-4 py-3.5">李工</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">任务拆分（按执行人）</h3></div>
+        <div class="md:col-span-2 rounded-xl border border-sky-100 bg-sky-50/80 px-4 py-3 text-sm text-sky-900">
+          <i class="fa-solid fa-circle-info mr-1"></i>发布后将按<strong>当前归属人</strong>自动拆分盘点任务；部门负责人可跨部门转派，普通员工仅部门内转派。
+        </div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <div class="text-sm font-medium text-slate-800">执行人分配（发布后自动生成，可调整）</div>
+            <button type="button" class="text-xs font-medium text-slate-600 hover:underline">批量调整</button>
+          </div>
+          <div class="overflow-x-auto wms-modal-table-wrap">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50/80">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">执行人</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">部门</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">应盘数</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">涉及物资大类</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-slate-100">
+                  <td class="px-4 py-3.5">王工</td><td class="px-4 py-3.5">工程部</td><td class="px-4 py-3.5">22</td><td class="px-4 py-3.5 text-slate-500">设备-仪器、设备-工具</td>
+                </tr>
+                <tr class="border-t border-slate-100">
+                  <td class="px-4 py-3.5">李工</td><td class="px-4 py-3.5">设备部</td><td class="px-4 py-3.5">18</td><td class="px-4 py-3.5 text-slate-500">设备-工具</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">时间与说明</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 开始日期</label><input type="date" value="2026-06-29" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 截止日期</label><input type="date" value="2026-07-03" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">备注</label><textarea rows="3" placeholder="0/500" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="outside_count_plan_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-secondary">保存草稿</button>
+        <button type="button" class="wms-btn wms-btn-primary">发布</button>
+      </div>
+    </div>
+  </div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>资产确认 · WMS 移动盘点</title>
+  <link rel="stylesheet" href="../../css/tailwind.css" />
+  <link rel="stylesheet" href="../../css/custom.css" />
+  <link rel="stylesheet" href="../../vendor/fontawesome/css/all.min.css" />
+</head>
+<body class="wms-app-body" data-page="app_outside_count" data-title="资产确认">
+  <div class="wms-device-stage">
+    <div class="wms-iphone16">
+      <div class="wms-dynamic-island" aria-hidden="true"></div>
+      <div class="wms-app-screen">
+        <div class="wms-ios-status" aria-hidden="true">
+    <span class="wms-ios-time">9:41</span>
+    <div class="wms-ios-status-right">
+      <i class="fa-solid fa-signal"></i>
+      <i class="fa-solid fa-wifi"></i>
+      <span class="wms-ios-battery" title="电量 85%"><i class="fa-solid fa-battery-three-quarters"></i><span>85%</span></span>
+    </div>
+  </div>
+        <header class="wms-app-nav">
+    <a href="app_outside_count_execute.html?task=KWT202606290001" class="wms-app-back wms-app-btn" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></a>
+    <h1 class="wms-app-nav-title">资产确认</h1>
+    <span class="wms-app-back-spacer"></span>
+  </header>
+        <main class="wms-app-main">
+          
+          <div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-stack">
+        <div class="wms-app-card p-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <p class="text-base font-semibold text-zinc-900">工程测量仪</p>
+              <p class="mt-0.5 font-mono text-[11px] text-zinc-500">ZC202605012</p>
+              <p class="mt-1 text-xs text-zinc-500">固定资产 · 设备-仪器</p>
+            </div>
+            <span class="inline-flex rounded-lg bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-600"><i class="fa-solid fa-qrcode mr-1"></i>已扫码</span>
+          </div>
+          <dl class="mt-4 grid grid-cols-2 gap-3 text-xs">
+            <div><dt class="text-zinc-400">系统位置</dt><dd class="mt-0.5 font-medium text-zinc-800">武穴大桥施工点</dd></div>
+            <div><dt class="text-zinc-400">当前归属</dt><dd class="mt-0.5 font-medium text-zinc-800">王工</dd></div>
+          </dl>
+        </div>
+        <div class="wms-app-card p-4 space-y-4">
+          <div class="wms-app-field"><label>现场位置 <span class="text-red-500">*</span></label><input type="text" value="武穴大桥施工点-A区" placeholder="可修改为实际所在位置" /></div>
+          <div class="wms-app-field"><label>变更归属人</label><select><option value="">不变更</option><option>赵六（维保部）</option><option>李工（设备部）</option></select><p class="mt-1 text-[11px] text-zinc-400">归属变更需对方确认后生效</p></div>
+          <div class="wms-app-field"><label>备注</label><textarea rows="2" placeholder="异常说明、现场情况等…"></textarea></div>
+          <div class="wms-app-field">
+            <label>现场照片</label>
+            <div class="flex gap-2">
+              <button type="button" class="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-zinc-300 bg-zinc-50 text-zinc-400 wms-app-btn"><i class="fa-solid fa-camera"></i></button>
+              <div class="h-16 w-16 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-400 text-xs">示例</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" class="wms-app-cta wms-app-btn text-sm" data-wms-outside-confirm-present>确认在场</button>
+          <button type="button" class="wms-app-cta wms-app-cta--secondary wms-app-btn text-sm" data-wms-outside-confirm-absent>未盘到</button>
+          <button type="button" class="wms-app-cta wms-app-cta--secondary wms-app-btn text-sm" data-wms-outside-confirm-abnormal>标记异常</button>
+        </div>
+        <button type="button" class="wms-app-cta wms-app-cta--secondary wms-app-btn"><i class="fa-solid fa-share-from-square mr-1"></i>转派给他人盘点</button>
+      </div>
+    </div>
+        </main>
+        
+        
+        <div class="wms-home-indicator" aria-hidden="true"></div>
+        <div id="wms-outside-count-toast" class="hidden" role="status"></div>
+      </div>
+    </div>
+  </div>
+  <script src="../../js/layout.js" charset="UTF-8"></script>
+</body></html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>转派详情 · WMS 移动盘点</title>
+  <link rel="stylesheet" href="../../css/tailwind.css" />
+  <link rel="stylesheet" href="../../css/custom.css" />
+  <link rel="stylesheet" href="../../vendor/fontawesome/css/all.min.css" />
+</head>
+<body class="wms-app-body" data-page="app_outside_count" data-title="转派详情">
+  <div class="wms-device-stage">
+    <div class="wms-iphone16">
+      <div class="wms-dynamic-island" aria-hidden="true"></div>
+      <div class="wms-app-screen">
+        <div class="wms-ios-status" aria-hidden="true">
+    <span class="wms-ios-time">9:41</span>
+    <div class="wms-ios-status-right">
+      <i class="fa-solid fa-signal"></i>
+      <i class="fa-solid fa-wifi"></i>
+      <span class="wms-ios-battery" title="电量 85%"><i class="fa-solid fa-battery-three-quarters"></i><span>85%</span></span>
+    </div>
+  </div>
+        <header class="wms-app-nav">
+    <a href="app_outside_count_transfer_list.html" class="wms-app-back wms-app-btn" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></a>
+    <h1 class="wms-app-nav-title">转派详情</h1>
+    <span class="wms-app-back-spacer"></span>
+  </header>
+        <main class="wms-app-main">
+          
+          <div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-stack">
+        <div class="wms-app-card p-4">
+          <p class="text-base font-semibold text-zinc-900">铝合金梯</p>
+          <p class="mt-0.5 font-mono text-[11px] text-zinc-500">LA-00331</p>
+          <dl class="mt-4 space-y-3 text-sm">
+            <div class="flex justify-between gap-4"><dt class="text-zinc-500">转派人</dt><dd class="font-medium text-zinc-900">王工 · 工程部</dd></div>
+            <div class="flex justify-between gap-4"><dt class="text-zinc-500">接收人</dt><dd class="font-medium text-zinc-900">李工 · 设备部</dd></div>
+            <div><dt class="text-zinc-500">转派原因</dt><dd class="mt-1 text-zinc-800">项目结束，设备转交设备部保管</dd></div>
+          </dl>
+        </div>
+        <div class="wms-app-field"><label>拒绝原因（选填）</label><textarea rows="2" placeholder="拒绝时填写原因…"></textarea></div>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" class="wms-app-cta wms-app-btn" data-wms-outside-transfer-accept>接受转派</button>
+          <button type="button" class="wms-app-cta wms-app-cta--secondary wms-app-btn" data-wms-outside-transfer-reject>拒绝</button>
+        </div>
+      </div>
+    </div>
+        </main>
+        
+        
+        <div class="wms-home-indicator" aria-hidden="true"></div>
+        <div id="wms-outside-count-toast" class="hidden" role="status"></div>
+      </div>
+    </div>
+  </div>
+  <script src="../../js/layout.js" charset="UTF-8"></script>
+</body></html>

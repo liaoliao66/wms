@@ -1485,6 +1485,332 @@ function warehouseShelfToolbar() {
   </div>`;
 }
 
+// ── 库外盘点页面（PC） ─────────────────────────────────────────────
+function outsideCountPlanListPage() {
+  return listPage({
+    desc: '库外物资盘点（固定资产/类资产）：PC 创建计划，发布任务；执行人通过 APP/PC 扫码确认；先出盘点结果，确认无误后生成盘点报告；差异处理独立推进。',
+    tabs: ['全部', '草稿', '已发布', '盘点中', '已出结果', '已出报告', '已关闭'],
+    tabColumn: 8,
+    searchPlaceholder: '计划编号、计划名称',
+    columns: ['计划编号', '计划名称', '资产类型', '盘点范围', '执行人数', '应盘数', '开始', '截止', '状态'],
+    rows: OUTSIDE_COUNT_PLANS.map(p => ({
+      cells: [
+        p.planNo,
+        p.name,
+        p.types,
+        p.scope,
+        String(p.executors),
+        String(p.baseline),
+        p.start,
+        p.end,
+        badge(p.status, p.status === '草稿' ? 'info' : p.status.includes('结果') ? 'warning' : p.status.includes('报告') ? 'success' : 'info'),
+      ],
+      tab: p.status,
+      actions: `<a href="outside_count_plan_form.html?planNo=${p.planNo}&mode=view" class="mr-2 hover:underline">查看</a>` +
+        `<a href="outside_count_task_list.html?planNo=${p.planNo}" class="mr-2 hover:underline">任务</a>` +
+        `<a href="outside_count_result.html?planNo=${p.planNo}" class="mr-2 hover:underline">结果</a>` +
+        `<a href="outside_count_report_detail.html?planNo=${p.planNo}" class="hover:underline">报告</a>`,
+    })),
+    addBtn: true,
+    addHref: 'outside_count_plan_form.html',
+  });
+}
+
+function outsideCountPlanFormPage() {
+  return `
+    <div data-wms-modal data-modal-back="outside_count_plan_list.html" data-modal-size="xl" data-wms-outside-count-plan-form>
+      <div class="wms-modal-form wms-warehouse-form">
+        ${formSection('计划信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">计划编号</label><input type="text" value="系统自动生成" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 计划名称</label><input type="text" value="6月库外固定资产盘点" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 资产类型</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>固定资产</option><option>类资产</option><option>固定资产/类资产</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 口径日期</label><input type="date" value="2026-06-29" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+
+        ${formSection('盘点范围（物资）')}
+        <div class="md:col-span-2 rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-sm text-slate-600">
+          <div class="font-medium text-slate-800 mb-1">说明</div>
+          <div class="text-slate-600">盘点范围界定<strong>应盘哪些库外物资</strong>（按物资大类/子类、使用地点或指定清单筛选），与执行人无关。选定后按口径日冻结应盘清单。</div>
+        </div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 范围方式</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>指定物资大类</option><option>全部库外资产</option><option>指定子类</option><option>指定使用地点</option><option>指定物资清单</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">使用地点（可选）</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="">不限</option><option>城东项目部</option><option>武穴大桥施工点</option><option>维保部仓库</option></select></div>
+        <div class="md:col-span-2">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 物资大类</label>
+          <div class="flex flex-wrap gap-2">
+            <span class="inline-flex items-center rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">设备-仪器 <button type="button" class="ml-1.5 text-slate-400 hover:text-slate-600" aria-label="移除">×</button></span>
+            <span class="inline-flex items-center rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">设备-工具 <button type="button" class="ml-1.5 text-slate-400 hover:text-slate-600" aria-label="移除">×</button></span>
+            <button type="button" class="inline-flex items-center rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-plus mr-1 text-xs text-slate-400"></i>选择大类</button>
+          </div>
+        </div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <div class="text-sm font-medium text-slate-800">应盘物资预览（口径日冻结 · 共 128 项）</div>
+            <button type="button" class="text-xs font-medium text-slate-600 hover:underline">查看全部</button>
+          </div>
+          <div class="overflow-x-auto wms-modal-table-wrap">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50/80">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">资产编码</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资大类</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">使用地点</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">当前归属</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-slate-100"><td class="px-4 py-3.5 font-mono text-xs">ZC202605012</td><td class="px-4 py-3.5">工程测量仪</td><td class="px-4 py-3.5">设备-仪器</td><td class="px-4 py-3.5">武穴大桥施工点</td><td class="px-4 py-3.5">王工</td></tr>
+                <tr class="border-t border-slate-100"><td class="px-4 py-3.5 font-mono text-xs">LA-00331</td><td class="px-4 py-3.5">铝合金梯</td><td class="px-4 py-3.5">设备-工具</td><td class="px-4 py-3.5">城东项目部</td><td class="px-4 py-3.5">王工</td></tr>
+                <tr class="border-t border-slate-100"><td class="px-4 py-3.5 font-mono text-xs">ZC202604088</td><td class="px-4 py-3.5">便携式发电机</td><td class="px-4 py-3.5">设备-工具</td><td class="px-4 py-3.5">城东项目部</td><td class="px-4 py-3.5">李工</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        ${formSection('任务拆分（按执行人）')}
+        <div class="md:col-span-2 rounded-xl border border-sky-100 bg-sky-50/80 px-4 py-3 text-sm text-sky-900">
+          <i class="fa-solid fa-circle-info mr-1"></i>发布后将按<strong>当前归属人</strong>自动拆分盘点任务；部门负责人可跨部门转派，普通员工仅部门内转派。
+        </div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <div class="text-sm font-medium text-slate-800">执行人分配（发布后自动生成，可调整）</div>
+            <button type="button" class="text-xs font-medium text-slate-600 hover:underline">批量调整</button>
+          </div>
+          <div class="overflow-x-auto wms-modal-table-wrap">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50/80">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">执行人</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">部门</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">应盘数</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">涉及物资大类</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-slate-100">
+                  <td class="px-4 py-3.5">王工</td><td class="px-4 py-3.5">工程部</td><td class="px-4 py-3.5">22</td><td class="px-4 py-3.5 text-slate-500">设备-仪器、设备-工具</td>
+                </tr>
+                <tr class="border-t border-slate-100">
+                  <td class="px-4 py-3.5">李工</td><td class="px-4 py-3.5">设备部</td><td class="px-4 py-3.5">18</td><td class="px-4 py-3.5 text-slate-500">设备-工具</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        ${formSection('时间与说明')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 开始日期</label><input type="date" value="2026-06-29" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 截止日期</label><input type="date" value="2026-07-03" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">备注</label><textarea rows="3" placeholder="0/500" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="outside_count_plan_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-secondary">保存草稿</button>
+        <button type="button" class="wms-btn wms-btn-primary">发布</button>
+      </div>
+    </div>
+  `;
+}
+
+function outsideCountTaskListPage() {
+  return listPage({
+    desc: '按执行人拆分的库外盘点任务；部门负责人可跨部门转派，普通员工仅部门内转派（原型演示）。',
+    tabs: ['全部', '待执行', '执行中', '已提交', '已截止'],
+    tabColumn: 9,
+    searchPlaceholder: '任务编号、计划编号、执行人',
+    columns: ['任务编号', '计划编号', '执行人', '部门', '应盘数', '已盘数', '账外数', '待转派确认', '进度', '状态'],
+    rows: OUTSIDE_COUNT_TASKS.map(t => {
+      const pct = t.baseline ? Math.min(100, Math.round((t.confirmed / t.baseline) * 100)) : 0;
+      const prog = `<div class="min-w-[92px]"><div class="mb-1 flex justify-between text-xs text-slate-500"><span>${t.confirmed}/${t.baseline}</span><span>${pct}%</span></div><div class="h-1.5 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-sky-500" style="width:${pct}%"></div></div></div>`;
+      return {
+        cells: [t.taskNo, t.planNo, t.executor, t.dept, String(t.baseline), String(t.confirmed), String(t.offbook), String(t.pendingTransfer), prog, badge(t.status, t.status === '已提交' ? 'success' : t.status === '执行中' ? 'warning' : 'info')],
+        tab: t.status,
+        actions: `<a href="outside_count_task_detail.html?taskNo=${t.taskNo}" class="mr-2 hover:underline">查看</a><a href="#" class="hover:underline">转派</a>`,
+      };
+    }),
+  });
+}
+
+function outsideCountTaskDetailPage() {
+  return page('outside_count_task_list', '库外盘点任务详情', '库外盘点 / 任务详情', `
+    <div data-wms-modal data-modal-back="outside_count_task_list.html" data-modal-size="xl">
+      <div class="wms-modal-form wms-warehouse-form">
+        ${formSection('任务信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">任务编号</label><input type="text" value="KWT202606290001" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">执行人</label><input type="text" value="王工（工程部）" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">应盘 / 已盘</label><input type="text" value="22 / 8" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">状态</label><input type="text" value="执行中" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
+        ${formSection('应盘资产清单（示例）')}
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div class="overflow-x-auto wms-modal-table-wrap">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50/80">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">资产编码</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">系统位置</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">归属人</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">本次确认</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-slate-100"><td class="px-4 py-3.5 font-mono text-xs">ZC202605012</td><td class="px-4 py-3.5">工程测量仪</td><td class="px-4 py-3.5">武穴大桥施工点</td><td class="px-4 py-3.5">王工</td><td class="px-4 py-3.5">${badge('未确认','info')}</td></tr>
+                <tr class="border-t border-slate-100"><td class="px-4 py-3.5 font-mono text-xs">LA-00331</td><td class="px-4 py-3.5">铝合金梯</td><td class="px-4 py-3.5">城东项目部</td><td class="px-4 py-3.5">王工</td><td class="px-4 py-3.5">${badge('在场','success')}</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="outside_count_task_list.html" class="wms-btn wms-btn-secondary">关闭</a>
+        <a href="outside_count_result.html?planNo=KWP202606290001" class="wms-btn wms-btn-primary">查看盘点结果</a>
+      </div>
+    </div>
+  `);
+}
+
+function outsideCountResultPage() {
+  return page('outside_count_plan_list', '库外盘点结果', '库外盘点 / 盘点结果', `
+    <div data-wms-modal data-modal-back="outside_count_plan_list.html" data-modal-size="xl">
+      <div class="wms-modal-form wms-warehouse-form">
+        ${formSection('结果摘要')}
+        <div class="md:col-span-2 grid gap-3 sm:grid-cols-4">
+          <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">应盘</div><div class="mt-1 text-lg font-semibold text-slate-900">128</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">已盘</div><div class="mt-1 text-lg font-semibold text-slate-900">72</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">盘亏候选</div><div class="mt-1 text-lg font-semibold text-rose-600">6</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">账外资产</div><div class="mt-1 text-lg font-semibold text-amber-600">4</div></div>
+        </div>
+        ${formSection('差异预览')}
+        <div class="md:col-span-2 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
+          盘点结果已生成，可先导出结果清单；确认无误后生成盘点报告。差异处理（盘亏报废/账外审批/归属确认）可独立推进。
+        </div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div class="overflow-x-auto wms-modal-table-wrap">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50/80"><tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">类型</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">资产/扫码</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">名称</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">位置</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">状态</th>
+              </tr></thead>
+              <tbody>
+                ${OUTSIDE_COUNT_DIFFS.map(d => `<tr class="border-t border-slate-100">
+                  <td class="px-4 py-3.5">${d.type}</td>
+                  <td class="px-4 py-3.5 font-mono text-xs">${d.assetCode}</td>
+                  <td class="px-4 py-3.5">${d.name}</td>
+                  <td class="px-4 py-3.5 text-slate-600">${d.currentLoc}</td>
+                  <td class="px-4 py-3.5">${badge(d.status, d.status.includes('待') ? 'warning' : 'info')}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="outside_count_plan_list.html" class="wms-btn wms-btn-secondary">关闭</a>
+        <a href="outside_count_diff_list.html" class="wms-btn wms-btn-secondary">去差异处理</a>
+        <a href="outside_count_report_detail.html?planNo=KWP202606290001" class="wms-btn wms-btn-primary">生成盘点报告</a>
+      </div>
+    </div>
+  `);
+}
+
+function outsideCountDiffListPage() {
+  return listPage({
+    desc: '库外盘点差异处理：盘亏（走作废链路）、盘盈（账外资产入账审批）、归属变更（对方确认/拒绝）。',
+    tabs: ['全部', '盘亏', '盘盈(账外)', '归属变更'],
+    tabColumn: 1,
+    searchPlaceholder: '资产编码、名称、计划编号',
+    columns: ['计划编号', '差异类型', '资产/扫码', '名称', '当前归属', '当前位置', '状态', '建议动作'],
+    rows: OUTSIDE_COUNT_DIFFS.map(d => ({
+      cells: [d.planNo, d.type, `<span class="font-mono text-xs">${d.assetCode}</span>`, d.name, d.currentOwner, d.currentLoc, badge(d.status, d.status.includes('待') ? 'warning' : 'info'), d.action],
+      tab: d.type,
+      actions: d.type === '盘亏'
+        ? `<a href="warehouse_scrap_form.html" class="mr-2 hover:underline">发起报废</a><a href="#" class="hover:underline">补充替换</a>`
+        : d.type === '盘盈(账外)'
+        ? `<a href="#" class="hover:underline">审批入账</a>`
+        : `<a href="#" class="hover:underline">查看确认</a>`,
+    })),
+  });
+}
+
+function outsideCountReportListPage() {
+  return listPage({
+    desc: '盘点报告在“盘点结果确认无误”后生成并冻结，用于审计归档；差异处理作为独立部分持续推进。',
+    tabs: ['全部', '待确认', '已生成'],
+    tabColumn: 9,
+    searchPlaceholder: '报告编号、计划编号、报告名称',
+    columns: ['报告编号', '计划编号', '报告名称', '范围', '应盘', '已盘', '盘亏', '账外', '生成时间', '状态'],
+    rows: OUTSIDE_COUNT_REPORTS.map(r => ({
+      cells: [
+        r.reportNo,
+        r.planNo,
+        r.name,
+        r.range,
+        String(r.baseline),
+        String(r.confirmed),
+        String(r.shortage),
+        String(r.offbook),
+        r.createdAt,
+        badge(r.status, r.status === '已生成' ? 'success' : 'warning'),
+      ],
+      tab: r.status,
+      actions: `<a href="outside_count_report_detail.html?planNo=${r.planNo}" class="hover:underline">查看</a>`,
+    })),
+  });
+}
+
+function outsideCountReportDetailPage() {
+  return page('outside_count_report_list', '库外盘点报告', '库外盘点 / 盘点报告', `
+    <div data-wms-modal data-modal-back="outside_count_report_list.html" data-modal-size="xl">
+      <div class="wms-modal-form wms-warehouse-form">
+        ${formSection('报告摘要')}
+        <div class="md:col-span-2 rounded-xl border border-slate-200 bg-white p-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <div class="text-sm font-semibold text-slate-900">6月库外类资产盘点报告</div>
+              <div class="mt-1 text-xs text-slate-500">计划 KWP202606200001 · 盘点范围 工具-电动工具/安全用品 · 口径 2026-06-20</div>
+            </div>
+            <span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待确认</span>
+          </div>
+        </div>
+        <div class="md:col-span-2 grid gap-3 sm:grid-cols-4">
+          <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">应盘</div><div class="mt-1 text-lg font-semibold text-slate-900">64</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">已盘</div><div class="mt-1 text-lg font-semibold text-slate-900">62</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">盘亏</div><div class="mt-1 text-lg font-semibold text-rose-600">1</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">账外</div><div class="mt-1 text-lg font-semibold text-amber-600">1</div></div>
+        </div>
+        ${formSection('差异摘要')}
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div class="overflow-x-auto wms-modal-table-wrap">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50/80"><tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">类型</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">资产/扫码</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">名称</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">状态</th>
+              </tr></thead>
+              <tbody>
+                ${OUTSIDE_COUNT_DIFFS.slice(0, 2).map(d => `<tr class="border-t border-slate-100">
+                  <td class="px-4 py-3.5">${d.type}</td>
+                  <td class="px-4 py-3.5 font-mono text-xs">${d.assetCode}</td>
+                  <td class="px-4 py-3.5">${d.name}</td>
+                  <td class="px-4 py-3.5">${badge(d.status, d.status.includes('待') ? 'warning' : 'info')}</td>
+                </tr>`).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="outside_count_report_list.html" class="wms-btn wms-btn-secondary">关闭</a>
+        <a href="outside_count_diff_list.html" class="wms-btn wms-btn-secondary">查看差异处理</a>
+        <button type="button" class="wms-btn wms-btn-primary">确认并冻结报告</button>
+      </div>
+    </div>
+  `);
+}
+
 function purchasePendingApplyHref(planNo, code, name, qty) {
   const p = new URLSearchParams({ planNo, code, name, qty: String(qty) });
   return `purchase_pending_apply.html?${p.toString()}`;
@@ -1659,12 +1985,89 @@ const EXECUTE_MATERIAL_ROWS = [
   { seq: 2, expanded: false, code: 'GD001001-002', name: '料斗', spec: '455', major: '资产-固定资产', minor: '设备-配件', unit: '个', refPrice: '1000.00', qty: '20', total: '2000.00' },
 ];
 
+// ── 库外盘点（PC）原型示例数据 ──
+const OUTSIDE_COUNT_PLANS = [
+  { planNo: 'KWP202606290001', name: '6月库外固定资产盘点', types: '固定资产', scope: '设备-仪器/设备-工具', executors: 6, baseline: 128, start: '2026-06-29', end: '2026-07-03', status: '草稿' },
+  { planNo: 'KWP202606200001', name: '6月库外类资产盘点', types: '类资产', scope: '工具-电动工具/安全用品', executors: 3, baseline: 64, start: '2026-06-20', end: '2026-06-25', status: '已出结果' },
+  { planNo: 'KWP202606010001', name: '5月库外资产盘点（全量）', types: '固定资产/类资产', scope: '全部库外资产', executors: 12, baseline: 380, start: '2026-06-01', end: '2026-06-05', status: '已出报告' },
+];
+
+const OUTSIDE_COUNT_TASKS = [
+  { taskNo: 'KWT202606290001', planNo: 'KWP202606290001', executor: '王工', dept: '工程部', baseline: 22, confirmed: 8, offbook: 1, pendingTransfer: 2, status: '执行中' },
+  { taskNo: 'KWT202606290002', planNo: 'KWP202606290001', executor: '李工', dept: '设备部', baseline: 18, confirmed: 0, offbook: 0, pendingTransfer: 0, status: '待执行' },
+  { taskNo: 'KWT202606200001', planNo: 'KWP202606200001', executor: '赵六', dept: '维保部', baseline: 20, confirmed: 20, offbook: 2, pendingTransfer: 0, status: '已提交' },
+];
+
+const OUTSIDE_COUNT_DIFFS = [
+  { planNo: 'KWP202606200001', type: '盘亏', assetCode: 'ZC202605012', name: '工程测量仪', currentOwner: '王工', currentLoc: '武穴大桥施工点', status: '待处理', action: '报废' },
+  { planNo: 'KWP202606200001', type: '盘盈(账外)', assetCode: 'NEW-QR-0001', name: '便携式发电机', currentOwner: '—', currentLoc: '城东项目部', status: '待审批', action: '入账审批' },
+  { planNo: 'KWP202606290001', type: '归属变更', assetCode: 'LA-00331', name: '铝合金梯', currentOwner: '王工', currentLoc: '城东项目部', status: '待对方确认', action: '归属确认' },
+];
+
+const OUTSIDE_COUNT_REPORTS = [
+  { reportNo: 'KWR202606050001', planNo: 'KWP202606010001', name: '5月库外资产盘点报告', range: '全部库外资产', baseline: 380, confirmed: 372, shortage: 6, offbook: 4, createdAt: '2026-06-06', status: '已生成' },
+  { reportNo: 'KWR202606250001', planNo: 'KWP202606200001', name: '6月库外类资产盘点报告', range: '工具-电动工具/安全用品', baseline: 64, confirmed: 62, shortage: 1, offbook: 1, createdAt: '2026-06-26', status: '待确认' },
+];
+
+const OUTSIDE_COUNT_APP_PLAN = {
+  planNo: 'KWP202606290001',
+  name: '6月库外固定资产盘点',
+  scope: '设备-仪器 / 设备-工具',
+  end: '2026-07-03',
+};
+
+const OUTSIDE_COUNT_APP_ASSETS = [
+  { code: 'ZC202605012', name: '工程测量仪', type: '固定资产', sysLoc: '武穴大桥施工点', owner: '王工', status: '待确认', done: false },
+  { code: 'LA-00331', name: '铝合金梯', type: '类资产', sysLoc: '城东项目部', owner: '王工', status: '在场', done: true },
+  { code: 'ZC202604088', name: '便携式发电机', type: '固定资产', sysLoc: '城东项目部', owner: '王工', status: '待确认', done: false, abnormal: true },
+  { code: 'LA-00218', name: '安全绳', type: '类资产', sysLoc: '城东项目部', owner: '王工', status: '待确认', done: false },
+];
+
+const OUTSIDE_COUNT_APP_TRANSFERS = [
+  { id: 'TR202606290001', assetCode: 'LA-00331', name: '铝合金梯', from: '王工', to: '李工', fromDept: '工程部', toDept: '设备部', reason: '项目结束，设备转交设备部保管', status: '待确认' },
+  { id: 'TR202606290002', assetCode: 'ZC202604021', name: '电焊机', from: '王工', to: '张强', fromDept: '工程部', toDept: '工程部', reason: '现场负责人变更', status: '待确认' },
+];
+
+const OUTSIDE_COUNT_APP_OWNER_CHANGES = [
+  { id: 'OC202606290001', assetCode: 'LA-00331', name: '铝合金梯', from: '王工', to: '赵六', loc: '城东项目部', newLoc: '维保部仓库', reason: '使用人调岗', status: '待对方确认' },
+];
+
 function purchaseExecuteInput(placeholder = '请输入', width = 'w-full') {
   return `<input type="text" placeholder="${placeholder}" class="${width} min-w-[72px] rounded border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" />`;
 }
 
-function purchaseExecuteSelect(placeholder = '请选择') {
-  return `<select class="min-w-[120px] rounded border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200"><option value="" disabled selected>${placeholder}</option><option>华建物资有限公司</option><option>鄂东办公用品</option></select>`;
+const EXECUTE_SUPPLIERS = [
+  '华建物资有限公司',
+  '鄂东办公用品',
+  '科尼',
+  '上海佩纳',
+  '河南蒲瑞',
+  '江苏华能电子有限公司',
+  '宁波北仑君威有限公司',
+];
+
+function purchaseExecuteSupplierSelect() {
+  const options = EXECUTE_SUPPLIERS.map(name =>
+    `<li class="wms-search-select-option cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-50" data-value="${name}" role="option">${name}</li>`
+  ).join('');
+  return `<div class="wms-search-select relative min-w-[168px]" data-wms-supplier-select>
+    <input type="text" class="wms-search-select-input w-full rounded border border-slate-200 px-2 py-1.5 pr-7 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" placeholder="请选择" autocomplete="off" role="combobox" aria-expanded="false" />
+    <button type="button" class="wms-search-select-toggle absolute right-1 top-1/2 -translate-y-1/2 px-1 text-slate-400" tabindex="-1" aria-hidden="true"><i class="fa-solid fa-chevron-down text-[10px]"></i></button>
+    <div class="wms-search-select-panel absolute left-0 right-0 top-full z-30 mt-1 hidden overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
+      <div class="border-b border-slate-100 p-2">
+        <input type="search" class="wms-search-select-filter w-full rounded border border-slate-200 px-2 py-1.5 text-xs outline-none focus:border-slate-400" placeholder="搜索供应商" />
+      </div>
+      <ul class="max-h-40 overflow-y-auto py-1" role="listbox">${options}</ul>
+    </div>
+  </div>`;
+}
+
+function purchaseExecuteSelectedSelect() {
+  return `<select data-wms-quote-selected class="min-w-[120px] rounded border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200">
+    <option value="" disabled selected>请选择</option>
+    <option value="yes">已中选</option>
+    <option value="no">未中选</option>
+  </select>`;
 }
 
 function purchaseExecuteUpload(hint) {
@@ -1702,7 +2105,7 @@ function purchaseExecuteQuoteNested(mode, colSpan) {
     : '';
   const directCells = mode === 'direct'
     ? `<td class="px-3 py-2 whitespace-nowrap"><button type="button" class="text-sm text-sky-600 hover:underline">上传</button></td>
-       <td class="px-3 py-2 whitespace-nowrap">${purchaseExecuteSelect('请选择')}</td>
+       <td class="px-3 py-2 whitespace-nowrap">${purchaseExecuteSelectedSelect()}</td>
        <td class="px-3 py-2 whitespace-nowrap">${purchaseExecuteInput('请输入')}</td>`
     : '';
   const rowActions = mode === 'direct'
@@ -1711,7 +2114,7 @@ function purchaseExecuteQuoteNested(mode, colSpan) {
   const actionThCell = mode === 'direct' ? '' : actionTh('px-3 py-2');
   const quoteRows = [1, 2].map((n, i) => `<tr class="border-t border-slate-100">
       <td class="px-3 py-2 text-sm text-slate-600 whitespace-nowrap">${n}</td>
-      <td class="px-3 py-2 whitespace-nowrap">${purchaseExecuteSelect()}</td>
+      <td class="px-3 py-2 whitespace-nowrap">${purchaseExecuteSupplierSelect()}</td>
       <td class="px-3 py-2 whitespace-nowrap">${purchaseExecuteInput()}</td>
       <td class="px-3 py-2 whitespace-nowrap">${purchaseExecuteInput()}</td>
       <td class="px-3 py-2 whitespace-nowrap">${purchaseExecuteInput()}</td>
@@ -2117,6 +2520,51 @@ function acceptanceDetailRecordsTable(supplyNo, backHref) {
   </div>`;
 }
 
+function acceptanceAuditRow(record, supplyNo, supply) {
+  const status = record.status || '待审核';
+  const tone = status === '审核通过' ? 'success' : (status === '审核中' ? 'warning' : 'info');
+  // 原型口径：验收审核入口查看/处理时，直接打开「执行验收」弹窗（数据同供货单）
+  const viewHref = `warehouse_acceptance_form.html?${new URLSearchParams({ no: supplyNo, back: 'warehouse_acceptance_audit_list.html' }).toString()}`;
+  const view = `<a href="${viewHref}" class="mr-2 hover:underline">查看</a>`;
+  const audit = status === '审核通过'
+    ? ''
+    : `<a href="${viewHref}" class="hover:underline">验收</a>`;
+  return {
+    tab: status === '审核通过' ? '已通过' : (status === '审核中' ? '审核中' : '待审核'),
+    cells: [
+      `<span class="font-mono text-xs">${record.no}</span>`,
+      supplyNo,
+      supply?.supplier || '—',
+      supply?.name || '—',
+      record.batchQty || '—',
+      record.qualified || '—',
+      record.unqualified || '—',
+      record.date || '—',
+      record.warehouse || '—',
+      record.planner || '—',
+      badge(status, tone),
+    ],
+    actions: `${view}${audit}`,
+  };
+}
+
+function acceptanceAuditListRows() {
+  const rows = [];
+  Object.entries(ACCEPTANCE_RECORDS_BY_SUPPLY).forEach(([supplyNo, records]) => {
+    const supply = ACCEPTANCE_SUPPLY_SAMPLES[supplyNo];
+    (records || []).forEach(r => rows.push(acceptanceAuditRow(r, supplyNo, supply)));
+  });
+  // 兜底示例：没有任何记录时给一条“待审核”
+  if (!rows.length) {
+    rows.push({
+      tab: '待审核',
+      cells: ['GH0000000-YS01', 'GH0000000', '示例供应商', '示例物资', '10', '10', '0', '2026-06-29', '张仓管', '王工', badge('待审核', 'info')],
+      actions: `<a href="warehouse_acceptance_audit_form.html?no=GH0000000-YS01&supplyNo=GH0000000&back=warehouse_acceptance_audit_list.html" class="hover:underline">审核</a>`,
+    });
+  }
+  return rows;
+}
+
 function purchaseSupplyInfoGrid(sample = {}) {
   const d = {
     supplyNo: 'GH2025003',
@@ -2234,12 +2682,40 @@ function acceptanceRowActions(supplyNo, status) {
     return p.toString();
   };
   const view = `<a href="warehouse_acceptance_detail.html?${q()}" class="mr-2 hover:underline">查看</a>`;
-  if (status === '已验收') return view;
+  if (status === '已验收') {
+    return `${view}<a href="warehouse_acceptance_record.html?${q()}" class="hover:underline">验收记录</a>`;
+  }
   return `${view}<a href="warehouse_acceptance_form.html?${q()}" class="mr-2 hover:underline">验收</a><a href="warehouse_acceptance_record.html?${q()}" class="mr-2 hover:underline">验收记录</a><a href="purchase_supply_complete.html?${q({ from: 'acceptance' })}" class="hover:underline">完成供货</a>`;
 }
 
 function acceptanceRow(cells, status, supplyNo) {
   return { cells, tab: status, actions: acceptanceRowActions(supplyNo, status) };
+}
+
+function pendingCheckRowActions(supplyNo) {
+  const q = () => new URLSearchParams({ no: supplyNo, back: 'warehouse_pending_check.html' }).toString();
+  const view = `<a href="warehouse_acceptance_detail.html?${q()}" class="mr-2 hover:underline">查看</a>`;
+  const accept = `<a href="warehouse_acceptance_form.html?${q()}" class="hover:underline">验收</a>`;
+  return `${view}${accept}`;
+}
+
+function pendingCheckCells(seq, supplyNo, supplier, name, spec, unit, required, accepted, status) {
+  const pending = Math.max(0, (Number(required) || 0) - (Number(accepted) || 0));
+  return [
+    seq,
+    supplyNo,
+    supplier,
+    name,
+    spec,
+    unit,
+    String(pending),
+    acceptanceProgressCell(accepted, required),
+    acceptanceStatusBadge(status),
+  ];
+}
+
+function pendingCheckRow(cells, status, supplyNo) {
+  return { cells, tab: status, actions: pendingCheckRowActions(supplyNo) };
 }
 
 function acceptanceSupplyHeaderGrid(sample = {}) {
@@ -2318,8 +2794,8 @@ function acceptanceFormPage(backHref = 'warehouse_acceptance_list.html', sample 
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 本批次供货数量</label><input type="number" placeholder="请输入" class="${inputCls}" /></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 验收日期</label><input type="date" value="2025-11-29" class="${inputCls}" /></div>
         <div class="md:col-span-2 flex flex-wrap items-end gap-3">
-          <div class="min-w-[200px] flex-1"><label class="mb-1.5 block text-sm font-medium text-slate-700">验收标准</label><input type="text" value="设备-配件验收标准" readonly class="${roCls}" /></div>
-          <a href="config_acceptance_standard.html" class="mb-0.5 inline-flex items-center rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">查看</a>
+          <div class="min-w-[200px] flex-1"><label class="mb-1.5 block text-sm font-medium text-slate-700">验收标准</label><input type="text" value="${d.minor}验收标准" readonly data-accept-standard-label class="${roCls}" /></div>
+          <button type="button" data-wms-acceptance-standard-view class="mb-0.5 inline-flex items-center rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50">查看</button>
         </div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 仓库验收人员</label><select class="${inputCls}"><option value="" disabled selected>请选择</option><option>张仓管</option><option>李仓管</option></select></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 计划验收人员</label><select class="${inputCls}"><option value="" disabled selected>请选择</option><option>王工</option><option>赵工</option></select></div>
@@ -5676,6 +6152,11 @@ function countTaskStatusBadge(s) {
   return badge(s, m[s] || 'info');
 }
 
+function outsideCountTaskStatusBadge(s) {
+  const m = { '待执行': 'warning', '执行中': 'info', '已提交': 'success', '已截止': 'info' };
+  return badge(s, m[s] || 'info');
+}
+
 function countDiffStatusBadge(s) {
   const m = { '待处理': 'warning', '处理中': 'info', '已处理': 'success', '已关闭': 'info' };
   return badge(s, m[s] || 'info');
@@ -6331,6 +6812,486 @@ function appCountOffbookPage() {
   });
 }
 
+// ── 库外盘点 APP 页面 ─────────────────────────────────────────────
+function appOutsideTabBar(activeTab) {
+  const tabs = [
+    { id: 'home', href: 'app_outside_count_home.html', icon: 'fa-house', label: '首页' },
+    { id: 'scan', href: 'app_outside_count_scan.html', icon: 'fa-qrcode', label: '扫码' },
+    { id: 'profile', href: 'app_outside_count_profile.html', icon: 'fa-user', label: '我的' },
+  ];
+  return `<nav class="wms-app-tabbar">${tabs.map(t =>
+    `<a href="${t.href}" class="wms-app-tab wms-app-btn${activeTab === t.id ? ' is-active' : ''}"><i class="fa-solid ${t.icon}"></i><span>${t.label}</span></a>`
+  ).join('')}</nav>`;
+}
+
+function appOutsidePageShell({
+  title,
+  body,
+  backHref = 'app_outside_count_home.html',
+  showTab = true,
+  activeTab = 'home',
+  largeTitle = false,
+  subtitle = '',
+  footer = '',
+  toast = false,
+} = {}) {
+  const nav = largeTitle ? '' : `<header class="wms-app-nav">
+    ${backHref ? `<a href="${backHref}" class="wms-app-back wms-app-btn" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></a>` : '<span class="wms-app-back-spacer"></span>'}
+    <h1 class="wms-app-nav-title">${title}</h1>
+    <span class="wms-app-back-spacer"></span>
+  </header>`;
+
+  const largeTitleBlock = largeTitle ? `<div class="wms-app-large-title">
+    <p class="wms-app-large-eyebrow">黄冈武穴 · 库外盘点</p>
+    <h1 class="wms-app-large-heading">${title}</h1>
+    ${subtitle ? `<p class="wms-app-large-sub">${subtitle}</p>` : ''}
+  </div>` : '';
+
+  const toastEl = toast ? `<div id="wms-outside-count-toast" class="hidden" role="status"></div>` : '';
+
+  return `${appHead.replace('{{TITLE}}', title)}
+<body class="wms-app-body" data-page="app_outside_count" data-title="${title}">
+  <div class="wms-device-stage">
+    <div class="wms-iphone16">
+      <div class="wms-dynamic-island" aria-hidden="true"></div>
+      <div class="wms-app-screen">
+        ${appStatusBar()}
+        ${nav}
+        <main class="wms-app-main">
+          ${largeTitleBlock}
+          ${body}
+        </main>
+        ${footer}
+        ${showTab ? appOutsideTabBar(activeTab) : ''}
+        <div class="wms-home-indicator" aria-hidden="true"></div>
+        ${toastEl}
+      </div>
+    </div>
+  </div>
+  <script src="../../js/layout.js" charset="UTF-8"></script>
+</body></html>`;
+}
+
+function appOutsideCountHomePage() {
+  const t = OUTSIDE_COUNT_TASKS[0];
+  const pct = Math.round((t.confirmed / t.baseline) * 100);
+  const plan = OUTSIDE_COUNT_APP_PLAN;
+  return appOutsidePageShell({
+    title: '库外盘点',
+    largeTitle: true,
+    subtitle: `${plan.name} · ${plan.scope}`,
+    activeTab: 'home',
+    backHref: '',
+    body: `
+    <div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-stack">
+        <div class="wms-app-hero">
+          <img src="${APP_HERO_IMG}" alt="现场" class="wms-app-hero-bg" />
+          <div class="wms-app-hero-overlay"></div>
+          <div class="wms-app-hero-content">
+            <p class="text-xs font-medium text-white/70">当前计划 · ${plan.planNo}</p>
+            <p class="mt-1 text-base font-semibold tracking-tight">执行中 · 截止 ${plan.end}</p>
+            <dl class="wms-app-stat-row">
+              <div class="wms-app-stat-chip"><dt>我的任务</dt><dd>2</dd></div>
+              <div class="wms-app-stat-chip"><dt>待盘资产</dt><dd>14</dd></div>
+              <div class="wms-app-stat-chip"><dt>待确认</dt><dd style="color:#fbbf24">3</dd></div>
+            </dl>
+          </div>
+        </div>
+        <section class="wms-app-card p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="wms-app-section-title">待我确认</h2>
+          </div>
+          <a href="app_outside_count_transfer_list.html" class="wms-app-menu-item wms-app-btn mb-2 rounded-xl border border-zinc-100">
+            <i class="fa-solid fa-share-from-square text-sky-600"></i>
+            <span>资产转派确认</span>
+            <span class="ml-auto text-xs font-semibold text-amber-600">2 条</span>
+          </a>
+          <a href="app_outside_count_owner_list.html" class="wms-app-menu-item wms-app-btn rounded-xl border border-zinc-100">
+            <i class="fa-solid fa-user-pen text-violet-600"></i>
+            <span>归属变更确认</span>
+            <span class="ml-auto text-xs font-semibold text-amber-600">1 条</span>
+          </a>
+        </section>
+        <section class="wms-app-card p-4">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="wms-app-section-title">我的任务</h2>
+            <a href="app_outside_count_task_list.html" class="text-xs font-medium text-zinc-500">全部 <i class="fa-solid fa-chevron-right text-[10px]"></i></a>
+          </div>
+          <a href="app_outside_count_execute.html?task=${t.taskNo}" class="wms-app-task-item wms-app-btn">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[11px] text-zinc-500">${t.taskNo}</span>
+              ${outsideCountTaskStatusBadge(t.status)}
+            </div>
+            <p class="mt-1.5 text-sm font-semibold text-zinc-900">${t.dept} · ${t.confirmed}/${t.baseline}</p>
+            <p class="mt-0.5 text-xs text-zinc-500">${plan.name}</p>
+            <div class="wms-app-progress"><span style="width:${pct}%"></span></div>
+          </a>
+          <a href="app_outside_count_execute.html?task=${OUTSIDE_COUNT_TASKS[1].taskNo}" class="wms-app-task-item wms-app-btn mt-3">
+            <div class="flex items-center justify-between gap-2">
+              <span class="font-mono text-[11px] text-zinc-500">${OUTSIDE_COUNT_TASKS[1].taskNo}</span>
+              ${outsideCountTaskStatusBadge(OUTSIDE_COUNT_TASKS[1].status)}
+            </div>
+            <p class="mt-1.5 text-sm font-semibold text-zinc-900">${OUTSIDE_COUNT_TASKS[1].dept} · 0/${OUTSIDE_COUNT_TASKS[1].baseline}</p>
+            <div class="wms-app-progress"><span style="width:0%"></span></div>
+          </a>
+        </section>
+        <div class="grid grid-cols-4 gap-2">
+          ${appQuickAction('app_outside_count_scan.html', 'fa-qrcode', '扫码盘点', 'slate')}
+          ${appQuickAction('app_outside_count_offbook.html', 'fa-circle-plus', '账外录入', 'stone')}
+          ${appQuickAction('app_outside_count_transfer_list.html', 'fa-share-from-square', '转派确认', 'neutral')}
+          ${appQuickAction('../outside_count_plan_list.html', 'fa-desktop', 'PC管理', 'zinc')}
+        </div>
+      </div>
+    </div>`,
+  });
+}
+
+function appOutsideCountTaskListPage() {
+  const cards = OUTSIDE_COUNT_TASKS.map(t => {
+    const pct = t.baseline ? Math.round((t.confirmed / t.baseline) * 100) : 0;
+    return `<a href="app_outside_count_execute.html?task=${t.taskNo}" class="wms-app-card block p-4 wms-app-btn">
+      <div class="flex items-center justify-between gap-2">
+        <span class="font-mono text-[11px] text-zinc-500">${t.taskNo}</span>
+        ${outsideCountTaskStatusBadge(t.status)}
+      </div>
+      <p class="mt-2 text-base font-semibold text-zinc-900">${t.executor} · ${t.dept}</p>
+      <p class="mt-0.5 text-xs text-zinc-500">计划 ${t.planNo}</p>
+      <div class="mt-3 flex items-center justify-between text-sm">
+        <span class="text-zinc-500">进度 ${t.confirmed}/${t.baseline} · 账外 ${t.offbook}</span>
+        <span class="font-semibold text-zinc-800">执行 <i class="fa-solid fa-chevron-right text-[10px] text-zinc-400"></i></span>
+      </div>
+      <div class="wms-app-progress"><span style="width:${pct}%"></span></div>
+    </a>`;
+  }).join('');
+  return appOutsidePageShell({
+    title: '我的任务',
+    activeTab: '',
+    backHref: 'app_outside_count_home.html',
+    body: `<div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-stack">
+        <div class="wms-app-card--glass wms-app-card flex items-center gap-3 p-3">
+          <i class="fa-solid fa-magnifying-glass text-zinc-400 pl-1"></i>
+          <span class="text-sm text-zinc-400">搜索任务编号、计划编号…</span>
+        </div>
+        ${cards}
+      </div>
+    </div>`,
+  });
+}
+
+function appOutsideCountExecutePage() {
+  const t = OUTSIDE_COUNT_TASKS[0];
+  const pending = OUTSIDE_COUNT_APP_ASSETS.filter(a => !a.done).length;
+  const done = OUTSIDE_COUNT_APP_ASSETS.filter(a => a.done).length;
+  const offbook = 1;
+  const itemCards = OUTSIDE_COUNT_APP_ASSETS.map(it => `<a href="app_outside_count_asset_confirm.html?code=${it.code}" class="wms-app-card block p-4 wms-app-btn${it.abnormal ? ' ring-1 ring-amber-200/80' : ''}" style="${it.abnormal ? 'background:rgba(255,251,235,0.5)' : ''}">
+    <div class="flex items-start justify-between gap-2">
+      <div>
+        <p class="font-semibold text-zinc-900">${it.name}</p>
+        <p class="mt-0.5 font-mono text-[11px] text-zinc-500">${it.code} · ${it.type}</p>
+        <p class="mt-1 text-xs text-zinc-500">系统位置：${it.sysLoc}</p>
+        <p class="mt-0.5 text-xs text-zinc-500">归属人：${it.owner}</p>
+      </div>
+      ${it.done ? badge('已确认', 'success') : badge(it.status, it.abnormal ? 'warning' : 'info')}
+    </div>
+  </a>`).join('');
+  return appOutsidePageShell({
+    title: '执行盘点',
+    activeTab: '',
+    showTab: false,
+    backHref: 'app_outside_count_task_list.html',
+    toast: true,
+    body: `<div class="wms-app-pad wms-app-pad--top space-y-4" style="padding-bottom:0.5rem">
+      <div class="wms-app-card--glass wms-app-card p-3 text-xs text-zinc-600">
+        <p class="font-semibold text-zinc-900">${OUTSIDE_COUNT_APP_PLAN.name}</p>
+        <p class="mt-0.5">任务 ${t.taskNo} · ${t.dept} · 已完成 ${t.confirmed}/${t.baseline}</p>
+        <p class="mt-1 text-zinc-500">部门负责人可跨部门转派；普通员工仅部门内转派</p>
+      </div>
+      <div class="flex gap-2">
+        <a href="app_outside_count_scan.html" class="wms-app-cta wms-app-cta--secondary flex-1 wms-app-btn text-center" style="display:flex;align-items:center;justify-content:center;gap:0.35rem"><i class="fa-solid fa-qrcode"></i>扫码</a>
+        <button type="button" class="wms-app-cta wms-app-cta--secondary flex-1 wms-app-btn" style="display:flex;align-items:center;justify-content:center;gap:0.35rem"><i class="fa-solid fa-share-from-square"></i>转派任务</button>
+      </div>
+      <div class="wms-app-segment" data-wms-app-outside-tabs>
+        <button type="button" class="is-active wms-app-btn" data-tab="pending">待盘 ${pending}</button>
+        <button type="button" class="wms-app-btn" data-tab="done">已盘 ${done}</button>
+        <button type="button" class="wms-app-btn" data-tab="offbook">账外 ${offbook}</button>
+      </div>
+      <div class="space-y-3" data-wms-app-outside-list>${itemCards}</div>
+    </div>`,
+    footer: `<div class="wms-app-sticky-footer">
+      <button type="button" class="wms-app-cta wms-app-btn" data-wms-outside-count-submit>提交任务</button>
+    </div>`,
+  });
+}
+
+function appOutsideCountScanPage() {
+  return appOutsidePageShell({
+    title: '扫码盘点',
+    activeTab: 'scan',
+    backHref: 'app_outside_count_home.html',
+    body: `<div class="wms-app-pad wms-app-pad--top space-y-4">
+      <div class="wms-app-scan-stage">
+        <div class="wms-app-scan-frame"></div>
+        <div class="wms-app-scan-corner wms-app-scan-corner--tl"></div>
+        <div class="wms-app-scan-corner wms-app-scan-corner--tr"></div>
+        <div class="wms-app-scan-corner wms-app-scan-corner--bl"></div>
+        <div class="wms-app-scan-corner wms-app-scan-corner--br"></div>
+        <div class="wms-app-scan-line"></div>
+        <div class="absolute inset-0 flex flex-col items-center justify-end pb-8 px-6 text-center">
+          <p class="text-sm font-medium text-white/90">对准资产二维码</p>
+          <p class="mt-1 text-xs text-white/50">识别固定资产 / 类资产编码</p>
+          <button type="button" class="wms-app-cta wms-app-btn mt-5 max-w-[200px]" data-wms-app-outside-scan-demo>模拟扫码</button>
+        </div>
+      </div>
+      <div id="wms-app-outside-scan-result" class="hidden wms-app-card p-4 ring-1 ring-zinc-200">
+        <p class="text-xs font-semibold text-zinc-700"><i class="fa-solid fa-circle-check mr-1 text-zinc-600"></i>识别成功</p>
+        <p class="mt-2 text-base font-semibold text-zinc-900">工程测量仪</p>
+        <p class="font-mono text-[11px] text-zinc-500">ZC202605012 · 固定资产</p>
+        <p class="mt-1 text-xs text-zinc-500">系统位置：武穴大桥施工点 · 归属：王工</p>
+        <a href="app_outside_count_asset_confirm.html?code=ZC202605012" class="wms-app-cta wms-app-btn mt-4 block text-center">进入资产确认</a>
+      </div>
+      <p class="text-center text-xs text-zinc-400 leading-relaxed">扫码后进入资产确认页<br/>可修改现场位置、申请归属变更并上传照片</p>
+    </div>`,
+  });
+}
+
+function appOutsideCountAssetConfirmPage() {
+  return appOutsidePageShell({
+    title: '资产确认',
+    showTab: false,
+    backHref: 'app_outside_count_execute.html?task=KWT202606290001',
+    toast: true,
+    body: `<div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-stack">
+        <div class="wms-app-card p-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <p class="text-base font-semibold text-zinc-900">工程测量仪</p>
+              <p class="mt-0.5 font-mono text-[11px] text-zinc-500">ZC202605012</p>
+              <p class="mt-1 text-xs text-zinc-500">固定资产 · 设备-仪器</p>
+            </div>
+            <span class="inline-flex rounded-lg bg-zinc-100 px-2 py-1 text-[10px] font-medium text-zinc-600"><i class="fa-solid fa-qrcode mr-1"></i>已扫码</span>
+          </div>
+          <dl class="mt-4 grid grid-cols-2 gap-3 text-xs">
+            <div><dt class="text-zinc-400">系统位置</dt><dd class="mt-0.5 font-medium text-zinc-800">武穴大桥施工点</dd></div>
+            <div><dt class="text-zinc-400">当前归属</dt><dd class="mt-0.5 font-medium text-zinc-800">王工</dd></div>
+          </dl>
+        </div>
+        <div class="wms-app-card p-4 space-y-4">
+          <div class="wms-app-field"><label>现场位置 <span class="text-red-500">*</span></label><input type="text" value="武穴大桥施工点-A区" placeholder="可修改为实际所在位置" /></div>
+          <div class="wms-app-field"><label>变更归属人</label><select><option value="">不变更</option><option>赵六（维保部）</option><option>李工（设备部）</option></select><p class="mt-1 text-[11px] text-zinc-400">归属变更需对方确认后生效</p></div>
+          <div class="wms-app-field"><label>备注</label><textarea rows="2" placeholder="异常说明、现场情况等…"></textarea></div>
+          <div class="wms-app-field">
+            <label>现场照片</label>
+            <div class="flex gap-2">
+              <button type="button" class="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-zinc-300 bg-zinc-50 text-zinc-400 wms-app-btn"><i class="fa-solid fa-camera"></i></button>
+              <div class="h-16 w-16 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-400 text-xs">示例</div>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" class="wms-app-cta wms-app-btn text-sm" data-wms-outside-confirm-present>确认在场</button>
+          <button type="button" class="wms-app-cta wms-app-cta--secondary wms-app-btn text-sm" data-wms-outside-confirm-absent>未盘到</button>
+          <button type="button" class="wms-app-cta wms-app-cta--secondary wms-app-btn text-sm" data-wms-outside-confirm-abnormal>标记异常</button>
+        </div>
+        <button type="button" class="wms-app-cta wms-app-cta--secondary wms-app-btn"><i class="fa-solid fa-share-from-square mr-1"></i>转派给他人盘点</button>
+      </div>
+    </div>`,
+  });
+}
+
+function appOutsideCountTransferListPage() {
+  const cards = OUTSIDE_COUNT_APP_TRANSFERS.map(tr => `<a href="app_outside_count_transfer_detail.html?id=${tr.id}" class="wms-app-card block p-4 wms-app-btn">
+    <div class="flex items-center justify-between gap-2">
+      <span class="font-mono text-[11px] text-zinc-500">${tr.id}</span>
+      ${badge(tr.status, 'warning')}
+    </div>
+    <p class="mt-2 text-base font-semibold text-zinc-900">${tr.name}</p>
+    <p class="mt-0.5 font-mono text-[11px] text-zinc-500">${tr.assetCode}</p>
+    <p class="mt-2 text-xs text-zinc-500">${tr.from}（${tr.fromDept}）→ ${tr.to}（${tr.toDept}）</p>
+  </a>`).join('');
+  return appOutsidePageShell({
+    title: '转派确认',
+    activeTab: '',
+    backHref: 'app_outside_count_home.html',
+    body: `<div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-card p-3 text-xs leading-relaxed text-zinc-700" style="background:rgba(240,249,255,0.65);border-color:#bae6fd">
+        <i class="fa-solid fa-circle-info mr-1 text-sky-600"></i>
+        他人将资产盘点任务转派给您，请确认是否接受。拒绝后任务将退回转派人。
+      </div>
+      <div class="wms-app-stack mt-4">${cards}</div>
+    </div>`,
+  });
+}
+
+function appOutsideCountTransferDetailPage() {
+  const tr = OUTSIDE_COUNT_APP_TRANSFERS[0];
+  return appOutsidePageShell({
+    title: '转派详情',
+    showTab: false,
+    backHref: 'app_outside_count_transfer_list.html',
+    toast: true,
+    body: `<div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-stack">
+        <div class="wms-app-card p-4">
+          <p class="text-base font-semibold text-zinc-900">${tr.name}</p>
+          <p class="mt-0.5 font-mono text-[11px] text-zinc-500">${tr.assetCode}</p>
+          <dl class="mt-4 space-y-3 text-sm">
+            <div class="flex justify-between gap-4"><dt class="text-zinc-500">转派人</dt><dd class="font-medium text-zinc-900">${tr.from} · ${tr.fromDept}</dd></div>
+            <div class="flex justify-between gap-4"><dt class="text-zinc-500">接收人</dt><dd class="font-medium text-zinc-900">${tr.to} · ${tr.toDept}</dd></div>
+            <div><dt class="text-zinc-500">转派原因</dt><dd class="mt-1 text-zinc-800">${tr.reason}</dd></div>
+          </dl>
+        </div>
+        <div class="wms-app-field"><label>拒绝原因（选填）</label><textarea rows="2" placeholder="拒绝时填写原因…"></textarea></div>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" class="wms-app-cta wms-app-btn" data-wms-outside-transfer-accept>接受转派</button>
+          <button type="button" class="wms-app-cta wms-app-cta--secondary wms-app-btn" data-wms-outside-transfer-reject>拒绝</button>
+        </div>
+      </div>
+    </div>`,
+  });
+}
+
+function appOutsideCountOwnerListPage() {
+  const cards = OUTSIDE_COUNT_APP_OWNER_CHANGES.map(oc => `<a href="app_outside_count_owner_detail.html?id=${oc.id}" class="wms-app-card block p-4 wms-app-btn">
+    <div class="flex items-center justify-between gap-2">
+      <span class="font-mono text-[11px] text-zinc-500">${oc.id}</span>
+      ${badge(oc.status, 'warning')}
+    </div>
+    <p class="mt-2 text-base font-semibold text-zinc-900">${oc.name}</p>
+    <p class="mt-0.5 font-mono text-[11px] text-zinc-500">${oc.assetCode}</p>
+    <p class="mt-2 text-xs text-zinc-500">${oc.from} → ${oc.to}</p>
+    <p class="mt-0.5 text-xs text-zinc-400">新位置：${oc.newLoc}</p>
+  </a>`).join('');
+  return appOutsidePageShell({
+    title: '归属变更',
+    activeTab: '',
+    backHref: 'app_outside_count_home.html',
+    body: `<div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-card p-3 text-xs leading-relaxed text-zinc-700" style="background:rgba(245,243,255,0.65);border-color:#ddd6fe">
+        <i class="fa-solid fa-circle-info mr-1 text-violet-600"></i>
+        盘点过程中发起的归属变更需您确认，确认后才会更新台账归属。
+      </div>
+      <div class="wms-app-stack mt-4">${cards}</div>
+    </div>`,
+  });
+}
+
+function appOutsideCountOwnerDetailPage() {
+  const oc = OUTSIDE_COUNT_APP_OWNER_CHANGES[0];
+  return appOutsidePageShell({
+    title: '归属确认',
+    showTab: false,
+    backHref: 'app_outside_count_owner_list.html',
+    toast: true,
+    body: `<div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-stack">
+        <div class="wms-app-card p-4">
+          <p class="text-base font-semibold text-zinc-900">${oc.name}</p>
+          <p class="mt-0.5 font-mono text-[11px] text-zinc-500">${oc.assetCode}</p>
+          <dl class="mt-4 space-y-3 text-sm">
+            <div class="flex justify-between gap-4"><dt class="text-zinc-500">原归属人</dt><dd class="font-medium text-zinc-900">${oc.from}</dd></div>
+            <div class="flex justify-between gap-4"><dt class="text-zinc-500">新归属人</dt><dd class="font-medium text-zinc-900">${oc.to}（您）</dd></div>
+            <div class="flex justify-between gap-4"><dt class="text-zinc-500">原位置</dt><dd class="font-medium text-zinc-900">${oc.loc}</dd></div>
+            <div class="flex justify-between gap-4"><dt class="text-zinc-500">新位置</dt><dd class="font-medium text-zinc-900">${oc.newLoc}</dd></div>
+            <div><dt class="text-zinc-500">变更原因</dt><dd class="mt-1 text-zinc-800">${oc.reason}</dd></div>
+          </dl>
+        </div>
+        <div class="wms-app-field"><label>拒绝原因（选填）</label><textarea rows="2" placeholder="拒绝时填写原因…"></textarea></div>
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" class="wms-app-cta wms-app-btn" data-wms-outside-owner-accept>确认接受</button>
+          <button type="button" class="wms-app-cta wms-app-cta--secondary wms-app-btn" data-wms-outside-owner-reject>拒绝</button>
+        </div>
+      </div>
+    </div>`,
+  });
+}
+
+function appOutsideCountOffbookPage() {
+  return appOutsidePageShell({
+    title: '账外资产',
+    showTab: false,
+    backHref: 'app_outside_count_home.html',
+    toast: true,
+    body: `<div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-stack">
+        <div class="wms-app-card p-3 text-xs leading-relaxed text-zinc-700" style="background:rgba(255,251,235,0.65);border-color:#fde68a">
+          <i class="fa-solid fa-circle-info mr-1 text-zinc-500"></i>
+          现场发现账外资产时登记，提交后进入审批流程；审批通过后写入台账并计入盘盈。
+        </div>
+        <button type="button" class="wms-app-cta wms-app-cta--secondary wms-app-btn" data-wms-app-outside-scan-demo><i class="fa-solid fa-qrcode mr-1"></i>扫描临时二维码标签</button>
+        <div class="wms-app-card p-4 space-y-4">
+          <div class="wms-app-field"><label>资产名称 <span class="text-red-500">*</span></label><input type="text" placeholder="请输入资产名称" /></div>
+          <div class="wms-app-field"><label>资产类型 <span class="text-red-500">*</span></label><select><option>固定资产</option><option>类资产</option></select></div>
+          <div class="wms-app-field"><label>使用地点 <span class="text-red-500">*</span></label><input type="text" placeholder="如：城东项目部" /></div>
+          <div class="wms-app-field"><label>现场归属人</label><input type="text" placeholder="建议填写实际保管人" /></div>
+          <div class="wms-app-field"><label>备注</label><textarea rows="2" placeholder="盘盈说明、现场情况等…"></textarea></div>
+          <div class="wms-app-field">
+            <label>现场照片</label>
+            <button type="button" class="flex h-16 w-16 items-center justify-center rounded-xl border border-dashed border-zinc-300 bg-zinc-50 text-zinc-400 wms-app-btn"><i class="fa-solid fa-camera"></i></button>
+          </div>
+        </div>
+        <button type="button" class="wms-app-cta wms-app-btn" data-wms-outside-offbook-submit>提交审批</button>
+      </div>
+    </div>`,
+  });
+}
+
+function appOutsideCountProfilePage() {
+  const PROFILE_IMG = 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=128&h=128&q=80';
+  return appOutsidePageShell({
+    title: '个人中心',
+    largeTitle: true,
+    subtitle: '工程部 · 部门负责人',
+    activeTab: 'profile',
+    backHref: '',
+    body: `<div class="wms-app-pad wms-app-pad--top">
+      <div class="wms-app-stack">
+        <div class="wms-app-profile-card">
+          <img src="${PROFILE_IMG}" alt="用户头像" class="wms-app-profile-avatar" />
+          <div class="min-w-0">
+            <p class="text-base font-semibold text-zinc-900">王工</p>
+            <p class="mt-0.5 text-xs text-zinc-500">工程部 · 部门负责人</p>
+            <p class="mt-1 text-xs text-zinc-400">工号 ENG-2048 · 库外盘点执行人</p>
+          </div>
+        </div>
+        <dl class="wms-app-profile-stats">
+          <div class="wms-app-profile-stat"><dt>本月盘点</dt><dd>3</dd></div>
+          <div class="wms-app-profile-stat"><dt>已完成</dt><dd>1</dd></div>
+          <div class="wms-app-profile-stat"><dt>待确认</dt><dd>3</dd></div>
+        </dl>
+        <nav class="wms-app-menu">
+          <a href="app_outside_count_task_list.html" class="wms-app-menu-item wms-app-btn"><i class="fa-solid fa-list-check"></i><span>我的盘点任务</span><i class="fa-solid fa-chevron-right"></i></a>
+          <a href="app_outside_count_transfer_list.html" class="wms-app-menu-item wms-app-btn"><i class="fa-solid fa-share-from-square"></i><span>转派确认</span><i class="fa-solid fa-chevron-right"></i></a>
+          <a href="app_outside_count_owner_list.html" class="wms-app-menu-item wms-app-btn"><i class="fa-solid fa-user-pen"></i><span>归属变更确认</span><i class="fa-solid fa-chevron-right"></i></a>
+          <a href="app_outside_count_offbook.html" class="wms-app-menu-item wms-app-btn"><i class="fa-solid fa-circle-plus"></i><span>账外资产录入</span><i class="fa-solid fa-chevron-right"></i></a>
+          <a href="../outside_count_diff_list.html" class="wms-app-menu-item wms-app-btn"><i class="fa-solid fa-triangle-exclamation"></i><span>差异处理（PC）</span><i class="fa-solid fa-chevron-right"></i></a>
+          <a href="../outside_count_plan_list.html" class="wms-app-menu-item wms-app-btn"><i class="fa-solid fa-desktop"></i><span>PC 端管理</span><i class="fa-solid fa-chevron-right"></i></a>
+        </nav>
+        <nav class="wms-app-menu">
+          <a href="app_count_home.html" class="wms-app-menu-item wms-app-btn"><i class="fa-solid fa-warehouse"></i><span>库场盘点 APP</span><i class="fa-solid fa-chevron-right"></i></a>
+          <a href="../../index.html" class="wms-app-menu-item wms-app-btn"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>退出到原型入口</span><i class="fa-solid fa-chevron-right"></i></a>
+        </nav>
+      </div>
+    </div>`,
+  });
+}
+
+const appOutsidePages = {
+  app_outside_count_home: appOutsideCountHomePage(),
+  app_outside_count_task_list: appOutsideCountTaskListPage(),
+  app_outside_count_execute: appOutsideCountExecutePage(),
+  app_outside_count_scan: appOutsideCountScanPage(),
+  app_outside_count_asset_confirm: appOutsideCountAssetConfirmPage(),
+  app_outside_count_transfer_list: appOutsideCountTransferListPage(),
+  app_outside_count_transfer_detail: appOutsideCountTransferDetailPage(),
+  app_outside_count_owner_list: appOutsideCountOwnerListPage(),
+  app_outside_count_owner_detail: appOutsideCountOwnerDetailPage(),
+  app_outside_count_offbook: appOutsideCountOffbookPage(),
+  app_outside_count_profile: appOutsideCountProfilePage(),
+};
+
 const appPages = {
   app_count_home: appCountHomePage(),
   app_count_task_list: appCountTaskListPage(),
@@ -6494,7 +7455,7 @@ const pages = {
     ],
   })),
 
-  purchase_supply_list: page('purchase_supply_list', '供应商供货单', '采购管理 / 供应商供货单', listPage({
+  purchase_supply_list: page('purchase_supply_list', '供应商供货单', '供应商管理 / 供应商供货单', listPage({
     desc: '采购申请审核通过后按供应商/物资自动拆分；完成供货后进入物资验收',
     tabs: ['全部', '待供货', '供货中', '已供货'],
     tabColumn: 6,
@@ -6510,14 +7471,14 @@ const pages = {
   })),
 
   warehouse_pending_check: page('warehouse_pending_check', '待验物资', '物资管理 / 待验物资', listPage({
-    desc: '<span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-circle-info text-sky-500"></i>与<a href="warehouse_acceptance_list.html" class="font-medium text-slate-900 hover:underline">物资验收</a>列表中「待验收 + 验收中」数据<strong>完全同源</strong>，本页为验收人员快捷入口</span>',
-    searchPlaceholder: '物资供货单号、供应商名称、物资名称',
-    filters: [{ label: '验收状态', key: 'status', column: 14, options: ['全部', '待验收', '验收中'] }],
-    columns: ['序号', '物资供货单号', '供应商名称', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '计量单位', '需求数量', '已验收数量', '合格数量', '不合格数量', '验收进度', '验收状态'],
+    desc: '<span class="inline-flex items-center gap-1.5"><i class="fa-solid fa-bolt text-amber-500"></i><strong>执行队列</strong>：仅展示「待验收/验收中」供货单，供验收人员快速进入验收操作。个人审批待办请前往<strong>流程中心</strong>处理。</span>',
+    searchPlaceholder: '供货单号、供应商名称、物资名称',
+    filters: [{ label: '验收状态', key: 'status', column: 8, options: ['全部', '待验收', '验收中'] }],
+    columns: ['序号', '物资供货单号', '供应商名称', '物资名称', '规格型号', '计量单位', '待验数量', '验收进度', '验收状态'],
     rows: [
-      acceptanceRow(acceptanceListCells('1', 'GH2025005', '宁波北仑君威有限公司', 'GD001001-005', '扳手', '455', '资产-固定资产', '设备-配件', '个', '20', '0', '0', '0', '待验收'), '待验收', 'GH2025005'),
-      acceptanceRow(acceptanceListCells('2', 'GH2025003', '河南蒲瑞', 'GD001001-003', '钢丝绳', '455', '资产-固定资产', '设备-配件', 'm', '100', '50', '50', '0', '验收中'), '验收中', 'GH2025003'),
-      acceptanceRow(acceptanceListCells('3', 'GH2025004', '江苏华能电子有限公司', 'GD001001-004', '螺丝刀', '455', '资产-固定资产', '设备-配件', '个', '20', '10', '9', '1', '验收中'), '验收中', 'GH2025004'),
+      pendingCheckRow(pendingCheckCells('1', 'GH2025005', '宁波北仑君威有限公司', '扳手', '455', '个', '20', '0', '待验收'), '待验收', 'GH2025005'),
+      pendingCheckRow(pendingCheckCells('2', 'GH2025003', '河南蒲瑞', '钢丝绳', '455', 'm', '100', '50', '验收中'), '验收中', 'GH2025003'),
+      pendingCheckRow(pendingCheckCells('3', 'GH2025004', '江苏华能电子有限公司', '螺丝刀', '455', '个', '20', '10', '验收中'), '验收中', 'GH2025004'),
     ],
   })),
 
@@ -6534,6 +7495,15 @@ const pages = {
       acceptanceRow(acceptanceListCells('4', 'GH2025004', '江苏华能电子有限公司', 'GD001001-004', '螺丝刀', '455', '资产-固定资产', '设备-配件', '个', '20', '10', '9', '1', '验收中'), '验收中', 'GH2025004'),
       acceptanceRow(acceptanceListCells('5', 'GH2025005', '宁波北仑君威有限公司', 'GD001001-005', '扳手', '455', '资产-固定资产', '设备-配件', '个', '20', '0', '0', '0', '待验收'), '待验收', 'GH2025005'),
     ],
+  })),
+
+  warehouse_acceptance_audit_list: page('warehouse_acceptance_audit_list', '验收审核', '物资管理 / 验收审核', listPage({
+    desc: '对每次发起验收生成的验收记录进行审核；审核通过后流转至入库/退货等后续流程。',
+    tabs: ['全部', '待审核', '审核中', '已通过'],
+    searchPlaceholder: '验收单号、供货单号、供应商、物资名称',
+    columns: ['验收单号', '供货单号', '供应商', '物资名称', '本批次数量', '合格', '不合格', '验收日期', '仓库验收', '计划验收', '审核状态'],
+    tabColumn: 10,
+    rows: acceptanceAuditListRows(),
   })),
 
   warehouse_inbound_list: page('warehouse_inbound_list', '物资入库', '物资管理 / 物资入库', warehouseInboundListPage()),
@@ -6561,6 +7531,15 @@ const pages = {
   count_diff_list: page('count_diff_list', '差异处理', '库场盘点 / 差异处理', countDiffListPage()),
 
   count_adjust_list: page('count_adjust_list', '库存调整', '库场盘点 / 库存调整', countAdjustListPage()),
+
+  outside_count_plan_list: page('outside_count_plan_list', '库外盘点计划', '库外盘点 / 盘点计划', outsideCountPlanListPage()),
+  outside_count_plan_form: page('outside_count_plan_list', '新建/编辑盘点计划', '库外盘点 / 计划表单', outsideCountPlanFormPage()),
+  outside_count_task_list: page('outside_count_task_list', '库外盘点任务', '库外盘点 / 盘点任务', outsideCountTaskListPage()),
+  outside_count_task_detail: outsideCountTaskDetailPage(),
+  outside_count_result: outsideCountResultPage(),
+  outside_count_diff_list: page('outside_count_diff_list', '库外差异处理', '库外盘点 / 差异处理', outsideCountDiffListPage()),
+  outside_count_report_list: page('outside_count_report_list', '库外盘点报告', '库外盘点 / 盘点报告', outsideCountReportListPage()),
+  outside_count_report_detail: outsideCountReportDetailPage(),
 
   supplier_list: page('supplier_list', '供应商列表', '供应商管理 / 供应商列表', listPage({
     desc: '供应商档案与供货状态；审批通过的评价结果自动回写最新等级与评分',
@@ -6723,6 +7702,36 @@ const forms = {
   warehouse_acceptance_record: page('warehouse_acceptance_list', '验收记录', '物资管理 / 验收记录', acceptanceRecordPage('warehouse_acceptance_list.html')),
 
   warehouse_acceptance_record_detail: page('warehouse_acceptance_list', '验收记录详情', '物资管理 / 验收记录详情', acceptanceRecordDetailPage('warehouse_acceptance_record.html', 'GH2025004-YS02')),
+
+  warehouse_acceptance_audit_form: page('warehouse_acceptance_audit_list', '验收审核', '物资管理 / 验收审核', `
+    <div data-wms-modal data-modal-back="warehouse_acceptance_audit_list.html" data-modal-size="lg" data-wms-acceptance-audit-form>
+      <div class="wms-modal-form wms-warehouse-form">
+        ${formSection('验收记录')}
+        <div class="md:col-span-2 text-sm text-slate-500">审核对象为单批次验收记录（验收单）。此处为原型演示，实际以流程中心审批为准。</div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">验收单号</label><input type="text" value="GH2025003-YS01" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供货单号</label><input type="text" value="GH2025003" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">本批次数量</label><input type="text" value="50" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">合格 / 不合格</label><input type="text" value="50 / 0" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
+
+        ${formSection('审核')}
+        <div class="md:col-span-2">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 审核结论</label>
+          <div class="wms-radio-group">
+            <label class="wms-radio-option"><input type="radio" name="accept_audit_result" checked /> 通过</label>
+            <label class="wms-radio-option"><input type="radio" name="accept_audit_result" /> 驳回</label>
+          </div>
+        </div>
+        <div class="md:col-span-2">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">审核意见</label>
+          <textarea rows="3" placeholder="请输入审核意见（驳回必填）" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="warehouse_acceptance_audit_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-primary">提交审核</button>
+      </div>
+    </div>
+  `),
 
   purchase_plan_form: page('purchase_plan_apply', '新建计划采购', '采购管理 / 新建计划采购', hubPage('purchase_plan_apply', '新建计划采购', '采购管理 / 计划采购申请', 'purchase_plan_apply.html', [
     ['purchase_plan_direct.html', 'fa-bolt', '直采', '指定供应商直接采购'],
@@ -7010,8 +8019,12 @@ Object.entries(appPages).forEach(([name, html]) => {
   fs.writeFileSync(path.join(appPagesDir, `${name}.html`), html, 'utf8');
   console.log('wrote app/', name);
 });
+Object.entries(appOutsidePages).forEach(([name, html]) => {
+  fs.writeFileSync(path.join(appPagesDir, `${name}.html`), html, 'utf8');
+  console.log('wrote app/', name);
+});
 
-console.log('Done:', Object.keys({ ...pages, ...forms }).length, 'PC pages,', Object.keys(appPages).length, 'APP pages');
+console.log('Done:', Object.keys({ ...pages, ...forms }).length, 'PC pages,', Object.keys(appPages).length + Object.keys(appOutsidePages).length, 'APP pages');
 
 const mapLabels = {
   '../index.html': ['原型入口', '首页'],
@@ -7050,14 +8063,16 @@ const mapLabels = {
   purchase_execute_direct: ['直采-采购', '采购管理 · 表单'],
   purchase_execute_inquiry: ['询价-采购', '采购管理 · 表单'],
   purchase_execute_bid: ['招标-采购', '采购管理 · 表单'],
-  purchase_supply_list: ['供应商供货单', '采购管理'],
+  purchase_supply_list: ['供应商供货单', '供应商管理'],
   purchase_supply_complete: ['完成供货', '采购管理 · 表单 · 验收快捷入口共用'],
   warehouse_pending_check: ['待验物资', '物资管理'],
   warehouse_acceptance_list: ['物资验收', '物资管理'],
+  warehouse_acceptance_audit_list: ['验收审核', '物资管理'],
   warehouse_acceptance_form: ['执行验收', '物资管理 · 表单'],
   warehouse_acceptance_detail: ['供货详情', '物资管理 · 表单'],
   warehouse_acceptance_record: ['验收记录', '物资管理 · 表单'],
   warehouse_acceptance_record_detail: ['验收记录详情', '物资管理 · 表单'],
+  warehouse_acceptance_audit_form: ['验收审核', '物资管理 · 表单'],
   warehouse_inbound_list: ['物资入库', '物资管理'],
   warehouse_inbound_form: ['执行入库', '物资管理 · 表单'],
   warehouse_inbound_fixed_form: ['固定资产入库', '物资管理 · 表单'],
@@ -7104,12 +8119,31 @@ const mapLabels = {
   count_adjust_list: ['库存调整', '库场盘点'],
   count_adjust_form: ['调整库存', '库场盘点 · 表单'],
   count_adjust_detail: ['调整单详情', '库场盘点 · 表单'],
+  outside_count_plan_list: ['库外盘点计划', '库外盘点'],
+  outside_count_plan_form: ['新建/编辑盘点计划', '库外盘点 · 表单'],
+  outside_count_task_list: ['库外盘点任务', '库外盘点'],
+  outside_count_task_detail: ['库外盘点任务详情', '库外盘点 · 表单'],
+  outside_count_result: ['库外盘点结果', '库外盘点 · 表单'],
+  outside_count_diff_list: ['库外差异处理', '库外盘点'],
+  outside_count_report_list: ['库外盘点报告', '库外盘点'],
+  outside_count_report_detail: ['库外盘点报告详情', '库外盘点 · 表单'],
   app_count_home: ['盘点首页', '移动端 · 库场盘点'],
   app_count_task_list: ['我的盘点任务', '移动端 · 库场盘点'],
   app_count_execute: ['移动盘点执行', '移动端 · 库场盘点'],
   app_count_scan: ['扫码盘点', '移动端 · 库场盘点'],
   app_count_offbook: ['账外资产确认', '移动端 · 库场盘点'],
   app_count_profile: ['个人中心', '移动端 · 库场盘点'],
+  app_outside_count_home: ['库外盘点首页', '移动端 · 库外盘点'],
+  app_outside_count_task_list: ['我的库外任务', '移动端 · 库外盘点'],
+  app_outside_count_execute: ['库外盘点执行', '移动端 · 库外盘点'],
+  app_outside_count_scan: ['库外扫码盘点', '移动端 · 库外盘点'],
+  app_outside_count_asset_confirm: ['库外资产确认', '移动端 · 库外盘点'],
+  app_outside_count_transfer_list: ['转派确认列表', '移动端 · 库外盘点'],
+  app_outside_count_transfer_detail: ['转派确认详情', '移动端 · 库外盘点'],
+  app_outside_count_owner_list: ['归属变更列表', '移动端 · 库外盘点'],
+  app_outside_count_owner_detail: ['归属变更确认', '移动端 · 库外盘点'],
+  app_outside_count_offbook: ['账外资产录入', '移动端 · 库外盘点'],
+  app_outside_count_profile: ['库外盘点个人中心', '移动端 · 库外盘点'],
   warehouse_refund_form: ['新增退货', '物资管理 · 入口'],
   warehouse_refund_pre_form: ['验收不合格退货', '物资管理 · 表单'],
   warehouse_refund_fixed_form: ['固定资产退货', '物资管理 · 表单'],
@@ -7168,8 +8202,12 @@ Object.keys(appPages).forEach(name => {
   const label = mapLabels[name] || [name, '移动端'];
   mapEntries.push([`app/${name}.html`, ...label]);
 });
+Object.keys(appOutsidePages).forEach(name => {
+  const label = mapLabels[name] || [name, '移动端 · 库外盘点'];
+  mapEntries.push([`app/${name}.html`, ...label]);
+});
 const pcTotal = Object.keys({ ...pages, ...forms }).length;
-const appTotal = Object.keys(appPages).length;
+const appTotal = Object.keys(appPages).length + Object.keys(appOutsidePages).length;
 const total = mapEntries.length;
 const mapHtml = `<!DOCTYPE html>
 <html lang="zh-CN">

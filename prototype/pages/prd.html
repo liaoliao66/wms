@@ -10,7 +10,7 @@
 </head>
 <body class="wms-prd-body">
   <header class="wms-prd-header">
-    <div class="wms-prd-header-inner">
+    <div class="wms-prd-header-inner wms-prd-header-inner--wide">
       <a href="../index.html" class="wms-prd-back">
         <i class="fa-solid fa-arrow-left"></i>
         返回原型入口
@@ -22,7 +22,13 @@
     </div>
   </header>
 
-  <main class="wms-prd-main">
+  <main class="wms-prd-layout">
+    <aside class="wms-prd-toc" id="prd-toc" aria-label="文档目录">
+      <div class="wms-prd-toc-inner">
+        <p class="wms-prd-toc-title">目录</p>
+        <nav id="prd-toc-nav" class="wms-prd-toc-nav"></nav>
+      </div>
+    </aside>
     <article id="prd-content" class="wms-prd-prose">
       <p class="text-slate-500">正在加载文档…</p>
     </article>
@@ -34,8 +40,23 @@
     (function () {
       var contentEl = document.getElementById('prd-content');
       var metaEl = document.getElementById('prd-meta');
+      var tocNav = document.getElementById('prd-toc-nav');
 
-      marked.setOptions({ gfm: true, breaks: false });
+      function slugHeading(text) {
+        return text.trim()
+          .replace(/[（(].*?[）)]/g, '')
+          .toLowerCase()
+          .replace(/[^\w\u4e00-\u9fff\s-]/g, '')
+          .replace(/\s+/g, '-');
+      }
+
+      var renderer = new marked.Renderer();
+      renderer.heading = function (text, level) {
+        var slug = slugHeading(text);
+        return '<h' + level + ' id="' + slug + '">' + text + '</h' + level + '>';
+      };
+
+      marked.setOptions({ gfm: true, breaks: false, renderer: renderer });
 
       mermaid.initialize({
         startOnLoad: false,
@@ -72,6 +93,66 @@
         return parts.join(' · ') || 'docs/prd.md';
       }
 
+      function parseTocFromMarkdown(md) {
+        var items = [];
+        var inToc = false;
+        md.split('\n').forEach(function (line) {
+          if (/^##\s+目录\s*$/.test(line)) { inToc = true; return; }
+          if (inToc && /^---\s*$/.test(line)) { inToc = false; return; }
+          if (!inToc) return;
+          var m = line.match(/^(\s*)-\s+\[([^\]]+)\]\(#([^)]+)\)/);
+          if (m) {
+            items.push({ indent: m[1].length, label: m[2], href: '#' + m[3] });
+          }
+        });
+        return items;
+      }
+
+      function buildTocNav(items) {
+        if (!items.length) return '';
+        return items.map(function (item) {
+          var cls = 'wms-prd-toc-link';
+          if (item.indent >= 4) cls += ' wms-prd-toc-link--l3';
+          else if (item.indent >= 2) cls += ' wms-prd-toc-link--l2';
+          return '<a href="' + item.href + '" class="' + cls + '" data-toc-href="' + item.href + '">' + item.label + '</a>';
+        }).join('');
+      }
+
+      function bindTocScroll() {
+        tocNav.querySelectorAll('a[data-toc-href]').forEach(function (a) {
+          a.addEventListener('click', function (e) {
+            e.preventDefault();
+            var id = a.getAttribute('href').slice(1);
+            var target = document.getElementById(id);
+            if (target) {
+              target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              history.replaceState(null, '', '#' + id);
+              tocNav.querySelectorAll('.is-active').forEach(function (el) { el.classList.remove('is-active'); });
+              a.classList.add('is-active');
+            }
+          });
+        });
+
+        // 正文内目录链接同样平滑滚动
+        contentEl.querySelectorAll('a[href^="#"]').forEach(function (a) {
+          a.addEventListener('click', function (e) {
+            var id = a.getAttribute('href').slice(1);
+            var target = document.getElementById(id);
+            if (target) {
+              e.preventDefault();
+              target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              history.replaceState(null, '', '#' + id);
+            }
+          });
+        });
+
+        // 深链：打开时滚动到 hash
+        if (location.hash) {
+          var el = document.getElementById(location.hash.slice(1));
+          if (el) setTimeout(function () { el.scrollIntoView({ block: 'start' }); }, 100);
+        }
+      }
+
       fetch('../docs/prd.md')
         .then(function (res) {
           if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -79,9 +160,15 @@
         })
         .then(function (md) {
           metaEl.textContent = extractMeta(md);
-          var html = marked.parse(md);
+          var tocItems = parseTocFromMarkdown(md);
+          tocNav.innerHTML = buildTocNav(tocItems);
+
+          // 去掉正文中的「目录」块，避免与侧栏重复
+          var bodyMd = md.replace(/^##\s+目录[\s\S]*?^---\s*$/m, '');
+          var html = marked.parse(bodyMd);
           html = renderMermaid(html);
           contentEl.innerHTML = html;
+          bindTocScroll();
           return mermaid.run({ nodes: contentEl.querySelectorAll('.mermaid') });
         })
         .catch(function (err) {

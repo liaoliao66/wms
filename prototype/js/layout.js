@@ -29,6 +29,17 @@ const WMS_ACCEPTANCE_SUPPLY_SAMPLES = {
   GH2025005: { supplyNo: 'GH2025005', supplier: '宁波北仑君威有限公司', supplierStatus: '正常', code: 'GD001001-005', name: '扳手', major: '资产-固定资产', minor: '设备-配件', spec: '455', unit: '个', required: '20', pending: '20', supplied: '0', qualified: '0', unqualified: '0', accepted: '0' },
 };
 
+/** 按物资子类维护的验收标准正文（与基础配置验收标准同源，验收时只读展示） */
+const WMS_ACCEPTANCE_STANDARD_CONTENT = {
+  '设备-配件': '1. 外观完好，无锈蚀、变形、裂纹\n2. 规格型号、材质与采购合同及供货清单一致\n3. 随机配件、说明书、合格证齐全\n4. 关键尺寸、重量抽检合格\n5. 防腐涂层完整，焊点牢固（适用时）',
+  '办公电脑': '1. 外包装完好，无拆封痕迹（全新机）\n2. 品牌型号、配置与采购清单一致\n3. 开机自检正常，系统预装完整\n4. 随机附件、保修卡齐全',
+  '电动工具': '1. 外观完好，无锈蚀、变形\n2. 铭牌信息齐全，规格型号与采购清单一致\n3. 随机配件、说明书数量完整\n4. 通电/试运行正常（适用时）',
+  '防汛设备': '1. 外观完好，无锈蚀、破损\n2. 规格型号与采购清单一致\n3. 随机配件、说明书齐全\n4. 通电/试运行正常（适用时）',
+  '办公用纸': '包装完整无破损；数量清点准确；生产日期在有效期内；无受潮、污染。',
+  '办公文具': '包装完好；品牌规格与订单一致；数量清点准确；无破损、缺件。',
+  '安全防护': '包装完好；生产日期在有效期内；合格证、检测报告齐全；数量清点准确。',
+};
+
 const WMS_ACCEPTANCE_RECORDS = {
   GH2025001: [{ no: 'GH2025001-YS01', batchNo: '1', batchQty: '10', qualified: '10', unqualified: '0', date: '2025-11-15', warehouse: '张仓管', planner: '王工', status: '审核通过' }],
   GH2025002: [{ no: 'GH2025002-YS01', batchNo: '1', batchQty: '10', qualified: '10', unqualified: '0', date: '2025-11-16', warehouse: '李仓管', planner: '赵工', status: '审核通过' }],
@@ -183,10 +194,9 @@ const WMS_NAV = [
   { id: 'purchase_pending_list', label: '待采物资', icon: 'fa-cart-shopping', href: 'purchase_pending_list.html' },
   { id: 'purchase_request_list', label: '采购申请', icon: 'fa-file-invoice', href: 'purchase_request_list.html' },
   { id: 'purchase_execute_list', label: '物资采购', icon: 'fa-bag-shopping', href: 'purchase_execute_list.html' },
-  { id: 'purchase_supply_list', label: '供应商供货单', icon: 'fa-truck', href: 'purchase_supply_list.html' },
   { group: '物资管理' },
-  { id: 'warehouse_pending_check', label: '待验物资', icon: 'fa-hourglass-half', href: 'warehouse_pending_check.html' },
   { id: 'warehouse_acceptance_list', label: '物资验收', icon: 'fa-clipboard-check', href: 'warehouse_acceptance_list.html' },
+  { id: 'warehouse_acceptance_audit_list', label: '验收审核', icon: 'fa-clipboard-list', href: 'warehouse_acceptance_audit_list.html' },
   { id: 'warehouse_inbound_list', label: '物资入库', icon: 'fa-arrow-down-to-bracket', href: 'warehouse_inbound_list.html' },
   { id: 'warehouse_outbound_list', label: '物资出库', icon: 'fa-arrow-up-from-bracket', href: 'warehouse_outbound_list.html' },
   { id: 'warehouse_return_list', label: '物资归还', icon: 'fa-undo', href: 'warehouse_return_list.html' },
@@ -198,9 +208,15 @@ const WMS_NAV = [
   { id: 'count_task_list', label: '盘点任务', icon: 'fa-list-check', href: 'count_task_list.html' },
   { id: 'count_diff_list', label: '差异处理', icon: 'fa-scale-unbalanced', href: 'count_diff_list.html' },
   { id: 'count_adjust_list', label: '库存调整', icon: 'fa-sliders', href: 'count_adjust_list.html' },
+  { group: '库外盘点' },
+  { id: 'outside_count_plan_list', label: '库外盘点计划', icon: 'fa-clipboard-list', href: 'outside_count_plan_list.html' },
+  { id: 'outside_count_task_list', label: '库外盘点任务', icon: 'fa-list-check', href: 'outside_count_task_list.html' },
+  { id: 'outside_count_diff_list', label: '库外差异处理', icon: 'fa-scale-unbalanced', href: 'outside_count_diff_list.html' },
+  { id: 'outside_count_report_list', label: '库外盘点报告', icon: 'fa-chart-pie', href: 'outside_count_report_list.html' },
   { group: '供应商管理' },
   { id: 'supplier_list', label: '供应商列表', icon: 'fa-building', href: 'supplier_list.html' },
   { id: 'supplier_eval_list', label: '供应商评价', icon: 'fa-star', href: 'supplier_eval_list.html' },
+  { id: 'purchase_supply_list', label: '供应商供货单', icon: 'fa-truck', href: 'purchase_supply_list.html' },
   { group: '基础配置' },
   { id: 'config_warehouse', label: '仓库配置', icon: 'fa-sitemap', href: 'config_warehouse.html' },
   { id: 'config_category', label: '分类管理', icon: 'fa-tags', href: 'config_category.html' },
@@ -252,6 +268,59 @@ function initAppCount(root) {
   });
 }
 
+function showOutsideCountToast(message) {
+  const toast = document.getElementById('wms-outside-count-toast');
+  if (toast) {
+    toast.textContent = message;
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 2800);
+    return;
+  }
+  alert(message);
+}
+
+function initAppOutsideCount(root) {
+  root.querySelectorAll('[data-wms-app-outside-scan-demo]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const el = document.getElementById('wms-app-outside-scan-result');
+      if (el) el.classList.remove('hidden');
+    });
+  });
+  root.querySelectorAll('[data-wms-app-outside-tabs] button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      root.querySelectorAll('[data-wms-app-outside-tabs] button').forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+    });
+  });
+  root.querySelector('[data-wms-outside-count-submit]')?.addEventListener('click', () => {
+    showOutsideCountToast('任务已提交，盘点结果将汇总至 PC 端');
+  });
+  root.querySelector('[data-wms-outside-confirm-present]')?.addEventListener('click', () => {
+    showOutsideCountToast('已确认在场');
+  });
+  root.querySelector('[data-wms-outside-confirm-absent]')?.addEventListener('click', () => {
+    showOutsideCountToast('已标记未盘到，将生成盘亏候选');
+  });
+  root.querySelector('[data-wms-outside-confirm-abnormal]')?.addEventListener('click', () => {
+    showOutsideCountToast('已标记异常');
+  });
+  root.querySelector('[data-wms-outside-transfer-accept]')?.addEventListener('click', () => {
+    showOutsideCountToast('已接受转派');
+  });
+  root.querySelector('[data-wms-outside-transfer-reject]')?.addEventListener('click', () => {
+    showOutsideCountToast('已拒绝转派');
+  });
+  root.querySelector('[data-wms-outside-owner-accept]')?.addEventListener('click', () => {
+    showOutsideCountToast('归属变更已确认');
+  });
+  root.querySelector('[data-wms-outside-owner-reject]')?.addEventListener('click', () => {
+    showOutsideCountToast('已拒绝归属变更');
+  });
+  root.querySelector('[data-wms-outside-offbook-submit]')?.addEventListener('click', () => {
+    showOutsideCountToast('账外资产已提交审批');
+  });
+}
+
 function initLayout() {
   const root = document.body;
   const activeId = root.dataset.page || 'dashboard';
@@ -261,7 +330,11 @@ function initLayout() {
   const pagesPrefix = isIndex ? 'pages/' : '';
 
   if (root.classList.contains('wms-app-body')) {
-    initAppCount(root);
+    if (root.dataset.page === 'app_outside_count') {
+      initAppOutsideCount(root);
+    } else {
+      initAppCount(root);
+    }
     return;
   }
 
@@ -357,6 +430,7 @@ function initLayout() {
   initRefundSuccessFromQuery(root);
   initRefundSelectAsset(root);
   initAcceptanceRecordDetailFromQuery(root);
+  initAcceptanceAuditFormFromQuery(root);
   initMaterialForm(root);
   initMaterialFormFromQuery(root);
   initMaterialCatalogSidebar(root);
@@ -372,6 +446,7 @@ function initLayout() {
   initPurchaseRequestFromQuery(root);
   initRequisitionForm(root);
   initAcceptanceFormInteraction(root);
+  initPurchaseExecuteQuoteForm(root);
   initSupplierEvalSelect(root);
   initSupplierDetail(root);
   initEvalConfig(root);
@@ -857,6 +932,204 @@ function initPurchaseRequestFromQuery(root) {
   }
 }
 
+function getAcceptanceStandard(major, minor) {
+  const minorLabel = minor || '—';
+  const label = `${minorLabel}验收标准`;
+  const content = WMS_ACCEPTANCE_STANDARD_CONTENT[minor]
+    || WMS_ACCEPTANCE_STANDARD_CONTENT['设备-配件']
+    || '';
+  return { label, content, major: major || '—', minor: minorLabel };
+}
+
+function closeAcceptanceStandardDialog() {
+  document.querySelector('[data-wms-acceptance-standard-dialog]')?.remove();
+  if (closeAcceptanceStandardDialog._onEsc) {
+    document.removeEventListener('keydown', closeAcceptanceStandardDialog._onEsc);
+    closeAcceptanceStandardDialog._onEsc = null;
+  }
+}
+
+function showAcceptanceStandardDialog(major, minor) {
+  closeAcceptanceStandardDialog();
+  const { label, content, major: majorText, minor: minorText } = getAcceptanceStandard(major, minor);
+  const backdrop = document.createElement('div');
+  backdrop.className = 'wms-dialog-backdrop';
+  backdrop.dataset.wmsAcceptanceStandardDialog = '';
+  backdrop.setAttribute('role', 'presentation');
+  backdrop.innerHTML = `
+    <div class="wms-dialog wms-dialog--md" role="dialog" aria-modal="true" aria-labelledby="wms-acceptance-standard-title">
+      <div class="wms-modal-header">
+        <h2 id="wms-acceptance-standard-title" class="wms-modal-title">验收标准 · ${label.replace(/验收标准$/, '')}</h2>
+        <button type="button" class="wms-modal-close" data-wms-acceptance-standard-close aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="wms-modal-body">
+        <div class="mb-4 flex flex-wrap gap-2 text-xs">
+          <span class="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-slate-600">物资大类：${majorText}</span>
+          <span class="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-slate-600">物资子类：${minorText}</span>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-relaxed text-slate-700 whitespace-pre-wrap min-h-[200px]">${content || '该子类尚未配置验收标准，请前往基础配置维护。'}</div>
+      </div>
+      <div class="wms-modal-footer">
+        <button type="button" class="wms-btn wms-btn-primary" data-wms-acceptance-standard-close>关闭</button>
+      </div>
+    </div>
+  `;
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) closeAcceptanceStandardDialog();
+  });
+  backdrop.querySelectorAll('[data-wms-acceptance-standard-close]').forEach(btn => {
+    btn.addEventListener('click', closeAcceptanceStandardDialog);
+  });
+  closeAcceptanceStandardDialog._onEsc = (e) => {
+    if (e.key === 'Escape') closeAcceptanceStandardDialog();
+  };
+  document.addEventListener('keydown', closeAcceptanceStandardDialog._onEsc);
+  document.body.appendChild(backdrop);
+}
+
+function updateAcceptanceStandardField(scope, sample) {
+  if (!scope || !sample?.minor) return;
+  const input = scope.querySelector('[data-accept-standard-label]');
+  if (input) input.value = `${sample.minor}验收标准`;
+}
+
+const WMS_EXECUTE_SUPPLIERS = [
+  '华建物资有限公司',
+  '鄂东办公用品',
+  '科尼',
+  '上海佩纳',
+  '河南蒲瑞',
+  '江苏华能电子有限公司',
+  '宁波北仑君威有限公司',
+];
+
+function getQuoteNestedTable(el) {
+  return el?.closest('.wms-execute-quote-nested');
+}
+
+function getQuoteSelectedSuppliers(nestedTable, excludeWrap) {
+  return [...(nestedTable?.querySelectorAll('[data-wms-supplier-select]') || [])]
+    .filter(w => w !== excludeWrap)
+    .map(w => w.dataset.selectedValue || '')
+    .filter(Boolean);
+}
+
+function refreshSupplierSelectOptions(nestedTable) {
+  if (!nestedTable) return;
+  nestedTable.querySelectorAll('[data-wms-supplier-select]').forEach(wrap => {
+    const filter = wrap.querySelector('.wms-search-select-filter');
+    const query = filter?.value || '';
+    const options = [...wrap.querySelectorAll('.wms-search-select-option')];
+    const taken = getQuoteSelectedSuppliers(nestedTable, wrap);
+    options.forEach(opt => {
+      const value = opt.dataset.value || opt.textContent.trim();
+      const match = !query || value.toLowerCase().includes(query.trim().toLowerCase());
+      const disabled = taken.includes(value);
+      opt.classList.toggle('hidden', !match || disabled);
+      opt.classList.toggle('opacity-40', disabled);
+      opt.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+    });
+  });
+}
+
+function initSearchableSupplierSelect(wrap) {
+  if (wrap.dataset.wmsBound) return;
+  wrap.dataset.wmsBound = '1';
+  const input = wrap.querySelector('.wms-search-select-input');
+  const filter = wrap.querySelector('.wms-search-select-filter');
+  const panel = wrap.querySelector('.wms-search-select-panel');
+  const toggle = wrap.querySelector('.wms-search-select-toggle');
+  const options = [...wrap.querySelectorAll('.wms-search-select-option')];
+  const nestedTable = getQuoteNestedTable(wrap);
+  if (!input || !panel) return;
+
+  const open = () => {
+    panel.classList.remove('hidden');
+    input.setAttribute('aria-expanded', 'true');
+    if (filter) {
+      filter.value = '';
+      refreshSupplierSelectOptions(nestedTable);
+      filter.focus();
+    }
+  };
+
+  const close = () => {
+    panel.classList.add('hidden');
+    input.setAttribute('aria-expanded', 'false');
+  };
+
+  const selectOption = (opt) => {
+    const value = opt.dataset.value || opt.textContent.trim();
+    if (getQuoteSelectedSuppliers(nestedTable, wrap).includes(value)) {
+      showMaterialToast('同一物资下供应商不能重复');
+      return;
+    }
+    wrap.dataset.selectedValue = value;
+    input.value = value;
+    close();
+    refreshSupplierSelectOptions(nestedTable);
+  };
+
+  input.addEventListener('focus', open);
+  input.addEventListener('click', open);
+  toggle?.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    panel.classList.contains('hidden') ? open() : close();
+  });
+  filter?.addEventListener('input', () => refreshSupplierSelectOptions(nestedTable));
+  options.forEach(opt => opt.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    selectOption(opt);
+  }));
+  input.addEventListener('blur', () => {
+    setTimeout(() => {
+      if (!wrap.contains(document.activeElement)) {
+        const value = input.value.trim();
+        if (!value) {
+          delete wrap.dataset.selectedValue;
+          refreshSupplierSelectOptions(nestedTable);
+          return;
+        }
+        if (getQuoteSelectedSuppliers(nestedTable, wrap).includes(value)) {
+          showMaterialToast('同一物资下供应商不能重复');
+          input.value = wrap.dataset.selectedValue || '';
+          return;
+        }
+        if (!WMS_EXECUTE_SUPPLIERS.includes(value)) {
+          input.value = wrap.dataset.selectedValue || '';
+          return;
+        }
+        wrap.dataset.selectedValue = value;
+        refreshSupplierSelectOptions(nestedTable);
+      }
+      close();
+    }, 120);
+  });
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) close();
+  });
+}
+
+function initQuoteSelectedLogic(table) {
+  const selects = [...table.querySelectorAll('[data-wms-quote-selected]')];
+  if (!selects.length) return;
+  selects.forEach(sel => {
+    sel.addEventListener('change', () => {
+      if (sel.value !== 'yes') return;
+      selects.forEach(other => {
+        if (other !== sel && other.value === 'yes') other.value = 'no';
+      });
+    });
+  });
+}
+
+function initPurchaseExecuteQuoteForm(root) {
+  const form = document.querySelector('.wms-modal-backdrop .wms-execute-form') || document.querySelector('.wms-execute-form');
+  if (!form) return;
+  form.querySelectorAll('[data-wms-supplier-select]').forEach(initSearchableSupplierSelect);
+  form.querySelectorAll('.wms-execute-quote-nested').forEach(initQuoteSelectedLogic);
+}
+
 function initAcceptanceFormInteraction(root) {
   if (root.dataset.page !== 'warehouse_acceptance_list') return;
   if (!(root.dataset.title || '').includes('物资验收') && !(root.dataset.title || '').includes('执行验收')) return;
@@ -873,6 +1146,13 @@ function initAcceptanceFormInteraction(root) {
   disposition?.addEventListener('change', syncHint);
   unqualified?.addEventListener('input', syncHint);
   syncHint();
+
+  scope.querySelector('[data-wms-acceptance-standard-view]')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    const major = scope.querySelector('[data-accept-field="major"]')?.textContent?.trim() || '';
+    const minor = scope.querySelector('[data-accept-field="minor"]')?.textContent?.trim() || '';
+    showAcceptanceStandardDialog(major, minor);
+  });
 }
 
 function initLocationList(root) {
@@ -1429,11 +1709,11 @@ function initAcceptanceStandard(root) {
   const nodes = [...layout.querySelectorAll('[data-acceptance-key]')];
 
   const standards = {
-    fixed: { label: '固定资产', content: '' },
-    like: { label: '类资产', content: '1. 外观完好，无锈蚀、变形\n2. 铭牌信息齐全，规格型号与采购清单一致\n3. 随机配件、说明书数量完整\n4. 通电/试运行正常（适用时）' },
-    bg: { label: '办公耗材', content: '包装完整无破损；数量清点准确；生产日期在有效期内；无受潮、污染。' },
-    sc: { label: '生产耗材', content: '' },
-    lb: { label: '劳保耗材', content: '' },
+    fixed: { label: '固定资产', content: WMS_ACCEPTANCE_STANDARD_CONTENT['设备-配件'] || '' },
+    like: { label: '类资产', content: WMS_ACCEPTANCE_STANDARD_CONTENT['电动工具'] || '' },
+    bg: { label: '办公耗材', content: WMS_ACCEPTANCE_STANDARD_CONTENT['办公用纸'] || '' },
+    sc: { label: '生产耗材', content: WMS_ACCEPTANCE_STANDARD_CONTENT['设备-配件'] || '' },
+    lb: { label: '劳保耗材', content: WMS_ACCEPTANCE_STANDARD_CONTENT['安全防护'] || '' },
   };
 
   let activeKey = 'fixed';
@@ -2098,6 +2378,7 @@ function fillAcceptanceSupplyFields(scope, sample) {
       else el.textContent = sample[key];
     }
   });
+  updateAcceptanceStandardField(scope, sample);
 }
 
 function wmsRefundFormHref(refundKey, back = 'warehouse_refund_list.html') {
@@ -2252,6 +2533,37 @@ function initAcceptanceRecordDetailFromQuery(root) {
 
   const titleEl = document.getElementById('wms-modal-title');
   if (titleEl) titleEl.textContent = `验收记录详情 · ${recordNo}`;
+}
+
+function initAcceptanceAuditFormFromQuery(root) {
+  if (root.dataset.page !== 'warehouse_acceptance_audit_list') return;
+  if (!(root.dataset.title || '').includes('验收审核')) return;
+  const scope = document.querySelector('.wms-modal-backdrop') || root;
+  const form = scope.querySelector('[data-wms-acceptance-audit-form]');
+  if (!form) return;
+
+  const params = new URLSearchParams(window.location.search);
+  const recordNo = params.get('no');
+  const backHref = params.get('back') || 'warehouse_acceptance_audit_list.html';
+  if (!recordNo) return;
+
+  const d = WMS_ACCEPTANCE_RECORD_DETAIL_SAMPLES[recordNo];
+  if (!d) return;
+
+  scope.querySelectorAll('[data-accept-record-field]').forEach(el => {
+    const key = el.dataset.acceptRecordField;
+    if (d[key] !== undefined) {
+      if (el.tagName === 'TEXTAREA') el.value = d[key];
+      else el.value = d[key];
+    }
+  });
+
+  scope.querySelectorAll('[data-accept-audit-back], .wms-modal-close').forEach(a => {
+    a.setAttribute('href', backHref);
+  });
+
+  const titleEl = document.getElementById('wms-modal-title');
+  if (titleEl) titleEl.textContent = `验收审核 · ${recordNo}`;
 }
 
 function initAcceptanceFromQuery(root) {
