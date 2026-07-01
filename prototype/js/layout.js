@@ -406,7 +406,6 @@ function initLayout() {
   initAssetPageFromQuery(root);
   initShelfQrPageFromQuery(root);
   initShelfFormFromQuery(root);
-  initInboundLocScan(root);
   initTransactionPageFromQuery(root);
   initRequisitionRecordFromQuery(root);
   initAcceptanceFromQuery(root);
@@ -2793,30 +2792,6 @@ function initShelfFormFromQuery(root) {
 
   const titleEl = document.getElementById('wms-modal-title');
   if (titleEl) titleEl.textContent = `货架详情 · ${code}`;
-}
-
-function initInboundLocScan(root) {
-  if (root.dataset.page !== 'warehouse_inbound_list') return;
-  const scanBtn = document.querySelector('#wms-inbound-scan-loc');
-  if (!scanBtn) return;
-
-  scanBtn.addEventListener('click', () => {
-    const demoCode = 'CK001001-HJ001';
-    const shelf = WMS_SHELF_SAMPLES[demoCode];
-    if (!shelf || !shelf.enabled) {
-      showQrToast('货位码无效或货架已停用');
-      return;
-    }
-
-    const row = document.querySelector('[data-inbound-loc-row]');
-    if (!row) return;
-
-    const wh = row.querySelector('[data-inbound-warehouse]');
-    const sh = row.querySelector('[data-inbound-shelf]');
-    if (wh) [...wh.options].forEach(o => { o.selected = o.textContent.trim() === (shelf.inboundWarehouse || '主仓库'); });
-    if (sh) [...sh.options].forEach(o => { o.selected = o.textContent.trim() === (shelf.inboundShelf || demoCode); });
-    showQrToast(`已识别货位码：${demoCode}（${shelf.name}）`);
-  });
 }
 
 function initInboundLocationRows(pendingQty, isFixed) {

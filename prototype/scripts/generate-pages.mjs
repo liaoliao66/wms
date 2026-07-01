@@ -2425,6 +2425,35 @@ function requisitionMaterialTable(rows = REQUISITION_FORM_SAMPLE_ROWS, { addHref
   </div>`;
 }
 
+const APPLY_PLAN_FORM_SAMPLE_ROWS = [
+  { code: 'HC-00089', name: '打印纸 A4', major: '耗材-办公耗材', minor: '办公用纸', stock: '170', planQty: '1', needDate: '2026-06-29' },
+];
+
+function applyPlanDetailTable(rows = APPLY_PLAN_FORM_SAMPLE_ROWS, { addHref = 'apply_plan_select_material.html' } = {}) {
+  const cols = ['物资编码', '物资名称', '物资大类', '物资子类', '在库数量', '计划需求数量', '计划需要日期'];
+  const th = cols.map(c => {
+    const req = c === '计划需求数量' || c === '计划需要日期' ? '<span class="text-rose-500">*</span> ' : '';
+    return `<th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${req}${c}</th>`;
+  }).join('');
+  const qtyCls = 'w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200';
+  const dateCls = 'w-[132px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200';
+  const tr = rows.map(r => `<tr class="border-t border-slate-100 hover:bg-slate-50/60" data-apply-plan-row>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">${r.code}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.name}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.major}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.minor}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.stock}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="number" min="1" value="${r.planQty || '1'}" class="${qtyCls}" data-apply-plan-qty /></td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="date" value="${r.needDate || '2026-06-29'}" class="${dateCls}" data-apply-plan-need-date /></td>
+    </tr>`).join('');
+  return `<div class="md:col-span-2 rounded-xl bg-slate-50 p-4" data-wms-apply-plan-lines>
+      <div class="mb-3 flex items-center justify-between"><span class="text-sm font-medium text-slate-900">计划明细</span>
+        <a href="${addHref}" class="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-plus"></i> 选择物资清单</a></div>
+      <div class="overflow-x-auto wms-modal-table-wrap rounded-xl border border-slate-200 bg-white">
+        <table class="min-w-[720px] w-full text-sm wms-data-table"><thead class="bg-slate-50/90"><tr>${th}</tr></thead><tbody>${tr}</tbody></table>
+      </div></div>`;
+}
+
 function requisitionFormPage(backHref = 'apply_requisition_list.html') {
   const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
   const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
@@ -3081,10 +3110,6 @@ function inboundLocationsSection(viewMode = false, locations = []) {
     </div>
     <div data-inbound-loc-list>${inboundLocationRowHtml(false)}</div>
     <p class="mt-2 text-xs text-slate-500">入库的物资可能存放在不同位置；各行数量之和不超过待入库数量 <strong data-inbound-pending-qty-display>—</strong></p>
-    <div class="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-sky-100 bg-sky-50/80 p-3" data-wms-inbound-loc-scan>
-      <button type="button" id="wms-inbound-scan-loc" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-qrcode"></i> 扫描货位码</button>
-      <span class="text-xs text-slate-600">扫描 <code class="rounded bg-white/80 px-1">wms://loc/</code> 货位码自动填充首行仓库/货架（演示：CK001001-HJ001）</span>
-    </div>
   </div>`;
 }
 
@@ -5327,8 +5352,6 @@ function purchaseRequestForm(backHref, options = {}) {
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">采购类型</label><input type="text" value="急件采购" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">采购总额（元）</label><input type="text" value="${total}" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
         ${sourceBlock}
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交人</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>张三</option><option selected>李四</option><option>王五</option></select></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交部门</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>采购部</option><option>设备部</option><option>工程部</option></select></div>
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">备注</label><textarea rows="2" placeholder="请输入备注" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
         <div class="md:col-span-2">
           <label class="mb-1.5 block text-sm font-medium text-slate-700">附件</label>
@@ -5355,6 +5378,8 @@ function purchaseRequestForm(backHref, options = {}) {
             <label class="wms-radio-option"><input type="radio" name="purchase-method" /><span>招标</span></label>
           </div>
         </div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交人</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>张三</option><option selected>李四</option><option>王五</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 提交部门</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>采购部</option><option>设备部</option><option>工程部</option></select></div>
       </div>
       <div class="wms-modal-footer">
         <a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a>
@@ -7648,11 +7673,8 @@ const forms = {
     ['计划类型', 'select', ['一般计划', '急件计划'], true],
     ['需求说明', 'textarea', '', false],
   ], 'apply_plan_list.html', {
-    extraHtml: `<div class="md:col-span-2 rounded-xl bg-slate-50 p-4">
-      <div class="mb-3 flex items-center justify-between"><span class="text-sm font-medium text-slate-900">计划明细</span>
-        <a href="apply_plan_select_material.html" class="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-plus"></i> 选择物资清单</a></div>
-      <table class="min-w-full text-sm"><thead><tr class="text-left text-xs text-slate-500"><th class="pb-2">物资编码</th><th class="pb-2">名称</th><th class="pb-2">数量</th><th class="pb-2">需求日期</th></tr></thead>
-      <tbody><tr><td class="pt-2">HC-00089</td><td>打印纸 A4</td><td>200</td><td>2026-06-20</td></tr></tbody></table></div>`,
+    modalSize: 'xl',
+    extraHtml: applyPlanDetailTable(),
   })),
 
   apply_requisition_form: page('apply_requisition_list', '领用申请', '物资申请 / 领用申请', requisitionFormPage('apply_requisition_list.html')),
