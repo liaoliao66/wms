@@ -3,29 +3,182 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>新增退货 · 物资管理系统</title>
+  <title>发起退货 · 物资管理系统</title>
   <link rel="stylesheet" href="../css/tailwind.css" />
   <link rel="stylesheet" href="../css/custom.css" />
   <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
 </head>
-<body data-page="warehouse_refund_list" data-title="新增退货" data-breadcrumb="物资管理 / 新增退货">
+<body data-page="warehouse_refund_list" data-title="发起退货" data-breadcrumb="物资管理 / 发起退货">
   <div id="main-content">
-    <div class="mb-4"><a href="warehouse_refund_list.html" class="text-sm text-slate-500 hover:text-slate-900"><i class="fa-solid fa-arrow-left mr-1"></i>返回</a></div>
-    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-    <a href="warehouse_refund_list.html" class="card flex items-start gap-4 rounded-2xl bg-white p-5 hover:ring-1 hover:ring-slate-200 transition">
-      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid fa-list-check"></i></div>
-      <div><div class="font-semibold text-slate-900">从待退货任务</div><p class="mt-1 text-sm text-slate-500">推荐：验收不合格审核通过后自动生成待退任务</p></div>
-      <i class="fa-solid fa-chevron-right ml-auto text-slate-300 text-xs mt-1"></i>
-    </a>
-    <a href="warehouse_refund_pre_form.html?refundKey=GH2025004-YS02-TH" class="card flex items-start gap-4 rounded-2xl bg-white p-5 hover:ring-1 hover:ring-slate-200 transition">
-      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid fa-clipboard-check"></i></div>
-      <div><div class="font-semibold text-slate-900">验收不合格退货</div><p class="mt-1 text-sm text-slate-500">示例：螺丝刀验收不合格退供应商</p></div>
-      <i class="fa-solid fa-chevron-right ml-auto text-slate-300 text-xs mt-1"></i>
-    </a>
-    <a href="warehouse_refund_consumable_form.html?refundKey=RK202509002-TH01" class="card flex items-start gap-4 rounded-2xl bg-white p-5 hover:ring-1 hover:ring-slate-200 transition">
+    <div data-wms-modal data-modal-back="warehouse_refund_list.html" data-modal-size="xl" data-wms-refund-create>
+      <div class="wms-refund-create-body">
+        <div data-refund-create-step="scenario">
+          <p class="mb-4 text-sm text-slate-600">请选择退货场景，系统将展示对应的待退任务与表单入口。</p>
+          <div class="grid gap-3 sm:grid-cols-1">
+            
+    <button type="button" class="wms-refund-create-scenario flex w-full items-start gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 hover:shadow-sm" data-refund-create-scenario="pending">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700"><i class="fa-solid fa-list-check"></i></div>
+      <div class="min-w-0 flex-1"><div class="font-semibold text-slate-900">从待退任务执行</div><p class="mt-1 text-sm text-slate-500">推荐：验收不合格或在库问题自动生成的待退货/部分退货任务</p></div>
+      <i class="fa-solid fa-chevron-right mt-1 shrink-0 text-xs text-slate-300"></i>
+    </button>
+            
+    <button type="button" class="wms-refund-create-scenario flex w-full items-start gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 hover:shadow-sm" data-refund-create-scenario="pre_inbound">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50 text-orange-600"><i class="fa-solid fa-clipboard-check"></i></div>
+      <div class="min-w-0 flex-1"><div class="font-semibold text-slate-900">验收不合格退货</div><p class="mt-1 text-sm text-slate-500">物资尚未入账面或验收阶段不合格，按不合格数量退供应商</p></div>
+      <i class="fa-solid fa-chevron-right mt-1 shrink-0 text-xs text-slate-300"></i>
+    </button>
+            
+    <button type="button" class="wms-refund-create-scenario flex w-full items-start gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 hover:shadow-sm" data-refund-create-scenario="post_inbound">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700"><i class="fa-solid fa-warehouse"></i></div>
+      <div class="min-w-0 flex-1"><div class="font-semibold text-slate-900">在库退供应商</div><p class="mt-1 text-sm text-slate-500">已入库物资发现质量问题或多供，需扣减库存后退回供应商</p></div>
+      <i class="fa-solid fa-chevron-right mt-1 shrink-0 text-xs text-slate-300"></i>
+    </button>
+          </div>
+        </div>
+
+        <div class="hidden" data-refund-create-step="pending">
+          <div class="mb-4 rounded-xl border border-emerald-100 bg-emerald-50/50 p-3 text-sm text-slate-700">
+            <i class="fa-solid fa-circle-info mr-1 text-emerald-600"></i>以下为系统中<strong>待退货</strong>与<strong>部分退货</strong>任务，点击「去退货」进入对应场景表单。
+          </div>
+          <div class="wms-modal-table-wrap overflow-x-auto rounded-xl border border-slate-200">
+    <table class="min-w-[720px] w-full text-sm wms-data-table"><thead class="bg-slate-50/90"><tr><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">退货场景</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资类型</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">供货单号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">验收/入库单号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">待退数量</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">状态</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/60">
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">验收前</span></td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="text-xs text-slate-400">—</span></td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">GH2025004</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">GH2025004-YS02</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800 whitespace-nowrap">螺丝刀</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900 whitespace-nowrap">1 个</td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待退货</span></td>
+      <td class="px-3 py-2.5 text-right whitespace-nowrap"><a href="warehouse_refund_pre_form.html?refundKey=GH2025004-YS02-TH&back=warehouse_refund_list.html" class="text-sm font-medium text-slate-900 hover:underline">去退货</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/60">
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">验收前</span></td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="text-xs text-slate-400">—</span></td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">GH2025003</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">GH2025003-YS01</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800 whitespace-nowrap">钢丝绳</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900 whitespace-nowrap">20 m</td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">部分退货</span></td>
+      <td class="px-3 py-2.5 text-right whitespace-nowrap"><a href="warehouse_refund_pre_form.html?refundKey=GH2025003-YS01-TH&back=warehouse_refund_list.html" class="text-sm font-medium text-slate-900 hover:underline">去退货</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/60">
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">在库</span></td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">耗材</span></td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">GH2025002</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">RK202509002</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800 whitespace-nowrap">安全帽</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900 whitespace-nowrap">50 顶</td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待退货</span></td>
+      <td class="px-3 py-2.5 text-right whitespace-nowrap"><a href="warehouse_refund_consumable_form.html?refundKey=RK202509002-TH01&back=warehouse_refund_list.html" class="text-sm font-medium text-slate-900 hover:underline">去退货</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/60">
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">在库</span></td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">固定资产</span></td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">GH2025004</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">RK202511220001</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800 whitespace-nowrap">螺丝刀</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900 whitespace-nowrap">1 个</td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待退货</span></td>
+      <td class="px-3 py-2.5 text-right whitespace-nowrap"><a href="warehouse_refund_fixed_form.html?refundKey=RK202511220001-TH&back=warehouse_refund_list.html" class="text-sm font-medium text-slate-900 hover:underline">去退货</a></td>
+    </tr></tbody></table>
+  </div>
+        </div>
+
+        <div class="hidden" data-refund-create-step="pre_inbound">
+          <div class="mb-4 rounded-xl border border-orange-100 bg-orange-50/50 p-3 text-sm text-slate-700">
+            <i class="fa-solid fa-clipboard-check mr-1 text-orange-500"></i><strong>验收前退货</strong>：不扣减货位账本，减少待入库量；支持分批退货，合格品可继续入库。
+          </div>
+          <div class="wms-modal-table-wrap overflow-x-auto rounded-xl border border-slate-200">
+    <table class="min-w-[720px] w-full text-sm wms-data-table"><thead class="bg-slate-50/90"><tr><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">退货场景</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资类型</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">供货单号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">验收/入库单号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">待退数量</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">状态</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/60">
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">验收前</span></td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="text-xs text-slate-400">—</span></td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">GH2025004</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">GH2025004-YS02</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800 whitespace-nowrap">螺丝刀</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900 whitespace-nowrap">1 个</td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待退货</span></td>
+      <td class="px-3 py-2.5 text-right whitespace-nowrap"><a href="warehouse_refund_pre_form.html?refundKey=GH2025004-YS02-TH&back=warehouse_refund_list.html" class="text-sm font-medium text-slate-900 hover:underline">去退货</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/60">
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">验收前</span></td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="text-xs text-slate-400">—</span></td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">GH2025003</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">GH2025003-YS01</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800 whitespace-nowrap">钢丝绳</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900 whitespace-nowrap">20 m</td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">部分退货</span></td>
+      <td class="px-3 py-2.5 text-right whitespace-nowrap"><a href="warehouse_refund_pre_form.html?refundKey=GH2025003-YS01-TH&back=warehouse_refund_list.html" class="text-sm font-medium text-slate-900 hover:underline">去退货</a></td>
+    </tr></tbody></table>
+  </div>
+        </div>
+
+        <div class="hidden" data-refund-create-step="post_inbound_type">
+          <p class="mb-4 text-sm text-slate-600">在库退货须按物资类型执行，扣减规则与出库策略一致。</p>
+          <div class="grid gap-3 sm:grid-cols-1">
+            
+    <button type="button" class="wms-refund-create-type flex w-full items-start gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 hover:shadow-sm" data-refund-create-type="fixed">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid fa-computer"></i></div>
+      <div class="min-w-0 flex-1"><div class="font-semibold text-slate-900">固定资产退货</div><p class="mt-1 text-sm text-slate-500">须绑定在库资产编码，一码一物</p></div>
+      <i class="fa-solid fa-chevron-right mt-1 shrink-0 text-xs text-slate-300"></i>
+    </button>
+            
+    <button type="button" class="wms-refund-create-type flex w-full items-start gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 hover:shadow-sm" data-refund-create-type="like">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+      <div class="min-w-0 flex-1"><div class="font-semibold text-slate-900">类资产退货</div><p class="mt-1 text-sm text-slate-500">指定货位扣减数量，支持分批</p></div>
+      <i class="fa-solid fa-chevron-right mt-1 shrink-0 text-xs text-slate-300"></i>
+    </button>
+            
+    <button type="button" class="wms-refund-create-type flex w-full items-start gap-4 rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:border-slate-300 hover:shadow-sm" data-refund-create-type="consumable">
       <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid fa-boxes-stacked"></i></div>
-      <div><div class="font-semibold text-slate-900">在库耗材退货</div><p class="mt-1 text-sm text-slate-500">示例：安全帽在库退供应商</p></div>
-      <i class="fa-solid fa-chevron-right ml-auto text-slate-300 text-xs mt-1"></i>
-    </a></div></div>
+      <div class="min-w-0 flex-1"><div class="font-semibold text-slate-900">耗材退货</div><p class="mt-1 text-sm text-slate-500">填写退货数量，系统按 FIFO 自动扣减</p></div>
+      <i class="fa-solid fa-chevron-right mt-1 shrink-0 text-xs text-slate-300"></i>
+    </button>
+          </div>
+        </div>
+
+        <div class="hidden" data-refund-create-step="post_inbound_fixed">
+          <div class="mb-4 rounded-xl border border-blue-100 bg-blue-50/50 p-3 text-sm text-slate-700">
+            <i class="fa-solid fa-computer mr-1 text-blue-500"></i><strong>固定资产在库退货</strong>：选择资产编码后确认，资产状态变为已退供应商。
+          </div>
+          <div class="wms-modal-table-wrap overflow-x-auto rounded-xl border border-slate-200">
+    <table class="min-w-[720px] w-full text-sm wms-data-table"><thead class="bg-slate-50/90"><tr><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">退货场景</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资类型</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">供货单号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">验收/入库单号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">待退数量</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">状态</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/60">
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">在库</span></td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">固定资产</span></td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">GH2025004</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">RK202511220001</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800 whitespace-nowrap">螺丝刀</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900 whitespace-nowrap">1 个</td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待退货</span></td>
+      <td class="px-3 py-2.5 text-right whitespace-nowrap"><a href="warehouse_refund_fixed_form.html?refundKey=RK202511220001-TH&back=warehouse_refund_list.html" class="text-sm font-medium text-slate-900 hover:underline">去退货</a></td>
+    </tr></tbody></table>
+  </div>
+        </div>
+
+        <div class="hidden" data-refund-create-step="post_inbound_like">
+          <div class="mb-4 rounded-xl border border-amber-100 bg-amber-50/50 p-3 text-sm text-slate-700">
+            <i class="fa-solid fa-screwdriver-wrench mr-1 text-amber-600"></i><strong>类资产在库退货</strong>：从指定货位扣减库存后退至供应商。
+          </div>
+          <p class="rounded-xl border border-dashed border-slate-200 bg-slate-50/60 px-4 py-8 text-center text-sm text-slate-500">暂无在库类资产待退任务</p>
+        </div>
+
+        <div class="hidden" data-refund-create-step="post_inbound_consumable">
+          <div class="mb-4 rounded-xl border border-emerald-100 bg-emerald-50/50 p-3 text-sm text-slate-700">
+            <i class="fa-solid fa-boxes-stacked mr-1 text-emerald-600"></i><strong>耗材在库退货</strong>：填写数量后系统按 FIFO 从最早批次扣减。
+          </div>
+          <div class="wms-modal-table-wrap overflow-x-auto rounded-xl border border-slate-200">
+    <table class="min-w-[720px] w-full text-sm wms-data-table"><thead class="bg-slate-50/90"><tr><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">退货场景</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资类型</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">供货单号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">验收/入库单号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">待退数量</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">状态</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/60">
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">在库</span></td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">耗材</span></td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">GH2025002</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">RK202509002</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800 whitespace-nowrap">安全帽</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900 whitespace-nowrap">50 顶</td>
+      <td class="px-3 py-2.5 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待退货</span></td>
+      <td class="px-3 py-2.5 text-right whitespace-nowrap"><a href="warehouse_refund_consumable_form.html?refundKey=RK202509002-TH01&back=warehouse_refund_list.html" class="text-sm font-medium text-slate-900 hover:underline">去退货</a></td>
+    </tr></tbody></table>
+  </div>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <button type="button" class="hidden wms-btn wms-btn-secondary" data-refund-create-back>上一步</button>
+        <a href="warehouse_refund_list.html" class="wms-btn wms-btn-secondary" data-refund-create-cancel>取消</a>
+      </div>
+    </div></div>
   <script src="../js/layout.js" charset="UTF-8"></script>
 </body></html>

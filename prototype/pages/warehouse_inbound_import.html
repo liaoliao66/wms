@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>批量导入入库 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_inbound_list" data-title="批量导入入库" data-breadcrumb="物资管理 / 批量导入">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="warehouse_inbound_list.html" data-modal-size="lg" data-wms-inbound-import>
+      <p class="mb-4 text-sm text-slate-500"><span class="mr-2"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">手动入库</span></span>批量导入<strong>手动入库</strong>货位信息，适用于已有物资期初库存或历史数据补录，不关联验收单。</p>
+      <div class="wms-modal-form space-y-4">
+        <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4">
+          <div class="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-800"><i class="fa-solid fa-file-arrow-down text-slate-500"></i> 1. 下载模板</div>
+          <p class="mb-3 text-xs text-slate-500">模板含：入库来源（固定为手动入库）、物资编码、仓库、货架、架层、入库数量、入库日期、备注。</p>
+          <button type="button" class="inline-flex items-center gap-1.5 rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-inbound-import-template><i class="fa-solid fa-download text-xs text-slate-400"></i>下载 Excel 模板</button>
+        </div>
+        <div class="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center" data-wms-inbound-import-drop>
+          <i class="fa-solid fa-cloud-arrow-up mb-2 text-2xl text-slate-300"></i>
+          <p class="text-sm text-slate-600">拖拽文件到此处，或 <label class="cursor-pointer font-medium text-slate-900 hover:underline"><input type="file" accept=".xlsx,.xls,.csv" class="hidden" data-wms-inbound-import-file />选择文件</label></p>
+          <p class="mt-1 text-xs text-slate-400">支持 .xlsx / .xls / .csv，单次不超过 500 行</p>
+          <p class="mt-2 hidden text-sm text-emerald-700" data-wms-inbound-import-filename></p>
+        </div>
+        <div class="rounded-lg border border-amber-100 bg-amber-50/50 px-4 py-3 text-xs text-amber-900">
+          <strong>校验规则：</strong>物资编码须存在于物资清单；各行数量按物资类型校验（固资每行 qty=1）；货位须为启用状态。导入记录入库来源均为<strong>手动入库</strong>。
+        </div>
+      </div>
+      <div class="wms-modal-footer mt-4">
+        <a href="warehouse_inbound_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-primary" data-wms-inbound-import-submit>开始导入</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

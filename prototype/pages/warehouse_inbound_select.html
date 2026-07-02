@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>验收入库 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_inbound_list" data-title="验收入库" data-breadcrumb="物资管理 / 验收入库">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="warehouse_inbound_list.html" data-modal-size="xl" data-wms-inbound-select>
+      <p class="mb-4 text-sm text-slate-500"><span class="mr-2"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">验收入库</span></span>从已通过验收的待入库记录中选择，进入验收入库表单。列表数据较多时可用搜索快速定位。</p>
+      <div class="mb-3 flex w-full flex-nowrap items-center justify-end gap-2 overflow-x-auto" data-wms-list-toolbar>
+        <div class="relative shrink-0 w-[280px]">
+    <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+    <input type="search" data-wms-list-search placeholder="验收单号、供货单号、物资编码、名称…" class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-9 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+    <button type="button" data-wms-list-search-clear class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" title="清空"><i class="fa-solid fa-xmark text-xs"></i></button>
+  </div>
+      </div>
+      <div class="overflow-hidden rounded-xl border border-slate-200">
+        <div class="overflow-x-auto wms-modal-table-wrap max-h-[420px]"><table class="min-w-full wms-data-table"><thead class="bg-slate-50/80 sticky top-0"><tr><th class="w-10 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap"></th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">入库来源</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">验收单号</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">供货单号</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资类型</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">合格</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">待入库</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">验收日期</th><th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody data-wms-inbound-select-tbody><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-inbound-select-row data-form-href="warehouse_inbound_fixed_form.html?acceptNo=GH2025001-YS01&back=warehouse_inbound_list.html">
+      <td class="px-4 py-3"><input type="radio" name="inbound_select" class="border-slate-300 text-slate-900 focus:ring-slate-400" checked data-wms-inbound-select-radio /></td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">验收入库</span></td>
+      <td class="px-4 py-3.5 font-mono text-xs text-slate-800 whitespace-nowrap">GH2025001-YS01</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">GH2025001</td>
+      <td class="px-4 py-3.5 font-mono text-xs text-slate-700 whitespace-nowrap">GD001001-001</td>
+      <td class="px-4 py-3.5 text-sm text-slate-900 whitespace-nowrap">抓斗</td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">固定资产</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">10</td>
+      <td class="px-4 py-3.5 text-sm font-medium text-amber-700 whitespace-nowrap">10</td>
+      <td class="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">2025-11-15</td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><a href="warehouse_inbound_fixed_form.html?acceptNo=GH2025001-YS01&back=warehouse_inbound_list.html" class="hover:underline">去入库</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-inbound-select-row data-form-href="warehouse_inbound_like_form.html?acceptNo=GH2025003-YS01&back=warehouse_inbound_list.html">
+      <td class="px-4 py-3"><input type="radio" name="inbound_select" class="border-slate-300 text-slate-900 focus:ring-slate-400" data-wms-inbound-select-radio /></td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">验收入库</span></td>
+      <td class="px-4 py-3.5 font-mono text-xs text-slate-800 whitespace-nowrap">GH2025003-YS01</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">GH2025003</td>
+      <td class="px-4 py-3.5 font-mono text-xs text-slate-700 whitespace-nowrap">LA-00456</td>
+      <td class="px-4 py-3.5 text-sm text-slate-900 whitespace-nowrap">钢丝绳</td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">类资产</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">50</td>
+      <td class="px-4 py-3.5 text-sm font-medium text-amber-700 whitespace-nowrap">20</td>
+      <td class="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">2025-11-20</td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><a href="warehouse_inbound_like_form.html?acceptNo=GH2025003-YS01&back=warehouse_inbound_list.html" class="hover:underline">去入库</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-inbound-select-row data-form-href="warehouse_inbound_like_form.html?acceptNo=GH2025004-YS01&back=warehouse_inbound_list.html">
+      <td class="px-4 py-3"><input type="radio" name="inbound_select" class="border-slate-300 text-slate-900 focus:ring-slate-400" data-wms-inbound-select-radio /></td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">验收入库</span></td>
+      <td class="px-4 py-3.5 font-mono text-xs text-slate-800 whitespace-nowrap">GH2025004-YS01</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">GH2025004</td>
+      <td class="px-4 py-3.5 font-mono text-xs text-slate-700 whitespace-nowrap">LA-00456</td>
+      <td class="px-4 py-3.5 text-sm text-slate-900 whitespace-nowrap">电钻</td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">类资产</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">9</td>
+      <td class="px-4 py-3.5 text-sm font-medium text-amber-700 whitespace-nowrap">9</td>
+      <td class="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">2025-11-22</td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><a href="warehouse_inbound_like_form.html?acceptNo=GH2025004-YS01&back=warehouse_inbound_list.html" class="hover:underline">去入库</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-inbound-select-row data-form-href="warehouse_inbound_consumable_form.html?acceptNo=GH2025006-YS01&back=warehouse_inbound_list.html">
+      <td class="px-4 py-3"><input type="radio" name="inbound_select" class="border-slate-300 text-slate-900 focus:ring-slate-400" data-wms-inbound-select-radio /></td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">验收入库</span></td>
+      <td class="px-4 py-3.5 font-mono text-xs text-slate-800 whitespace-nowrap">GH2025006-YS01</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">GH2025006</td>
+      <td class="px-4 py-3.5 font-mono text-xs text-slate-700 whitespace-nowrap">HC-00089</td>
+      <td class="px-4 py-3.5 text-sm text-slate-900 whitespace-nowrap">打印纸 A4</td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">耗材</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">200</td>
+      <td class="px-4 py-3.5 text-sm font-medium text-amber-700 whitespace-nowrap">200</td>
+      <td class="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">2025-11-25</td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><a href="warehouse_inbound_consumable_form.html?acceptNo=GH2025006-YS01&back=warehouse_inbound_list.html" class="hover:underline">去入库</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-inbound-select-row data-form-href="warehouse_inbound_fixed_form.html?acceptNo=GH2025007-YS01&back=warehouse_inbound_list.html">
+      <td class="px-4 py-3"><input type="radio" name="inbound_select" class="border-slate-300 text-slate-900 focus:ring-slate-400" data-wms-inbound-select-radio /></td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">验收入库</span></td>
+      <td class="px-4 py-3.5 font-mono text-xs text-slate-800 whitespace-nowrap">GH2025007-YS01</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">GH2025007</td>
+      <td class="px-4 py-3.5 font-mono text-xs text-slate-700 whitespace-nowrap">GD001001-006</td>
+      <td class="px-4 py-3.5 text-sm text-slate-900 whitespace-nowrap">挖掘机铲斗</td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">固定资产</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">5</td>
+      <td class="px-4 py-3.5 text-sm font-medium text-amber-700 whitespace-nowrap">5</td>
+      <td class="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">2025-11-28</td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><a href="warehouse_inbound_fixed_form.html?acceptNo=GH2025007-YS01&back=warehouse_inbound_list.html" class="hover:underline">去入库</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-inbound-select-row data-form-href="warehouse_inbound_consumable_form.html?acceptNo=GH2025008-YS01&back=warehouse_inbound_list.html">
+      <td class="px-4 py-3"><input type="radio" name="inbound_select" class="border-slate-300 text-slate-900 focus:ring-slate-400" data-wms-inbound-select-radio /></td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">验收入库</span></td>
+      <td class="px-4 py-3.5 font-mono text-xs text-slate-800 whitespace-nowrap">GH2025008-YS01</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">GH2025008</td>
+      <td class="px-4 py-3.5 font-mono text-xs text-slate-700 whitespace-nowrap">HC-00201</td>
+      <td class="px-4 py-3.5 text-sm text-slate-900 whitespace-nowrap">劳保手套</td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">耗材</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">500</td>
+      <td class="px-4 py-3.5 text-sm font-medium text-amber-700 whitespace-nowrap">500</td>
+      <td class="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">2025-11-29</td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><a href="warehouse_inbound_consumable_form.html?acceptNo=GH2025008-YS01&back=warehouse_inbound_list.html" class="hover:underline">去入库</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-inbound-select-row data-form-href="warehouse_inbound_like_form.html?acceptNo=GH2025009-YS01&back=warehouse_inbound_list.html">
+      <td class="px-4 py-3"><input type="radio" name="inbound_select" class="border-slate-300 text-slate-900 focus:ring-slate-400" data-wms-inbound-select-radio /></td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">验收入库</span></td>
+      <td class="px-4 py-3.5 font-mono text-xs text-slate-800 whitespace-nowrap">GH2025009-YS01</td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">GH2025009</td>
+      <td class="px-4 py-3.5 font-mono text-xs text-slate-700 whitespace-nowrap">DL-00234</td>
+      <td class="px-4 py-3.5 text-sm text-slate-900 whitespace-nowrap">电缆 YJV-3×2.5</td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">类资产</span></td>
+      <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">1000</td>
+      <td class="px-4 py-3.5 text-sm font-medium text-amber-700 whitespace-nowrap">600</td>
+      <td class="px-4 py-3.5 text-sm text-slate-600 whitespace-nowrap">2025-11-30</td>
+      <td class="px-4 py-3.5 text-sm whitespace-nowrap"><a href="warehouse_inbound_like_form.html?acceptNo=GH2025009-YS01&back=warehouse_inbound_list.html" class="hover:underline">去入库</a></td>
+    </tr></tbody></table></div>
+      </div>
+      <p class="mt-2 text-xs text-slate-500">共 7 条验收入库待办</p>
+      <div class="wms-modal-footer mt-4">
+        <a href="warehouse_inbound_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-primary" data-wms-inbound-select-confirm>下一步</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

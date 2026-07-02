@@ -10,18 +10,57 @@
 </head>
 <body data-page="warehouse_inbound_list" data-title="固定资产入库" data-breadcrumb="物资管理 / 固定资产入库">
   <div id="main-content">
-    <div data-wms-modal data-modal-back="warehouse_inbound_list.html" data-modal-size="xl" data-wms-inbound-form data-inbound-material-type="fixed">
+    <div data-wms-modal data-modal-back="warehouse_inbound_list.html" data-modal-size="xl" data-wms-inbound-form data-inbound-material-type="fixed" data-inbound-source="acceptance">
       <div class="wms-modal-form wms-warehouse-form wms-inbound-form">
+        <div class="md:col-span-2 flex flex-wrap items-center gap-2 rounded-xl border p-3 text-sm border-emerald-100 bg-emerald-50/50" data-inbound-source-banner>
+    <span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">验收入库</span>
+    <span class="text-slate-600">关联验收记录，按合格数量分批入库</span>
+  </div>
+        <div data-inbound-layout="acceptance" class="md:col-span-2 grid gap-5 md:grid-cols-2 w-full">
         <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">供应商信息</h3></div>
-        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+        <div class="md:col-span-2" data-inbound-section="acceptance-supplier"><div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
     <table class="min-w-full text-sm"><tbody><tr><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">供应商名称</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="supplier">科尼</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">供应商状态</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="supplierStatus"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">正常</span></td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">联系人</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="contact">李四</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">联系电话</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="phone">139 1234 5678</td></tr></tbody></table>
-  </div>
+  </div></div>
         <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">验收信息</h3></div>
-        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+        <div class="md:col-span-2" data-inbound-section="acceptance-accept"><div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
     <table class="min-w-full text-sm"><tbody><tr><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">验收单号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="acceptNo">GH2025001-YS01</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">验收日期</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="acceptDate">2025-11-15</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资编码</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="code">GD001001-001</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资名称</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="name">抓斗</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资大类</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="major">资产-固定资产</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资子类</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="minor">设备-配件</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">规格型号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="spec">4m³-Q345B</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">计量单位</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="unit">个</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">合格数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="qualified">10</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">待入库数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="pendingQty"><span class="font-semibold text-slate-900">10</span></td></tr></tbody></table>
+  </div></div>
+      </div>
+        <div data-inbound-layout="manual" class="md:col-span-2 grid gap-5 md:grid-cols-2 w-full hidden">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">供应商信息</h3></div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200" data-inbound-section="manual-supplier">
+    <table class="min-w-full text-sm"><tbody>
+      <tr>
+        <td class="w-[18%] bg-slate-50 px-4 py-2.5 font-medium text-slate-500"><span class="text-rose-500">*</span> 供应商名称</td>
+        <td class="px-4 py-2.5"><div class="wms-search-select relative w-full max-w-md" data-wms-inbound-supplier-select data-selected-value="科尼">
+    <input type="hidden" data-inbound-field="supplier" value="科尼" />
+    <input type="text" class="wms-search-select-input w-full rounded-lg border border-slate-200 px-3 py-2 pr-8 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" placeholder="请选择供应商" autocomplete="off" value="科尼" role="combobox" aria-expanded="false" />
+    <button type="button" class="wms-search-select-toggle absolute right-2 top-1/2 -translate-y-1/2 px-1 text-slate-400" tabindex="-1" aria-hidden="true"><i class="fa-solid fa-chevron-down text-[10px]"></i></button>
+    <div class="wms-search-select-panel absolute left-0 right-0 top-full z-30 mt-1 hidden overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg">
+      <div class="border-b border-slate-100 p-2">
+        <input type="search" class="wms-search-select-filter w-full rounded border border-slate-200 px-2 py-1.5 text-xs outline-none focus:border-slate-400" placeholder="搜索供应商" />
+      </div>
+      <ul class="max-h-48 overflow-y-auto py-1" role="listbox"><li class="wms-search-select-option cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-50" data-value="华建物资有限公司" role="option">华建物资有限公司</li><li class="wms-search-select-option cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-50" data-value="鄂东办公用品" role="option">鄂东办公用品</li><li class="wms-search-select-option cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-50" data-value="科尼" role="option">科尼</li><li class="wms-search-select-option cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-50" data-value="上海佩纳" role="option">上海佩纳</li><li class="wms-search-select-option cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-50" data-value="河南蒲瑞" role="option">河南蒲瑞</li><li class="wms-search-select-option cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-50" data-value="江苏华能电子有限公司" role="option">江苏华能电子有限公司</li><li class="wms-search-select-option cursor-pointer px-3 py-2 text-sm text-slate-700 hover:bg-slate-50" data-value="宁波北仑君威有限公司" role="option">宁波北仑君威有限公司</li></ul>
+    </div>
+  </div></td>
+        <td class="w-[18%] bg-slate-50 px-4 py-2.5 font-medium text-slate-500">供应商状态</td>
+        <td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="supplierStatus">—</td>
+      </tr>
+      <tr class="border-t border-slate-200">
+        <td class="w-[18%] bg-slate-50 px-4 py-2.5 font-medium text-slate-500">联系人</td>
+        <td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="contact">—</td>
+        <td class="w-[18%] bg-slate-50 px-4 py-2.5 font-medium text-slate-500">联系电话</td>
+        <td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="phone">—</td>
+      </tr>
+    </tbody></table>
   </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">物资信息</h3></div>
+        <div class="md:col-span-2" data-inbound-section="manual-material"><div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm"><tbody><tr><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资编码</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="code">GD001001-001</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资名称</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="name">抓斗</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资大类</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="major">资产-固定资产</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资子类</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="minor">设备-配件</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">规格型号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="spec">4m³-Q345B</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">计量单位</td><td class="px-4 py-2.5 text-sm text-slate-800" data-inbound-field="unit">个</td></tr></tbody></table>
+  </div></div>
+      </div>
         <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">入库信息</h3></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">入库单号</label><input type="text" value="RK20260701001" readonly data-inbound-field="inboundNo" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">入库单号</label><input type="text" value="RK20260702001" readonly data-inbound-field="inboundNo" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 入库日期</label><input type="date" value="2025-11-29" data-inbound-field="inboundDate" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
         <div class="md:col-span-2" data-wms-inbound-locations>
     <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -37,7 +76,7 @@
     <div><label class="mb-1 block text-xs font-medium text-slate-600"><span class="text-rose-500">*</span> 数量</label><input type="number" min="1" data-inbound-qty placeholder="请输入" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
     <span class="w-10"></span>
   </div></div>
-    <p class="mt-2 text-xs text-slate-500">入库的物资可能存放在不同位置；各行数量之和不超过待入库数量 <strong data-inbound-pending-qty-display>—</strong></p>
+    <p class="mt-2 text-xs text-slate-500">入库的物资可能存放在不同位置；各行数量之和不超过待入库数量 <strong data-inbound-pending-qty-display>10</strong></p>
   </div>
         <div class="md:col-span-2 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
     <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-qrcode text-blue-500"></i> 固定资产入库将自动生成资产编码</div>

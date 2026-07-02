@@ -57,7 +57,27 @@ const WMS_INBOUND_ACCEPT_SAMPLES = {
   'GH2025004-YS01': { acceptNo: 'GH2025004-YS01', supplyNo: 'GH2025004', acceptDate: '2025-11-22', supplier: '江苏华能电子有限公司', supplierStatus: '正常', contact: '王工', phone: '139 1111 2233', code: 'LA-00456', name: '电钻', major: '资产-类资产', minor: '电动工具', spec: '650W', unit: '台', qualified: '9', inboundQty: '0', pendingQty: '9', materialType: 'like', inboundNo: '', inboundDate: '', status: '待入库', operator: '', department: '', remark: '', locations: [] },
   'GH2025006-YS01': { acceptNo: 'GH2025006-YS01', supplyNo: 'GH2025006', acceptDate: '2025-11-25', supplier: '鄂东办公用品', supplierStatus: '正常', contact: '陈经理', phone: '137 6666 7788', code: 'HC-00089', name: '打印纸 A4', major: '耗材-办公耗材', minor: '办公用纸', spec: 'A4/80g/500张', unit: '箱', qualified: '200', inboundQty: '0', pendingQty: '200', materialType: 'consumable', inboundNo: '', inboundDate: '', status: '待入库', operator: '', department: '', remark: '', locations: [] },
   'GH2025002-YS01': { acceptNo: 'GH2025002-YS01', supplyNo: 'GH2025002', acceptDate: '2025-11-16', supplier: '鄂东办公用品', supplierStatus: '正常', contact: '陈经理', phone: '137 6666 7788', code: 'HC-00128', name: '安全帽', major: '耗材-劳保耗材', minor: '安全防护', spec: '标准型', unit: '顶', qualified: '200', inboundQty: '200', pendingQty: '0', materialType: 'consumable', inboundNo: 'RK202509002', inboundDate: '2025-11-18', status: '已入库', operator: '李仓管', department: '物资管理部', remark: '首批入库完成', locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ001', level: '1层', qty: '200' }] },
+  'GH2025007-YS01': { acceptNo: 'GH2025007-YS01', supplyNo: 'GH2025007', acceptDate: '2025-11-28', supplier: '华建物资有限公司', supplierStatus: '正常', contact: '陈经理', phone: '138 8888 8821', code: 'GD001001-006', name: '挖掘机铲斗', major: '资产-固定资产', minor: '设备-配件', spec: '1.2m³', unit: '个', qualified: '5', inboundQty: '0', pendingQty: '5', materialType: 'fixed', inboundNo: '', inboundDate: '', status: '待入库', operator: '', department: '', remark: '', locations: [] },
+  'GH2025008-YS01': { acceptNo: 'GH2025008-YS01', supplyNo: 'GH2025008', acceptDate: '2025-11-29', supplier: '鄂东办公用品', supplierStatus: '正常', contact: '陈经理', phone: '137 6666 7788', code: 'HC-00201', name: '劳保手套', major: '耗材-劳保耗材', minor: '安全防护', spec: 'L码/丁腈', unit: '双', qualified: '500', inboundQty: '0', pendingQty: '500', materialType: 'consumable', inboundNo: '', inboundDate: '', status: '待入库', operator: '', department: '', remark: '', locations: [] },
+  'GH2025009-YS01': { acceptNo: 'GH2025009-YS01', supplyNo: 'GH2025009', acceptDate: '2025-11-30', supplier: '江苏华能电子有限公司', supplierStatus: '正常', contact: '王工', phone: '139 1111 2233', code: 'DL-00234', name: '电缆 YJV-3×2.5', major: '资产-类资产', minor: '电气材料', spec: '3×2.5mm²', unit: 'm', qualified: '1000', inboundQty: '400', pendingQty: '600', materialType: 'like', inboundNo: '', inboundDate: '', status: '部分入库', inboundSource: 'acceptance', operator: '', department: '', remark: '', locations: [] },
 };
+
+const WMS_INBOUND_MANUAL_SAMPLES = {
+  'MAN-202506001': { manualKey: 'MAN-202506001', inboundSource: 'manual', acceptNo: '—', supplyNo: '—', acceptDate: '—', supplier: '—', supplierStatus: '—', contact: '—', phone: '—', code: 'LA-00457', name: '钢丝绳', major: '资产-类资产', minor: '防汛设备', spec: 'Φ18×100m', unit: 'm', qualified: '—', inboundQty: '0', pendingQty: '100', materialType: 'like', inboundNo: '', inboundDate: '', status: '待入库', operator: '', department: '', remark: '历史在库物资补录入库', locations: [] },
+  'MAN-RK202506010001': { manualKey: 'MAN-RK202506010001', inboundSource: 'manual', acceptNo: '—', supplyNo: '—', acceptDate: '—', supplier: '—', supplierStatus: '—', contact: '—', phone: '—', code: 'HC-00089', name: '打印纸 A4', major: '耗材-办公耗材', minor: '办公用纸', spec: 'A4/80g/500张', unit: '箱', qualified: '—', inboundQty: '50', pendingQty: '0', materialType: 'consumable', inboundNo: 'RK202506010001', inboundDate: '2025-06-01', status: '已入库', operator: '张仓管', department: '物资管理部', remark: '期初库存导入', locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ002', level: '1层', qty: '50' }] },
+};
+
+const WMS_INBOUND_MATERIAL_BY_CODE = {
+  'GD001001-001': { code: 'GD001001-001', name: '抓斗', major: '资产-固定资产', minor: '设备-配件', spec: '4m³-Q345B', unit: '个', materialType: 'fixed', inboundSource: 'manual', acceptNo: '—', supplyNo: '—', supplier: '—', supplierStatus: '—', contact: '—', phone: '—', qualified: '—', pendingQty: '—', inboundQty: '0' },
+  'GD001001-002': { code: 'GD001001-002', name: '料斗', major: '资产-固定资产', minor: '设备-配件', spec: '10m³移动式', unit: '个', materialType: 'fixed', inboundSource: 'manual', acceptNo: '—', supplyNo: '—', supplier: '—', supplierStatus: '—', contact: '—', phone: '—', qualified: '—', pendingQty: '—', inboundQty: '0' },
+  'LA-00456': { code: 'LA-00456', name: '电钻', major: '资产-类资产', minor: '电钻', spec: '工业级', unit: '台', materialType: 'like', inboundSource: 'manual', acceptNo: '—', supplyNo: '—', supplier: '—', supplierStatus: '—', contact: '—', phone: '—', qualified: '—', pendingQty: '—', inboundQty: '0' },
+  'GD001001-006': { code: 'GD001001-006', name: '润滑油', major: '耗材-生产耗材', minor: '设备-配件', spec: 'CD 15W-40', unit: '桶', materialType: 'consumable', inboundSource: 'manual', acceptNo: '—', supplyNo: '—', supplier: '—', supplierStatus: '—', contact: '—', phone: '—', qualified: '—', pendingQty: '—', inboundQty: '0' },
+  'HC-00089': { code: 'HC-00089', name: '打印纸 A4', major: '耗材-办公耗材', minor: '打印纸 A4', spec: '70g/500张', unit: '箱', materialType: 'consumable', inboundSource: 'manual', acceptNo: '—', supplyNo: '—', supplier: '—', supplierStatus: '—', contact: '—', phone: '—', qualified: '—', pendingQty: '—', inboundQty: '0' },
+  'LA-00457': { code: 'LA-00457', name: '钢丝绳', major: '资产-类资产', minor: '防汛设备', spec: 'Φ18×100m', unit: 'm', materialType: 'like', inboundSource: 'manual', acceptNo: '—', supplyNo: '—', supplier: '—', supplierStatus: '—', contact: '—', phone: '—', qualified: '—', pendingQty: '—', inboundQty: '0' },
+  'HC-00128': { code: 'HC-00128', name: '安全帽', major: '耗材-劳保耗材', minor: '安全防护', spec: '标准型', unit: '顶', materialType: 'consumable', inboundSource: 'manual', acceptNo: '—', supplyNo: '—', supplier: '—', supplierStatus: '—', contact: '—', phone: '—', qualified: '—', pendingQty: '—', inboundQty: '0' },
+};
+
+const WMS_INBOUND_FORM_PAGES = { fixed: 'warehouse_inbound_fixed_form.html', like: 'warehouse_inbound_like_form.html', consumable: 'warehouse_inbound_consumable_form.html' };
 
 const WMS_INBOUND_TYPE_LABELS = { fixed: '固定资产入库', like: '类资产入库', consumable: '耗材入库' };
 
@@ -144,14 +164,18 @@ const WMS_REFUND_BY_ACCEPT = {
 };
 
 const WMS_ACCEPTANCE_RECORD_DETAIL_SAMPLES = {
-  'GH2025003-YS01': { no: 'GH2025003-YS01', batchNo: '1', batchQty: '50', qualified: '50', unqualified: '0', date: '2025-11-20', warehouse: '张仓管', planner: '王工', unqualifiedRemark: '—', disposition: '—', refundKey: '' },
-  'GH2025004-YS02': { no: 'GH2025004-YS02', batchNo: '2', batchQty: '10', qualified: '9', unqualified: '1', date: '2025-11-25', warehouse: '李仓管', planner: '赵工', unqualifiedRemark: '刀头断裂，无法使用', disposition: '退货', refundKey: 'GH2025004-YS02-TH' },
+  'GH2025001-YS01': { no: 'GH2025001-YS01', batchNo: '1', batchQty: '10', qualified: '10', unqualified: '0', date: '2025-11-15', warehouse: '张仓管', planner: '王工', unqualifiedRemark: '—', disposition: '—', status: '审核通过', refundKey: '' },
+  'GH2025002-YS01': { no: 'GH2025002-YS01', batchNo: '1', batchQty: '10', qualified: '10', unqualified: '0', date: '2025-11-16', warehouse: '李仓管', planner: '赵工', unqualifiedRemark: '—', disposition: '—', status: '审核通过', refundKey: '' },
+  'GH2025003-YS01': { no: 'GH2025003-YS01', batchNo: '1', batchQty: '50', qualified: '50', unqualified: '0', date: '2025-11-20', warehouse: '张仓管', planner: '王工', unqualifiedRemark: '—', disposition: '—', status: '审核中', refundKey: '' },
+  'GH2025004-YS01': { no: 'GH2025004-YS01', batchNo: '1', batchQty: '10', qualified: '9', unqualified: '1', date: '2025-11-22', warehouse: '张仓管', planner: '王工', unqualifiedRemark: '外观瑕疵', disposition: '换货', status: '审核通过', refundKey: '' },
+  'GH2025004-YS02': { no: 'GH2025004-YS02', batchNo: '2', batchQty: '10', qualified: '9', unqualified: '1', date: '2025-11-25', warehouse: '李仓管', planner: '赵工', unqualifiedRemark: '刀头断裂，无法使用', disposition: '退货', status: '审核通过', refundKey: 'GH2025004-YS02-TH' },
 };
 
 const WMS_REFUND_PENDING_SAMPLES = {
   'GH2025004-YS02-TH': { refundKey: 'GH2025004-YS02-TH', scene: 'pre_inbound', refundNo: '', supplyNo: 'GH2025004', acceptNo: 'GH2025004-YS02', inboundNo: '—', supplier: '江苏华能电子有限公司', supplierStatus: '正常', contact: '王工', phone: '139 1111 2233', acceptDate: '2025-11-25', code: 'GD001001-004', name: '螺丝刀', major: '资产-固定资产', minor: '设备-配件', spec: '455', unit: '个', unqualifiedQty: '1', inboundQty: '0', refundedQty: '0', pendingQty: '1', materialType: 'fixed', status: '待退货', refundDate: '', refundReason: '', remark: '', operator: '', department: '', assetCodes: [], locations: [], createTime: '2025-11-25' },
   'GH2025003-YS01-TH': { refundKey: 'GH2025003-YS01-TH', scene: 'pre_inbound', refundNo: 'TH20251121001', supplyNo: 'GH2025003', acceptNo: 'GH2025003-YS01', inboundNo: '—', supplier: '河南蒲瑞', supplierStatus: '正常', contact: '李经理', phone: '138 0000 1234', acceptDate: '2025-11-20', code: 'GD001001-003', name: '钢丝绳', major: '资产-固定资产', minor: '设备-配件', spec: '455', unit: 'm', unqualifiedQty: '50', inboundQty: '0', refundedQty: '30', pendingQty: '20', materialType: 'like', status: '部分退货', refundDate: '2025-11-21', refundReason: '质量问题', remark: '首批已退 30m', operator: '张仓管', department: '物资管理部', assetCodes: [], locations: [], createTime: '2025-11-20' },
   'RK202509002-TH01': { refundKey: 'RK202509002-TH01', scene: 'post_inbound', refundNo: '', supplyNo: 'GH2025002', acceptNo: 'GH2025002-YS01', inboundNo: 'RK202509002', supplier: '鄂东办公用品', supplierStatus: '正常', contact: '陈经理', phone: '137 6666 7788', acceptDate: '2025-11-16', code: 'HC-00128', name: '安全帽', major: '耗材-劳保耗材', minor: '安全防护', spec: '标准型', unit: '顶', unqualifiedQty: '0', inboundQty: '200', refundedQty: '0', pendingQty: '50', materialType: 'consumable', status: '待退货', refundDate: '', refundReason: '', remark: '', operator: '', department: '', assetCodes: [], locations: [], createTime: '2026-06-01' },
+  'RK202511220001-TH': { refundKey: 'RK202511220001-TH', scene: 'post_inbound', refundNo: '', supplyNo: 'GH2025004', acceptNo: 'GH2025004-YS01', inboundNo: 'RK202511220001', supplier: '江苏华能电子有限公司', supplierStatus: '正常', contact: '王工', phone: '139 1111 2233', acceptDate: '2025-11-22', code: 'GD001001-004', name: '螺丝刀', major: '资产-固定资产', minor: '设备-配件', spec: '455', unit: '个', unqualifiedQty: '0', inboundQty: '9', refundedQty: '0', pendingQty: '1', materialType: 'fixed', status: '待退货', refundDate: '', refundReason: '', remark: '', operator: '', department: '', assetCodes: [], locations: [], createTime: '2025-11-22' },
   'TH202606030001': { refundKey: 'TH202606030001', scene: 'post_inbound', refundNo: 'TH202606030001', supplyNo: 'GH202605280002', acceptNo: '—', inboundNo: 'RK202606020015', supplier: '华建物资有限公司', supplierStatus: '正常', contact: '陈经理', phone: '138 8888 8821', acceptDate: '2026-05-28', code: 'DL-00234', name: '电缆 YJV-3×2.5', major: '资产-类资产', minor: '电气材料', spec: '3×2.5mm²', unit: 'm', unqualifiedQty: '0', inboundQty: '100', refundedQty: '100', pendingQty: '0', materialType: 'like', status: '已退货', refundDate: '2026-06-03', refundReason: '质量问题', remark: '规格不符，全量退供应商', operator: '张仓管', department: '物资管理部', assetCodes: [], locations: [{ warehouse: '主仓库', shelf: 'CK001001-HJ001', level: '1层', qty: '100' }], createTime: '2026-06-03' },
 };
 
@@ -411,6 +435,9 @@ function initLayout() {
   initAcceptanceFromQuery(root);
   initSupplyCompleteFromQuery(root);
   initInboundFromQuery(root);
+  initInboundSelect(root);
+  initInboundManualPicker(root);
+  initInboundImport(root);
   initInboundSuccessFromQuery(root);
   initOutboundFromQuery(root);
   initOutboundSuccessFromQuery(root);
@@ -425,6 +452,7 @@ function initLayout() {
   initDisposalFromQuery(root);
   initDisposalExecuteFromQuery(root);
   initDisposalSuccessFromQuery(root);
+  initRefundCreate(root);
   initRefundFromQuery(root);
   initRefundSuccessFromQuery(root);
   initRefundSelectAsset(root);
@@ -787,10 +815,14 @@ function initListToolbar(root) {
       searchClear.classList.toggle('inline-flex', has);
     }
 
+    function filterDefault(sel) {
+      return sel.getAttribute('data-wms-list-filter-default') || sel.options[0]?.value || '全部';
+    }
+
     function hasActiveFilters() {
       const q = (searchInput?.value || '').trim();
       const tabChanged = tabBtns.length && activeTab !== defaultTab;
-      const filtersChanged = filterSelects.some(s => s.value && s.value !== '全部');
+      const filtersChanged = filterSelects.some(s => s.value !== filterDefault(s));
       return !!(q || tabChanged || filtersChanged);
     }
 
@@ -819,7 +851,11 @@ function initListToolbar(root) {
       if (searchInput) searchInput.value = '';
       activeTab = defaultTab;
       setListTabStyles(tabBtns, activeTab);
-      filterSelects.forEach(s => { s.selectedIndex = 0; });
+      filterSelects.forEach(s => {
+        const def = filterDefault(s);
+        const idx = [...s.options].findIndex(o => o.value === def);
+        s.selectedIndex = idx >= 0 ? idx : 0;
+      });
       applyFilters();
     }
 
@@ -2543,17 +2579,29 @@ function initAcceptanceAuditFormFromQuery(root) {
 
   const params = new URLSearchParams(window.location.search);
   const recordNo = params.get('no');
+  const supplyNo = params.get('supplyNo');
   const backHref = params.get('back') || 'warehouse_acceptance_audit_list.html';
   if (!recordNo) return;
 
   const d = WMS_ACCEPTANCE_RECORD_DETAIL_SAMPLES[recordNo];
-  if (!d) return;
+  const supply = supplyNo ? WMS_ACCEPTANCE_SUPPLY_SAMPLES[supplyNo] : null;
+  if (!d && !supply) return;
+
+  const payload = {
+    ...(d || {}),
+    no: recordNo,
+    supplyNo: supplyNo || d?.supplyNo || '—',
+    materialName: supply?.name || '—',
+    batchQty: d?.batchQty || '—',
+    qualifiedSummary: d ? `${d.qualified} / ${d.unqualified}` : '—',
+    date: d?.date || '—',
+  };
 
   scope.querySelectorAll('[data-accept-record-field]').forEach(el => {
     const key = el.dataset.acceptRecordField;
-    if (d[key] !== undefined) {
-      if (el.tagName === 'TEXTAREA') el.value = d[key];
-      else el.value = d[key];
+    if (payload[key] !== undefined) {
+      if (el.tagName === 'TEXTAREA') el.value = payload[key];
+      else el.value = payload[key];
     }
   });
 
@@ -2844,8 +2892,13 @@ function initInboundLocationRows(pendingQty, isFixed) {
 function fillInboundFields(scope, sample) {
   scope.querySelectorAll('[data-inbound-field]').forEach(el => {
     const key = el.dataset.inboundField;
+    if (key === 'supplier' && el.type === 'hidden') return;
     if (key === 'supplierStatus') {
-      el.innerHTML = statusBadge(sample.supplierStatus, 'success');
+      if (el.tagName === 'SELECT') {
+        [...el.options].forEach(o => { o.selected = o.textContent.trim() === sample.supplierStatus; });
+      } else {
+        el.innerHTML = statusBadge(sample.supplierStatus, 'success');
+      }
       return;
     }
     if (key === 'pendingQty') {
@@ -2853,13 +2906,150 @@ function fillInboundFields(scope, sample) {
       return;
     }
     if (sample[key] === undefined) return;
+    const value = sample[key] === '—' ? '' : sample[key];
     if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-      if (el.type !== 'date' || sample[key]) el.value = sample[key];
+      if (el.type !== 'date' || value) el.value = value;
     } else if (el.tagName === 'SELECT') {
-      [...el.options].forEach(o => { o.selected = o.textContent.trim() === sample[key]; });
+      const pick = sample[key] === '—' ? '' : sample[key];
+      [...el.options].forEach(o => { o.selected = o.textContent.trim() === pick; });
+      if (!pick) el.selectedIndex = 0;
     } else {
       el.textContent = sample[key];
     }
+  });
+}
+
+function applyInboundFormLayout(scope, sample) {
+  const isManual = sample.inboundSource === 'manual';
+  scope.dataset.inboundSource = isManual ? 'manual' : 'acceptance';
+
+  scope.querySelector('[data-inbound-layout="acceptance"]')?.classList.toggle('hidden', isManual);
+  scope.querySelector('[data-inbound-layout="manual"]')?.classList.toggle('hidden', !isManual);
+
+  const banner = scope.querySelector('[data-inbound-source-banner]');
+  if (banner) {
+    banner.className = `md:col-span-2 flex flex-wrap items-center gap-2 rounded-xl border p-3 text-sm ${isManual ? 'border-amber-100 bg-amber-50/50' : 'border-emerald-100 bg-emerald-50/50'}`;
+    banner.innerHTML = isManual
+      ? '<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">手动入库</span><span class="text-slate-600">第 2 步：填写供应商、入库数量与存放货位</span>'
+      : '<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">验收入库</span><span class="text-slate-600">关联验收记录，按合格数量分批入库</span>';
+  }
+
+  const locHint = scope.querySelector('[data-wms-inbound-locations] > p.text-xs');
+  if (locHint) {
+    locHint.innerHTML = isManual
+      ? '手动入库按实际录入数量累加台账'
+      : `入库的物资可能存放在不同位置；各行数量之和不超过待入库数量 <strong data-inbound-pending-qty-display>${sample.pendingQty ?? '—'}</strong>`;
+  }
+}
+
+function wmsSupplierByName(name) {
+  if (!name || name === '—') return null;
+  return Object.values(WMS_SUPPLIER_SAMPLES).find(s => s.name === name) || null;
+}
+
+function wmsFormatSupplierPhone(phone) {
+  if (!phone) return '';
+  const digits = String(phone).replace(/\D/g, '');
+  if (digits.length === 11) return `${digits.slice(0, 3)} ${digits.slice(3, 7)} ${digits.slice(7)}`;
+  return String(phone);
+}
+
+function fillInboundSupplierFromSelection(scope, supplierName) {
+  const manual = scope?.querySelector('[data-inbound-layout="manual"]');
+  if (!manual) return;
+  const hidden = manual.querySelector('[data-inbound-field="supplier"][type="hidden"]');
+  const selectWrap = manual.querySelector('[data-wms-inbound-supplier-select]');
+  const statusEl = manual.querySelector('[data-inbound-field="supplierStatus"]');
+  const contactEl = manual.querySelector('[data-inbound-field="contact"]');
+  const phoneEl = manual.querySelector('[data-inbound-field="phone"]');
+  const name = (supplierName || '').trim();
+  if (hidden) hidden.value = name;
+  if (selectWrap) {
+    const input = selectWrap.querySelector('.wms-search-select-input');
+    if (input) input.value = name;
+    if (name) selectWrap.dataset.selectedValue = name;
+    else delete selectWrap.dataset.selectedValue;
+  }
+  const s = wmsSupplierByName(name);
+  if (!s) {
+    if (statusEl) statusEl.textContent = '—';
+    if (contactEl) contactEl.textContent = '—';
+    if (phoneEl) phoneEl.textContent = '—';
+    return;
+  }
+  if (statusEl) statusEl.innerHTML = wmsSupplierStatusBadge(s.status);
+  if (contactEl) contactEl.textContent = s.contact || '—';
+  if (phoneEl) phoneEl.textContent = wmsFormatSupplierPhone(s.phone) || '—';
+}
+
+function initInboundManualSupplierSelect(scope) {
+  const wrap = scope?.querySelector('[data-wms-inbound-supplier-select]');
+  if (!wrap || wrap.dataset.wmsBound) return;
+  wrap.dataset.wmsBound = '1';
+  const input = wrap.querySelector('.wms-search-select-input');
+  const filter = wrap.querySelector('.wms-search-select-filter');
+  const panel = wrap.querySelector('.wms-search-select-panel');
+  const toggle = wrap.querySelector('.wms-search-select-toggle');
+  const options = [...wrap.querySelectorAll('.wms-search-select-option')];
+  if (!input || !panel) return;
+
+  const filterOptions = (q) => {
+    const query = (q || '').trim().toLowerCase();
+    options.forEach(opt => {
+      const value = opt.dataset.value || opt.textContent.trim();
+      opt.classList.toggle('hidden', query && !value.toLowerCase().includes(query));
+    });
+  };
+
+  const open = () => {
+    panel.classList.remove('hidden');
+    input.setAttribute('aria-expanded', 'true');
+    if (filter) {
+      filter.value = '';
+      filterOptions('');
+      filter.focus();
+    }
+  };
+
+  const close = () => {
+    panel.classList.add('hidden');
+    input.setAttribute('aria-expanded', 'false');
+  };
+
+  const pick = (name) => {
+    input.value = name;
+    fillInboundSupplierFromSelection(scope, name);
+    close();
+  };
+
+  input.addEventListener('focus', open);
+  input.addEventListener('click', open);
+  toggle?.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    panel.classList.contains('hidden') ? open() : close();
+  });
+  filter?.addEventListener('input', () => filterOptions(filter.value));
+  options.forEach(opt => opt.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    pick(opt.dataset.value || opt.textContent.trim());
+  }));
+  input.addEventListener('blur', () => {
+    setTimeout(() => {
+      if (!wrap.contains(document.activeElement)) {
+        const value = input.value.trim();
+        if (!value) {
+          fillInboundSupplierFromSelection(scope, '');
+          close();
+          return;
+        }
+        if (WMS_EXECUTE_SUPPLIERS.includes(value)) pick(value);
+        else input.value = wrap.dataset.selectedValue || '';
+        close();
+      }
+    }, 120);
+  });
+  document.addEventListener('click', (e) => {
+    if (!wrap.contains(e.target)) close();
   });
 }
 
@@ -2869,15 +3059,38 @@ function initInboundFromQuery(root) {
   if (!title.includes('入库')) return;
 
   const params = new URLSearchParams(window.location.search);
+  const source = params.get('source') || 'acceptance';
   const acceptNo = params.get('acceptNo');
+  const manualKey = params.get('manualKey');
+  const materialCode = params.get('code');
   const viewMode = params.get('mode') === 'view';
   const backHref = params.get('back') || 'warehouse_inbound_list.html';
+  const isManualForm = source === 'manual';
 
-  if (!acceptNo || !WMS_INBOUND_ACCEPT_SAMPLES[acceptNo]) return;
+  let sample = null;
+  if (source === 'manual') {
+    if (manualKey && WMS_INBOUND_MANUAL_SAMPLES[manualKey]) {
+      sample = { ...WMS_INBOUND_MANUAL_SAMPLES[manualKey], viewMode };
+    } else if (materialCode && WMS_INBOUND_MATERIAL_BY_CODE[materialCode]) {
+      sample = { ...WMS_INBOUND_MATERIAL_BY_CODE[materialCode], viewMode };
+    }
+  } else if (acceptNo && WMS_INBOUND_ACCEPT_SAMPLES[acceptNo]) {
+    sample = { ...WMS_INBOUND_ACCEPT_SAMPLES[acceptNo], inboundSource: 'acceptance', viewMode };
+  }
+  if (!sample) return;
 
-  const sample = { ...WMS_INBOUND_ACCEPT_SAMPLES[acceptNo], viewMode };
   const scope = document.querySelector('[data-wms-inbound-form]');
-  if (scope) fillInboundFields(scope, sample);
+  if (scope) {
+    applyInboundFormLayout(scope, sample);
+    fillInboundFields(scope, sample);
+    if (sample.inboundSource === 'manual' && !viewMode) {
+      initInboundManualSupplierSelect(scope);
+      const presetSupplier = sample.supplier && sample.supplier !== '—' ? sample.supplier : '';
+      fillInboundSupplierFromSelection(scope, presetSupplier);
+    } else if (sample.inboundSource === 'manual' && viewMode && sample.supplier && sample.supplier !== '—') {
+      fillInboundSupplierFromSelection(scope, sample.supplier);
+    }
+  }
 
   document.querySelectorAll('[data-inbound-back-link], .wms-modal-close').forEach(a => {
     a.setAttribute('href', backHref);
@@ -2887,13 +3100,17 @@ function initInboundFromQuery(root) {
 
   const titleEl = document.getElementById('wms-modal-title');
   const typeLabel = WMS_INBOUND_TYPE_LABELS[sample.materialType] || '执行入库';
+  const sourceLabel = sample.inboundSource === 'manual' ? '手动入库' : '验收入库';
+  const refLabel = sample.inboundSource === 'manual' ? sample.code : acceptNo;
   if (titleEl) {
-    titleEl.textContent = viewMode ? `入库详情 · ${acceptNo}` : `${typeLabel} · ${acceptNo}`;
+    titleEl.textContent = viewMode
+      ? `入库详情 · ${refLabel}`
+      : (isManualForm ? `手动入库 · ${typeLabel} · ${refLabel}` : `${sourceLabel} · ${typeLabel} · ${refLabel}`);
   }
 
   const breadcrumbEl = document.querySelector('.wms-app-shell header .text-xs.text-slate-500');
   if (breadcrumbEl && sample.materialType && sample.materialType !== 'fixed') {
-    breadcrumbEl.textContent = `物资管理 / ${typeLabel}${viewMode ? ' · 查看' : ''}`;
+    breadcrumbEl.textContent = `物资管理 / ${sourceLabel} · ${typeLabel}${viewMode ? ' · 查看' : ''}`;
   }
 
   if (viewMode) {
@@ -2908,10 +3125,11 @@ function initInboundFromQuery(root) {
         <div class="overflow-hidden rounded-xl border border-slate-200"><table class="min-w-full text-sm"><thead class="bg-slate-50"><tr><th class="px-3 py-2 text-left text-xs text-slate-500">序号</th><th class="px-3 py-2 text-left text-xs text-slate-500">仓库</th><th class="px-3 py-2 text-left text-xs text-slate-500">货架</th><th class="px-3 py-2 text-left text-xs text-slate-500">架层</th><th class="px-3 py-2 text-left text-xs text-slate-500">数量</th></tr></thead><tbody>${tr}</tbody></table></div>`;
     }
   } else {
-    initInboundLocationRows(sample.pendingQty, sample.materialType === 'fixed');
+    const pendingCap = sample.inboundSource === 'manual' ? '999999' : sample.pendingQty;
+    initInboundLocationRows(pendingCap, sample.materialType === 'fixed');
   }
 
-  const submitBtn = document.querySelector('[data-inbound-submit]');
+  const submitBtn = modalRootFrom(scope)?.querySelector('[data-inbound-submit]');
   submitBtn?.addEventListener('click', () => {
     const operator = scope?.querySelector('[data-inbound-field="operator"]');
     const department = scope?.querySelector('[data-inbound-field="department"]');
@@ -2927,6 +3145,15 @@ function initInboundFromQuery(root) {
     if (!department?.value || department.selectedIndex <= 0) {
       showSupplyCompleteToast('请选择入库部门');
       return;
+    }
+    if (sample.inboundSource === 'manual') {
+      const supplierWrap = scope?.querySelector('[data-wms-inbound-supplier-select]');
+      const supplier = supplierWrap?.dataset.selectedValue
+        || scope?.querySelector('[data-inbound-layout="manual"] [data-inbound-field="supplier"]')?.value;
+      if (!supplier?.trim()) {
+        showSupplyCompleteToast('请选择供应商');
+        return;
+      }
     }
 
     const rows = [...document.querySelectorAll('[data-inbound-loc-row]')];
@@ -2945,17 +3172,18 @@ function initInboundFromQuery(root) {
       totalQty += Number(qty.value);
     }
     const pending = Number(sample.pendingQty);
-    if (totalQty > pending) {
+    if (sample.inboundSource !== 'manual' && !Number.isNaN(pending) && totalQty > pending) {
       showSupplyCompleteToast(`入库数量合计不能超过待入库数量 ${pending}`);
       return;
     }
 
     const inboundNo = scope?.querySelector('[data-inbound-field="inboundNo"]')?.value || 'RK202509001';
+    const acceptParam = sample.inboundSource === 'manual' ? '' : `acceptNo=${encodeURIComponent(acceptNo)}&`;
     if (sample.materialType === 'fixed') {
-      window.location.href = `warehouse_inbound_success.html?acceptNo=${encodeURIComponent(acceptNo)}&rk=${encodeURIComponent(inboundNo)}&qty=${totalQty}&back=${encodeURIComponent(backHref)}`;
+      window.location.href = `warehouse_inbound_success.html?${acceptParam}rk=${encodeURIComponent(inboundNo)}&qty=${totalQty}&back=${encodeURIComponent(backHref)}`;
       return;
     }
-    showSupplyCompleteToast(`${WMS_INBOUND_TYPE_LABELS[sample.materialType] || '入库'}成功`);
+    showSupplyCompleteToast(`${sourceLabel}成功`);
     setTimeout(() => { window.location.href = backHref; }, 900);
   });
 }
@@ -2986,6 +3214,106 @@ function initInboundSuccessFromQuery(root) {
 
   const batchBtn = document.getElementById('wms-inbound-batch-qr');
   if (batchBtn) batchBtn.dataset.codes = codes.join(',');
+}
+
+function showInboundToast(message) {
+  let toast = document.getElementById('wms-inbound-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'wms-inbound-toast';
+    toast.className = 'fixed bottom-6 left-1/2 z-[9999] hidden -translate-x-1/2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm text-white shadow-lg';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.remove('hidden');
+  clearTimeout(showInboundToast._timer);
+  showInboundToast._timer = setTimeout(() => toast.classList.add('hidden'), 2800);
+}
+
+function modalRootFrom(el) {
+  return el?.closest('.wms-modal') || el;
+}
+
+function initInboundSelect(root) {
+  const scope = document.querySelector('[data-wms-inbound-select]');
+  if (!scope) return;
+  const modal = modalRootFrom(scope);
+
+  const search = scope.querySelector('[data-wms-list-search]');
+  const tbody = scope.querySelector('[data-wms-inbound-select-tbody]');
+  if (search && tbody) {
+    search.addEventListener('input', () => {
+      const q = search.value.trim().toLowerCase();
+      tbody.querySelectorAll('[data-wms-inbound-select-row]').forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.classList.toggle('hidden', !!q && !text.includes(q));
+      });
+    });
+  }
+
+  modal.querySelector('[data-wms-inbound-select-confirm]')?.addEventListener('click', () => {
+    const checked = scope.querySelector('[data-wms-inbound-select-radio]:checked');
+    const row = checked?.closest('[data-wms-inbound-select-row]');
+    const href = row?.dataset.formHref;
+    if (href) window.location.href = href;
+    else showInboundToast('请选择一条待入库验收记录');
+  });
+}
+
+function initInboundManualPicker(root) {
+  const scope = document.querySelector('[data-wms-inbound-manual-picker]');
+  if (!scope) return;
+  const modal = modalRootFrom(scope);
+  initMaterialPicker(root);
+  const backHref = new URLSearchParams(window.location.search).get('back') || 'warehouse_inbound_list.html';
+
+  modal.querySelector('[data-wms-inbound-manual-confirm]')?.addEventListener('click', () => {
+    const checked = scope.querySelector('[data-wms-inbound-manual-radio]:checked');
+    const row = checked?.closest('[data-wms-inbound-manual-row]');
+    const code = row?.dataset.materialCode;
+    const type = row?.dataset.materialType;
+    if (!code || !type) {
+      showInboundToast('请选择一条物资');
+      return;
+    }
+    if (!WMS_INBOUND_MATERIAL_BY_CODE[code]) {
+      showInboundToast('该物资暂不支持手动入库（原型样本）');
+      return;
+    }
+    const formHref = WMS_INBOUND_FORM_PAGES[type] || 'warehouse_inbound_form.html';
+    const manualBack = `warehouse_inbound_manual_select.html?back=${encodeURIComponent(backHref)}`;
+    const q = new URLSearchParams({ source: 'manual', code, back: manualBack });
+    window.location.href = `${formHref}?${q}`;
+  });
+}
+
+function initInboundImport(root) {
+  const scope = document.querySelector('[data-wms-inbound-import]');
+  if (!scope) return;
+  const modal = modalRootFrom(scope);
+  const backHref = new URLSearchParams(window.location.search).get('back') || 'warehouse_inbound_list.html';
+  const fileNameEl = scope.querySelector('[data-wms-inbound-import-filename]');
+
+  scope.querySelector('[data-wms-inbound-import-template]')?.addEventListener('click', () => {
+    showInboundToast('已下载入库导入模板（原型演示）');
+  });
+
+  scope.querySelector('[data-wms-inbound-import-file]')?.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !fileNameEl) return;
+    fileNameEl.textContent = `已选择：${file.name}`;
+    fileNameEl.classList.remove('hidden');
+  });
+
+  modal.querySelector('[data-wms-inbound-import-submit]')?.addEventListener('click', () => {
+    const hasFile = scope.querySelector('[data-wms-inbound-import-file]')?.files?.length;
+    if (!hasFile) {
+      showInboundToast('请先选择要导入的文件');
+      return;
+    }
+    showInboundToast('导入任务已提交，成功 7 条、失败 0 条（原型演示）');
+    setTimeout(() => { window.location.href = backHref; }, 1200);
+  });
 }
 
 function fillOutboundFields(scope, sample) {
@@ -3897,10 +4225,70 @@ function initRefundLocationRows(pendingQty) {
   document.querySelectorAll('[data-refund-pending-qty-display]').forEach(el => { el.textContent = pendingQty; });
 }
 
+function initRefundCreate(root) {
+  if (root.dataset.page !== 'warehouse_refund_list') return;
+  const scope = document.querySelector('[data-wms-refund-create]');
+  if (!scope) return;
+
+  const steps = scope.querySelectorAll('[data-refund-create-step]');
+  const backBtn = scope.querySelector('[data-refund-create-back]');
+  const cancelBtn = scope.querySelector('[data-refund-create-cancel]');
+  const titleEl = document.getElementById('wms-modal-title');
+  const breadcrumbEl = document.querySelector('.wms-app-shell header .text-xs.text-slate-500');
+  const stepStack = ['scenario'];
+
+  const stepTitles = {
+    scenario: '发起退货',
+    pending: '从待退任务执行',
+    pre_inbound: '验收不合格退货',
+    post_inbound_type: '在库退供应商 · 选择类型',
+    post_inbound_fixed: '固定资产在库退货',
+    post_inbound_like: '类资产在库退货',
+    post_inbound_consumable: '耗材在库退货',
+  };
+
+  const showStep = (stepId) => {
+    steps.forEach(panel => {
+      panel.classList.toggle('hidden', panel.dataset.refundCreateStep !== stepId);
+    });
+    if (titleEl) titleEl.textContent = stepTitles[stepId] || '发起退货';
+    if (breadcrumbEl) breadcrumbEl.textContent = `物资管理 / ${stepTitles[stepId] || '发起退货'}`;
+    backBtn?.classList.toggle('hidden', stepId === 'scenario');
+    cancelBtn?.classList.toggle('hidden', stepId !== 'scenario');
+  };
+
+  const pushStep = (stepId) => {
+    stepStack.push(stepId);
+    showStep(stepId);
+  };
+
+  backBtn?.addEventListener('click', () => {
+    if (stepStack.length <= 1) return;
+    stepStack.pop();
+    showStep(stepStack[stepStack.length - 1]);
+  });
+
+  scope.querySelectorAll('[data-refund-create-scenario]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const scenario = btn.dataset.refundCreateScenario;
+      if (scenario === 'post_inbound') pushStep('post_inbound_type');
+      else pushStep(scenario);
+    });
+  });
+
+  scope.querySelectorAll('[data-refund-create-type]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      pushStep(`post_inbound_${btn.dataset.refundCreateType}`);
+    });
+  });
+
+  showStep('scenario');
+}
+
 function initRefundFromQuery(root) {
   if (root.dataset.page !== 'warehouse_refund_list') return;
   const title = root.dataset.title || '';
-  if (!title.includes('退货') || title.includes('退货成功') || title.includes('选择退货资产')) return;
+  if (!title.includes('退货') || title.includes('退货成功') || title.includes('选择退货资产') || title.includes('发起退货')) return;
 
   const params = new URLSearchParams(window.location.search);
   const refundKey = params.get('refundKey');
@@ -3963,12 +4351,6 @@ function initRefundFromQuery(root) {
   } else if (sample.scene === 'post_inbound') {
     if (sample.materialType === 'fixed') {
       refreshAssets();
-      document.getElementById('wms-refund-scan-asset')?.addEventListener('click', () => {
-        const demo = 'GD001001-004-A';
-        if (!selectedAssets.includes(demo)) selectedAssets.push(demo);
-        refreshAssets();
-        showQrToast(`已识别资产码：${demo}`);
-      });
     } else if (sample.materialType === 'like') {
       initRefundLocationRows(sample.pendingQty);
     } else {
