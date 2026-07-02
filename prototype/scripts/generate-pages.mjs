@@ -327,6 +327,21 @@ const REQUISITION_PICKER_ROWS = [
   { code: 'HC-00128', name: '安全帽', type: 'consumable', unit: '顶', stock: '85', warehouse: '主仓库/C区', categoryPath: '耗材类 / 劳保耗材 / 安全防护 / 安全帽' },
 ];
 
+function applyPlanPickerRows() {
+  return MATERIAL_CATALOG_ROWS
+    .filter(r => r.enabled)
+    .map(r => ({
+      code: r.code,
+      name: r.name,
+      type: r.type,
+      unit: r.unit,
+      stock: r.availableStock || r.currentStock || '—',
+      categoryCode: r.categoryCode,
+      categoryPath: r.categoryPath,
+      price: r.price,
+    }));
+}
+
 function assetQrImg(assetCode, size = 128) {
   const data = encodeURIComponent(`wms://asset/${assetCode}`);
   return `<img src="https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${data}" width="${size}" height="${size}" alt="资产二维码 ${assetCode}" class="wms-qr-image" loading="lazy" />`;
@@ -1817,6 +1832,24 @@ function purchasePendingApplyHref(planNo, code, name, qty) {
   return `purchase_pending_apply.html?${p.toString()}`;
 }
 
+function purchasePendingRowKey(row) {
+  return `${row.planNo}|${row.code}`;
+}
+
+function purchasePendingBatchApplyHref(keys) {
+  const p = new URLSearchParams({ batch: '1', keys: keys.join(',') });
+  return `purchase_pending_apply.html?${p.toString()}`;
+}
+
+const PURCHASE_PENDING_ROWS = [
+  { planNo: 'JJJH202606080001', planName: '防汛应急采购', planType: '急件计划', status: '待申请', code: 'XF-00102', name: '防汛沙袋', spec: '50×80cm', major: '耗材-防汛物资', minor: '防汛物资', reporter: '李四', department: '设备部', applyDate: '2026-06-08', unit: '条', planQty: '500', refPrice: '12.00', majorShort: '耗材', minorShort: '防汛物资' },
+  { planNo: 'JJJH202606080001', planName: '防汛应急采购', planType: '急件计划', status: '待申请', code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', major: '资产-类资产', minor: '防汛设备', reporter: '李四', department: '设备部', applyDate: '2026-06-08', unit: '台', planQty: '5', refPrice: '2800.00', majorShort: '类资产', minorShort: '防汛设备' },
+  { planNo: 'JJJH202606080001', planName: '防汛应急采购', planType: '急件计划', status: '待申请', code: 'XF-00108', name: '救生衣', spec: '成人款', major: '耗材-防汛物资', minor: '防汛物资', reporter: '李四', department: '设备部', applyDate: '2026-06-08', unit: '件', planQty: '50', refPrice: '85.00', majorShort: '耗材', minorShort: '防汛物资' },
+  { planNo: 'JJJH202510001', planName: '设备配件补库', planType: '急件计划', status: '待申请', code: 'GD001001-001', name: '抓斗', spec: '4m³-Q345B', major: '资产-固定资产', minor: '设备-配件', reporter: '李四', department: '设备部', applyDate: '2026-05-04', unit: '个', planQty: '10', refPrice: '1000.00', majorShort: '资产-固定资产', minorShort: '设备-配件' },
+  { planNo: 'JJJH202510002', planName: '设备配件补库', planType: '急件计划', status: '待申请', code: 'GD001001-002', name: '料斗', spec: '4m³', major: '资产-固定资产', minor: '设备-配件', reporter: '李四', department: '设备部', applyDate: '2026-05-04', unit: '个', planQty: '10', refPrice: '1000.00', majorShort: '资产-固定资产', minorShort: '设备-配件' },
+  { planNo: 'JJJH202606050001', planName: '维保耗材采购', planType: '急件计划', status: '已申请', code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', major: '资产-类资产', minor: '防汛设备', reporter: '王五', department: '维保部', applyDate: '2026-06-05', unit: '台', planQty: '5', refPrice: '2800.00', majorShort: '类资产', minorShort: '防汛设备', requestNo: 'JJSQ202606050001' },
+];
+
 function purchasePendingPlanViewHref(planNo) {
   const p = new URLSearchParams({ planNo, back: 'purchase_pending_list.html' });
   return `purchase_pending_plan_detail.html?${p.toString()}`;
@@ -1825,54 +1858,70 @@ function purchasePendingPlanViewHref(planNo) {
 const APPLY_PLAN_SAMPLES = {
   JJJH202606080001: {
     no: 'JJJH202606080001', name: '防汛应急采购', planType: '急件计划', status: '审核通过',
-    reporter: '李四', department: '设备部', applyDate: '2026-06-08', needDate: '2026-06-12',
+    reporter: '李四', department: '设备部', applyDate: '2026-06-08', createTime: '2026-06-08 09:15', needDate: '2026-06-10',
+    auditPassTime: '2026-06-09 10:30', workflow: 'WF-PLAN',
     remark: '汛期临近，需尽快补齐防汛物资库存。',
     lines: [
-      { code: 'XF-00102', name: '防汛沙袋', spec: '50×80cm', major: '耗材-防汛物资', minor: '防汛物资', unit: '条', qty: '500' },
+      { code: 'XF-00102', name: '防汛沙袋', spec: '50×80cm', major: '耗材-防汛物资', minor: '防汛物资', unit: '条', stock: '120', qty: '500', needDate: '2026-06-12' },
+      { code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', major: '资产-类资产', minor: '防汛设备', unit: '台', stock: '2', qty: '5', needDate: '2026-06-10' },
+      { code: 'XF-00108', name: '救生衣', spec: '成人款', major: '耗材-防汛物资', minor: '防汛物资', unit: '件', stock: '80', qty: '50', needDate: '2026-06-12' },
+      { code: 'XF-00112', name: '应急照明灯', spec: 'LED 充电式', major: '耗材-防汛物资', minor: '防汛物资', unit: '盏', stock: '15', qty: '30', needDate: '2026-06-14' },
     ],
   },
   JJJH202510001: {
     no: 'JJJH202510001', name: '设备配件补库', planType: '急件计划', status: '审核通过',
-    reporter: '李四', department: '设备部', applyDate: '2026-05-04', needDate: '2026-06-15',
+    reporter: '李四', department: '设备部', applyDate: '2026-05-04', createTime: '2026-05-04 10:00', needDate: '2026-06-15',
+    auditPassTime: '2026-05-05 11:00', workflow: 'WF-PLAN',
     remark: '抓斗备件库存不足，申请补库。',
     lines: [
-      { code: 'GD001001-001', name: '抓斗', spec: '4m³-Q345B', major: '资产-固定资产', minor: '设备-配件', unit: '个', qty: '10' },
+      { code: 'GD001001-001', name: '抓斗', spec: '4m³-Q345B', major: '资产-固定资产', minor: '设备-配件', unit: '个', stock: '—', qty: '10', needDate: '2026-06-15' },
+      { code: 'GD001001-003', name: '钢丝绳', spec: 'Φ18×100m', major: '资产-类资产', minor: '设备-配件', unit: 'm', stock: '200', qty: '100', needDate: '2026-06-20' },
     ],
   },
   JJJH202510002: {
     no: 'JJJH202510002', name: '设备配件补库', planType: '急件计划', status: '审核通过',
-    reporter: '李四', department: '设备部', applyDate: '2026-05-04', needDate: '2026-06-15',
+    reporter: '李四', department: '设备部', applyDate: '2026-05-04', createTime: '2026-05-04 10:20', needDate: '2026-06-15',
+    auditPassTime: '2026-05-05 11:00', workflow: 'WF-PLAN',
     remark: '料斗备件补库。',
     lines: [
-      { code: 'GD001001-002', name: '料斗', spec: '4m³', major: '资产-固定资产', minor: '设备-配件', unit: '个', qty: '10' },
+      { code: 'GD001001-002', name: '料斗', spec: '4m³', major: '资产-固定资产', minor: '设备-配件', unit: '个', stock: '—', qty: '10', needDate: '2026-06-15' },
+      { code: 'GD001001-004', name: '螺丝刀', spec: '十字 PH2', major: '资产-类资产', minor: '工具', unit: '把', stock: '24', qty: '20', needDate: '2026-06-18' },
     ],
   },
   JJJH202606050001: {
     no: 'JJJH202606050001', name: '维保耗材采购', planType: '急件计划', status: '审核通过',
-    reporter: '王五', department: '维保部', applyDate: '2026-06-05', needDate: '2026-06-18',
+    reporter: '王五', department: '维保部', applyDate: '2026-06-05', createTime: '2026-06-05 08:40', needDate: '2026-06-18',
+    auditPassTime: '2026-06-06 14:00', workflow: 'WF-PLAN',
     remark: '维保季度集中采购。',
     lines: [
-      { code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', major: '资产-类资产', minor: '防汛设备', unit: '台', qty: '5' },
+      { code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', major: '资产-类资产', minor: '防汛设备', unit: '台', stock: '2', qty: '5', needDate: '2026-06-18' },
+      { code: 'HC-00128', name: '安全帽', spec: 'ABS 标准款', major: '耗材-安全防护', minor: '安全防护', unit: '顶', stock: '45', qty: '100', needDate: '2026-06-20' },
+      { code: 'DL-00234', name: '电缆 YJV-3×2.5', spec: '国标铜芯', major: '资产-类资产', minor: '电气材料', unit: 'm', stock: '320', qty: '200', needDate: '2026-06-22' },
     ],
   },
 };
+
+function applyPlanDetailLineRows(lines) {
+  return (lines || []).map((line, i) =>
+    `<tr class="border-t border-slate-100">
+      <td class="px-3 py-2.5 text-sm text-slate-700">${i + 1}</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-800">${line.code}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800">${line.name}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.spec || '—'}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.major}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.minor}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.unit}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.stock ?? '—'}</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900">${line.qty}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.needDate || '—'}</td>
+    </tr>`
+  ).join('');
+}
 
 function applyPlanDetailModal(backHref, plan) {
   const p = plan;
   const typeBadge = p.planType === '急件计划' ? badge('急件计划', 'warning') : badge(p.planType || '一般计划', 'info');
   const statusBadge = badge(p.status || '审核通过', 'success');
-  const lineRows = (p.lines || []).map((line, i) =>
-    `<tr class="border-t border-slate-100">
-      <td class="px-3 py-2.5 text-sm text-slate-700">${i + 1}</td>
-      <td class="px-3 py-2.5 font-mono text-xs text-slate-800">${line.code}</td>
-      <td class="px-3 py-2.5 text-sm text-slate-800">${line.name}</td>
-      <td class="px-3 py-2.5 text-sm text-slate-700">${line.spec}</td>
-      <td class="px-3 py-2.5 text-sm text-slate-700">${line.major}</td>
-      <td class="px-3 py-2.5 text-sm text-slate-700">${line.minor}</td>
-      <td class="px-3 py-2.5 text-sm text-slate-700">${line.unit}</td>
-      <td class="px-3 py-2.5 text-sm font-medium text-slate-900">${line.qty}</td>
-    </tr>`
-  ).join('');
   return `
     <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-apply-plan-detail>
       <div class="mb-4 rounded-xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-700">
@@ -1880,30 +1929,38 @@ function applyPlanDetailModal(backHref, plan) {
         <span class="mx-2 text-slate-300">·</span><span data-apply-plan-banner="planType">${typeBadge}</span>
         <span class="mx-2 text-slate-300">·</span><span data-apply-plan-banner="status">${statusBadge}</span>
       </div>
+      <h4 class="mb-3 text-sm font-semibold text-slate-900">基础信息</h4>
       <dl class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
         <div><dt class="text-slate-500">计划名称</dt><dd class="mt-1 font-semibold text-slate-900" data-apply-plan-field="name">${p.name}</dd></div>
+        <div><dt class="text-slate-500">计划单号</dt><dd class="mt-1 font-mono text-slate-800" data-apply-plan-field="planNo">${p.no}</dd></div>
+        <div><dt class="text-slate-500">计划类型</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="planTypeText">${p.planType}</dd></div>
+        <div><dt class="text-slate-500">审批状态</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="statusText">${p.status}</dd></div>
         <div><dt class="text-slate-500">填报人</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="reporter">${p.reporter}</dd></div>
         <div><dt class="text-slate-500">填报部门</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="department">${p.department}</dd></div>
         <div><dt class="text-slate-500">申请日期</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="applyDate">${p.applyDate}</dd></div>
+        <div><dt class="text-slate-500">创建时间</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="createTime">${p.createTime || '—'}</dd></div>
         <div><dt class="text-slate-500">最早需求日</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="needDate">${p.needDate}</dd></div>
-        <div class="sm:col-span-2 lg:col-span-3"><dt class="text-slate-500">需求说明</dt><dd class="mt-1 text-slate-700" data-apply-plan-field="remark">${p.remark || '—'}</dd></div>
+        <div><dt class="text-slate-500">审核通过时间</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="auditPassTime">${p.auditPassTime || '—'}</dd></div>
+        <div><dt class="text-slate-500">审批流程</dt><dd class="mt-1 font-mono text-xs text-slate-700" data-apply-plan-field="workflow">${p.workflow || 'WF-PLAN'}</dd></div>
+        <div class="sm:col-span-2 lg:col-span-4"><dt class="text-slate-500">需求说明</dt><dd class="mt-1 text-slate-700" data-apply-plan-field="remark">${p.remark || '—'}</dd></div>
       </dl>
       <h4 class="mb-3 text-sm font-semibold text-slate-900">计划明细</h4>
-      <div class="mb-4 overflow-hidden rounded-xl border border-slate-200">
-        <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">序号</th>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资编码</th>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资名称</th>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">规格型号</th>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资大类</th>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资子类</th>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">单位</th>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">需求数量</th>
-        </tr></thead><tbody data-apply-plan-lines>${lineRows}</tbody></table>
-      </div>
-      <div class="flex flex-wrap gap-3 text-sm">
-        <a href="apply_plan_list.html" class="text-slate-600 hover:underline"><i class="fa-solid fa-list mr-1"></i>物资计划列表</a>
-        <a href="purchase_pending_list.html" class="text-slate-600 hover:underline"><i class="fa-solid fa-cart-shopping mr-1"></i>待采物资</a>
+      <p class="mb-2 text-xs text-slate-500">列与物资计划编制表单一致；在库数量为提交审核时的库存快照。</p>
+      <div class="mb-6 overflow-hidden rounded-xl border border-slate-200">
+        <div class="overflow-x-auto wms-modal-table-wrap">
+          <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">规格型号</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资大类</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资子类</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">单位</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">在库数量</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划需求数量</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划需要日期</th>
+          </tr></thead><tbody data-apply-plan-lines>${applyPlanDetailLineRows(p.lines)}</tbody></table>
+        </div>
       </div>
       <div class="wms-modal-footer mt-6">
         <a href="${backHref}" class="wms-btn wms-btn-secondary" data-apply-plan-back>关闭</a>
@@ -1913,38 +1970,47 @@ function applyPlanDetailModal(backHref, plan) {
 
 function purchasePendingListPage() {
   const cols = ['序号', '计划单号', '计划名称', '计划类型', '物资编码', '物资名称', '状态', '规格型号', '物资大类', '物资子类', '填报人', '填报部门', '申请日期', '计量单位', '计划需求数量', '申请数量', '采购申请单号', '采购数量', '采购方式', '采购日期'];
-  const th = cols.map(c => `<th class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('') +
+  const th = '<th class="w-10 px-3 py-3" data-pending-col-check><input type="checkbox" class="rounded border-slate-300" title="全选待申请" data-wms-pending-check-all /></th>' +
+    cols.map(c => `<th class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('') +
     actionTh();
   const dash = '<span class="text-slate-400">—</span>';
-  const rows = [
-    ['1', 'JJJH202606080001', '防汛应急采购', badge('急件计划', 'warning'), 'XF-00102', '防汛沙袋', badge('待申请', 'info'), '50×80cm', '耗材-防汛物资', '防汛物资', '李四', '设备部', '2026-06-08', '条', '500', dash, dash, dash, dash, dash,
-      `<a href="${purchasePendingPlanViewHref('JJJH202606080001')}" class="mr-2 hover:underline">查看计划</a><a href="${purchasePendingApplyHref('JJJH202606080001', 'XF-00102', '防汛沙袋', 500)}" class="font-medium text-slate-900 hover:underline">申请</a>`],
-    ['2', 'JJJH202510001', '设备配件补库', badge('急件计划', 'warning'), 'GD001001-001', '抓斗', badge('待申请', 'info'), '4m³-Q345B', '资产-固定资产', '设备-配件', '李四', '设备部', '2026-05-04', '个', '10', dash, dash, dash, dash, dash,
-      `<a href="${purchasePendingPlanViewHref('JJJH202510001')}" class="mr-2 hover:underline">查看计划</a><a href="${purchasePendingApplyHref('JJJH202510001', 'GD001001-001', '抓斗', 10)}" class="font-medium text-slate-900 hover:underline">申请</a>`],
-    ['3', 'JJJH202510002', '设备配件补库', badge('急件计划', 'warning'), 'GD001001-002', '料斗', badge('待申请', 'info'), '4m³', '资产-固定资产', '设备-配件', '李四', '设备部', '2026-05-04', '个', '10', dash, dash, dash, dash, dash,
-      `<a href="${purchasePendingPlanViewHref('JJJH202510002')}" class="mr-2 hover:underline">查看计划</a><a href="${purchasePendingApplyHref('JJJH202510002', 'GD001001-002', '料斗', 10)}" class="font-medium text-slate-900 hover:underline">申请</a>`],
-    ['4', 'JJJH202606050001', '维保耗材采购', badge('急件计划', 'warning'), 'XF-00105', '抽水泵', badge('已申请', 'success'), 'QZ10-15', '资产-类资产', '防汛设备', '王五', '维保部', '2026-06-05', '台', '5', '5', '<a href="purchase_request_list.html" class="font-mono text-xs hover:underline">JJSQ202606050001</a>', dash, dash, dash,
-      '<a href="purchase_request_form.html?mode=view&amp;requestNo=JJSQ202606050001" class="hover:underline">查看申请</a>'],
-  ];
-  const tr = rows.map(r => {
-    const actions = r.pop();
-    const status = stripCellText(r[6]);
-    const planType = stripCellText(r[3]);
-    const search = r.map(stripCellText).join(' ').toLowerCase();
-    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-tab="${status}" data-list-search="${search}" data-list-filter-planType="${planType}">${r.map(c => `<td class="px-3 py-3.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('')}${actionTd(actions)}</tr>`;
+  const tr = PURCHASE_PENDING_ROWS.map((row, i) => {
+    const key = purchasePendingRowKey(row);
+    const planTypeBadge = badge(row.planType === '急件计划' ? '急件计划' : row.planType, row.planType === '急件计划' ? 'warning' : 'info');
+    const statusBadge = row.status === '已申请' ? badge('已申请', 'success') : badge('待申请', 'info');
+    const cells = [
+      String(i + 1), row.planNo, row.planName, planTypeBadge, row.code, row.name, statusBadge,
+      row.spec, row.major, row.minor, row.reporter, row.department, row.applyDate, row.unit, row.planQty,
+      row.status === '已申请' ? row.planQty : dash,
+      row.requestNo ? `<a href="purchase_request_list.html" class="font-mono text-xs hover:underline">${row.requestNo}</a>` : dash,
+      dash, dash, dash,
+    ];
+    const isPending = row.status === '待申请';
+    const checkCell = isPending
+      ? `<td class="px-3 py-3" data-pending-col-check><input type="checkbox" class="rounded border-slate-300 wms-pending-check" data-pending-key="${key}" data-plan-no="${row.planNo}" data-code="${row.code}" data-name="${row.name}" data-qty="${row.planQty}" /></td>`
+      : '<td class="px-3 py-3" data-pending-col-check></td>';
+    const actions = isPending
+      ? `<a href="${purchasePendingPlanViewHref(row.planNo)}" class="mr-2 hover:underline">查看计划</a><a href="${purchasePendingApplyHref(row.planNo, row.code, row.name, row.planQty)}" class="font-medium text-slate-900 hover:underline">申请</a>`
+      : `<a href="${purchasePendingPlanViewHref(row.planNo)}" class="mr-2 hover:underline">查看计划</a><a href="purchase_request_form.html?mode=view&amp;requestNo=${row.requestNo}" class="hover:underline">查看申请</a>`;
+    const search = [row.planNo, row.planName, row.planType, row.code, row.name, row.status, row.spec, row.major, row.minor, row.reporter, row.department].join(' ').toLowerCase();
+    return `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-wms-pending-row data-pending-key="${key}" data-pending-status="${row.status}" data-list-tab="${row.status}" data-list-search="${search}" data-list-filter-planType="${row.planType}">${checkCell}${cells.map(c => `<td class="px-3 py-3.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('')}${actionTd(actions)}</tr>`;
   }).join('');
   return `
-    <div data-wms-list-page>
-      <p class="mb-4 text-sm text-slate-500">急件计划审核通过后自动生成待采记录；<strong>待申请</strong>可发起采购申请，<strong>已申请</strong>不可重复申请</p>
+    <div data-wms-list-page data-wms-pending-list>
+      <p class="mb-4 text-sm text-slate-500">急件计划审核通过后按<strong>计划单号 + 物资编码</strong>生成待采记录；<strong>待申请</strong>可单条或批量发起采购申请，<strong>已申请</strong>不可重复申请</p>
       ${pageTabs(['全部', '待申请', '已申请'])}
       ${pageToolbar({
     searchPlaceholder: '计划单号、物资编码、物资名称',
     filters: [{ label: '计划类型', key: 'planType', options: ['全部', '一般计划', '急件计划'] }],
   })}
+      <div class="mb-3 flex flex-wrap items-center gap-2" data-wms-pending-batch-bar>
+        <button type="button" class="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-40" data-wms-pending-batch-apply disabled><i class="fa-solid fa-file-circle-plus text-xs"></i>批量申请</button>
+        <span class="text-xs text-slate-500" data-wms-pending-batch-hint>已选 0 条（仅待申请可勾选）</span>
+      </div>
       <div class="card overflow-hidden rounded-2xl bg-white shadow-sm" data-wms-list-card>
         <div class="overflow-x-auto wms-modal-table-wrap" data-wms-list-table-wrap><table class="min-w-full text-sm wms-data-table"><thead class="bg-slate-50/80"><tr>${th}</tr></thead><tbody data-wms-list-tbody>${tr}</tbody></table></div>
         ${listEmptyState()}
-        ${listTableFooter(rows.length)}
+        ${listTableFooter(PURCHASE_PENDING_ROWS.length)}
       </div>
     </div>`;
 }
@@ -2936,20 +3002,16 @@ const ACCEPTANCE_RECORD_DETAIL_SAMPLES = {
   'GH2025004-YS02': { no: 'GH2025004-YS02', batchNo: '2', batchQty: '10', qualified: '9', unqualified: '1', date: '2025-11-25', warehouse: '李仓管', planner: '赵工', unqualifiedRemark: '刀头断裂，无法使用', disposition: '退货', status: '审核通过', refundKey: 'GH2025004-YS02-TH' },
 };
 
-function acceptanceRecordDetailPage(backHref = 'warehouse_acceptance_record.html', recordNo = 'GH2025003-YS01') {
-  const d = ACCEPTANCE_RECORD_DETAIL_SAMPLES[recordNo] || ACCEPTANCE_RECORD_DETAIL_SAMPLES['GH2025003-YS01'];
+function acceptanceRecordDetailFields(d, { includeFooterTips = true } = {}) {
   const inputCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600';
-  const refundKey = d.refundKey || REFUND_BY_ACCEPT[recordNo] || '';
-  const refundHref = refundKey ? `${refundFormPage(refundKey)}?${new URLSearchParams({ refundKey, back: 'warehouse_refund_list.html' })}` : '';
-  const inboundBtn = d.status === '审核通过' && INBOUND_ACCEPT_SAMPLES[recordNo] && INBOUND_ACCEPT_SAMPLES[recordNo].status !== '已入库'
-    ? `<a href="${inboundFormPage(INBOUND_ACCEPT_SAMPLES[recordNo].materialType)}?${new URLSearchParams({ acceptNo: recordNo, back: 'warehouse_inbound_list.html' })}" class="wms-btn wms-btn-primary">去入库</a>`
-    : '';
-  const refundBtn = refundHref ? `<a href="${refundHref}" class="wms-btn wms-btn-secondary">发起退货</a>` : '';
+  const refundKey = d.refundKey || REFUND_BY_ACCEPT[d.no] || '';
   const dispositionBlock = Number(d.unqualified) > 0 ? `
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">处理方式</label><input type="text" value="${d.disposition || '—'}" readonly class="${inputCls}" data-accept-record-field="disposition" /></div>
         ${d.disposition === '退货' && refundKey ? `<div class="md:col-span-2 rounded-xl border border-orange-100 bg-orange-50/50 p-4 text-xs text-slate-600">审核通过后已生成退货待办 <span class="font-mono font-medium">${refundKey}</span>，可在<a href="warehouse_refund_list.html" class="font-medium text-slate-900 hover:underline">物资退货</a>列表执行。</div>` : ''}` : '';
+  const passedTip = includeFooterTips && d.status === '审核通过' && INBOUND_ACCEPT_SAMPLES[d.no]
+    ? `<div class="md:col-span-2 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4 text-xs text-slate-600">验收记录已通过，合格数量 <strong>${d.qualified}</strong> 可入库。${INBOUND_ACCEPT_SAMPLES[d.no].status === '已入库' ? '该批次已全部入库。' : '请前往物资入库执行入库操作。'}</div>`
+    : '';
   return `
-    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg" data-wms-acceptance-record-detail data-accept-record-no="${recordNo}">
       <div class="wms-modal-form wms-acceptance-record-detail">
         ${formSection('验收信息')}
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">验收单号</label><input type="text" value="${d.no}" readonly class="${inputCls}" data-accept-record-field="no" /></div>
@@ -2965,11 +3027,51 @@ function acceptanceRecordDetailPage(backHref = 'warehouse_acceptance_record.html
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">不合格说明</label><textarea rows="2" readonly class="${inputCls}" data-accept-record-field="unqualifiedRemark">${d.unqualifiedRemark || '—'}</textarea></div>
         ${dispositionBlock}
       </div>
-      ${d.status === '审核通过' && INBOUND_ACCEPT_SAMPLES[recordNo] ? `<div class="md:col-span-2 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4 text-xs text-slate-600">验收记录已通过，合格数量 <strong>${d.qualified}</strong> 可入库。${INBOUND_ACCEPT_SAMPLES[recordNo].status === '已入库' ? '该批次已全部入库。' : '请前往物资入库执行入库操作。'}</div>` : ''}
+      ${passedTip}
+  `;
+}
+
+function acceptanceRecordDetailPage(backHref = 'warehouse_acceptance_record.html', recordNo = 'GH2025003-YS01') {
+  const d = ACCEPTANCE_RECORD_DETAIL_SAMPLES[recordNo] || ACCEPTANCE_RECORD_DETAIL_SAMPLES['GH2025003-YS01'];
+  const refundKey = d.refundKey || REFUND_BY_ACCEPT[recordNo] || '';
+  const refundHref = refundKey ? `${refundFormPage(refundKey)}?${new URLSearchParams({ refundKey, back: 'warehouse_refund_list.html' })}` : '';
+  const inboundBtn = d.status === '审核通过' && INBOUND_ACCEPT_SAMPLES[recordNo] && INBOUND_ACCEPT_SAMPLES[recordNo].status !== '已入库'
+    ? `<a href="${inboundFormPage(INBOUND_ACCEPT_SAMPLES[recordNo].materialType)}?${new URLSearchParams({ acceptNo: recordNo, back: 'warehouse_inbound_list.html' })}" class="wms-btn wms-btn-primary">去入库</a>`
+    : '';
+  const refundBtn = refundHref ? `<a href="${refundHref}" class="wms-btn wms-btn-secondary">发起退货</a>` : '';
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg" data-wms-acceptance-record-detail data-accept-record-no="${recordNo}">
+      ${acceptanceRecordDetailFields(d)}
       <div class="wms-modal-footer">
         <a href="${backHref}" class="wms-btn wms-btn-secondary">关闭</a>
         ${refundBtn}
         ${inboundBtn}
+      </div>
+    </div>`;
+}
+
+function acceptanceAuditFormPage(backHref = 'warehouse_acceptance_audit_list.html', recordNo = 'GH2025003-YS01') {
+  const d = ACCEPTANCE_RECORD_DETAIL_SAMPLES[recordNo] || ACCEPTANCE_RECORD_DETAIL_SAMPLES['GH2025003-YS01'];
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg" data-wms-acceptance-audit-form data-accept-record-no="${recordNo}">
+      ${acceptanceRecordDetailFields(d, { includeFooterTips: false })}
+      <div class="wms-modal-form wms-warehouse-form">
+        ${formSection('审核')}
+        <div class="md:col-span-2">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 审核结论</label>
+          <div class="wms-radio-group">
+            <label class="wms-radio-option"><input type="radio" name="accept_audit_result" checked /> 通过</label>
+            <label class="wms-radio-option"><input type="radio" name="accept_audit_result" /> 驳回</label>
+          </div>
+        </div>
+        <div class="md:col-span-2">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">审核意见</label>
+          <textarea rows="3" placeholder="请输入审核意见（驳回必填）" data-accept-audit-opinion class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary" data-accept-audit-back>取消</a>
+        <button type="button" class="wms-btn wms-btn-primary">提交审核</button>
       </div>
     </div>`;
 }
@@ -8207,37 +8309,7 @@ const forms = {
 
   warehouse_acceptance_record_detail: page('warehouse_acceptance_list', '验收记录详情', '物资管理 / 验收记录详情', acceptanceRecordDetailPage('warehouse_acceptance_record.html', 'GH2025004-YS02')),
 
-  warehouse_acceptance_audit_form: page('warehouse_acceptance_audit_list', '验收审核', '物资管理 / 验收审核', `
-    <div data-wms-modal data-modal-back="warehouse_acceptance_audit_list.html" data-modal-size="lg" data-wms-acceptance-audit-form>
-      <div class="wms-modal-form wms-warehouse-form">
-        ${formSection('验收记录')}
-        <div class="md:col-span-2 text-sm text-slate-500">审核对象为单批次验收记录（验收单）。此处为原型演示，实际以流程中心审批为准。</div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">验收单号</label><input type="text" value="GH2025003-YS01" readonly data-accept-record-field="no" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供货单号</label><input type="text" value="GH2025003" readonly data-accept-record-field="supplyNo" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">物资名称</label><input type="text" value="钢丝绳" readonly data-accept-record-field="materialName" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">本批次数量</label><input type="text" value="50" readonly data-accept-record-field="batchQty" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">合格 / 不合格</label><input type="text" value="50 / 0" readonly data-accept-record-field="qualifiedSummary" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">验收日期</label><input type="text" value="2025-11-20" readonly data-accept-record-field="date" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
-
-        ${formSection('审核')}
-        <div class="md:col-span-2">
-          <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 审核结论</label>
-          <div class="wms-radio-group">
-            <label class="wms-radio-option"><input type="radio" name="accept_audit_result" checked /> 通过</label>
-            <label class="wms-radio-option"><input type="radio" name="accept_audit_result" /> 驳回</label>
-          </div>
-        </div>
-        <div class="md:col-span-2">
-          <label class="mb-1.5 block text-sm font-medium text-slate-700">审核意见</label>
-          <textarea rows="3" placeholder="请输入审核意见（驳回必填）" data-accept-audit-opinion class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea>
-        </div>
-      </div>
-      <div class="wms-modal-footer">
-        <a href="warehouse_acceptance_audit_list.html" class="wms-btn wms-btn-secondary" data-accept-audit-back>取消</a>
-        <button type="button" class="wms-btn wms-btn-primary">提交审核</button>
-      </div>
-    </div>
-  `),
+  warehouse_acceptance_audit_form: page('warehouse_acceptance_audit_list', '验收审核', '物资管理 / 验收审核', acceptanceAuditFormPage('warehouse_acceptance_audit_list.html', 'GH2025003-YS01')),
 
   purchase_plan_form: page('purchase_plan_apply', '新建计划采购', '采购管理 / 新建计划采购', hubPage('purchase_plan_apply', '新建计划采购', '采购管理 / 计划采购申请', 'purchase_plan_apply.html', [
     ['purchase_plan_direct.html', 'fa-bolt', '直采', '指定供应商直接采购'],
@@ -8307,14 +8379,20 @@ const forms = {
   config_material_detail: page('config_material_catalog', '查看物资', '基础配置 / 查看物资', materialDetailPage()),
 
   // --- 物资申请：选择/添加明细 ---
-  apply_plan_select_material: selectPicker('apply_plan_list', '选择物资清单', '物资申请 / 选择物资清单', 'apply_plan_form.html', {
+  apply_plan_select_material: selectPickerWithTree('apply_plan_list', '选择物资清单', '物资申请 / 选择物资清单', 'apply_plan_form.html', {
     heading: '从物资清单选择计划明细（仅显示启用物资）',
-    columns: ['物资编码', '物资名称', '类型', '所属分类', '计量单位', '参考单价'],
-    rows: [
-      ['HC-00089', '打印纸 A4', materialTypeBadge('consumable'), '<span class="text-xs font-mono text-slate-500">HC-BG-001002</span>', '箱', '¥ 120'],
-      ['LA-00456', '电钻', materialTypeBadge('like'), '<span class="text-xs font-mono text-slate-500">LA-ZC-001001</span>', '台', '¥ 680'],
-      ['GD001001-001', '抓斗', materialTypeBadge('fixed'), '<span class="text-xs font-mono text-slate-500">ZC-GD-002</span>', '个', '¥ 10,000'],
+    columns: ['物资编码', '物资名称', '类型', '计量单位', '在库数量', '所属分类', '参考单价'],
+    pickerRows: applyPlanPickerRows(),
+    renderCells: (row) => [
+      row.code,
+      row.name,
+      materialTypeBadge(row.type),
+      row.unit,
+      row.stock,
+      `<span class="text-xs font-mono text-slate-500">${row.categoryCode || '—'}</span>`,
+      row.price ? `¥ ${Number(row.price).toLocaleString()}` : '—',
     ],
+    checkedCount: 1,
   }),
 
   apply_requisition_add_material: selectPickerWithTree('apply_requisition_list', '添加物资', '物资申请 / 添加领用物资', 'apply_requisition_form.html', {

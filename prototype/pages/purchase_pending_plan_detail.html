@@ -16,26 +16,37 @@
         <span class="mx-2 text-slate-300">·</span><span data-apply-plan-banner="planType"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">急件计划</span></span>
         <span class="mx-2 text-slate-300">·</span><span data-apply-plan-banner="status"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">审核通过</span></span>
       </div>
+      <h4 class="mb-3 text-sm font-semibold text-slate-900">基础信息</h4>
       <dl class="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 text-sm">
         <div><dt class="text-slate-500">计划名称</dt><dd class="mt-1 font-semibold text-slate-900" data-apply-plan-field="name">防汛应急采购</dd></div>
+        <div><dt class="text-slate-500">计划单号</dt><dd class="mt-1 font-mono text-slate-800" data-apply-plan-field="planNo">JJJH202606080001</dd></div>
+        <div><dt class="text-slate-500">计划类型</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="planTypeText">急件计划</dd></div>
+        <div><dt class="text-slate-500">审批状态</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="statusText">审核通过</dd></div>
         <div><dt class="text-slate-500">填报人</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="reporter">李四</dd></div>
         <div><dt class="text-slate-500">填报部门</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="department">设备部</dd></div>
         <div><dt class="text-slate-500">申请日期</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="applyDate">2026-06-08</dd></div>
-        <div><dt class="text-slate-500">最早需求日</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="needDate">2026-06-12</dd></div>
-        <div class="sm:col-span-2 lg:col-span-3"><dt class="text-slate-500">需求说明</dt><dd class="mt-1 text-slate-700" data-apply-plan-field="remark">汛期临近，需尽快补齐防汛物资库存。</dd></div>
+        <div><dt class="text-slate-500">创建时间</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="createTime">2026-06-08 09:15</dd></div>
+        <div><dt class="text-slate-500">最早需求日</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="needDate">2026-06-10</dd></div>
+        <div><dt class="text-slate-500">审核通过时间</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="auditPassTime">2026-06-09 10:30</dd></div>
+        <div><dt class="text-slate-500">审批流程</dt><dd class="mt-1 font-mono text-xs text-slate-700" data-apply-plan-field="workflow">WF-PLAN</dd></div>
+        <div class="sm:col-span-2 lg:col-span-4"><dt class="text-slate-500">需求说明</dt><dd class="mt-1 text-slate-700" data-apply-plan-field="remark">汛期临近，需尽快补齐防汛物资库存。</dd></div>
       </dl>
       <h4 class="mb-3 text-sm font-semibold text-slate-900">计划明细</h4>
-      <div class="mb-4 overflow-hidden rounded-xl border border-slate-200">
-        <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">序号</th>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资编码</th>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资名称</th>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">规格型号</th>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资大类</th>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资子类</th>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">单位</th>
-          <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">需求数量</th>
-        </tr></thead><tbody data-apply-plan-lines><tr class="border-t border-slate-100">
+      <p class="mb-2 text-xs text-slate-500">列与物资计划编制表单一致；在库数量为提交审核时的库存快照。</p>
+      <div class="mb-6 overflow-hidden rounded-xl border border-slate-200">
+        <div class="overflow-x-auto wms-modal-table-wrap">
+          <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">规格型号</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资大类</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资子类</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">单位</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">在库数量</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划需求数量</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划需要日期</th>
+          </tr></thead><tbody data-apply-plan-lines><tr class="border-t border-slate-100">
       <td class="px-3 py-2.5 text-sm text-slate-700">1</td>
       <td class="px-3 py-2.5 font-mono text-xs text-slate-800">XF-00102</td>
       <td class="px-3 py-2.5 text-sm text-slate-800">防汛沙袋</td>
@@ -43,12 +54,44 @@
       <td class="px-3 py-2.5 text-sm text-slate-700">耗材-防汛物资</td>
       <td class="px-3 py-2.5 text-sm text-slate-700">防汛物资</td>
       <td class="px-3 py-2.5 text-sm text-slate-700">条</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">120</td>
       <td class="px-3 py-2.5 text-sm font-medium text-slate-900">500</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">2026-06-12</td>
+    </tr><tr class="border-t border-slate-100">
+      <td class="px-3 py-2.5 text-sm text-slate-700">2</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-800">XF-00105</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800">抽水泵</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">QZ10-15</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">资产-类资产</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">防汛设备</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">台</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">2</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900">5</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">2026-06-10</td>
+    </tr><tr class="border-t border-slate-100">
+      <td class="px-3 py-2.5 text-sm text-slate-700">3</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-800">XF-00108</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800">救生衣</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">成人款</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">耗材-防汛物资</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">防汛物资</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">件</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">80</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900">50</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">2026-06-12</td>
+    </tr><tr class="border-t border-slate-100">
+      <td class="px-3 py-2.5 text-sm text-slate-700">4</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-800">XF-00112</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800">应急照明灯</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">LED 充电式</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">耗材-防汛物资</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">防汛物资</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">盏</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">15</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900">30</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">2026-06-14</td>
     </tr></tbody></table>
-      </div>
-      <div class="flex flex-wrap gap-3 text-sm">
-        <a href="apply_plan_list.html" class="text-slate-600 hover:underline"><i class="fa-solid fa-list mr-1"></i>物资计划列表</a>
-        <a href="purchase_pending_list.html" class="text-slate-600 hover:underline"><i class="fa-solid fa-cart-shopping mr-1"></i>待采物资</a>
+        </div>
       </div>
       <div class="wms-modal-footer mt-6">
         <a href="purchase_pending_list.html" class="wms-btn wms-btn-secondary" data-apply-plan-back>关闭</a>

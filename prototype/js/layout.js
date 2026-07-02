@@ -6,10 +6,58 @@ const WMS_TRANSACTION_SAMPLES = {
 };
 
 const WMS_APPLY_PLAN_SAMPLES = {
-  JJJH202606080001: { no: 'JJJH202606080001', name: '防汛应急采购', planType: '急件计划', status: '审核通过', reporter: '李四', department: '设备部', applyDate: '2026-06-08', needDate: '2026-06-12', remark: '汛期临近，需尽快补齐防汛物资库存。', lines: [{ code: 'XF-00102', name: '防汛沙袋', spec: '50×80cm', major: '耗材-防汛物资', minor: '防汛物资', unit: '条', qty: '500' }] },
-  JJJH202510001: { no: 'JJJH202510001', name: '设备配件补库', planType: '急件计划', status: '审核通过', reporter: '李四', department: '设备部', applyDate: '2026-05-04', needDate: '2026-06-15', remark: '抓斗备件库存不足，申请补库。', lines: [{ code: 'GD001001-001', name: '抓斗', spec: '4m³-Q345B', major: '资产-固定资产', minor: '设备-配件', unit: '个', qty: '10' }] },
-  JJJH202510002: { no: 'JJJH202510002', name: '设备配件补库', planType: '急件计划', status: '审核通过', reporter: '李四', department: '设备部', applyDate: '2026-05-04', needDate: '2026-06-15', remark: '料斗备件补库。', lines: [{ code: 'GD001001-002', name: '料斗', spec: '4m³', major: '资产-固定资产', minor: '设备-配件', unit: '个', qty: '10' }] },
-  JJJH202606050001: { no: 'JJJH202606050001', name: '维保耗材采购', planType: '急件计划', status: '审核通过', reporter: '王五', department: '维保部', applyDate: '2026-06-05', needDate: '2026-06-18', remark: '维保季度集中采购。', lines: [{ code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', major: '资产-类资产', minor: '防汛设备', unit: '台', qty: '5' }] },
+  JJJH202606080001: {
+    no: 'JJJH202606080001', name: '防汛应急采购', planType: '急件计划', status: '审核通过',
+    reporter: '李四', department: '设备部', applyDate: '2026-06-08', createTime: '2026-06-08 09:15', needDate: '2026-06-10',
+    auditPassTime: '2026-06-09 10:30', workflow: 'WF-PLAN',
+    remark: '汛期临近，需尽快补齐防汛物资库存。',
+    lines: [
+      { code: 'XF-00102', name: '防汛沙袋', spec: '50×80cm', major: '耗材-防汛物资', minor: '防汛物资', unit: '条', stock: '120', qty: '500', needDate: '2026-06-12' },
+      { code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', major: '资产-类资产', minor: '防汛设备', unit: '台', stock: '2', qty: '5', needDate: '2026-06-10' },
+      { code: 'XF-00108', name: '救生衣', spec: '成人款', major: '耗材-防汛物资', minor: '防汛物资', unit: '件', stock: '80', qty: '50', needDate: '2026-06-12' },
+      { code: 'XF-00112', name: '应急照明灯', spec: 'LED 充电式', major: '耗材-防汛物资', minor: '防汛物资', unit: '盏', stock: '15', qty: '30', needDate: '2026-06-14' },
+    ],
+  },
+  JJJH202510001: {
+    no: 'JJJH202510001', name: '设备配件补库', planType: '急件计划', status: '审核通过',
+    reporter: '李四', department: '设备部', applyDate: '2026-05-04', createTime: '2026-05-04 10:00', needDate: '2026-06-15',
+    auditPassTime: '2026-05-05 11:00', workflow: 'WF-PLAN',
+    remark: '抓斗备件库存不足，申请补库。',
+    lines: [
+      { code: 'GD001001-001', name: '抓斗', spec: '4m³-Q345B', major: '资产-固定资产', minor: '设备-配件', unit: '个', stock: '—', qty: '10', needDate: '2026-06-15' },
+      { code: 'GD001001-003', name: '钢丝绳', spec: 'Φ18×100m', major: '资产-类资产', minor: '设备-配件', unit: 'm', stock: '200', qty: '100', needDate: '2026-06-20' },
+    ],
+  },
+  JJJH202510002: {
+    no: 'JJJH202510002', name: '设备配件补库', planType: '急件计划', status: '审核通过',
+    reporter: '李四', department: '设备部', applyDate: '2026-05-04', createTime: '2026-05-04 10:20', needDate: '2026-06-15',
+    auditPassTime: '2026-05-05 11:00', workflow: 'WF-PLAN',
+    remark: '料斗备件补库。',
+    lines: [
+      { code: 'GD001001-002', name: '料斗', spec: '4m³', major: '资产-固定资产', minor: '设备-配件', unit: '个', stock: '—', qty: '10', needDate: '2026-06-15' },
+      { code: 'GD001001-004', name: '螺丝刀', spec: '十字 PH2', major: '资产-类资产', minor: '工具', unit: '把', stock: '24', qty: '20', needDate: '2026-06-18' },
+    ],
+  },
+  JJJH202606050001: {
+    no: 'JJJH202606050001', name: '维保耗材采购', planType: '急件计划', status: '审核通过',
+    reporter: '王五', department: '维保部', applyDate: '2026-06-05', createTime: '2026-06-05 08:40', needDate: '2026-06-18',
+    auditPassTime: '2026-06-06 14:00', workflow: 'WF-PLAN',
+    remark: '维保季度集中采购。',
+    lines: [
+      { code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', major: '资产-类资产', minor: '防汛设备', unit: '台', stock: '2', qty: '5', needDate: '2026-06-18' },
+      { code: 'HC-00128', name: '安全帽', spec: 'ABS 标准款', major: '耗材-安全防护', minor: '安全防护', unit: '顶', stock: '45', qty: '100', needDate: '2026-06-20' },
+      { code: 'DL-00234', name: '电缆 YJV-3×2.5', spec: '国标铜芯', major: '资产-类资产', minor: '电气材料', unit: 'm', stock: '320', qty: '200', needDate: '2026-06-22' },
+    ],
+  },
+};
+
+const WMS_PURCHASE_PENDING_ROWS = {
+  'JJJH202606080001|XF-00102': { planNo: 'JJJH202606080001', code: 'XF-00102', name: '防汛沙袋', spec: '50×80cm', majorShort: '耗材', minorShort: '防汛物资', unit: '条', planQty: '500', refPrice: '12.00' },
+  'JJJH202606080001|XF-00105': { planNo: 'JJJH202606080001', code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', majorShort: '类资产', minorShort: '防汛设备', unit: '台', planQty: '5', refPrice: '2800.00' },
+  'JJJH202606080001|XF-00108': { planNo: 'JJJH202606080001', code: 'XF-00108', name: '救生衣', spec: '成人款', majorShort: '耗材', minorShort: '防汛物资', unit: '件', planQty: '50', refPrice: '85.00' },
+  'JJJH202510001|GD001001-001': { planNo: 'JJJH202510001', code: 'GD001001-001', name: '抓斗', spec: '4m³-Q345B', majorShort: '资产-固定资产', minorShort: '设备-配件', unit: '个', planQty: '10', refPrice: '1000.00' },
+  'JJJH202510002|GD001001-002': { planNo: 'JJJH202510002', code: 'GD001001-002', name: '料斗', spec: '4m³', majorShort: '资产-固定资产', minorShort: '设备-配件', unit: '个', planQty: '10', refPrice: '1000.00' },
+  'JJJH202606050001|XF-00105': { planNo: 'JJJH202606050001', code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', majorShort: '类资产', minorShort: '防汛设备', unit: '台', planQty: '5', refPrice: '2800.00' },
 };
 
 const WMS_REQUISITION_RECORD_SAMPLES = {
@@ -469,6 +517,7 @@ function initLayout() {
   initLocationFormFromQuery(root);
   initSupplierEvalForm(root);
   initPurchasePendingApply(root);
+  initPurchasePendingBatch(root);
   initApplyPlanDetailFromQuery(root);
   initPurchaseRequestFromQuery(root);
   initRequisitionForm(root);
@@ -888,25 +937,155 @@ function initPurchasePendingApply(root) {
   if (root.dataset.page !== 'purchase_pending_list') return;
   if (!(root.dataset.breadcrumb || '').includes('待采申请')) return;
   const params = new URLSearchParams(window.location.search);
+  const isBatch = params.get('batch') === '1';
+
+  if (isBatch) {
+    const keys = (params.get('keys') || '').split(',').map(k => k.trim()).filter(Boolean);
+    const items = keys.map(k => WMS_PURCHASE_PENDING_ROWS[k]).filter(Boolean);
+    if (!items.length) return;
+
+    const planNos = [...new Set(items.map(i => i.planNo))];
+    const planEl = document.querySelector('[data-purchase-plan-no]');
+    if (planEl) planEl.textContent = planNos.length === 1 ? planNos[0] : `${planNos.length} 个计划（合并申请）`;
+    const matEl = document.querySelector('[data-purchase-pending-material]');
+    if (matEl) {
+      matEl.textContent = items.length <= 2
+        ? items.map(i => `${i.planNo} · ${i.code} ${i.name}`).join('；')
+        : `已选 ${items.length} 条待采（${items.map(i => i.code).join('、')}）`;
+    }
+
+    const tbody = document.querySelector('.wms-purchase-material-table tbody');
+    if (tbody) {
+      const input = (v, w) => `<input type="text" value="${v}" class="${w} rounded-lg border border-slate-200 px-2 py-1 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" />`;
+      tbody.innerHTML = items.map((item, i) =>
+        `<tr class="border-t border-slate-100 hover:bg-slate-50/60">
+          <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${i + 1}</td>
+          <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${item.code}</td>
+          <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${item.name}</td>
+          <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${item.spec}</td>
+          <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${item.majorShort}</td>
+          <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${item.minorShort}</td>
+          <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${item.unit}</td>
+          <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${input(item.refPrice, 'w-24')}</td>
+          <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${item.planQty}</td>
+          <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${input(item.planQty, 'w-16')}</td>
+          <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${input('', 'w-24')}</td>
+          <td class="wms-col-actions px-3 py-2.5 text-right text-sm whitespace-nowrap"><button type="button" class="text-sm text-slate-600 hover:text-rose-600 hover:underline">删除</button></td>
+        </tr>`
+      ).join('');
+    }
+
+    const titleEl = document.getElementById('wms-modal-title');
+    if (titleEl) titleEl.textContent = `待采采购申请 · 批量 ${items.length} 条`;
+    return;
+  }
+
   const planNo = params.get('planNo');
   const code = params.get('code');
   const name = params.get('name');
   const qty = params.get('qty');
-  if (planNo) {
-    document.querySelector('[data-purchase-plan-no]')?.replaceChildren(document.createTextNode(planNo));
-  }
-  if (code || name) {
-    const label = [code, name].filter(Boolean).join(' · ');
-    const el = document.querySelector('[data-purchase-pending-material]');
-    if (el && label) el.textContent = label;
-  }
-  if (qty) {
-    const table = document.querySelector('.wms-purchase-form table tbody tr');
-    const qtyCell = table?.cells?.[9];
-    if (qtyCell) qtyCell.textContent = qty;
+  const key = planNo && code ? `${planNo}|${code}` : '';
+  const item = key ? WMS_PURCHASE_PENDING_ROWS[key] : null;
+
+  if (item) {
+    const planEl = document.querySelector('[data-purchase-plan-no]');
+    if (planEl) planEl.textContent = item.planNo;
+    const matEl = document.querySelector('[data-purchase-pending-material]');
+    if (matEl) matEl.textContent = `${item.planNo} · ${item.code} ${item.name}`;
+    const tbody = document.querySelector('.wms-purchase-material-table tbody');
+    if (tbody) {
+      const input = (v, w) => `<input type="text" value="${v}" class="${w} rounded-lg border border-slate-200 px-2 py-1 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" />`;
+      tbody.innerHTML = `<tr class="border-t border-slate-100 hover:bg-slate-50/60">
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">1</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${item.code}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${item.name}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${item.spec}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${item.majorShort}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${item.minorShort}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${item.unit}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${input(item.refPrice, 'w-24')}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${item.planQty}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${input(qty || item.planQty, 'w-16')}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${input('', 'w-24')}</td>
+        <td class="wms-col-actions px-3 py-2.5 text-right text-sm whitespace-nowrap"><button type="button" class="text-sm text-slate-600 hover:text-rose-600 hover:underline">删除</button></td>
+      </tr>`;
+    }
+  } else {
+    if (planNo) {
+      document.querySelector('[data-purchase-plan-no]')?.replaceChildren(document.createTextNode(planNo));
+    }
+    if (code || name) {
+      const label = [code, name].filter(Boolean).join(' · ');
+      const el = document.querySelector('[data-purchase-pending-material]');
+      if (el && label) el.textContent = label;
+    }
+    if (qty) {
+      const qtyInput = document.querySelector('.wms-purchase-material-table tbody tr input[type="text"]');
+      const inputs = document.querySelectorAll('.wms-purchase-material-table tbody tr input[type="text"]');
+      if (inputs[1]) inputs[1].value = qty;
+    }
   }
   const titleEl = document.getElementById('wms-modal-title');
   if (titleEl && planNo) titleEl.textContent = `待采采购申请 · ${planNo}`;
+}
+
+function initPurchasePendingBatch(root) {
+  if (root.dataset.page !== 'purchase_pending_list') return;
+  if (root.dataset.title !== '待采物资') return;
+  const list = document.querySelector('[data-wms-pending-list]');
+  if (!list || list.dataset.wmsPendingBatchInit) return;
+  list.dataset.wmsPendingBatchInit = '1';
+
+  const batchBtn = list.querySelector('[data-wms-pending-batch-apply]');
+  const hint = list.querySelector('[data-wms-pending-batch-hint]');
+  const checkAll = list.querySelector('[data-wms-pending-check-all]');
+
+  const visiblePendingChecks = () => [...list.querySelectorAll('[data-wms-pending-row]')]
+    .filter(row => !row.classList.contains('hidden') && row.dataset.pendingStatus === '待申请')
+    .map(row => row.querySelector('.wms-pending-check'))
+    .filter(Boolean);
+
+  const syncBatchUi = () => {
+    const checks = visiblePendingChecks();
+    const checked = checks.filter(cb => cb.checked);
+    if (batchBtn) batchBtn.disabled = checked.length === 0;
+    if (hint) hint.textContent = `已选 ${checked.length} 条（仅待申请可勾选）`;
+    if (checkAll) {
+      checkAll.indeterminate = checked.length > 0 && checked.length < checks.length;
+      checkAll.checked = checks.length > 0 && checked.length === checks.length;
+      checkAll.disabled = checks.length === 0;
+    }
+  };
+
+  checkAll?.addEventListener('change', () => {
+    visiblePendingChecks().forEach(cb => { cb.checked = checkAll.checked; });
+    syncBatchUi();
+  });
+
+  list.addEventListener('change', (e) => {
+    if (e.target.matches('.wms-pending-check')) syncBatchUi();
+  });
+
+  batchBtn?.addEventListener('click', () => {
+    const keys = visiblePendingChecks().filter(cb => cb.checked).map(cb => cb.dataset.pendingKey).filter(Boolean);
+    if (!keys.length) {
+      showSupplyCompleteToast('请至少勾选一条待申请记录');
+      return;
+    }
+    const p = new URLSearchParams({ batch: '1', keys: keys.join(',') });
+    window.location.href = `purchase_pending_apply.html?${p.toString()}`;
+  });
+
+  list.querySelectorAll('[data-wms-list-tab]').forEach(btn => {
+    btn.addEventListener('click', () => setTimeout(syncBatchUi, 0));
+  });
+  list.querySelector('[data-wms-list-search]')?.addEventListener('input', () => setTimeout(syncBatchUi, 0));
+  list.querySelectorAll('[data-wms-list-filter]').forEach(sel => {
+    sel.addEventListener('change', () => setTimeout(syncBatchUi, 0));
+  });
+  list.querySelector('[data-wms-list-reset]')?.addEventListener('click', () => setTimeout(syncBatchUi, 0));
+
+  syncBatchUi();
 }
 
 function initRequisitionForm(root) {
@@ -2278,6 +2457,23 @@ function initTransactionPageFromQuery(root) {
   if (titleEl) titleEl.textContent = `流水 · ${tx.type} · ${tx.materialName}`;
 }
 
+function applyPlanLineRowsHtml(lines) {
+  return (lines || []).map((line, i) =>
+    `<tr class="border-t border-slate-100">
+      <td class="px-3 py-2.5 text-sm text-slate-700">${i + 1}</td>
+      <td class="px-3 py-2.5 font-mono text-xs text-slate-800">${line.code}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-800">${line.name}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.spec || '—'}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.major}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.minor}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.unit}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.stock ?? '—'}</td>
+      <td class="px-3 py-2.5 text-sm font-medium text-slate-900">${line.qty}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${line.needDate || '—'}</td>
+    </tr>`
+  ).join('');
+}
+
 function initApplyPlanDetailFromQuery(root) {
   if (root.dataset.page !== 'purchase_pending_list') return;
   if (!(root.dataset.breadcrumb || '').includes('物资计划详情')) return;
@@ -2305,27 +2501,28 @@ function initApplyPlanDetailFromQuery(root) {
     bannerStatus.innerHTML = `<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${badgeClass.success}">${plan.status}</span>`;
   }
 
+  const fieldMap = {
+    name: plan.name,
+    planNo: plan.no,
+    planTypeText: plan.planType,
+    statusText: plan.status,
+    reporter: plan.reporter,
+    department: plan.department,
+    applyDate: plan.applyDate,
+    createTime: plan.createTime || '—',
+    needDate: plan.needDate,
+    auditPassTime: plan.auditPassTime || '—',
+    workflow: plan.workflow || 'WF-PLAN',
+    remark: plan.remark || '—',
+  };
   document.querySelectorAll('[data-apply-plan-field]').forEach(el => {
     const key = el.dataset.applyPlanField;
     if (key === 'no') return;
-    if (plan[key] !== undefined) el.textContent = plan[key] || '—';
+    if (fieldMap[key] !== undefined) el.textContent = fieldMap[key];
   });
 
   const tbody = document.querySelector('[data-apply-plan-lines]');
-  if (tbody && plan.lines?.length) {
-    tbody.innerHTML = plan.lines.map((line, i) =>
-      `<tr class="border-t border-slate-100">
-        <td class="px-3 py-2.5 text-sm text-slate-700">${i + 1}</td>
-        <td class="px-3 py-2.5 font-mono text-xs text-slate-800">${line.code}</td>
-        <td class="px-3 py-2.5 text-sm text-slate-800">${line.name}</td>
-        <td class="px-3 py-2.5 text-sm text-slate-700">${line.spec}</td>
-        <td class="px-3 py-2.5 text-sm text-slate-700">${line.major}</td>
-        <td class="px-3 py-2.5 text-sm text-slate-700">${line.minor}</td>
-        <td class="px-3 py-2.5 text-sm text-slate-700">${line.unit}</td>
-        <td class="px-3 py-2.5 text-sm font-medium text-slate-900">${line.qty}</td>
-      </tr>`
-    ).join('');
-  }
+  if (tbody && plan.lines?.length) tbody.innerHTML = applyPlanLineRowsHtml(plan.lines);
 
   document.querySelectorAll('[data-apply-plan-back], .wms-modal-close').forEach(a => {
     a.setAttribute('href', backHref);
@@ -2579,29 +2776,17 @@ function initAcceptanceAuditFormFromQuery(root) {
 
   const params = new URLSearchParams(window.location.search);
   const recordNo = params.get('no');
-  const supplyNo = params.get('supplyNo');
   const backHref = params.get('back') || 'warehouse_acceptance_audit_list.html';
   if (!recordNo) return;
 
   const d = WMS_ACCEPTANCE_RECORD_DETAIL_SAMPLES[recordNo];
-  const supply = supplyNo ? WMS_ACCEPTANCE_SUPPLY_SAMPLES[supplyNo] : null;
-  if (!d && !supply) return;
-
-  const payload = {
-    ...(d || {}),
-    no: recordNo,
-    supplyNo: supplyNo || d?.supplyNo || '—',
-    materialName: supply?.name || '—',
-    batchQty: d?.batchQty || '—',
-    qualifiedSummary: d ? `${d.qualified} / ${d.unqualified}` : '—',
-    date: d?.date || '—',
-  };
+  if (!d) return;
 
   scope.querySelectorAll('[data-accept-record-field]').forEach(el => {
     const key = el.dataset.acceptRecordField;
-    if (payload[key] !== undefined) {
-      if (el.tagName === 'TEXTAREA') el.value = payload[key];
-      else el.value = payload[key];
+    if (d[key] !== undefined) {
+      if (el.tagName === 'TEXTAREA') el.value = d[key];
+      else el.value = d[key];
     }
   });
 

@@ -10,17 +10,26 @@
 </head>
 <body data-page="warehouse_acceptance_audit_list" data-title="验收审核" data-breadcrumb="物资管理 / 验收审核">
   <div id="main-content">
-    <div data-wms-modal data-modal-back="warehouse_acceptance_audit_list.html" data-modal-size="lg" data-wms-acceptance-audit-form>
+    <div data-wms-modal data-modal-back="warehouse_acceptance_audit_list.html" data-modal-size="lg" data-wms-acceptance-audit-form data-accept-record-no="GH2025003-YS01">
+      
+      <div class="wms-modal-form wms-acceptance-record-detail">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">验收信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">验收单号</label><input type="text" value="GH2025003-YS01" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" data-accept-record-field="no" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">批次单号</label><input type="text" value="1" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" data-accept-record-field="batchNo" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">本批次供货数量</label><input type="text" value="50" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" data-accept-record-field="batchQty" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">验收日期</label><input type="text" value="2025-11-20" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" data-accept-record-field="date" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">仓库验收人员</label><input type="text" value="张仓管" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" data-accept-record-field="warehouse" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">计划验收人员</label><input type="text" value="王工" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" data-accept-record-field="planner" /></div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">合格物资</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">本批次合格数量</label><input type="text" value="50" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" data-accept-record-field="qualified" /></div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">不合格物资</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">本批次不合格数量</label><input type="text" value="0" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" data-accept-record-field="unqualified" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">不合格说明</label><textarea rows="2" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" data-accept-record-field="unqualifiedRemark">—</textarea></div>
+        
+      </div>
+      
+  
       <div class="wms-modal-form wms-warehouse-form">
-        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">验收记录</h3></div>
-        <div class="md:col-span-2 text-sm text-slate-500">审核对象为单批次验收记录（验收单）。此处为原型演示，实际以流程中心审批为准。</div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">验收单号</label><input type="text" value="GH2025003-YS01" readonly data-accept-record-field="no" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供货单号</label><input type="text" value="GH2025003" readonly data-accept-record-field="supplyNo" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">物资名称</label><input type="text" value="钢丝绳" readonly data-accept-record-field="materialName" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">本批次数量</label><input type="text" value="50" readonly data-accept-record-field="batchQty" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">合格 / 不合格</label><input type="text" value="50 / 0" readonly data-accept-record-field="qualifiedSummary" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">验收日期</label><input type="text" value="2025-11-20" readonly data-accept-record-field="date" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
-
         <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">审核</h3></div>
         <div class="md:col-span-2">
           <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 审核结论</label>
@@ -38,7 +47,6 @@
         <a href="warehouse_acceptance_audit_list.html" class="wms-btn wms-btn-secondary" data-accept-audit-back>取消</a>
         <button type="button" class="wms-btn wms-btn-primary">提交审核</button>
       </div>
-    </div>
-  </div>
+    </div></div>
   <script src="../js/layout.js" charset="UTF-8"></script>
 </body></html>
