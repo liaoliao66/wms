@@ -320,11 +320,11 @@ function materialCatalogSidebarTree() {
 }
 
 const REQUISITION_PICKER_ROWS = [
-  { code: 'GD001001-002', name: '料斗', type: 'fixed', unit: '个', onHand: '1', locked: '0', available: '1', warehouse: '主仓库/A区', categoryPath: '资产类 / 固定资产 / 设备-配件 / 料斗' },
-  { code: 'LA-00456', name: '电钻', type: 'like', unit: '台', onHand: '10', locked: '4', available: '6', warehouse: '主仓库/B区', categoryPath: '资产类 / 类资产 / 电动工具 / 电钻' },
-  { code: 'LA-00457', name: '钢丝绳', type: 'like', unit: 'm', onHand: '320', locked: '0', available: '320', warehouse: '主仓库/B区', categoryPath: '资产类 / 固定资产 / 设备-配件 / 钢丝绳' },
-  { code: 'HC-00089', name: '打印纸 A4', type: 'consumable', unit: '箱', onHand: '200', locked: '20', available: '170', warehouse: '主仓库/A区', categoryPath: '耗材类 / 办公耗材 / 办公用纸 / 打印纸 A4' },
-  { code: 'HC-00128', name: '安全帽', type: 'consumable', unit: '顶', onHand: '100', locked: '15', available: '85', warehouse: '主仓库/C区', categoryPath: '耗材类 / 劳保耗材 / 安全防护 / 安全帽' },
+  { code: 'GD001001-002', name: '料斗', type: 'fixed', unit: '个', stock: '8', warehouse: '主仓库/A区', categoryPath: '资产类 / 固定资产 / 设备-配件 / 料斗' },
+  { code: 'LA-00456', name: '电钻', type: 'like', unit: '台', stock: '6', warehouse: '主仓库/B区', categoryPath: '资产类 / 类资产 / 电动工具 / 电钻' },
+  { code: 'LA-00457', name: '钢丝绳', type: 'like', unit: 'm', stock: '320', warehouse: '主仓库/B区', categoryPath: '资产类 / 固定资产 / 设备-配件 / 钢丝绳' },
+  { code: 'HC-00089', name: '打印纸 A4', type: 'consumable', unit: '箱', stock: '170', warehouse: '主仓库/A区', categoryPath: '耗材类 / 办公耗材 / 办公用纸 / 打印纸 A4' },
+  { code: 'HC-00128', name: '安全帽', type: 'consumable', unit: '顶', stock: '85', warehouse: '主仓库/C区', categoryPath: '耗材类 / 劳保耗材 / 安全防护 / 安全帽' },
 ];
 
 function applyPlanPickerRows() {
@@ -2429,9 +2429,9 @@ function purchaseMaterialTable(rows, { editable = true } = {}) {
 }
 
 const REQUISITION_FORM_SAMPLE_ROWS = [
-  { seq: 1, code: 'GD001001-001', name: '抓斗', spec: '4m³-Q345B', major: '资产-固定资产', minor: '设备-配件', unit: '个', onHand: '1', locked: '0', available: '1', materialType: 'fixed', qty: '1', plannedDate: '2026-06-15', remark: '施工现场吊装用' },
-  { seq: 2, code: 'LA-00456', name: '电钻', spec: '650W', major: '资产-类资产', minor: '电动工具', unit: '台', onHand: '10', locked: '4', available: '6', materialType: 'like', qty: '3', plannedDate: '2026-06-12', remark: '设备部维修班组' },
-  { seq: 3, code: 'HC-00089', name: '打印纸 A4', spec: 'A4/80g/500张', major: '耗材-办公耗材', minor: '办公用纸', unit: '箱', onHand: '200', locked: '20', available: '170', materialType: 'consumable', qty: '50', plannedDate: '2026-06-10', remark: '行政部二季度补充' },
+  { seq: 1, code: 'GD001001-001', name: '抓斗', spec: '4m³-Q345B', major: '资产-固定资产', minor: '设备-配件', unit: '个', available: '10', materialType: 'fixed', qty: '1', plannedDate: '2026-06-15', remark: '施工现场吊装用' },
+  { seq: 2, code: 'LA-00456', name: '电钻', spec: '650W', major: '资产-类资产', minor: '电动工具', unit: '台', available: '6', materialType: 'like', qty: '3', plannedDate: '2026-06-12', remark: '设备部维修班组' },
+  { seq: 3, code: 'HC-00089', name: '打印纸 A4', spec: 'A4/80g/500张', major: '耗材-办公耗材', minor: '办公用纸', unit: '箱', available: '170', materialType: 'consumable', qty: '50', plannedDate: '2026-06-10', remark: '行政部二季度补充' },
 ];
 
 function requisitionQtyCell(row) {
@@ -2445,7 +2445,7 @@ function requisitionQtyCell(row) {
 }
 
 function requisitionMaterialTable(rows = REQUISITION_FORM_SAMPLE_ROWS, { addHref = 'apply_requisition_add_material.html' } = {}) {
-  const cols = ['序号', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '计量单位', '在库总量', '已锁定', '可用库存数量', '申请领用数量', '计划领用日期', '备注', '操作'];
+  const cols = ['序号', '物资编码', '物资名称', '规格型号', '物资大类', '物资子类', '计量单位', '可用库存数量', '申请领用数量', '计划领用日期', '备注', '操作'];
   const th = cols.map(c => {
     if (c === '操作') return '<th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th>';
     const req = c === '申请领用数量' ? '<span class="text-rose-500">*</span> ' : '';
@@ -2459,8 +2459,6 @@ function requisitionMaterialTable(rows = REQUISITION_FORM_SAMPLE_ROWS, { addHref
       : r.materialType === 'like'
         ? '<span class="ml-1 text-[10px] text-amber-600">类资产</span>'
         : '<span class="ml-1 text-[10px] text-emerald-600">耗材</span>';
-    const lockedCls = Number(r.locked) > 0 ? 'font-medium text-amber-700' : 'text-slate-700';
-    const availCls = Number(r.available) > 0 ? 'font-medium text-emerald-700' : 'text-rose-600';
     return `<tr class="border-t border-slate-100 hover:bg-slate-50/60" data-requisition-row data-material-type="${r.materialType}">
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.seq}</td>
       <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">${r.code}</td>
@@ -2469,9 +2467,7 @@ function requisitionMaterialTable(rows = REQUISITION_FORM_SAMPLE_ROWS, { addHref
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.major}</td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.minor}</td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.unit}</td>
-      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap" data-requisition-on-hand>${r.onHand ?? '—'}</td>
-      <td class="px-3 py-2.5 text-sm whitespace-nowrap ${lockedCls}" data-requisition-locked>${r.locked ?? '0'}</td>
-      <td class="px-3 py-2.5 text-sm whitespace-nowrap ${availCls}" data-requisition-available title="可用 = 在库 − 已锁定 − 借出 − 待确认">${r.available}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.available}</td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${requisitionQtyCell(r)}</td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="date" value="${r.plannedDate || ''}" class="${dateCls}" /></td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="text" value="${r.remark || ''}" placeholder="备注" class="${remarkCls}" /></td>
@@ -2485,13 +2481,12 @@ function requisitionMaterialTable(rows = REQUISITION_FORM_SAMPLE_ROWS, { addHref
         <a href="${addHref}" class="wms-requisition-add-btn"><i class="fa-solid fa-plus text-[10px]"></i> 添加</a>
       </div>
       <div class="wms-requisition-table-wrap overflow-x-auto wms-modal-table-wrap rounded-none border-0">
-        <table class="min-w-[1280px] w-full text-sm wms-requisition-material-table"><thead class="bg-slate-50/90"><tr>${th}</tr></thead><tbody>${tr}</tbody></table>
+        <table class="min-w-[1100px] w-full text-sm wms-requisition-material-table"><thead class="bg-slate-50/90"><tr>${th}</tr></thead><tbody>${tr}</tbody></table>
       </div>
       <p class="border-t border-slate-100 bg-slate-50/80 px-3 py-2 text-xs text-slate-500">
         <i class="fa-solid fa-circle-info mr-1 text-sky-500"></i>
         <strong>固定资产</strong>按件领用，数量固定为 1；
-        <strong>类资产、耗材</strong>须填写申请领用数量，且不得超过<strong>可用库存</strong>（= 在库 − 已锁定 − 借出 − 待确认）。
-        保存/提交阶段不占用锁定量，<strong>审核通过</strong>时按申请量锁库。
+        <strong>类资产、耗材</strong>须填写申请领用数量，且不得超过可用库存。
       </p>
     </div>
   </div>`;
@@ -8401,19 +8396,10 @@ const forms = {
   }),
 
   apply_requisition_add_material: selectPickerWithTree('apply_requisition_list', '添加物资', '物资申请 / 添加领用物资', 'apply_requisition_form.html', {
-    heading: '选择领用物资（仅启用物资；展示在库/已锁定/可用库存；类资产/耗材申请数量不得超过可用）',
-    columns: ['物资编码', '物资名称', '类型', '计量单位', '在库', '已锁定', '可用库存', '仓库'],
+    heading: '选择领用物资（仅启用物资，显示可用库存；类资产/耗材需填写领用数量）',
+    columns: ['物资编码', '物资名称', '类型', '计量单位', '可用库存', '仓库'],
     pickerRows: REQUISITION_PICKER_ROWS,
-    renderCells: (row) => [
-      row.code,
-      row.name,
-      materialTypeBadge(row.type),
-      row.unit,
-      row.onHand ?? '—',
-      Number(row.locked) > 0 ? `<span class="font-medium text-amber-700">${row.locked}</span>` : (row.locked ?? '0'),
-      `<span class="font-medium text-emerald-700">${row.available ?? row.stock ?? '—'}</span>`,
-      row.warehouse,
-    ],
+    renderCells: (row) => [row.code, row.name, materialTypeBadge(row.type), row.unit, row.stock, row.warehouse],
     checkedCount: 0,
   }),
 
