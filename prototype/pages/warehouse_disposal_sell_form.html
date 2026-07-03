@@ -3,29 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>处置 · 物资管理系统</title>
+  <title>变卖 · 物资管理系统</title>
   <link rel="stylesheet" href="../css/tailwind.css" />
   <link rel="stylesheet" href="../css/custom.css" />
   <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
 </head>
-<body data-page="warehouse_disposal_list" data-title="处置" data-breadcrumb="物资管理 / 处置">
+<body data-page="warehouse_disposal_list" data-title="变卖" data-breadcrumb="物资管理 / 变卖">
   <div id="main-content">
     <div data-wms-modal data-modal-back="warehouse_disposal_list.html" data-modal-size="xl" data-wms-disposal-form data-disposal-key="">
       <div class="wms-modal-form wms-warehouse-form">
         <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">基本信息</h3></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">处置单号</label><input type="text" value="系统自动生成" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 处置方式</label><select data-disposal-field="method" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>处置</option><option>丢弃</option><option>堆放</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 处置方式</label><select data-disposal-field="method" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>变卖</option><option>丢弃</option></select></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">来源作废单</label><input type="text" value="ZF202606080002" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">报废存储位置</label><input type="text" value="主仓库/报废存储区/A-01" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
         <div class="md:col-span-2 flex flex-wrap gap-2 text-sm">
     <span class="text-slate-500">切换方式：</span>
-    <a href="warehouse_disposal_sell_form.html" class="rounded-lg px-2 py-1 ring-1 ring-emerald-200 text-emerald-700 hover:bg-emerald-50">处置</a>
+    <a href="warehouse_disposal_sell_form.html" class="rounded-lg px-2 py-1 ring-1 ring-emerald-200 text-emerald-700 hover:bg-emerald-50">变卖</a>
     <a href="warehouse_disposal_discard_form.html" class="rounded-lg px-2 py-1 ring-1 ring-rose-200 text-rose-700 hover:bg-rose-50">丢弃</a>
-    <a href="warehouse_disposal_stockpile_form.html" class="rounded-lg px-2 py-1 ring-1 ring-amber-200 text-amber-700 hover:bg-amber-50">堆放</a>
   </div>
         <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">处置信息</h3></div>
         
       <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 买方/受让方</label><input type="text" value="黄冈废旧物资回收站" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" placeholder="单位或个人名称" /></div>
-      <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 处置金额（元）</label><input type="text" value="1200.00" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" placeholder="0.00" /></div>
+      <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 变卖金额（元）</label><input type="text" value="1200.00" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" placeholder="0.00" /></div>
       <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 收款方式</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>银行转账</option><option>现金</option><option>抵账</option></select></div>
         <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">处置物资</h3></div>
         <div class="md:col-span-2 rounded-xl border border-slate-200 overflow-hidden">

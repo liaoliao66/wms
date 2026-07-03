@@ -166,6 +166,7 @@ const WMS_PENDING_SCRAP_POOL = {
   'POOL-LA-00502': { poolKey: 'POOL-LA-00502', assetCode: 'LA-00502', code: 'LA-00500', name: '手持对讲机', spec: 'UHF 400-470MHz', major: '资产-类资产', unit: '台', qty: '1', location: '主仓库/待报废区', assetStatus: '待报废', sourceType: '归还损坏', sourceDocNo: 'HK20260608004', inboundDate: '2026-06-09', remark: '归还验收判定损坏，主板烧毁' },
   'POOL-GD008': { poolKey: 'POOL-GD008', assetCode: 'GD001001-008', code: 'GD001001-008', name: '铝合金梯', spec: '3m', major: '资产-固定资产', unit: '架', qty: '1', location: '主仓库/待报废区', assetStatus: '待报废', sourceType: '归还损坏', sourceDocNo: 'HK20260607002', inboundDate: '2026-06-08', remark: '梯框变形无法修复' },
   'POOL-HC089': { poolKey: 'POOL-HC089', assetCode: '—', code: 'HC-00089', name: '打印纸 A4', spec: '70g/500张', major: '耗材-办公耗材', unit: '箱', qty: '12', location: '主仓库/A区/A-02', assetStatus: '待报废', sourceType: '在库过期', sourceDocNo: '—', inboundDate: '2026-06-07', remark: '受潮霉变，无法使用' },
+  'POOL-GD-SL001': { poolKey: 'POOL-GD-SL001', assetCode: 'GD001001-012', code: 'GD001001-012', name: '液压扳手', spec: '24mm', major: '资产-固定资产', unit: '把', qty: '1', location: '主仓库/A区/A-03', assetStatus: '待报废', sourceType: '使用年限到期', sourceDocNo: '—', inboundDate: '2026-06-03', remark: '使用年限到期提醒；可延长年限或撤销出池' },
 };
 
 const WMS_SCRAP_SAMPLES = {
@@ -177,30 +178,32 @@ const WMS_SCRAP_SAMPLES = {
 };
 
 const WMS_PENDING_DISPOSAL_POOL = {
-  'DISP-ZF080002-L1': { poolKey: 'DISP-ZF080002-L1', scrapNo: 'ZF202606080002', scrapKey: 'ZF202606080002', assetCode: '—', code: 'GD001001-006', name: '润滑油', spec: 'CD 15W-40', major: '耗材-生产耗材', unit: '桶', qty: '5', location: '主仓库/报废暂存区', scrapDate: '2026-06-08', remark: '过期批次作废' },
-  'DISP-ZF050005-L1': { poolKey: 'DISP-ZF050005-L1', scrapNo: 'ZF202606050005', scrapKey: 'ZF202606050005', assetCode: 'LA-00331', code: 'LA-00330', name: '铝合金梯', spec: '3m', major: '资产-类资产', unit: '架', qty: '1', location: '主仓库/报废暂存区', scrapDate: '2026-06-05', remark: '工地丢失灭失' },
-  'DISP-ZF090001-L1': { poolKey: 'DISP-ZF090001-L1', scrapNo: 'ZF202606090001', scrapKey: 'ZF202606090001', assetCode: 'LA-00502', code: 'LA-00500', name: '手持对讲机', spec: 'UHF 400-470MHz', major: '资产-类资产', unit: '台', qty: '1', location: '主仓库/报废暂存区', scrapDate: '2026-06-09', remark: '归还损坏作废' },
+  'DISP-ZF080002-L1': { poolKey: 'DISP-ZF080002-L1', scrapNo: 'ZF202606080002', scrapKey: 'ZF202606080002', assetCode: '—', code: 'GD001001-006', name: '润滑油', spec: 'CD 15W-40', major: '耗材-生产耗材', unit: '桶', qty: '5', storageLocation: '主仓库/报废存储区/A-01', scrapDate: '2026-06-08', remark: '过期批次作废' },
+  'DISP-ZF050005-L1': { poolKey: 'DISP-ZF050005-L1', scrapNo: 'ZF202606050005', scrapKey: 'ZF202606050005', assetCode: 'LA-00331', code: 'LA-00330', name: '铝合金梯', spec: '3m', major: '资产-类资产', unit: '架', qty: '1', storageLocation: '灭失（无实物）', scrapDate: '2026-06-05', remark: '工地丢失灭失' },
+  'DISP-ZF090001-L1': { poolKey: 'DISP-ZF090001-L1', scrapNo: 'ZF202606090001', scrapKey: 'ZF202606090001', assetCode: 'LA-00502', code: 'LA-00500', name: '手持对讲机', spec: 'UHF 400-470MHz', major: '资产-类资产', unit: '台', qty: '1', storageLocation: '主仓库/报废存储区/B-01', scrapDate: '2026-06-09', remark: '归还损坏作废' },
 };
 
 const WMS_DISPOSAL_SAMPLES = {
   CZ202606100001: {
-    disposalKey: 'CZ202606100001', disposalNo: 'CZ202606100001', method: '处置', status: '待执行',
+    disposalKey: 'CZ202606100001', disposalNo: 'CZ202606100001', method: '变卖', status: '待执行',
     scrapNo: 'ZF202606080002', materialSummary: '润滑油', qty: '5 桶', amount: '1,200.00',
+    storageLocation: '主仓库/报废存储区/A-01',
     buyer: '黄冈废旧物资回收站', operator: '张仓管', department: '物资管理部', applyDate: '2026-06-10',
     lines: [{ name: '润滑油', code: 'GD001001-006', qty: '5', unit: '桶' }],
   },
   CZ202606090002: {
     disposalKey: 'CZ202606090002', disposalNo: 'CZ202606090002', method: '丢弃', status: '已完成',
     scrapNo: 'ZF202606050005', materialSummary: '铝合金梯', qty: '1 架',
+    storageLocation: '灭失（无实物）',
     discardLocation: '武穴项目现场建筑垃圾填埋点', witness: '李工、王工', operator: '张仓管', department: '物资管理部',
     executedDate: '2026-06-09', applyDate: '2026-06-09',
     lines: [{ name: '铝合金梯', assetCode: 'LA-00331', qty: '1', unit: '架' }],
   },
   CZ202606080003: {
-    disposalKey: 'CZ202606080003', disposalNo: 'CZ202606080003', method: '堆放', status: '处置中',
+    disposalKey: 'CZ202606080003', disposalNo: 'CZ202606080003', method: '变卖', status: '待执行',
     scrapNo: 'ZF202606090001', materialSummary: '手持对讲机', qty: '1 台',
-    stockpileLocation: '主仓库/场外堆放区 B-01', expectedClearDate: '2026-07-15', custodian: '张仓管',
-    operator: '李仓管', department: '物资管理部', applyDate: '2026-06-08',
+    storageLocation: '主仓库/报废存储区/B-01', amount: '80.00',
+    buyer: '', operator: '李仓管', department: '物资管理部', applyDate: '2026-06-08',
     lines: [{ name: '手持对讲机', assetCode: 'LA-00502', qty: '1', unit: '台' }],
   },
 };
@@ -495,6 +498,7 @@ function initLayout() {
   initReturnScrapFromQuery(root);
   initReturnSuccessFromQuery(root);
   initScrapFromQuery(root);
+  initScrapPendingPool(root);
   initScrapExecuteFromQuery(root);
   initScrapSuccessFromQuery(root);
   initDisposalFromQuery(root);
@@ -4111,6 +4115,21 @@ function initScrapFromQuery(root) {
   });
 }
 
+function initScrapPendingPool(root) {
+  const pool = document.querySelector('[data-wms-scrap-pending-pool]');
+  if (!pool) return;
+  pool.querySelectorAll('[data-scrap-pool-revoke]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const reason = window.prompt('请填写撤销出池原因（无需审批）');
+      if (!reason?.trim()) return;
+      const row = btn.closest('tr');
+      row?.remove();
+      showSupplyCompleteToast('已撤销出池');
+    });
+  });
+}
+
 function initScrapExecuteFromQuery(root) {
   if (root.dataset.page !== 'warehouse_scrap_list') return;
   if (!(root.dataset.title || '').includes('执行作废')) return;
@@ -4135,6 +4154,11 @@ function initScrapExecuteFromQuery(root) {
   });
 
   document.querySelector('[data-scrap-execute-submit]')?.addEventListener('click', () => {
+    const storage = document.querySelector('[data-scrap-storage-location]');
+    if (storage && !storage.value) {
+      showSupplyCompleteToast('请选择报废存储位置');
+      return;
+    }
     const line = sample.lines?.[0];
     const qty = line?.scrapQty || '1';
     const unit = line?.materialType === 'consumable' ? '桶' : line?.materialType === 'like' ? '台' : '件';
@@ -4172,6 +4196,7 @@ function disposalSampleFromPool(poolKey) {
   return {
     poolKey,
     scrapNo: p.scrapNo,
+    storageLocation: p.storageLocation,
     remark: p.remark,
     lines: [{ code: p.code, assetCode: p.assetCode, name: p.name, qty: p.qty, unit: p.unit }],
   };
@@ -4221,6 +4246,11 @@ function initDisposalFromQuery(root) {
     const remark = scope?.querySelector('textarea');
     if (remark) remark.value = sample.remark;
   }
+  if (sample.storageLocation) {
+    scope?.querySelectorAll('input[readonly]').forEach(el => {
+      if (el.previousElementSibling?.textContent?.includes('报废存储位置')) el.value = sample.storageLocation;
+    });
+  }
   if (sample.lines) renderDisposalLineRows(sample.lines);
 
   document.querySelectorAll('.wms-modal-footer a, .wms-modal-close').forEach(a => {
@@ -4233,9 +4263,8 @@ function initDisposalFromQuery(root) {
   if (titleEl) {
     if (viewMode && sample.disposalNo) titleEl.textContent = `处置详情 · ${sample.disposalNo}`;
     else if (poolKey) titleEl.textContent = '从待处置发起';
-    else if (title === '处置' || sample.method === '处置') titleEl.textContent = '处置';
-    else if (title.includes('丢弃')) titleEl.textContent = '丢弃处置';
-    else if (title.includes('堆放')) titleEl.textContent = '堆放处置';
+    else if (title === '变卖' || sample.method === '变卖') titleEl.textContent = '变卖';
+    else if (title.includes('丢弃')) titleEl.textContent = '丢弃';
     else titleEl.textContent = '新建处置单';
   }
 
@@ -4246,7 +4275,7 @@ function initDisposalFromQuery(root) {
 
   scope?.querySelector('.wms-btn-primary')?.addEventListener('click', () => {
     showSupplyCompleteToast('处置单已提交');
-    setTimeout(() => { window.location.href = `${backHref}?tab=${encodeURIComponent('待执行')}`; }, 900);
+    setTimeout(() => { window.location.href = `${backHref}?tab=${encodeURIComponent('待执行处置')}`; }, 900);
   });
 }
 
@@ -4269,11 +4298,10 @@ function initDisposalExecuteFromQuery(root) {
     if (label === '来源作废单') dd.textContent = sample.scrapNo;
     if (label === '经办人') dd.textContent = `${sample.operator} · ${sample.department}`;
     if (label === '买方' && sample.buyer) dd.textContent = sample.buyer;
-    if (label === '处置金额' && sample.amount) dd.textContent = `¥ ${sample.amount}`;
+    if (label === '变卖金额' && sample.amount) dd.textContent = `¥ ${sample.amount}`;
+    if (label === '报废存储位置' && sample.storageLocation) dd.textContent = sample.storageLocation;
     if (label === '丢弃地点' && sample.discardLocation) dd.textContent = sample.discardLocation;
     if (label === '见证人' && sample.witness) dd.textContent = sample.witness;
-    if (label === '堆放位置' && sample.stockpileLocation) dd.textContent = sample.stockpileLocation;
-    if (label === '预计清运' && sample.expectedClearDate) dd.textContent = sample.expectedClearDate;
   });
 
   const tbody = scope?.querySelector('tbody');

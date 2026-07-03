@@ -51,10 +51,15 @@
         <div class="wms-dash-stat-num text-rose-600">3</div>
         <span class="wms-dash-stat-link">待报废池 →</span>
       </a>
-      <a href="warehouse_scrap_list.html?tab=待执行" class="wms-dash-stat card">
+      <a href="warehouse_scrap_list.html?tab=待执行作废" class="wms-dash-stat card">
         <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待执行作废</span><i class="fa-solid fa-file-circle-xmark wms-dash-stat-icon text-orange-300"></i></div>
         <div class="wms-dash-stat-num text-orange-600">1</div>
         <span class="wms-dash-stat-link">去执行 →</span>
+      </a>
+      <a href="warehouse_disposal_pending.html" class="wms-dash-stat card">
+        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待处置</span><i class="fa-solid fa-recycle wms-dash-stat-icon text-emerald-300"></i></div>
+        <div class="wms-dash-stat-num text-emerald-700">3</div>
+        <span class="wms-dash-stat-link">去处置 →</span>
       </a>
     </div>
 
@@ -91,9 +96,14 @@
             <a href="purchase_supply_complete.html?no=GH2025005&amp;back=purchase_supply_list.html" class="text-sm font-medium text-slate-900 hover:underline">处理</a>
           </li>
           <li class="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/80">
-            <span class="rounded-lg bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700">作废</span>
-            <span class="flex-1 text-sm text-slate-700">作废单 ZF202606090001 · 手持对讲机 待执行</span>
+            <span class="rounded-lg bg-orange-50 px-2 py-1 text-xs font-medium text-orange-700">待执行作废</span>
+            <span class="flex-1 text-sm text-slate-700">作废单 ZF202606090001 · 手持对讲机 待执行作废</span>
             <a href="warehouse_scrap_execute.html?scrapKey=ZF202606090001&amp;back=warehouse_scrap_list.html" class="text-sm font-medium text-slate-900 hover:underline">执行</a>
+          </li>
+          <li class="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/80">
+            <span class="rounded-lg bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">待处置</span>
+            <span class="flex-1 text-sm text-slate-700">润滑油 5 桶 · 已作废待变卖/丢弃</span>
+            <a href="warehouse_disposal_form.html?poolKey=DISP-ZF080002-L1&amp;back=warehouse_disposal_pending.html" class="text-sm font-medium text-slate-900 hover:underline">处置</a>
           </li>
           <li class="flex items-center gap-4 px-6 py-4 hover:bg-slate-50/80">
             <span class="rounded-lg bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700">待报废</span>

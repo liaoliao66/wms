@@ -1384,7 +1384,7 @@ function listPage(cfg) {
     const actCell = cfg.hideActions ? '' : actionTd(rowActions || cfg.actions || '<a href="#" class="hover:underline">查看</a>', 'px-4 py-3.5 text-slate-900');
     return `<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-search="${searchText}" data-list-tab="${tabVal}"${filterAttrs}>${cells.map(c => `<td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('')}${actCell}</tr>`;
   }).join('');
-  const header = cfg.desc ? `<p class="mb-4 text-sm text-slate-500">${cfg.desc}</p>` : '';
+  const header = (cfg.desc ? `<p class="mb-4 text-sm text-slate-500">${cfg.desc}</p>` : '') + (cfg.descExtra || '');
   return `
     <div data-wms-list-page>
       ${header}
@@ -4134,7 +4134,7 @@ function warehouseReturnFormPage(backHref = 'warehouse_return_list.html', sample
   const returnNo = d.returnNo || `HK${new Date().toISOString().slice(0, 10).replace(/-/g, '')}001`;
   const fixedBanner = isFixed && !viewMode ? `<div class="md:col-span-2 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
     <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-qrcode text-blue-500"></i> 固定资产须扫码确认资产编码</div>
-    <p class="text-xs text-slate-600">扫码 <code class="rounded bg-white/80 px-1">wms://asset/</code> 校验编码一致后回库；完好→在库，需维修→维修中，损坏→待报废。</p>
+    <p class="text-xs text-slate-600">扫码 <code class="rounded bg-white/80 px-1">wms://asset/</code> 校验编码一致后回库；完好/需维修→在库（维修在外部系统）；损坏→待报废池。</p>
   </div>` : '';
   const likeBanner = isLike && !viewMode ? `<div class="md:col-span-2 rounded-xl border border-amber-100 bg-amber-50/50 p-4">
     <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-screwdriver-wrench text-amber-600"></i> 类资产按数量归还</div>
@@ -4759,6 +4759,7 @@ const PENDING_SCRAP_POOL = {
   'POOL-LA-00502': { poolKey: 'POOL-LA-00502', assetCode: 'LA-00502', code: 'LA-00500', name: '手持对讲机', spec: 'UHF 400-470MHz', major: '资产-类资产', unit: '台', qty: '1', location: '主仓库/待报废区', assetStatus: '待报废', sourceType: '归还损坏', sourceDocNo: 'HK20260608004', inboundDate: '2026-06-09', remark: '归还验收判定损坏，主板烧毁' },
   'POOL-GD008': { poolKey: 'POOL-GD008', assetCode: 'GD001001-008', code: 'GD001001-008', name: '铝合金梯', spec: '3m', major: '资产-固定资产', unit: '架', qty: '1', location: '主仓库/待报废区', assetStatus: '待报废', sourceType: '归还损坏', sourceDocNo: 'HK20260607002', inboundDate: '2026-06-08', remark: '梯框变形无法修复' },
   'POOL-HC089': { poolKey: 'POOL-HC089', assetCode: '—', code: 'HC-00089', name: '打印纸 A4', spec: '70g/500张', major: '耗材-办公耗材', unit: '箱', qty: '12', location: '主仓库/A区/A-02', assetStatus: '待报废', sourceType: '在库过期', sourceDocNo: '—', inboundDate: '2026-06-07', remark: '受潮霉变，无法使用' },
+  'POOL-GD-SL001': { poolKey: 'POOL-GD-SL001', assetCode: 'GD001001-012', code: 'GD001001-012', name: '液压扳手', spec: '24mm', major: '资产-固定资产', unit: '把', qty: '1', location: '主仓库/A区/A-03', assetStatus: '待报废', sourceType: '使用年限到期', sourceDocNo: '—', inboundDate: '2026-06-03', remark: '使用年限到期提醒；可延长年限或撤销出池' },
 };
 
 const SCRAP_SAMPLES = {
@@ -4801,11 +4802,17 @@ const SCRAP_SAMPLES = {
 
 function scrapStatusBadge(status) {
   const map = { '草稿': 'info', '审核中': 'warning', '审核驳回': 'danger', '待执行': 'warning', '已执行': 'success' };
-  return badge(status, map[status] || 'info');
+  const label = status === '待执行' ? '待执行作废' : status;
+  return badge(label, map[status] || 'info');
 }
 
 function scrapSourceBadge(sourceType) {
-  const map = { '在库报废': 'info', '归还灭失': 'danger', '待报废转报废': 'warning', '维修报废': 'warning' };
+  const map = { '在库报废': 'info', '归还灭失': 'danger', '待报废转报废': 'warning' };
+  return badge(sourceType, map[sourceType] || 'info');
+}
+
+function scrapPoolSourceBadge(sourceType) {
+  const map = { '归还损坏': 'warning', '在库过期': 'info', '在库标记': 'info', '使用年限到期': 'warning', '盘点异常': 'danger' };
   return badge(sourceType, map[sourceType] || 'info');
 }
 
@@ -4827,7 +4834,7 @@ function scrapRowActions(scrapKey, status) {
 }
 
 function scrapRow(cells, status, scrapKey) {
-  const tabMap = { '草稿': '草稿', '审核中': '审核中', '审核驳回': '审核中', '待执行': '待执行', '已执行': '已执行' };
+  const tabMap = { '草稿': '草稿', '审核中': '审核中', '审核驳回': '审核中', '待执行': '待执行作废', '已执行': '已执行' };
   return { cells, tab: tabMap[status] || status, actions: scrapRowActions(scrapKey, status) };
 }
 
@@ -4880,11 +4887,20 @@ function scrapMaterialTable(rows = SCRAP_FORM_SAMPLE_LINES, { addHref = 'warehou
       <p class="border-t border-slate-100 bg-slate-50/80 px-3 py-2 text-xs text-slate-500">
         <i class="fa-solid fa-circle-info mr-1 text-rose-500"></i>
         <strong>固定资产</strong>按资产编码逐件作废，数量固定为 1；
-        <strong>类资产/耗材</strong>须填写作废数量，且不得超过可用库存。执行后将扣减台账并写入 scrap 流水。
+        <strong>类资产/耗材</strong>须填写作废数量，且不得超过可用库存。执行后将扣减台账、登记报废存储位置并写入 scrap 流水。<strong>在库报废不经待报废池</strong>。
       </p>
     </div>
   </div>`;
 }
+
+const SCRAP_DISPOSAL_FLOW_CALLOUT = `<div class="mb-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-700">
+  <p class="mb-2 font-medium text-slate-900"><i class="fa-solid fa-diagram-project mr-1 text-slate-500"></i>作废与处置衔接</p>
+  <ol class="ml-4 list-decimal space-y-1 text-xs sm:text-sm">
+    <li><strong>待报废池</strong>（账仍挂着）→ ZF <strong>待执行作废</strong> → 执行后扣账并<strong>自动入待处置队列</strong></li>
+    <li><strong>待处置</strong>是队列（非单据状态）→ 发起 CZ <strong>待执行处置</strong> → 变卖/丢弃后出队</li>
+    <li>在库报废不经待报废池；ZF 未执行前不会出现待处置行</li>
+  </ol>
+</div>`;
 
 function warehouseScrapListPage() {
   const rows = [
@@ -4895,14 +4911,15 @@ function warehouseScrapListPage() {
     scrapRow(['ZF202606050005', scrapSourceBadge('归还灭失'), 'LY202605200008', '铝合金梯', '1', '张仓管', '物资管理部', scrapStatusBadge('已执行'), '2026-06-05'], '已执行', 'ZF202606050005'),
   ];
   return listPage({
-    desc: '对在库、待报废、维修中等状态的物资发起报废申请；审批通过后执行核销，扣减台账并写入 scrap 审计。归还灭失类作废由<a href="warehouse_return_list.html" class="font-medium text-slate-800 hover:underline">物资归还</a>入口发起并自动关联。',
+    desc: '对在库物资发起<strong>在库报废</strong>（不经待报废池），或处理待报废池转报废、归还灭失等作废单。审批通过后执行核销并登记<strong>报废存储位置</strong>，执行后自动写入<strong>待处置队列</strong>。归还灭失由<a href="warehouse_return_list.html" class="font-medium text-slate-800 hover:underline">物资归还</a>自动生成。',
+    descExtra: SCRAP_DISPOSAL_FLOW_CALLOUT,
     addBtn: true, addHref: 'warehouse_scrap_form.html',
-    secondary: ['<a href="warehouse_scrap_pending_pool.html" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-rose-700 ring-1 ring-rose-200 hover:bg-rose-50"><i class="fa-solid fa-dumpster text-xs"></i>待报废池 <span class="rounded-md bg-rose-100 px-1.5 py-0.5 text-xs font-semibold">3</span></a>', '<a href="warehouse_disposal_pending.html" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-50"><i class="fa-solid fa-recycle text-xs"></i>待处置 <span class="rounded-md bg-emerald-100 px-1.5 py-0.5 text-xs font-semibold">3</span></a>'],
-    tabs: ['全部', '草稿', '审核中', '待执行', '已执行'],
+    secondary: ['<a href="warehouse_scrap_pending_pool.html" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-rose-700 ring-1 ring-rose-200 hover:bg-rose-50"><i class="fa-solid fa-dumpster text-xs"></i>待报废池 <span class="rounded-md bg-rose-100 px-1.5 py-0.5 text-xs font-semibold">4</span></a>', '<a href="warehouse_disposal_pending.html" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-50"><i class="fa-solid fa-recycle text-xs"></i>待处置 <span class="rounded-md bg-emerald-100 px-1.5 py-0.5 text-xs font-semibold">3</span></a>'],
+    tabs: ['全部', '草稿', '审核中', '待执行作废', '已执行'],
     tabColumn: 7,
     searchPlaceholder: '作废单号、关联单号、物资名称、申请人',
     filters: [
-      { label: '来源类型', key: 'source', column: 1, options: ['全部', '在库报废', '归还灭失', '待报废转报废', '维修报废'] },
+      { label: '来源类型', key: 'source', column: 1, options: ['全部', '在库报废', '归还灭失', '待报废转报废'] },
     ],
     columns: ['作废单号', '来源类型', '关联单号', '物资摘要', '合计数量', '申请人', '申请部门', '状态', '申请时间'],
     rows,
@@ -4913,7 +4930,7 @@ function warehouseScrapPendingPoolPage() {
   const rows = Object.values(PENDING_SCRAP_POOL).map(p => ({
     cells: [
       badge('待报废', 'warning'),
-      scrapSourceBadge(p.sourceType === '归还损坏' ? '待报废转报废' : '在库报废'),
+      scrapPoolSourceBadge(p.sourceType),
       p.assetCode !== '—' ? p.assetCode : '—',
       p.code,
       p.name,
@@ -4925,15 +4942,18 @@ function warehouseScrapPendingPoolPage() {
       p.inboundDate,
     ],
     tab: '',
-    actions: `<a href="warehouse_scrap_form.html?poolKey=${encodeURIComponent(p.poolKey)}&back=warehouse_scrap_pending_pool.html" class="font-medium text-rose-700 hover:underline">发起作废</a>`,
+    actions: `<a href="warehouse_scrap_form.html?poolKey=${encodeURIComponent(p.poolKey)}&back=warehouse_scrap_pending_pool.html" class="mr-2 font-medium text-rose-700 hover:underline">发起作废</a><a href="#" class="text-slate-600 hover:underline" data-scrap-pool-revoke data-pool-key="${p.poolKey}">撤销出池</a>`,
   }));
   return `
     <div class="mb-4"><a href="warehouse_scrap_list.html" class="text-sm text-slate-500 hover:text-slate-900"><i class="fa-solid fa-arrow-left mr-1"></i>返回作废列表</a></div>
-    <div data-wms-list-page>
-      <p class="mb-4 text-sm text-slate-500">归还验收判定<strong>损坏</strong>的物资进入待报废池，状态为「待报废」仍占用账面数量；须发起作废单审批执行后才核销库存。与<a href="warehouse_return_list.html" class="font-medium text-slate-800 hover:underline">物资归还</a>、<a href="ledger_warehouse.html" class="font-medium text-slate-800 hover:underline">仓库台账</a>联动。</p>
+    <div data-wms-list-page data-wms-scrap-pending-pool>
+      <p class="mb-4 text-sm text-slate-500">汇聚归还损坏、在库标记/过期、<strong>使用年限到期提醒</strong>等待报废物资；账面仍计 qty。<strong>在库报废不经本池</strong>，请直接在<a href="warehouse_scrap_form.html" class="font-medium text-slate-800 hover:underline">物资作废</a>发起。使用年限到期仅提醒，可<a href="config_material_list.html" class="font-medium text-slate-800 hover:underline">延长使用年限</a>或撤销出池。</p>
+      <div class="mb-4 rounded-xl border border-rose-100 bg-rose-50/50 p-4 text-sm text-slate-700">
+        <i class="fa-solid fa-circle-info mr-1 text-rose-600"></i><strong>阶段一队列</strong>：作废执行前汇聚；执行成功后物资进入<a href="warehouse_disposal_pending.html" class="font-medium text-emerald-700 hover:underline">待处置</a>，由物资处置完成变卖/丢弃。
+      </div>
       <div class="mb-4 rounded-xl border border-amber-100 bg-amber-50/60 p-4 text-sm text-slate-700">
         <i class="fa-solid fa-triangle-exclamation mr-1 text-amber-600"></i>
-        待报废物资不可出库、不可再次领用；请尽快完成作废审批与执行。
+        待报废物资不可出库、不可领用；须发起作废单审批执行后才核销。撤销出池无需审批，须填写原因。
       </div>
       ${listPageActions({ searchPlaceholder: '资产编码、物资编码、名称、来源单号' })}
       <div class="card overflow-hidden rounded-2xl bg-white shadow-sm">
@@ -4972,15 +4992,17 @@ function warehouseScrapFormPage(backHref = 'warehouse_scrap_list.html', sample =
     `<option${d.reason === o ? ' selected' : ''}${!d.reason && o === '损坏无法修复' && d.poolKey ? ' selected' : ''}>${o}</option>`
   ).join('');
   const poolBanner = d.poolKey ? `<div class="md:col-span-2 rounded-xl border border-amber-100 bg-amber-50/50 p-4 text-sm text-slate-700">
-    <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>从<strong>待报废池</strong>发起，物资明细已预填且不可修改编码；提交后走 <code class="rounded bg-white/80 px-1 text-xs">WF-SCRAP</code> 审批。
-  </div>` : '';
+    <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>从<strong>待报废池</strong>发起，物资明细已预填且不可修改编码；来源为「待报废转报废」。
+  </div>` : (d.sourceType === '在库报废' && !viewMode ? `<div class="md:col-span-2 rounded-xl border border-sky-100 bg-sky-50/50 p-4 text-sm text-slate-700">
+    <i class="fa-solid fa-circle-info mr-1 text-sky-600"></i><strong>在库报废不经待报废池</strong>：请从下方「添加」选择在库物资，审批通过后执行并登记报废存储位置。
+  </div>` : '');
   const returnBanner = d.scrapType === 'return_loss' ? `<div class="md:col-span-2 rounded-xl border border-rose-100 bg-rose-50/50 p-4 text-xs text-slate-600">本单由归还作废自动生成，来源类型为<strong>归还灭失</strong>；不恢复库存，关闭待还记录。</div>` : '';
   return `
     <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-scrap-form data-scrap-key="${d.scrapKey || ''}">
       <div class="wms-modal-form wms-warehouse-form">
         ${formSection('基本信息')}
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">作废单号</label><input type="text" value="${d.scrapNo}" readonly data-scrap-field="scrapNo" class="${roCls}" /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">来源类型</label><select data-scrap-field="sourceType"${sourceReadonly ? ' disabled' : ''} class="${sourceReadonly ? roCls : inputCls}"><option${d.sourceType === '在库报废' ? ' selected' : ''}>在库报废</option><option${d.sourceType === '待报废转报废' ? ' selected' : ''}>待报废转报废</option><option${d.sourceType === '维修报废' ? ' selected' : ''}>维修报废</option><option${d.sourceType === '归还灭失' ? ' selected' : ''}>归还灭失</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">来源类型</label><select data-scrap-field="sourceType"${sourceReadonly ? ' disabled' : ''} class="${sourceReadonly ? roCls : inputCls}"><option${d.sourceType === '在库报废' ? ' selected' : ''}>在库报废</option><option${d.sourceType === '待报废转报废' ? ' selected' : ''}>待报废转报废</option><option${d.sourceType === '归还灭失' ? ' selected' : ''}>归还灭失</option></select></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">关联单号</label><input type="text" value="${d.sourceDocNo}" readonly data-scrap-field="sourceDocNo" class="${roCls}" /></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 所属仓库</label><select data-scrap-field="warehouse"${disAttr} class="${inputCls}"><option${d.warehouse === '主仓库' ? ' selected' : ''}>主仓库</option><option>备件库</option></select></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 作废原因</label><select data-scrap-field="reason"${disAttr} class="${inputCls}"><option value="" disabled${!d.reason ? ' selected' : ''}>请选择</option>${reasonSelect}</select></div>
@@ -5009,7 +5031,7 @@ function warehouseScrapExecutePage(backHref = 'warehouse_scrap_list.html', sampl
     <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg" data-wms-scrap-execute data-scrap-key="${d.scrapKey}">
       <div class="mb-5 rounded-xl border border-rose-100 bg-rose-50/60 p-4 text-sm text-slate-700">
         <i class="fa-solid fa-circle-exclamation mr-1 text-rose-600"></i>
-        审批已通过。请现场核对物资后确认执行；执行后将<strong>扣减台账可用库存</strong>，资产状态变为「已作废」，并写入 <code class="rounded bg-white/80 px-1 text-xs">txn_type=scrap</code> 流水。
+        审批已通过。执行后将<strong>扣减台账</strong>，物资进入<strong>报废存储</strong>并写入待处置队列。
       </div>
       <dl class="mb-6 grid gap-4 sm:grid-cols-2 text-sm">
         <div><dt class="text-slate-500">作废单号</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-scrap-exec-field="scrapNo">${d.scrapNo}</dd></div>
@@ -5027,6 +5049,17 @@ function warehouseScrapExecutePage(backHref = 'warehouse_scrap_list.html', sampl
           <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">货位</th>
           <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">作废数量</th>
         </tr></thead><tbody>${lineRows}</tbody></table>
+      </div>
+      <div class="mb-4 rounded-xl border border-slate-200 bg-white p-4">
+        <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 报废存储位置</label>
+        <select data-scrap-storage-location class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200">
+          <option value="">请选择存储位置</option>
+          <option value="主仓库/报废存储区/A-01">主仓库/报废存储区/A-01</option>
+          <option value="主仓库/报废存储区/A-02">主仓库/报废存储区/A-02</option>
+          <option value="主仓库/报废存储区/B-01">主仓库/报废存储区/B-01</option>
+          <option value="灭失（无实物）">灭失（无实物）</option>
+        </select>
+        <p class="mt-1.5 text-xs text-slate-500">执行作废时必填；实物将登记至此位置，后续在待处置中选择变卖或丢弃。</p>
       </div>
       <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-xs text-slate-600">
         <div class="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-qrcode text-blue-500"></i> 现场核对（可选）</div>
@@ -5053,7 +5086,7 @@ function scrapSuccessPage() {
           <div><dt class="text-slate-500">物资摘要</dt><dd class="mt-1 text-slate-800" data-scrap-success-name>手持对讲机</dd></div>
           <div><dt class="text-slate-500">流水类型</dt><dd class="mt-1 font-mono text-xs text-slate-600">txn_type=scrap</dd></div>
         </dl>
-        <p class="mt-4 text-sm text-slate-600">物资已进入<strong>待处置</strong>队列，请尽快在<a href="warehouse_disposal_pending.html" class="font-medium text-slate-900 hover:underline">物资处置</a>中选择处置、丢弃或堆放。</p>
+        <p class="mt-4 text-sm text-slate-600">物资已入<strong>报废存储</strong>并进入待处置队列，请选择<strong>变卖</strong>或<strong>丢弃</strong>完成离场。</p>
         <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
           <a href="warehouse_disposal_pending.html" class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-recycle"></i> 去处置</a>
           <a href="ledger_transaction.html" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-right-left"></i> 出入库记录</a>
@@ -5063,52 +5096,53 @@ function scrapSuccessPage() {
     </div>`;
 }
 
-// --- 物资处置（已作废物资：处置 / 丢弃 / 堆放）---
+// --- 物资处置（已作废物资：变卖 / 丢弃）---
 
 const PENDING_DISPOSAL_POOL = {
-  'DISP-ZF080002-L1': { poolKey: 'DISP-ZF080002-L1', scrapNo: 'ZF202606080002', scrapKey: 'ZF202606080002', assetCode: '—', code: 'GD001001-006', name: '润滑油', spec: 'CD 15W-40', major: '耗材-生产耗材', unit: '桶', qty: '5', location: '主仓库/报废暂存区', scrapDate: '2026-06-08', remark: '过期批次作废' },
-  'DISP-ZF050005-L1': { poolKey: 'DISP-ZF050005-L1', scrapNo: 'ZF202606050005', scrapKey: 'ZF202606050005', assetCode: 'LA-00331', code: 'LA-00330', name: '铝合金梯', spec: '3m', major: '资产-类资产', unit: '架', qty: '1', location: '主仓库/报废暂存区', scrapDate: '2026-06-05', remark: '工地丢失灭失' },
-  'DISP-ZF090001-L1': { poolKey: 'DISP-ZF090001-L1', scrapNo: 'ZF202606090001', scrapKey: 'ZF202606090001', assetCode: 'LA-00502', code: 'LA-00500', name: '手持对讲机', spec: 'UHF 400-470MHz', major: '资产-类资产', unit: '台', qty: '1', location: '主仓库/报废暂存区', scrapDate: '2026-06-09', remark: '归还损坏作废' },
+  'DISP-ZF080002-L1': { poolKey: 'DISP-ZF080002-L1', scrapNo: 'ZF202606080002', scrapKey: 'ZF202606080002', assetCode: '—', code: 'GD001001-006', name: '润滑油', spec: 'CD 15W-40', major: '耗材-生产耗材', unit: '桶', qty: '5', storageLocation: '主仓库/报废存储区/A-01', scrapDate: '2026-06-08', remark: '过期批次作废' },
+  'DISP-ZF050005-L1': { poolKey: 'DISP-ZF050005-L1', scrapNo: 'ZF202606050005', scrapKey: 'ZF202606050005', assetCode: 'LA-00331', code: 'LA-00330', name: '铝合金梯', spec: '3m', major: '资产-类资产', unit: '架', qty: '1', storageLocation: '灭失（无实物）', scrapDate: '2026-06-05', remark: '工地丢失灭失' },
+  'DISP-ZF090001-L1': { poolKey: 'DISP-ZF090001-L1', scrapNo: 'ZF202606090001', scrapKey: 'ZF202606090001', assetCode: 'LA-00502', code: 'LA-00500', name: '手持对讲机', spec: 'UHF 400-470MHz', major: '资产-类资产', unit: '台', qty: '1', storageLocation: '主仓库/报废存储区/B-01', scrapDate: '2026-06-09', remark: '归还损坏作废' },
 };
 
 const DISPOSAL_SAMPLES = {
   CZ202606100001: {
-    disposalKey: 'CZ202606100001', disposalNo: 'CZ202606100001', method: '处置', status: '待执行',
+    disposalKey: 'CZ202606100001', disposalNo: 'CZ202606100001', method: '变卖', status: '待执行',
     scrapNo: 'ZF202606080002', materialSummary: '润滑油', qty: '5 桶', amount: '1,200.00',
+    storageLocation: '主仓库/报废存储区/A-01',
     buyer: '黄冈废旧物资回收站', operator: '张仓管', department: '物资管理部', applyDate: '2026-06-10',
     lines: [{ name: '润滑油', code: 'GD001001-006', qty: '5', unit: '桶' }],
   },
   CZ202606090002: {
     disposalKey: 'CZ202606090002', disposalNo: 'CZ202606090002', method: '丢弃', status: '已完成',
     scrapNo: 'ZF202606050005', materialSummary: '铝合金梯', qty: '1 架',
+    storageLocation: '灭失（无实物）',
     discardLocation: '武穴项目现场建筑垃圾填埋点', witness: '李工、王工', operator: '张仓管', department: '物资管理部',
     executedDate: '2026-06-09', applyDate: '2026-06-09',
     lines: [{ name: '铝合金梯', assetCode: 'LA-00331', qty: '1', unit: '架' }],
   },
   CZ202606080003: {
-    disposalKey: 'CZ202606080003', disposalNo: 'CZ202606080003', method: '堆放', status: '处置中',
+    disposalKey: 'CZ202606080003', disposalNo: 'CZ202606080003', method: '变卖', status: '待执行',
     scrapNo: 'ZF202606090001', materialSummary: '手持对讲机', qty: '1 台',
-    stockpileLocation: '主仓库/场外堆放区 B-01', expectedClearDate: '2026-07-15', custodian: '张仓管',
-    operator: '李仓管', department: '物资管理部', applyDate: '2026-06-08',
+    storageLocation: '主仓库/报废存储区/B-01', amount: '80.00',
+    buyer: '', operator: '李仓管', department: '物资管理部', applyDate: '2026-06-08',
     lines: [{ name: '手持对讲机', assetCode: 'LA-00502', qty: '1', unit: '台' }],
   },
 };
 
 function disposalMethodBadge(method) {
-  const map = { '处置': 'success', '丢弃': 'danger', '堆放': 'warning' };
+  const map = { '变卖': 'success', '丢弃': 'danger' };
   return badge(method, map[method] || 'info');
 }
 
 function disposalStatusBadge(status) {
   const map = { '待执行': 'warning', '处置中': 'info', '已完成': 'success', '草稿': 'info' };
-  return badge(status, map[status] || 'info');
+  const label = status === '待执行' ? '待执行处置' : status;
+  return badge(label, map[status] || 'info');
 }
 
 function disposalRowActions(disposalKey, status) {
   const sample = DISPOSAL_SAMPLES[disposalKey];
-  const formPage = sample?.method === '丢弃' ? 'warehouse_disposal_discard_form.html'
-    : sample?.method === '堆放' ? 'warehouse_disposal_stockpile_form.html'
-      : 'warehouse_disposal_sell_form.html';
+  const formPage = sample?.method === '丢弃' ? 'warehouse_disposal_discard_form.html' : 'warehouse_disposal_sell_form.html';
   const q = (extra = {}) => {
     const p = new URLSearchParams({ disposalKey, back: 'warehouse_disposal_list.html', ...extra });
     return p.toString();
@@ -5121,26 +5155,31 @@ function disposalRowActions(disposalKey, status) {
 
 function disposalRow(cells, tab, disposalKey) {
   const status = tab;
-  return { cells, tab, actions: disposalRowActions(disposalKey, status) };
+  const rowTab = status === '待执行' ? '待执行处置' : status;
+  return { cells, tab: rowTab, actions: disposalRowActions(disposalKey, status) };
 }
 
 function warehouseDisposalListPage() {
   const rows = [
-    disposalRow(['CZ202606100001', disposalMethodBadge('处置'), 'ZF202606080002', '润滑油', '5 桶', '¥ 1,200.00', '张仓管', disposalStatusBadge('待执行'), '2026-06-10'], '待执行', 'CZ202606100001'),
-    disposalRow(['CZ202606080003', disposalMethodBadge('堆放'), 'ZF202606090001', '手持对讲机', '1 台', '—', '李仓管', disposalStatusBadge('处置中'), '2026-06-08'], '处置中', 'CZ202606080003'),
+    disposalRow(['CZ202606100001', disposalMethodBadge('变卖'), 'ZF202606080002', '润滑油', '5 桶', '¥ 1,200.00', '张仓管', disposalStatusBadge('待执行'), '2026-06-10'], '待执行', 'CZ202606100001'),
+    disposalRow(['CZ202606080003', disposalMethodBadge('变卖'), 'ZF202606090001', '手持对讲机', '1 台', '—', '李仓管', disposalStatusBadge('待执行'), '2026-06-08'], '待执行', 'CZ202606080003'),
     disposalRow(['CZ202606090002', disposalMethodBadge('丢弃'), 'ZF202606050005', '铝合金梯', '1 架', '—', '张仓管', disposalStatusBadge('已完成'), '2026-06-09'], '已完成', 'CZ202606090002'),
   ];
   return listPage({
-    desc: '对已<strong>执行作废</strong>的物资进行实物处置：处置、丢弃或临时堆放。作废核销见<a href="warehouse_scrap_list.html" class="font-medium text-slate-800 hover:underline">物资作废</a>；待处置物资来自作废执行后的暂存区。',
+    desc: '对已<strong>报废存储</strong>的物资完成离场：<strong>变卖</strong>或<strong>丢弃</strong>。须从<strong>待处置队列</strong>发起；台账核销见<a href="warehouse_scrap_list.html" class="font-medium text-slate-800 hover:underline">物资作废</a>。',
+    descExtra: `<div class="mb-4 rounded-xl border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-700">
+  <p class="mb-2 font-medium text-slate-900"><i class="fa-solid fa-circle-info mr-1 text-sky-600"></i>队列与单据</p>
+  <p class="text-xs sm:text-sm"><strong>待处置</strong>是队列（ZF 已执行后自动入队）；列表 Tab <strong>待执行处置</strong>是 CZ 单据状态。处置执行<strong>不再改台账 qty</strong>。</p>
+</div>`,
     addBtn: true, addHref: 'warehouse_disposal_form.html',
     secondary: ['<a href="warehouse_disposal_pending.html" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-amber-700 ring-1 ring-amber-200 hover:bg-amber-50"><i class="fa-solid fa-box-open text-xs"></i>待处置 <span class="rounded-md bg-amber-100 px-1.5 py-0.5 text-xs font-semibold">3</span></a>'],
-    tabs: ['全部', '待执行', '处置中', '已完成'],
+    tabs: ['全部', '待执行处置', '处置中', '已完成'],
     tabColumn: 7,
     searchPlaceholder: '处置单号、作废单号、物资名称、经办人',
     filters: [
-      { label: '处置方式', key: 'method', column: 1, options: ['全部', '处置', '丢弃', '堆放'] },
+      { label: '处置方式', key: 'method', column: 1, options: ['全部', '变卖', '丢弃'] },
     ],
-    columns: ['处置单号', '处置方式', '来源作废单', '物资摘要', '数量', '处置金额', '经办人', '状态', '申请日期'],
+    columns: ['处置单号', '处置方式', '来源作废单', '物资摘要', '数量', '变卖金额', '经办人', '状态', '申请日期'],
     rows,
   });
 }
@@ -5155,7 +5194,7 @@ function warehouseDisposalPendingPage() {
       p.name,
       p.spec,
       p.major,
-      p.location,
+      p.storageLocation,
       `${p.qty} ${p.unit}`,
       p.scrapDate,
     ],
@@ -5165,10 +5204,13 @@ function warehouseDisposalPendingPage() {
   return `
     <div class="mb-4"><a href="warehouse_disposal_list.html" class="text-sm text-slate-500 hover:text-slate-900"><i class="fa-solid fa-arrow-left mr-1"></i>返回处置列表</a></div>
     <div data-wms-list-page>
-      <p class="mb-4 text-sm text-slate-500">作废单<strong>已执行</strong>后，实物进入报废暂存区，状态为「已作废·待处置」；须在本模块选择处置、丢弃或堆放并完成现场执行后，才从待处置队列清除。</p>
+      <p class="mb-4 text-sm text-slate-500">作废执行后实物已入<strong>报废存储</strong>（位置在作废执行时登记）。请选择<strong>变卖</strong>或<strong>丢弃</strong>完成离场；CZ 执行后从队列清除。</p>
+      <div class="mb-4 rounded-xl border border-emerald-100 bg-emerald-50/50 p-4 text-sm text-slate-700">
+        <i class="fa-solid fa-circle-info mr-1 text-emerald-600"></i><strong>阶段二队列</strong>：台账已在作废执行时扣减；仅 ZF <strong>已执行</strong>后系统自动入队，<strong>不支持手工入队</strong>，<strong>不可撤销出队</strong>。
+      </div>
       <div class="mb-4 rounded-xl border border-sky-100 bg-sky-50/60 p-4 text-sm text-slate-700">
         <i class="fa-solid fa-circle-info mr-1 text-sky-600"></i>
-        <strong>处置</strong>须登记买方与金额；<strong>丢弃</strong>须登记丢弃地点与见证人；<strong>堆放</strong>须指定堆放位置与预计清运日期。
+        <strong>变卖</strong>须登记买方与金额；<strong>丢弃</strong>须登记丢弃地点与见证人。不支持手工入队。
       </div>
       ${listPageActions({ searchPlaceholder: '作废单号、资产编码、物资编码、名称' })}
       <div class="card overflow-hidden rounded-2xl bg-white shadow-sm">
@@ -5180,7 +5222,7 @@ function warehouseDisposalPendingPage() {
           <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th>
           <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">规格型号</th>
           <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资大类</th>
-          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">暂存位置</th>
+          <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">报废存储位置</th>
           <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">数量</th>
           <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">作废日期</th>
           ${actionTh('px-4 py-3')}
@@ -5211,12 +5253,12 @@ function disposalMaterialReadonlyTable(lines = []) {
 
 function warehouseDisposalFormPage(backHref = 'warehouse_disposal_list.html', sample = {}) {
   const pool = sample.poolKey ? PENDING_DISPOSAL_POOL[sample.poolKey] : null;
-  const method = sample.method || '处置';
+  const method = sample.method || '变卖';
   const d = {
     disposalNo: '系统自动生成', method, scrapNo: pool?.scrapNo || 'ZF202606080002',
+    storageLocation: pool?.storageLocation || '主仓库/报废存储区/A-01',
     buyer: '', amount: '', paymentMethod: '银行转账',
     discardLocation: '', witness: '',
-    stockpileLocation: '主仓库/场外堆放区', expectedClearDate: '2026-07-15', custodian: '张仓管',
     operator: '张仓管', department: '物资管理部', remark: pool?.remark || '',
     lines: pool ? [{ code: pool.code, assetCode: pool.assetCode, name: pool.name, qty: pool.qty, unit: pool.unit }] : [{ code: 'GD001001-006', name: '润滑油', qty: '5', unit: '桶' }],
     ...sample,
@@ -5226,38 +5268,34 @@ function warehouseDisposalFormPage(backHref = 'warehouse_disposal_list.html', sa
   const roCls = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500';
   const disAttr = viewMode ? ' disabled' : '';
   const methodFields = {
-    处置: `
+    变卖: `
       <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 买方/受让方</label><input type="text" value="${d.buyer || '黄冈废旧物资回收站'}"${disAttr} class="${viewMode ? roCls : inputCls}" placeholder="单位或个人名称" /></div>
-      <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 处置金额（元）</label><input type="text" value="${d.amount || '1200.00'}"${disAttr} class="${viewMode ? roCls : inputCls}" placeholder="0.00" /></div>
+      <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 变卖金额（元）</label><input type="text" value="${d.amount || '1200.00'}"${disAttr} class="${viewMode ? roCls : inputCls}" placeholder="0.00" /></div>
       <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 收款方式</label><select${disAttr} class="${viewMode ? roCls : inputCls}"><option>银行转账</option><option>现金</option><option>抵账</option></select></div>`,
     丢弃: `
       <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 丢弃地点</label><input type="text" value="${d.discardLocation || ''}"${disAttr} class="${viewMode ? roCls : inputCls}" placeholder="具体地点或填埋场" /></div>
       <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 见证人</label><input type="text" value="${d.witness || ''}"${disAttr} class="${viewMode ? roCls : inputCls}" placeholder="至少一名现场见证人" /></div>
       <div><label class="mb-1.5 block text-sm font-medium text-slate-700">现场照片</label>${viewMode ? '<p class="text-sm text-slate-400">—</p>' : photoUploadZone()}</div>`,
-    堆放: `
-      <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 堆放位置</label><select${disAttr} class="${viewMode ? roCls : inputCls}"><option>主仓库/场外堆放区 B-01</option><option>主仓库/场外堆放区 B-02</option><option>项目现场临时堆场</option></select></div>
-      <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 预计清运日期</label><input type="date" value="${d.expectedClearDate || '2026-07-15'}"${disAttr} class="${viewMode ? roCls : inputCls}" /></div>
-      <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 保管责任人</label><select${disAttr} class="${viewMode ? roCls : inputCls}"><option>张仓管</option><option>李仓管</option></select></div>`,
   };
   const poolBanner = pool ? `<div class="md:col-span-2 rounded-xl border border-amber-100 bg-amber-50/50 p-4 text-sm text-slate-700">
     <i class="fa-solid fa-circle-info mr-1 text-amber-600"></i>从<strong>待处置</strong>发起，物资明细已关联作废单 <span class="font-mono text-xs">${pool.scrapNo}</span>，不可更换编码。
   </div>` : '';
   const hubLinks = viewMode || pool ? '' : `<div class="md:col-span-2 flex flex-wrap gap-2 text-sm">
     <span class="text-slate-500">切换方式：</span>
-    <a href="warehouse_disposal_sell_form.html" class="rounded-lg px-2 py-1 ring-1 ring-emerald-200 text-emerald-700 hover:bg-emerald-50">处置</a>
+    <a href="warehouse_disposal_sell_form.html" class="rounded-lg px-2 py-1 ring-1 ring-emerald-200 text-emerald-700 hover:bg-emerald-50">变卖</a>
     <a href="warehouse_disposal_discard_form.html" class="rounded-lg px-2 py-1 ring-1 ring-rose-200 text-rose-700 hover:bg-rose-50">丢弃</a>
-    <a href="warehouse_disposal_stockpile_form.html" class="rounded-lg px-2 py-1 ring-1 ring-amber-200 text-amber-700 hover:bg-amber-50">堆放</a>
   </div>`;
   return `
     <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-disposal-form data-disposal-key="${d.disposalKey || ''}">
       <div class="wms-modal-form wms-warehouse-form">
         ${formSection('基本信息')}
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">处置单号</label><input type="text" value="${d.disposalNo}" readonly class="${roCls}" /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 处置方式</label><select data-disposal-field="method"${viewMode || pool ? ' disabled' : ''} class="${viewMode || pool ? roCls : inputCls}"><option${method === '处置' ? ' selected' : ''}>处置</option><option${method === '丢弃' ? ' selected' : ''}>丢弃</option><option${method === '堆放' ? ' selected' : ''}>堆放</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 处置方式</label><select data-disposal-field="method"${viewMode || pool ? ' disabled' : ''} class="${viewMode || pool ? roCls : inputCls}"><option${method === '变卖' ? ' selected' : ''}>变卖</option><option${method === '丢弃' ? ' selected' : ''}>丢弃</option></select></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">来源作废单</label><input type="text" value="${d.scrapNo}" readonly class="${roCls}" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">报废存储位置</label><input type="text" value="${d.storageLocation}" readonly class="${roCls}" /></div>
         ${poolBanner}${hubLinks}
         ${formSection('处置信息')}
-        ${methodFields[method] || methodFields['处置']}
+        ${methodFields[method] || methodFields['变卖']}
         ${formSection('处置物资')}
         ${disposalMaterialReadonlyTable(d.lines)}
         ${formSection('其他')}
@@ -5278,21 +5316,20 @@ function warehouseDisposalExecutePage(backHref = 'warehouse_disposal_list.html',
   const lineRows = (d.lines || []).map((r, i) =>
     `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">${i + 1}</td><td class="px-3 py-2.5 text-sm">${r.name}</td><td class="px-3 py-2.5 text-sm font-medium">${r.qty} ${r.unit || ''}</td></tr>`
   ).join('');
-  const extraInfo = d.method === '处置'
-    ? `<div><dt class="text-slate-500">买方</dt><dd class="mt-1 text-slate-800">${d.buyer}</dd></div><div><dt class="text-slate-500">处置金额</dt><dd class="mt-1 font-medium text-emerald-700">¥ ${d.amount}</dd></div>`
-    : d.method === '丢弃'
-      ? `<div class="sm:col-span-2"><dt class="text-slate-500">丢弃地点</dt><dd class="mt-1 text-slate-800">${d.discardLocation}</dd></div><div><dt class="text-slate-500">见证人</dt><dd class="mt-1 text-slate-800">${d.witness}</dd></div>`
-      : `<div class="sm:col-span-2"><dt class="text-slate-500">堆放位置</dt><dd class="mt-1 text-slate-800">${d.stockpileLocation}</dd></div><div><dt class="text-slate-500">预计清运</dt><dd class="mt-1 text-slate-800">${d.expectedClearDate}</dd></div>`;
+  const extraInfo = d.method === '变卖'
+    ? `<div><dt class="text-slate-500">买方</dt><dd class="mt-1 text-slate-800">${d.buyer}</dd></div><div><dt class="text-slate-500">变卖金额</dt><dd class="mt-1 font-medium text-emerald-700">¥ ${d.amount}</dd></div>`
+    : `<div class="sm:col-span-2"><dt class="text-slate-500">丢弃地点</dt><dd class="mt-1 text-slate-800">${d.discardLocation}</dd></div><div><dt class="text-slate-500">见证人</dt><dd class="mt-1 text-slate-800">${d.witness}</dd></div>`;
   return `
     <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg" data-wms-disposal-execute data-disposal-key="${d.disposalKey}">
       <div class="mb-5 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4 text-sm text-slate-700">
         <i class="fa-solid fa-circle-check mr-1 text-emerald-600"></i>
-        请现场核对物资与处置方式一致后确认执行。执行后将更新处置单状态为<strong>已完成</strong>，并从待处置队列移除；处置类（转让）写入处置收入记录。
+        请现场核对物资与处置方式一致后确认执行。执行后状态为<strong>已完成</strong>，从待处置队列移除；<strong>变卖</strong>写入收入记录。
       </div>
       <dl class="mb-6 grid gap-4 sm:grid-cols-2 text-sm">
         <div><dt class="text-slate-500">处置单号</dt><dd class="mt-1 font-mono font-semibold text-slate-900">${d.disposalNo}</dd></div>
         <div><dt class="text-slate-500">处置方式</dt><dd class="mt-1">${disposalMethodBadge(d.method)}</dd></div>
         <div><dt class="text-slate-500">来源作废单</dt><dd class="mt-1 font-mono text-xs">${d.scrapNo}</dd></div>
+        <div><dt class="text-slate-500">报废存储位置</dt><dd class="mt-1 text-slate-800">${d.storageLocation || '—'}</dd></div>
         <div><dt class="text-slate-500">经办人</dt><dd class="mt-1 text-slate-800">${d.operator} · ${d.department}</dd></div>
         ${extraInfo}
       </dl>
@@ -5317,7 +5354,7 @@ function disposalSuccessPage() {
       <div class="card rounded-2xl bg-white p-8 text-center">
         <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><i class="fa-solid fa-check text-2xl"></i></div>
         <h2 class="text-xl font-semibold text-slate-900">处置执行成功</h2>
-        <p class="mt-2 text-sm text-slate-500">处置单号 CZ202606100001 · 处置 · 已从待处置队列清除</p>
+        <p class="mt-2 text-sm text-slate-500">处置单号 CZ202606100001 · 变卖 · 已从待处置队列清除</p>
         <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
           <a href="warehouse_disposal_list.html" class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-list"></i> 处置列表</a>
           <a href="ledger_transaction.html" class="text-sm text-slate-500 hover:text-slate-900">出入库记录</a>
@@ -5587,7 +5624,7 @@ function materialFormPage(options = {}) {
     : `<div class="${(s.needServiceLife || '是') === '是' ? '' : 'hidden'}" data-wms-material-service-life-years-wrap>
               <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 使用年限（年）</label>
               <input type="number" min="1" step="1" value="${s.serviceLifeYears || ''}" placeholder="请输入" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-wms-material-service-life-years />
-              <p class="mt-1.5 text-xs text-amber-700"><i class="fa-solid fa-circle-info mr-1"></i>到达使用年限后，系统自动生成报废单并入待报废池</p>
+              <p class="mt-1.5 text-xs text-amber-700"><i class="fa-solid fa-circle-info mr-1"></i>到达使用年限后仅入<strong>待报废池提醒</strong>（可延长年限或撤销出池），不自动生成作废单</p>
             </div>`}
         </div>
         <div class="md:col-span-2${isStockForm ? '' : ' hidden'}" data-wms-material-business-stock>
@@ -5662,7 +5699,7 @@ function materialDetailPage() {
           ${inheritRow('是否需要盘点', s.needInventory, s.inherit.needInventory)}
           ${inheritRow('是否需要使用年限', s.needServiceLife, s.inherit.needServiceLife)}
           ${s.needServiceLife === '是' ? inheritRow('使用年限（年）', s.serviceLifeYears, s.inherit.serviceLifeYears) : ''}
-          ${s.needServiceLife === '是' ? `<p class="mt-2 rounded-lg border border-amber-100 bg-amber-50/80 px-3 py-2 text-xs text-amber-800"><i class="fa-solid fa-triangle-exclamation mr-1"></i>该物资已启用使用年限管理：自入库/启用日起计 ${s.serviceLifeYears} 年，到期后系统自动生成报废单并入待报废池。</p>` : ''}
+          ${s.needServiceLife === '是' ? `<p class="mt-2 rounded-lg border border-amber-100 bg-amber-50/80 px-3 py-2 text-xs text-amber-800"><i class="fa-solid fa-triangle-exclamation mr-1"></i>该物资已启用使用年限管理：自入库/启用日起计 ${s.serviceLifeYears} 年，到期后仅入<strong>待报废池提醒</strong>（可延长年限或撤销出池），不自动生成作废单。</p>` : ''}
           ${inheritRow('安全库存', s.safeStock, s.inherit.safeStock)}
           ${inheritRow('库存下限', s.minStock, s.inherit.minStock)}
           ${inheritRow('库存上限', s.maxStock, s.inherit.maxStock)}
@@ -8353,7 +8390,7 @@ const forms = {
   warehouse_scrap_success: page('warehouse_scrap_list', '作废成功', '物资管理 / 作废成功', scrapSuccessPage()),
 
   warehouse_scrap_add_material: selectPickerWithTree('warehouse_scrap_list', '添加作废物资', '物资管理 / 添加作废物资', 'warehouse_scrap_form.html', {
-    heading: '选择在库物资（仅显示在库/待报废状态；固资按编码、类资产/耗材按数量）',
+    heading: '选择在库物资（在库报废不经待报废池；仅显示在库/待报废状态）',
     columns: ['物资编码', '物资名称', '类型', '资产编码', '货位', '可用库存'],
     pickerRows: SCRAP_PICKER_ROWS,
     renderCells: (row) => [row.code, row.name, materialTypeBadge(row.type), row.assetCode, row.location, row.stock],
@@ -8363,11 +8400,9 @@ const forms = {
 
   warehouse_disposal_form: page('warehouse_disposal_list', '新建处置单', '物资管理 / 新建处置单', warehouseDisposalFormPage('warehouse_disposal_list.html')),
 
-  warehouse_disposal_sell_form: page('warehouse_disposal_list', '处置', '物资管理 / 处置', warehouseDisposalFormPage('warehouse_disposal_list.html', { method: '处置' })),
+  warehouse_disposal_sell_form: page('warehouse_disposal_list', '变卖', '物资管理 / 变卖', warehouseDisposalFormPage('warehouse_disposal_list.html', { method: '变卖' })),
 
-  warehouse_disposal_discard_form: page('warehouse_disposal_list', '丢弃处置', '物资管理 / 丢弃处置', warehouseDisposalFormPage('warehouse_disposal_list.html', { method: '丢弃' })),
-
-  warehouse_disposal_stockpile_form: page('warehouse_disposal_list', '堆放处置', '物资管理 / 堆放处置', warehouseDisposalFormPage('warehouse_disposal_list.html', { method: '堆放' })),
+  warehouse_disposal_discard_form: page('warehouse_disposal_list', '丢弃', '物资管理 / 丢弃', warehouseDisposalFormPage('warehouse_disposal_list.html', { method: '丢弃' })),
 
   warehouse_disposal_execute: page('warehouse_disposal_list', '执行处置', '物资管理 / 执行处置', warehouseDisposalExecutePage('warehouse_disposal_list.html')),
 
@@ -8686,9 +8721,8 @@ const mapLabels = {
   warehouse_disposal_list: ['物资处置', '物资管理'],
   warehouse_disposal_pending: ['待处置物资', '物资管理'],
   warehouse_disposal_form: ['新建处置单', '物资管理 · 表单'],
-  warehouse_disposal_sell_form: ['处置', '物资管理 · 表单'],
-  warehouse_disposal_discard_form: ['丢弃处置', '物资管理 · 表单'],
-  warehouse_disposal_stockpile_form: ['堆放处置', '物资管理 · 表单'],
+  warehouse_disposal_sell_form: ['变卖', '物资管理 · 表单'],
+  warehouse_disposal_discard_form: ['丢弃', '物资管理 · 表单'],
   warehouse_disposal_execute: ['执行处置', '物资管理 · 表单'],
   warehouse_disposal_success: ['处置成功', '物资管理 · 确认'],
   count_plan_list: ['盘点计划', '库场盘点'],

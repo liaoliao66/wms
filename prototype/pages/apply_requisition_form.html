@@ -30,7 +30,7 @@
         <a href="apply_requisition_add_material.html" class="wms-requisition-add-btn"><i class="fa-solid fa-plus text-[10px]"></i> 添加</a>
       </div>
       <div class="wms-requisition-table-wrap overflow-x-auto wms-modal-table-wrap rounded-none border-0">
-        <table class="min-w-[1280px] w-full text-sm wms-requisition-material-table"><thead class="bg-slate-50/90"><tr><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">规格型号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资大类</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资子类</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计量单位</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">在库总量</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">已锁定</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">可用库存数量</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 申请领用数量</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划领用日期</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">备注</th><th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/60" data-requisition-row data-material-type="fixed">
+        <table class="min-w-[1100px] w-full text-sm wms-requisition-material-table"><thead class="bg-slate-50/90"><tr><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">规格型号</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资大类</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资子类</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计量单位</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">可用库存数量</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 申请领用数量</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划领用日期</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">备注</th><th class="px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th></tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/60" data-requisition-row data-material-type="fixed">
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">1</td>
       <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">GD001001-001</td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">抓斗<span class="ml-1 text-[10px] text-slate-400">按件</span></td>
@@ -38,9 +38,7 @@
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">资产-固定资产</td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">设备-配件</td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">个</td>
-      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap" data-requisition-on-hand>1</td>
-      <td class="px-3 py-2.5 text-sm whitespace-nowrap text-slate-700" data-requisition-locked>0</td>
-      <td class="px-3 py-2.5 text-sm whitespace-nowrap font-medium text-emerald-700" data-requisition-available title="可用 = 在库 − 已锁定 − 借出 − 待确认">1</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">10</td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="number" value="1" readonly class="w-20 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-sm text-slate-600" title="固定资产按件领用，数量为 1" data-requisition-qty data-material-type="fixed" /><span class="ml-1 text-[10px] text-slate-400">固定</span></td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="date" value="2026-06-15" class="w-[132px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="text" value="施工现场吊装用" placeholder="备注" class="w-[120px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td>
@@ -53,9 +51,7 @@
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">资产-类资产</td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">电动工具</td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">台</td>
-      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap" data-requisition-on-hand>10</td>
-      <td class="px-3 py-2.5 text-sm whitespace-nowrap font-medium text-amber-700" data-requisition-locked>4</td>
-      <td class="px-3 py-2.5 text-sm whitespace-nowrap font-medium text-emerald-700" data-requisition-available title="可用 = 在库 − 已锁定 − 借出 − 待确认">6</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">6</td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="number" min="1" max="6" value="3" placeholder="请输入台数" class="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" data-requisition-qty data-material-type="like" data-max-stock="6" /></td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="date" value="2026-06-12" class="w-[132px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="text" value="设备部维修班组" placeholder="备注" class="w-[120px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td>
@@ -68,9 +64,7 @@
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">耗材-办公耗材</td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">办公用纸</td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">箱</td>
-      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap" data-requisition-on-hand>200</td>
-      <td class="px-3 py-2.5 text-sm whitespace-nowrap font-medium text-amber-700" data-requisition-locked>20</td>
-      <td class="px-3 py-2.5 text-sm whitespace-nowrap font-medium text-emerald-700" data-requisition-available title="可用 = 在库 − 已锁定 − 借出 − 待确认">170</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">170</td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="number" min="1" max="170" value="50" placeholder="请输入数量" class="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" data-requisition-qty data-material-type="consumable" data-max-stock="170" /></td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="date" value="2026-06-10" class="w-[132px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td>
       <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="text" value="行政部二季度补充" placeholder="备注" class="w-[120px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" /></td>
@@ -80,8 +74,7 @@
       <p class="border-t border-slate-100 bg-slate-50/80 px-3 py-2 text-xs text-slate-500">
         <i class="fa-solid fa-circle-info mr-1 text-sky-500"></i>
         <strong>固定资产</strong>按件领用，数量固定为 1；
-        <strong>类资产、耗材</strong>须填写申请领用数量，且不得超过<strong>可用库存</strong>（= 在库 − 已锁定 − 借出 − 待确认）。
-        保存/提交阶段不占用锁定量，<strong>审核通过</strong>时按申请量锁库。
+        <strong>类资产、耗材</strong>须填写申请领用数量，且不得超过可用库存。
       </p>
     </div>
   </div>

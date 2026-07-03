@@ -14,11 +14,13 @@
       <div class="wms-modal-form wms-warehouse-form">
         <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">基本信息</h3></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">作废单号</label><input type="text" value="系统自动生成" readonly data-scrap-field="scrapNo" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">来源类型</label><select data-scrap-field="sourceType" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>在库报废</option><option>待报废转报废</option><option>维修报废</option><option>归还灭失</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">来源类型</label><select data-scrap-field="sourceType" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>在库报废</option><option>待报废转报废</option><option>归还灭失</option></select></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">关联单号</label><input type="text" value="—" readonly data-scrap-field="sourceDocNo" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 所属仓库</label><select data-scrap-field="warehouse" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>主仓库</option><option>备件库</option></select></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 作废原因</label><select data-scrap-field="reason" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>损坏无法修复</option><option>过期失效</option><option>淘汰更新</option><option>丢失</option><option>被盗</option><option>事故损毁</option><option>其他</option></select></div>
-        
+        <div class="md:col-span-2 rounded-xl border border-sky-100 bg-sky-50/50 p-4 text-sm text-slate-700">
+    <i class="fa-solid fa-circle-info mr-1 text-sky-600"></i><strong>在库报废不经待报废池</strong>：请从下方「添加」选择在库物资，审批通过后执行并登记报废存储位置。
+  </div>
         <div class="wms-requisition-section md:col-span-2">
     <h3 class="wms-form-section-title mb-3">作废明细</h3>
     <div class="rounded-xl border border-slate-200">
@@ -55,7 +57,7 @@
       <p class="border-t border-slate-100 bg-slate-50/80 px-3 py-2 text-xs text-slate-500">
         <i class="fa-solid fa-circle-info mr-1 text-rose-500"></i>
         <strong>固定资产</strong>按资产编码逐件作废，数量固定为 1；
-        <strong>类资产/耗材</strong>须填写作废数量，且不得超过可用库存。执行后将扣减台账并写入 scrap 流水。
+        <strong>类资产/耗材</strong>须填写作废数量，且不得超过可用库存。执行后将扣减台账、登记报废存储位置并写入 scrap 流水。<strong>在库报废不经待报废池</strong>。
       </p>
     </div>
   </div>

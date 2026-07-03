@@ -13,7 +13,7 @@
     <div data-wms-modal data-modal-back="warehouse_scrap_list.html" data-modal-size="lg" data-wms-scrap-execute data-scrap-key="ZF202606090001">
       <div class="mb-5 rounded-xl border border-rose-100 bg-rose-50/60 p-4 text-sm text-slate-700">
         <i class="fa-solid fa-circle-exclamation mr-1 text-rose-600"></i>
-        审批已通过。请现场核对物资后确认执行；执行后将<strong>扣减台账可用库存</strong>，资产状态变为「已作废」，并写入 <code class="rounded bg-white/80 px-1 text-xs">txn_type=scrap</code> 流水。
+        审批已通过。执行后将<strong>扣减台账</strong>，物资进入<strong>报废存储</strong>并写入待处置队列。
       </div>
       <dl class="mb-6 grid gap-4 sm:grid-cols-2 text-sm">
         <div><dt class="text-slate-500">作废单号</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-scrap-exec-field="scrapNo">ZF202606090001</dd></div>
@@ -31,6 +31,17 @@
           <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">货位</th>
           <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">作废数量</th>
         </tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">1</td><td class="px-3 py-2.5 font-mono text-xs">LA-00502</td><td class="px-3 py-2.5 text-sm">手持对讲机</td><td class="px-3 py-2.5 text-sm">主仓库/待报废区</td><td class="px-3 py-2.5 text-sm font-medium">1 台</td></tr></tbody></table>
+      </div>
+      <div class="mb-4 rounded-xl border border-slate-200 bg-white p-4">
+        <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 报废存储位置</label>
+        <select data-scrap-storage-location class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200">
+          <option value="">请选择存储位置</option>
+          <option value="主仓库/报废存储区/A-01">主仓库/报废存储区/A-01</option>
+          <option value="主仓库/报废存储区/A-02">主仓库/报废存储区/A-02</option>
+          <option value="主仓库/报废存储区/B-01">主仓库/报废存储区/B-01</option>
+          <option value="灭失（无实物）">灭失（无实物）</option>
+        </select>
+        <p class="mt-1.5 text-xs text-slate-500">执行作废时必填；实物将登记至此位置，后续在待处置中选择变卖或丢弃。</p>
       </div>
       <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-xs text-slate-600">
         <div class="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-qrcode text-blue-500"></i> 现场核对（可选）</div>
