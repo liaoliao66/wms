@@ -10,57 +10,77 @@
 </head>
 <body data-page="dashboard" data-title="工作台" data-breadcrumb="首页 / 工作台">
   <div id="main-content">
-    <div class="wms-dash-stats mb-6">
-      <a href="purchase_pending_list.html?tab=待申请" class="wms-dash-stat card">
-        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待采物资</span><i class="fa-solid fa-cart-shopping wms-dash-stat-icon"></i></div>
-        <div class="wms-dash-stat-num">4</div>
-        <span class="wms-dash-stat-link">去申请 →</span>
-      </a>
-      <a href="warehouse_pending_check.html" class="wms-dash-stat card">
-        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待验物资</span><i class="fa-solid fa-clipboard-check wms-dash-stat-icon"></i></div>
-        <div class="wms-dash-stat-num">3</div>
-        <span class="wms-dash-stat-link">去验收 →</span>
-      </a>
-      <a href="warehouse_inbound_list.html?tab=待入库" class="wms-dash-stat card">
-        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待入库</span><i class="fa-solid fa-arrow-down-to-bracket wms-dash-stat-icon"></i></div>
-        <div class="wms-dash-stat-num">3</div>
-        <span class="wms-dash-stat-link">去入库 →</span>
-      </a>
-      <a href="warehouse_outbound_list.html?tab=待出库" class="wms-dash-stat card">
-        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待出库</span><i class="fa-solid fa-arrow-up-from-bracket wms-dash-stat-icon"></i></div>
-        <div class="wms-dash-stat-num">4</div>
-        <span class="wms-dash-stat-link">去出库 →</span>
-      </a>
-      <a href="count_task_list.html" class="wms-dash-stat card">
-        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">盘点任务</span><i class="fa-solid fa-clipboard-list wms-dash-stat-icon text-violet-300"></i></div>
-        <div class="wms-dash-stat-num text-violet-700">2</div>
-        <span class="wms-dash-stat-link">去盘点 →</span>
-      </a>
-      <a href="purchase_supply_list.html?tab=待供货" class="wms-dash-stat card">
-        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">供货逾期</span><i class="fa-solid fa-truck wms-dash-stat-icon text-amber-300"></i></div>
-        <div class="wms-dash-stat-num text-amber-600">1</div>
-        <span class="wms-dash-stat-link">查看供货单 →</span>
-      </a>
-      <a href="mine_pending_return.html" class="wms-dash-stat card">
-        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待还超期</span><i class="fa-solid fa-triangle-exclamation wms-dash-stat-icon text-rose-300"></i></div>
-        <div class="wms-dash-stat-num text-rose-600">2</div>
-        <span class="wms-dash-stat-link">去处理 →</span>
-      </a>
-      <a href="warehouse_scrap_pending_pool.html" class="wms-dash-stat card">
-        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待报废</span><i class="fa-solid fa-dumpster wms-dash-stat-icon text-rose-300"></i></div>
-        <div class="wms-dash-stat-num text-rose-600">3</div>
-        <span class="wms-dash-stat-link">待报废池 →</span>
-      </a>
-      <a href="warehouse_scrap_list.html?tab=待执行作废" class="wms-dash-stat card">
-        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待执行作废</span><i class="fa-solid fa-file-circle-xmark wms-dash-stat-icon text-orange-300"></i></div>
-        <div class="wms-dash-stat-num text-orange-600">1</div>
-        <span class="wms-dash-stat-link">去执行 →</span>
-      </a>
-      <a href="warehouse_disposal_pending.html" class="wms-dash-stat card">
-        <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待处置</span><i class="fa-solid fa-recycle wms-dash-stat-icon text-emerald-300"></i></div>
-        <div class="wms-dash-stat-num text-emerald-700">3</div>
-        <span class="wms-dash-stat-link">去处置 →</span>
-      </a>
+    <div class="wms-dash-stats-row mb-6" data-wms-dash-stats>
+      <section class="wms-dash-group wms-dash-group--procure">
+        <h3 class="wms-dash-group-label"><i class="fa-solid fa-truck-ramp-box mr-1"></i>采购入库</h3>
+        <div class="wms-dash-group-cards">
+          <a href="purchase_pending_list.html?tab=待申请" class="wms-dash-stat card">
+            <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待采物资</span><i class="fa-solid fa-cart-shopping wms-dash-stat-icon"></i></div>
+            <div class="wms-dash-stat-num">4</div>
+            <span class="wms-dash-stat-link">去申请 →</span>
+          </a>
+          <a href="purchase_supply_list.html?tab=待供货" class="wms-dash-stat card">
+            <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">供货逾期</span><i class="fa-solid fa-truck wms-dash-stat-icon text-amber-400"></i></div>
+            <div class="wms-dash-stat-num text-amber-600">1</div>
+            <span class="wms-dash-stat-link">供货单 →</span>
+          </a>
+          <a href="warehouse_pending_check.html" class="wms-dash-stat card">
+            <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待验物资</span><i class="fa-solid fa-clipboard-check wms-dash-stat-icon"></i></div>
+            <div class="wms-dash-stat-num">3</div>
+            <span class="wms-dash-stat-link">去验收 →</span>
+          </a>
+          <a href="warehouse_inbound_list.html?tab=待入库" class="wms-dash-stat card">
+            <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待入库</span><i class="fa-solid fa-arrow-down-to-bracket wms-dash-stat-icon"></i></div>
+            <div class="wms-dash-stat-num">3</div>
+            <span class="wms-dash-stat-link">去入库 →</span>
+          </a>
+        </div>
+      </section>
+      <section class="wms-dash-group wms-dash-group--outbound">
+        <h3 class="wms-dash-group-label"><i class="fa-solid fa-right-left mr-1"></i>出库归还</h3>
+        <div class="wms-dash-group-cards">
+          <a href="warehouse_outbound_list.html?tab=待出库" class="wms-dash-stat card">
+            <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待出库</span><i class="fa-solid fa-arrow-up-from-bracket wms-dash-stat-icon"></i></div>
+            <div class="wms-dash-stat-num">4</div>
+            <span class="wms-dash-stat-link">去出库 →</span>
+          </a>
+          <a href="mine_pending_return.html" class="wms-dash-stat card">
+            <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待还超期</span><i class="fa-solid fa-triangle-exclamation wms-dash-stat-icon text-rose-400"></i></div>
+            <div class="wms-dash-stat-num text-rose-600">2</div>
+            <span class="wms-dash-stat-link">去处理 →</span>
+          </a>
+        </div>
+      </section>
+      <section class="wms-dash-group wms-dash-group--count">
+        <h3 class="wms-dash-group-label"><i class="fa-solid fa-clipboard-list mr-1"></i>库场盘点</h3>
+        <div class="wms-dash-group-cards">
+          <a href="count_task_list.html" class="wms-dash-stat card">
+            <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">盘点任务</span><i class="fa-solid fa-list-check wms-dash-stat-icon text-violet-400"></i></div>
+            <div class="wms-dash-stat-num text-violet-700">2</div>
+            <span class="wms-dash-stat-link">去盘点 →</span>
+          </a>
+        </div>
+      </section>
+      <section class="wms-dash-group wms-dash-group--scrap">
+        <h3 class="wms-dash-group-label"><i class="fa-solid fa-dumpster mr-1"></i>报废处置</h3>
+        <div class="wms-dash-group-cards">
+          <a href="warehouse_scrap_pending_pool.html" class="wms-dash-stat card">
+            <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待报废</span><i class="fa-solid fa-dumpster wms-dash-stat-icon text-rose-400"></i></div>
+            <div class="wms-dash-stat-num text-rose-600">3</div>
+            <span class="wms-dash-stat-link">待报废池 →</span>
+          </a>
+          <a href="warehouse_scrap_list.html?tab=待执行作废" class="wms-dash-stat card">
+            <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待执行作废</span><i class="fa-solid fa-file-circle-xmark wms-dash-stat-icon text-orange-400"></i></div>
+            <div class="wms-dash-stat-num text-orange-600">1</div>
+            <span class="wms-dash-stat-link">去执行 →</span>
+          </a>
+          <a href="warehouse_disposal_pending.html" class="wms-dash-stat card">
+            <div class="wms-dash-stat-top"><span class="wms-dash-stat-label">待处置</span><i class="fa-solid fa-recycle wms-dash-stat-icon text-emerald-400"></i></div>
+            <div class="wms-dash-stat-num text-emerald-700">3</div>
+            <span class="wms-dash-stat-link">去处置 →</span>
+          </a>
+        </div>
+      </section>
     </div>
 
     <div class="grid gap-6 lg:grid-cols-3">
