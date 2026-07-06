@@ -531,6 +531,7 @@ function initLayout() {
   initSupplierDetail(root);
   initEvalConfig(root);
   initAppCount(root);
+  initDashAnomalies(root);
 }
 
 const WMS_MATERIAL_MINORS = {
@@ -807,6 +808,46 @@ function setListTabStyles(tabBtns, activeTab, attr = 'data-wms-list-tab') {
     btn.classList.toggle('ring-slate-200', !on);
     btn.classList.toggle('hover:bg-slate-50', !on);
   });
+}
+
+function initDashAnomalies(root) {
+  const panel = root.querySelector('[data-wms-dash-anomalies]');
+  if (!panel) return;
+
+  const tabBtns = [...panel.querySelectorAll('[data-wms-dash-anomaly-tab]')];
+  const rows = [...panel.querySelectorAll('[data-wms-dash-anomaly-row]')];
+  const tbody = panel.querySelector('[data-wms-dash-anomaly-tbody]');
+  const tableWrap = panel.querySelector('.overflow-x-auto');
+  const emptyEl = panel.querySelector('[data-wms-dash-anomaly-empty]');
+  const countEl = panel.querySelector('[data-wms-dash-anomaly-count]');
+  const totalEl = panel.querySelector('[data-wms-dash-anomaly-total]');
+  let activeTab = '全部';
+
+  function applyFilter() {
+    let visible = 0;
+    rows.forEach(row => {
+      const tab = row.getAttribute('data-anomaly-tab') || '';
+      const show = activeTab === '全部' || tab === activeTab;
+      row.classList.toggle('hidden', !show);
+      if (show) visible += 1;
+    });
+    if (countEl) countEl.textContent = `显示 ${visible} / ${rows.length} 条`;
+    if (totalEl) totalEl.textContent = `共 ${rows.length} 条`;
+    const showEmpty = visible === 0;
+    if (tbody) tbody.classList.toggle('hidden', showEmpty);
+    if (tableWrap) tableWrap.classList.toggle('hidden', showEmpty);
+    emptyEl?.classList.toggle('hidden', !showEmpty);
+  }
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeTab = btn.getAttribute('data-wms-dash-anomaly-tab') || '全部';
+      setListTabStyles(tabBtns, activeTab, 'data-wms-dash-anomaly-tab');
+      applyFilter();
+    });
+  });
+
+  applyFilter();
 }
 
 function initListToolbar(root) {
