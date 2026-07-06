@@ -3902,7 +3902,7 @@ function outboundSuccessPage() {
         </div>
         <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
           <button type="button" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-print"></i> 打印领用单</button>
-          <a href="mine_pending_pickup.html" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-hand-holding"></i> 领取记录</a>
+          <a href="mine_pending_pickup.html" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-hand-holding"></i> 领用记录</a>
           <a href="warehouse_outbound_list.html" class="text-sm text-slate-500 hover:text-slate-900">返回出库列表</a>
         </div>
       </div>
@@ -7948,7 +7948,7 @@ const pages = {
 
   ledger_transaction: page('ledger_transaction', '出入库记录', '物资台账 / 出入库记录', ledgerTransactionPage()),
 
-  mine_pending_pickup: page('mine_pending_pickup', '领取记录', '我的物资 / 领取记录', listPage({
+  mine_pending_pickup: page('mine_pending_pickup', '领用记录', '我的物资 / 领用记录', listPage({
     desc: '领用申请审核通过后的物资领取明细',
     tabs: ['全部', '待领取', '已领取'],
     searchPlaceholder: '领用申请单号、物资编码、物资名称、出库单号',
@@ -7962,7 +7962,7 @@ const pages = {
     ],
   })),
 
-  mine_pending_return: page('mine_pending_return', '借还记录', '我的物资 / 借还记录', listPage({
+  mine_pending_return: page('mine_pending_return', '归还记录', '我的物资 / 归还记录', listPage({
     desc: '需归还且尚未完成归还的物资；仓管入库后进入「待确认」，借用人确认后变为已归还',
     tabs: ['全部', '待归还', '已延期', '待确认', '已归还'],
     tabColumn: 9,
@@ -8652,8 +8652,8 @@ const mapLabels = {
   ledger_asset_qrcode: ['资产二维码', '物资台账 · 二维码'],
   ledger_transaction: ['出入库记录', '物资台账'],
   ledger_transaction_detail: ['流水详情', '物资台账'],
-  mine_pending_pickup: ['领取记录', '我的物资'],
-  mine_pending_return: ['借还记录', '我的物资'],
+  mine_pending_pickup: ['领用记录', '我的物资'],
+  mine_pending_return: ['归还记录', '我的物资'],
   mine_return_confirm: ['确认归还', '我的物资 · 表单'],
   mine_requisition_record: ['领用记录', '我的物资 · 表单'],
   apply_plan_list: ['物资计划', '物资申请'],
