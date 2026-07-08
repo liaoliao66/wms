@@ -6251,17 +6251,40 @@ function categorySubForm(backHref, { title, level = 1, type = 'fixed' }) {
 }
 
 /** 供应商主数据（档案 + 关联业务回显） */
+const SUPPLIER_DOCS_TEMPLATE = [
+  { name: '营业执照副本', status: '有效', expiry: '2028-12-31' },
+  { name: '法人身份证复印件', status: '有效', expiry: '—' },
+  { name: '开户许可证', status: '有效', expiry: '—' },
+  { name: '开票信息备案表', status: '有效', expiry: '—' },
+  { name: '入库申请表', status: '已归档', expiry: '—' },
+];
+
+function supplierAuditHistory(admissionDate) {
+  return [
+    { node: '资料申报', user: '供应商', result: '提交', opinion: '资料齐全', time: `${admissionDate} 09:00` },
+    { node: '设备技术部初审', user: '张工', result: '通过', opinion: '资料完整、经营状态正常', time: `${admissionDate} 14:00` },
+    { node: '联合复核', user: '综合管理部/财务部', result: '通过', opinion: '征信及财税无异常', time: `${admissionDate} 10:30` },
+    { node: '终审', user: '分管领导', result: '准予入库', opinion: '同意入库建档', time: `${admissionDate} 16:00` },
+  ];
+}
+
+function supplierExtra(tier, creditCode, legalPerson, bankName, bankAccount, admissionDate, qualTypes = ['ISO9001']) {
+  return {
+    poolStatus: '在库', tier, creditCode, legalPerson, bankName, bankAccount,
+    invoiceTaxNo: creditCode, admissionDate, qualTypes,
+    documents: SUPPLIER_DOCS_TEMPLATE, auditHistory: supplierAuditHistory(admissionDate),
+  };
+}
+
 const SUPPLIER_SAMPLES = {
   GYS001: {
     code: 'GYS001', name: '科尼', shortName: '科尼', status: '正常', type: '设备配件供应商',
     contact: '李四', phone: '13912345678', address: '上海市浦东新区张江路 88 号', createdAt: '2024-03-15',
+    invoiceTitle: '科尼（上海）设备有限公司',
+    ...supplierExtra('核心供应商', '91310115MA1K3XXXXX', '王某某', '中国银行上海张江支行', '6217001234567890123', '2024-03-12', ['ISO9001', '特种设备制造']),
     latestScore: '8.60', latestGrade: '良好', latestEvalDate: '2025-12-30', latestEvalNo: 'PJ2025001',
-    supplies: [
-      { no: 'GH2025001', material: '抓斗', qty: '10 / 10 个', status: '已供货', date: '2025-08-01' },
-    ],
-    acceptances: [
-      { no: 'GH2025001-YS01', supplyNo: 'GH2025001', material: '抓斗', qualified: '10', unqualified: '0', date: '2025-08-08', status: '已验收' },
-    ],
+    supplies: [{ no: 'GH2025001', material: '抓斗', qty: '10 / 10 个', status: '已供货', date: '2025-08-01' }],
+    acceptances: [{ no: 'GH2025001-YS01', supplyNo: 'GH2025001', material: '抓斗', qualified: '10', unqualified: '0', date: '2025-08-08', status: '已验收' }],
     refunds: [],
     evalHistory: [
       { evalNo: 'PJ2025001', evalName: '2025年度设备配件类供应商评价', period: '2025年度', score: '8.60', grade: '良好', evalDate: '2025-12-30', status: '审核通过' },
@@ -6271,6 +6294,8 @@ const SUPPLIER_SAMPLES = {
   GYS002: {
     code: 'GYS002', name: '上海佩纳', shortName: '上海佩纳', status: '正常', type: '设备配件供应商',
     contact: '李四', phone: '13912345678', address: '上海市嘉定区工业路 12 号', createdAt: '2024-05-20',
+    invoiceTitle: '上海佩纳机械有限公司',
+    ...supplierExtra('核心供应商', '91310114MA1K4YYYYY', '李某某', '工商银行上海嘉定支行', '6222009876543210987', '2024-05-18'),
     latestScore: '8.10', latestGrade: '良好', latestEvalDate: '2025-12-30', latestEvalNo: 'PJ2025001',
     supplies: [{ no: 'GH2025002', material: '料斗', qty: '10 / 10 个', status: '已供货', date: '2025-09-01' }],
     acceptances: [{ no: 'GH2025002-YS01', supplyNo: 'GH2025002', material: '料斗', qualified: '10', unqualified: '0', date: '2025-11-16', status: '已验收' }],
@@ -6280,6 +6305,8 @@ const SUPPLIER_SAMPLES = {
   GYS003: {
     code: 'GYS003', name: '河南蒲瑞', shortName: '河南蒲瑞', status: '正常', type: '设备配件供应商',
     contact: '李经理', phone: '13800001234', address: '河南省郑州市高新区', createdAt: '2024-06-10',
+    invoiceTitle: '河南蒲瑞起重设备有限公司',
+    ...supplierExtra('合格供应商', '91410100MA45ZZZZZ', '张某某', '建设银行郑州高新支行', '6217001111222233334', '2024-06-08'),
     latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—',
     supplies: [{ no: 'GH2025003', material: '钢丝绳', qty: '100 / 50 m', status: '供货中', date: '2025-10-15' }],
     acceptances: [{ no: 'GH2025003-YS01', supplyNo: 'GH2025003', material: '钢丝绳', qualified: '50', unqualified: '0', date: '2025-11-20', status: '验收中' }],
@@ -6289,6 +6316,8 @@ const SUPPLIER_SAMPLES = {
   GYS004: {
     code: 'GYS004', name: '江苏华能电子有限公司', shortName: '江苏华能', status: '正常', type: '耗材供应商',
     contact: '王工', phone: '13911112233', address: '江苏省南京市江宁区', createdAt: '2024-08-01',
+    invoiceTitle: '江苏华能电子有限公司',
+    ...supplierExtra('合格供应商', '91320115MA1WAAAAA', '刘某某', '农业银行南京江宁支行', '6228480402564890018', '2024-07-28', ['3C认证']),
     latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—',
     supplies: [{ no: 'GH2025004', material: '螺丝刀', qty: '20 / 10 个', status: '供货中', date: '2025-11-01' }],
     acceptances: [{ no: 'GH2025004-YS01', supplyNo: 'GH2025004', material: '螺丝刀', qualified: '9', unqualified: '1', date: '2025-11-22', status: '验收中' }],
@@ -6298,15 +6327,17 @@ const SUPPLIER_SAMPLES = {
   GYS005: {
     code: 'GYS005', name: '宁波北仑君威有限公司', shortName: '宁波北仑君威', status: '暂停', type: '耗材供应商',
     contact: '李四', phone: '13912345678', address: '浙江省宁波市北仑区', createdAt: '2024-09-12',
+    invoiceTitle: '宁波北仑君威有限公司',
+    ...supplierExtra('合格供应商', '91330206MA2XXXXXX', '陈某某', '宁波银行北仑支行', '6214180000001234567', '2024-09-10'),
     latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—',
     supplies: [{ no: 'GH2025005', material: '扳手', qty: '20 / 0 个', status: '待供货', date: '2025-12-01' }],
-    acceptances: [],
-    refunds: [],
-    evalHistory: [],
+    acceptances: [], refunds: [], evalHistory: [],
   },
   GYS006: {
     code: 'GYS006', name: '华建物资有限公司', shortName: '华建物资', status: '正常', type: '电气材料供应商',
     contact: '陈经理', phone: '13888888221', address: '湖北省黄冈市武穴市', createdAt: '2026-01-15',
+    invoiceTitle: '华建物资有限公司',
+    ...supplierExtra('合格供应商', '91421181MA4KBBBBB', '周某某', '湖北银行武穴支行', '6217005555666677778', '2026-01-12'),
     latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—',
     supplies: [{ no: 'GH202605280002', material: '电缆 YJV-3×2.5', qty: '100 / 100 m', status: '已供货', date: '2026-05-28' }],
     acceptances: [],
@@ -6316,11 +6347,104 @@ const SUPPLIER_SAMPLES = {
   GYS007: {
     code: 'GYS007', name: '鄂东办公用品', shortName: '鄂东办公', status: '正常', type: '办公耗材供应商',
     contact: '刘主管', phone: '13933333002', address: '湖北省黄冈市', createdAt: '2026-02-20',
+    invoiceTitle: '鄂东办公用品有限公司',
+    ...supplierExtra('备选供应商', '91421100MA4KCCCCC', '吴某某', '工商银行黄冈支行', '6222023333444455556', '2026-02-18'),
     latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—',
     supplies: [{ no: 'GH2025002', material: '安全帽', qty: '200 / 200 顶', status: '已供货', date: '2025-11-10' }],
     acceptances: [{ no: 'GH2025002-YS01', supplyNo: 'GH2025002', material: '安全帽', qualified: '200', unqualified: '0', date: '2025-11-16', status: '已验收' }],
     refunds: [{ no: 'RK202509002-TH01', supplyNo: 'GH2025002', material: '安全帽', qty: '50 顶', reason: '在库退货', date: '—', status: '待退货' }],
     evalHistory: [],
+  },
+  GYS008: {
+    code: 'GYS008', name: '荆州劣质配件厂', shortName: '荆州劣质', status: '黑名单', poolStatus: '已淘汰', tier: '—', type: '设备配件供应商',
+    creditCode: '91421000MA4DDDDDD', legalPerson: '赵某', bankName: '—', bankAccount: '—',
+    invoiceTitle: '荆州劣质配件厂', invoiceTaxNo: '91421000MA4DDDDDD',
+    contact: '赵某', phone: '13700009999', address: '湖北省荆州市', admissionDate: '2023-06-01', createdAt: '2023-06-15',
+    qualTypes: [], documents: [], auditHistory: supplierAuditHistory('2023-06-01'),
+    eliminationReason: '产品质量连续两次抽检不合格，造成公司损失', eliminationDate: '2025-11-01', reEntryBanUntil: '2027-11-01',
+    latestScore: '4.20', latestGrade: '不合格', latestEvalDate: '2025-10-15', latestEvalNo: '—',
+    supplies: [], acceptances: [], refunds: [], evalHistory: [],
+  },
+};
+
+/** 入库审核申请（未入合格库） */
+const ADMISSION_SAMPLES = {
+  RK202607050001: {
+    no: 'RK202607050001', name: '黄冈鑫达物资有限公司', creditCode: '91421100MA4KEEEEE', type: '耗材供应商',
+    contact: '王经理', phone: '13800001111', stage: '资料申报', result: '—', submitDate: '2026-07-05',
+    handler: '张工', needSiteCheck: false, supplyScope: '办公耗材、劳保用品',
+    documents: ['入库申请表', '营业执照', '法人身份证', '开户许可'],
+    auditFlow: [{ node: '资料申报', user: '黄冈鑫达', result: '提交', opinion: '首次申报', time: '2026-07-05 10:00' }],
+  },
+  RK202607040002: {
+    no: 'RK202607040002', name: '武穴安防科技有限公司', creditCode: '91421181MA4KFFFFFF', type: '安防物资供应商',
+    contact: '李工', phone: '13922223333', stage: '设备技术部初审', result: '—', submitDate: '2026-07-04',
+    handler: '张工', needSiteCheck: true, supplyScope: '安防监控、门禁系统',
+    documents: ['入库申请表', '营业执照', '3C认证', '经营许可证'],
+    auditFlow: [
+      { node: '资料申报', user: '武穴安防', result: '提交', opinion: '—', time: '2026-07-04 09:00' },
+      { node: '设备技术部初审', user: '张工', result: '处理中', opinion: '核查技术资质', time: '2026-07-05 09:30' },
+    ],
+  },
+  RK202607030003: {
+    no: 'RK202607030003', name: '湖北化工贸易有限公司', creditCode: '91421100MA4KGGGGG', type: '化工物资供应商',
+    contact: '孙经理', phone: '13666667777', stage: '联合复核', result: '—', submitDate: '2026-07-03',
+    handler: '张工', needSiteCheck: true, supplyScope: '化工原料、劳保防护',
+    documents: ['入库申请表', '危险品经营许可', '产品检测报告', '环保合规证明'],
+    auditFlow: [
+      { node: '资料申报', user: '湖北化工', result: '提交', opinion: '—', time: '2026-07-03 08:30' },
+      { node: '设备技术部初审', user: '张工', result: '通过', opinion: '专项资质齐全', time: '2026-07-04 11:00' },
+      { node: '联合复核', user: '综合管理部', result: '处理中', opinion: '征信核查中', time: '2026-07-05 10:00' },
+    ],
+  },
+  RK202607020004: {
+    no: 'RK202607020004', name: '鄂东定制机械厂', creditCode: '91421181MA4KHHHHH', type: '定制生产供应商',
+    contact: '钱厂长', phone: '13555554444', stage: '现场核查', result: '—', submitDate: '2026-07-02',
+    handler: '张工', needSiteCheck: true, supplyScope: '定制化机械设备配件',
+    documents: ['入库申请表', '生产加工资质', '样品检测报告'],
+    auditFlow: [
+      { node: '资料申报', user: '鄂东定制', result: '提交', opinion: '—', time: '2026-07-02 09:00' },
+      { node: '设备技术部初审', user: '张工', result: '通过', opinion: '定制类需现场核查', time: '2026-07-03 14:00' },
+      { node: '联合复核', user: '综合管理部/财务部', result: '通过', opinion: '无异常', time: '2026-07-04 16:00' },
+      { node: '现场核查', user: '核查小组', result: '处理中', opinion: '已预约 7/6 实地核查', time: '2026-07-05 09:00' },
+    ],
+  },
+  RK202607010005: {
+    no: 'RK202607010005', name: '黄石某贸易有限公司', creditCode: '91420200MA4KIIIII', type: '办公耗材供应商',
+    contact: '郑主管', phone: '13444443333', stage: '待终审', result: '—', submitDate: '2026-07-01',
+    handler: '张工', needSiteCheck: false, supplyScope: '办公文具',
+    documents: ['入库申请表', '营业执照', '履约案例'],
+    auditFlow: [
+      { node: '资料申报', user: '黄石某贸易', result: '提交', opinion: '—', time: '2026-07-01 10:00' },
+      { node: '设备技术部初审', user: '张工', result: '通过', opinion: '—', time: '2026-07-02 11:00' },
+      { node: '联合复核', user: '综合管理部/财务部', result: '通过', opinion: '—', time: '2026-07-03 15:00' },
+      { node: '待终审', user: '—', result: '待处理', opinion: '等待分管领导审批', time: '—' },
+    ],
+  },
+  RK202606280006: {
+    no: 'RK202606280006', name: '某建材供应站', creditCode: '91421100MA4KJJJJJ', type: '耗材供应商',
+    contact: '何某', phone: '13333332222', stage: '暂缓入库', result: '暂缓入库', submitDate: '2026-06-28',
+    handler: '张工', needSiteCheck: false, supplyScope: '建筑材料',
+    deferReason: 'ISO9001 证书即将过期，需在 2026-08-01 前补交新证', deferDeadline: '2026-08-01',
+    documents: ['入库申请表', '营业执照'],
+    auditFlow: [
+      { node: '资料申报', user: '某建材', result: '提交', opinion: '—', time: '2026-06-28 09:00' },
+      { node: '设备技术部初审', user: '张工', result: '通过', opinion: '—', time: '2026-06-29 10:00' },
+      { node: '联合复核', user: '综合管理部/财务部', result: '通过', opinion: '—', time: '2026-06-30 14:00' },
+      { node: '终审', user: '分管领导', result: '暂缓入库', opinion: '资质证书临期，限期整改', time: '2026-07-01 16:00' },
+    ],
+  },
+  RK202606250007: {
+    no: 'RK202606250007', name: '某空壳贸易有限公司', creditCode: '91421100MA4KKKKKK', type: '办公耗材供应商',
+    contact: '冯某', phone: '13222221111', stage: '不予入库', result: '不予入库', submitDate: '2026-06-25',
+    handler: '张工', needSiteCheck: false, supplyScope: '—',
+    rejectReason: '经营异常名录、无实际经营场地，存在空壳经营嫌疑',
+    documents: ['入库申请表', '营业执照（异常）'],
+    auditFlow: [
+      { node: '资料申报', user: '某空壳', result: '提交', opinion: '—', time: '2026-06-25 09:00' },
+      { node: '设备技术部初审', user: '张工', result: '驳回', opinion: '经营状态异常', time: '2026-06-26 11:00' },
+      { node: '终审', user: '分管领导', result: '不予入库', opinion: '不符合准入条件', time: '2026-06-27 15:00' },
+    ],
   },
 };
 
@@ -6335,15 +6459,36 @@ function supplierStatusBadge(status) {
   return badge(status, map[status] || 'info');
 }
 
+function supplierPoolBadge(status) {
+  const map = { 在库: 'success', 暂缓入库: 'warning', 已淘汰: 'danger', 已退出: 'info' };
+  return badge(status, map[status] || 'info');
+}
+
+function supplierTierBadge(tier) {
+  if (!tier || tier === '—') return '—';
+  const map = { 核心供应商: 'success', 合格供应商: 'info', 备选供应商: 'warning' };
+  return badge(tier, map[tier] || 'info');
+}
+
+function supplierAdmissionStageBadge(stage) {
+  const map = {
+    资料申报: 'info', 设备技术部初审: 'warning', 联合复核: 'warning', 现场核查: 'warning',
+    待终审: 'warning', 暂缓入库: 'warning', 不予入库: 'danger',
+  };
+  return badge(stage, map[stage] || 'info');
+}
+
 /** 供应商评价：指标权重、等级、样例数据 */
 const EVAL_CONFIG_VERSION = 'V2026-001';
 const EVAL_CONFIG_EFFECTIVE = '2026-01-01';
 
 const EVAL_INDICATORS = [
-  { key: 'quality', name: '产品质量', weight: 0.4 },
-  { key: 'delivery', name: '交货及时性', weight: 0.2 },
-  { key: 'service', name: '售后服务', weight: 0.2 },
-  { key: 'price', name: '价格合理性', weight: 0.2 },
+  { key: 'quality', name: '产品质量', weight: 0.25 },
+  { key: 'delivery', name: '供货时效', weight: 0.20 },
+  { key: 'price', name: '价格优势', weight: 0.15 },
+  { key: 'service', name: '售后服务', weight: 0.15 },
+  { key: 'fulfillment', name: '履约能力', weight: 0.15 },
+  { key: 'compliance', name: '合规经营', weight: 0.10 },
 ];
 
 const EVAL_GRADES = [
@@ -6353,13 +6498,16 @@ const EVAL_GRADES = [
   { name: '不合格', min: 0, max: 6 },
 ];
 
-const EVAL_SUPPLIER_MASTER = Object.values(SUPPLIER_SAMPLES).map(s => [
-  s.code, s.name, s.shortName, supplierStatusBadge(s.status), s.contact, s.phone, s.type,
-]);
+const EVAL_SUPPLIER_MASTER = Object.values(SUPPLIER_SAMPLES)
+  .filter(s => s.poolStatus === '在库')
+  .map(s => [
+    s.code, s.name, s.shortName, supplierPoolBadge(s.poolStatus), supplierStatusBadge(s.status),
+    supplierTierBadge(s.tier), s.contact, s.phone, s.type,
+  ]);
 
 const EVAL_FORM_LINES = [
-  { code: 'GYS001', name: '科尼', quality: 9, delivery: 8, service: 8, price: 9, bonus: 0, penalty: 0, remark: '' },
-  { code: 'GYS002', name: '上海佩纳', quality: 8, delivery: 9, service: 7, price: 8, bonus: 0, penalty: 0, remark: '' },
+  { code: 'GYS001', name: '科尼', quality: 9, delivery: 8, price: 8, service: 8, fulfillment: 9, compliance: 9, bonus: 0, penalty: 0, remark: '' },
+  { code: 'GYS002', name: '上海佩纳', quality: 8, delivery: 9, price: 8, service: 7, fulfillment: 8, compliance: 9, bonus: 0, penalty: 0, remark: '' },
 ];
 
 const EVAL_ORDER_SAMPLES = {
@@ -6604,11 +6752,9 @@ function supplierEvalFormPage(backHref = 'supplier_eval_list.html', sample = {})
         ${formSection('基础信息')}
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">评价单号</label><input type="text" value="${d.no || '系统自动生成'}" readonly class="${roCls}" data-eval-order-no /></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">配置版本</label><input type="text" value="${d.configVersion || EVAL_CONFIG_VERSION}" readonly class="${roCls}" data-eval-config-version /></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价人</label><input type="text" value="${d.evaluator || '李四'}" readonly class="${roCls}" data-eval-field="evaluator" title="默认为当前登录用户" /></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价名称</label><input type="text" value="${d.name || ''}" placeholder="请输入评价名称" data-eval-field="evalName"${readOnly ? ' readonly' : ''} class="${readOnly ? roCls : inputCls}" /></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价周期</label><select data-eval-field="evalPeriod"${dis} class="${inputCls}">${periodOpts}</select></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价期间</label><div class="flex items-center gap-2"><input type="date" value="${d.periodStart || ''}" data-eval-field="periodStart"${dis} class="${readOnly ? roCls : inputCls}" /><span class="text-slate-400">至</span><input type="date" value="${d.periodEnd || ''}" data-eval-field="periodEnd"${dis} class="${readOnly ? roCls : inputCls}" /></div></div>
-        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价日期</label><input type="date" value="${d.evalDate || '2026-06-09'}" data-eval-field="evalDate"${dis} class="${readOnly ? roCls : inputCls}" /></div>
         ${d.status ? `<div class="md:col-span-2 flex flex-wrap items-center gap-4 text-sm text-slate-600">审批状态：${statusBadge}${d.approver && d.approver !== '—' ? `<span>审批人：${d.approver}</span>` : ''}${d.approveTime && d.approveTime !== '—' ? `<span>审批时间：${d.approveTime}</span>` : ''}</div>` : ''}
         ${evalScoreHint()}
         ${formSection('评价记录')}
@@ -6626,10 +6772,155 @@ function supplierEvalFormPage(backHref = 'supplier_eval_list.html', sample = {})
         ${formSection('其他信息')}
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">备注</label><textarea rows="3" maxlength="500" placeholder="0/500" data-eval-field="orderRemark"${readOnly ? ' readonly' : ''} class="${readOnly ? roCls : inputCls}">${d.orderRemark || ''}</textarea></div>
         <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">评价佐证材料</label>${readOnly ? '<p class="text-sm text-slate-400">评价报告.pdf</p>' : uploadZone()}</div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价人</label><select data-eval-field="evaluator"${dis} multiple class="${inputCls}" style="min-height:80px"><option value="李四"${d.evaluator && d.evaluator.includes('李四') ? ' selected' : ''}>李四</option><option value="张三"${d.evaluator && d.evaluator.includes('张三') ? ' selected' : ''}>张三</option><option value="王经理"${d.evaluator && d.evaluator.includes('王经理') ? ' selected' : ''}>王经理</option><option value="赵工"${d.evaluator && d.evaluator.includes('赵工') ? ' selected' : ''}>赵工</option></select>${readOnly ? '' : '<p class="mt-1 text-xs text-slate-400">按住 Ctrl 键点击可多选</p>'}</div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价日期</label><input type="date" value="${d.evalDate || '2026-06-09'}" data-eval-field="evalDate"${dis} class="${readOnly ? roCls : inputCls}" /></div>
       </div>
       <div class="wms-modal-footer">
         <a href="${backHref}" class="wms-btn wms-btn-secondary">${readOnly ? '关闭' : '取消'}</a>
         ${footerBtns}
+      </div>
+    </div>`;
+}
+
+function supplierFormPage(backHref = 'supplier_list.html', code = '') {
+  const s = code ? SUPPLIER_SAMPLES[code] : null;
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const typeOpts = ['设备配件供应商', '耗材供应商', '电气材料供应商', '办公耗材供应商', '安防物资供应商', '化工物资供应商', '定制生产供应商']
+    .map(t => `<option${s?.type === t ? ' selected' : ''}>${t}</option>`).join('');
+  const coopOpts = ['正常', '暂停', '黑名单'].map(t => `<option${s?.status === t ? ' selected' : ''}>${t}</option>`).join('');
+  const tierOpts = ['核心供应商', '合格供应商', '备选供应商'].map(t => `<option${s?.tier === t ? ' selected' : ''}>${t}</option>`).join('');
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg">
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="md:col-span-2 rounded-lg border border-sky-100 bg-sky-50/80 px-3 py-2 text-xs text-sky-900">
+          <i class="fa-solid fa-circle-info mr-1"></i>新供应商须先通过<strong>入库审核</strong>；本表单用于已通过审核供应商的档案维护与信息变更报备。
+        </div>
+        ${formSection('基本信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 供应商名称</label><input type="text" value="${s?.name || ''}" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供应商简称</label><input type="text" value="${s?.shortName || ''}" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 供应商类型</label><select class="${inputCls}">${typeOpts}</select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 统一社会信用代码</label><input type="text" value="${s?.creditCode || ''}" maxlength="18" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 法定代表人</label><input type="text" value="${s?.legalPerson || ''}" class="${inputCls}" /></div>
+        ${formSection('联系信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 联系人</label><input type="text" value="${s?.contact || ''}" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 联系电话</label><input type="text" value="${s?.phone || ''}" class="${inputCls}" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 经营地址</label><input type="text" value="${s?.address || ''}" class="${inputCls}" /></div>
+        ${formSection('资质与开票')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 开户银行</label><input type="text" value="${s?.bankName || ''}" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 对公账号</label><input type="text" value="${s?.bankAccount || ''}" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 开票抬头</label><input type="text" value="${s?.invoiceTitle || s?.name || ''}" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 开票税号</label><input type="text" value="${s?.invoiceTaxNo || s?.creditCode || ''}" class="${inputCls}" /></div>
+        ${formSection('合作设置')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 合作状态</label><select class="${inputCls}">${coopOpts}</select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供应商分级</label><select class="${inputCls}">${tierOpts}</select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-primary">保存</button>
+      </div>
+    </div>`;
+}
+
+function supplierAdmissionListPage() {
+  const rows = Object.values(ADMISSION_SAMPLES).map(a => ({
+    cells: [
+      a.no, a.name, a.creditCode, a.type, supplierAdmissionStageBadge(a.stage),
+      a.submitDate, a.handler, a.needSiteCheck ? badge('是', 'warning') : badge('否', 'info'),
+    ],
+    tab: a.stage,
+    actions: `<a href="supplier_admission_detail.html?no=${a.no}" class="hover:underline">${['暂缓入库', '不予入库'].includes(a.stage) ? '查看' : '审核'}</a>`,
+  }));
+  return listPage({
+    desc: '按《物资供应商入库管理办法》执行五级审核：<strong>申报 → 初审（3 日）→ 联合复核（3 日）→ 现场核查 → 终审（3 日）→ 入库建档</strong>。资料缺失当场退回补正。',
+    addBtn: true, addHref: 'supplier_admission_form.html', addLabel: '登记申报',
+    tabs: ['全部', '资料申报', '设备技术部初审', '联合复核', '现场核查', '待终审', '暂缓入库', '不予入库'],
+    tabColumn: 4,
+    searchPlaceholder: '申请单号、供应商名称、信用代码',
+    filters: [{ label: '供应商类型', key: 'type', column: 3, options: ['全部', '耗材供应商', '安防物资供应商', '化工物资供应商', '定制生产供应商', '办公耗材供应商'] }],
+    columns: ['申请单号', '供应商名称', '统一社会信用代码', '供应商类型', '当前环节', '申请日期', '经办人', '需现场核查'],
+    rows,
+  });
+}
+
+function supplierAdmissionDetailPage(backHref = 'supplier_admission_list.html', no = 'RK202607040002') {
+  const a = ADMISSION_SAMPLES[no] || Object.values(ADMISSION_SAMPLES)[1];
+  const flowRows = (a.auditFlow || []).map(f => {
+    const resultBadge = f.result === '通过' || f.result === '准予入库' ? badge(f.result, 'success')
+      : f.result === '驳回' || f.result === '不予入库' ? badge(f.result, 'danger')
+        : f.result === '暂缓入库' ? badge(f.result, 'warning')
+          : badge(f.result, 'info');
+    return `<tr class="border-t border-slate-100"><td class="px-3 py-2 text-sm">${f.node}</td><td class="px-3 py-2 text-sm">${f.user}</td><td class="px-3 py-2 text-sm">${resultBadge}</td><td class="px-3 py-2 text-sm text-slate-600">${f.opinion || '—'}</td><td class="px-3 py-2 text-sm text-slate-500">${f.time}</td></tr>`;
+  }).join('');
+  const docList = (a.documents || []).map(d => `<li class="flex items-center gap-2 text-sm text-slate-700"><i class="fa-solid fa-file-lines text-slate-400 text-xs"></i>${d}</li>`).join('');
+  const canAudit = !['暂缓入库', '不予入库'].includes(a.stage);
+  const extraBlock = a.deferReason
+    ? `<div class="md:col-span-2 rounded-xl border border-amber-100 bg-amber-50/60 p-4 text-sm text-amber-900"><p class="font-semibold mb-1">暂缓原因</p><p>${a.deferReason}</p>${a.deferDeadline ? `<p class="mt-1 text-xs">整改期限：${a.deferDeadline}</p>` : ''}</div>`
+    : a.rejectReason
+      ? `<div class="md:col-span-2 rounded-xl border border-rose-100 bg-rose-50/60 p-4 text-sm text-rose-900"><p class="font-semibold mb-1">不予入库原因</p><p>${a.rejectReason}</p></div>`
+      : '';
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="xl" data-wms-supplier-admission-detail data-admission-no="${a.no}">
+      <div class="wms-modal-form wms-warehouse-form">
+        ${formSection('申请信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">申请单号</label><p class="font-mono text-sm text-slate-800" data-admission-field="no">${a.no}</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">当前环节</label><div data-admission-field="stage">${supplierAdmissionStageBadge(a.stage)}</div></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供应商名称</label><p class="text-sm text-slate-800" data-admission-field="name">${a.name}</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">统一社会信用代码</label><p class="font-mono text-sm text-slate-800" data-admission-field="creditCode">${a.creditCode}</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供应商类型</label><p class="text-sm text-slate-800">${a.type}</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供货范围</label><p class="text-sm text-slate-800">${a.supplyScope || '—'}</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">联系人 / 电话</label><p class="text-sm text-slate-800">${a.contact} / ${a.phone}</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">需现场核查</label><p class="text-sm text-slate-800">${a.needSiteCheck ? '是（核心/大额/定制类）' : '否'}</p></div>
+        ${extraBlock}
+        ${formSection('申报资料')}
+        <div class="md:col-span-2"><ul class="space-y-1.5">${docList}</ul></div>
+        ${formSection('审核轨迹')}
+        <div class="md:col-span-2 overflow-x-auto rounded-lg ring-1 ring-slate-100"><table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">节点</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">处理人</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">结果</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">意见</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">时间</th>
+        </tr></thead><tbody>${flowRows}</tbody></table></div>
+        ${canAudit ? `${formSection('本次审核')}
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 审核结论</label>
+          <div class="flex flex-wrap gap-4 text-sm">
+            <label class="inline-flex items-center gap-2"><input type="radio" name="admission-result" value="通过" checked class="rounded-full border-slate-300" /> 通过</label>
+            <label class="inline-flex items-center gap-2"><input type="radio" name="admission-result" value="暂缓入库" class="rounded-full border-slate-300" /> 暂缓入库</label>
+            <label class="inline-flex items-center gap-2"><input type="radio" name="admission-result" value="不予入库" class="rounded-full border-slate-300" /> 不予入库</label>
+          </div>
+        </div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 审核意见</label><textarea rows="3" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" placeholder="请填写审核意见"></textarea></div>` : ''}
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">返回列表</a>
+        ${canAudit ? '<button type="button" class="wms-btn wms-btn-primary">提交审核</button>' : ''}
+      </div>
+    </div>`;
+}
+
+function supplierAdmissionFormPage(backHref = 'supplier_admission_list.html') {
+  const inputCls = 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200';
+  const typeOpts = ['设备配件供应商', '耗材供应商', '电气材料供应商', '办公耗材供应商', '安防物资供应商', '化工物资供应商', '定制生产供应商']
+    .map(t => `<option>${t}</option>`).join('');
+  return `
+    <div data-wms-modal data-modal-back="${backHref}" data-modal-size="lg">
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="md:col-span-2 rounded-lg border border-sky-100 bg-sky-50/80 px-3 py-2 text-xs text-sky-900">
+          设备技术部接收供应商申报资料并登记；资料缺失、格式不符的当场退回补正，不予进入审核流程。
+        </div>
+        ${formSection('申报信息')}
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 供应商名称</label><input type="text" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 统一社会信用代码</label><input type="text" maxlength="18" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 供应商类型</label><select class="${inputCls}">${typeOpts}</select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 联系人</label><input type="text" class="${inputCls}" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 联系电话</label><input type="text" class="${inputCls}" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">供货范围说明</label><textarea rows="2" class="${inputCls}"></textarea></div>
+        ${formSection('申报资料')}
+        <div class="md:col-span-2">${uploadZone()}</div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="${backHref}" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-primary">提交登记</button>
       </div>
     </div>`;
 }
@@ -6649,8 +6940,20 @@ function supplierDetailPage(backHref = 'supplier_list.html', code = 'GYS001') {
   const evalRows = evalApproved.map(r =>
     `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 font-mono text-xs"><a href="supplier_eval_form.html?evalKey=${r.evalNo}&mode=view" class="hover:underline">${r.evalNo}</a></td><td class="px-3 py-2.5 text-sm">${r.evalName}</td><td class="px-3 py-2.5 text-sm">${r.period}</td><td class="px-3 py-2.5 text-sm font-medium">${r.score}</td><td class="px-3 py-2.5 text-sm">${evalGradeBadge(r.grade)}</td><td class="px-3 py-2.5 text-sm text-slate-500">${r.evalDate}</td></tr>`
   ).join('') || '<tr><td colspan="6" class="px-4 py-8 text-center text-sm text-slate-400">暂无已通过评价记录</td></tr>';
+  const qualRows = (s.documents || []).map(d =>
+    `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">${d.name}</td><td class="px-3 py-2.5 text-sm">${badge(d.status, d.status === '有效' || d.status === '已归档' ? 'success' : 'warning')}</td><td class="px-3 py-2.5 text-sm text-slate-500">${d.expiry}</td></tr>`
+  ).join('') || '<tr><td colspan="3" class="px-4 py-8 text-center text-sm text-slate-400">暂无资质档案</td></tr>';
+  const auditRows = (s.auditHistory || []).map(f => {
+    const resultBadge = f.result === '通过' || f.result === '准予入库' ? badge(f.result, 'success')
+      : f.result === '驳回' ? badge(f.result, 'danger') : badge(f.result, 'info');
+    return `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">${f.node}</td><td class="px-3 py-2.5 text-sm">${f.user}</td><td class="px-3 py-2.5 text-sm">${resultBadge}</td><td class="px-3 py-2.5 text-sm text-slate-600">${f.opinion || '—'}</td><td class="px-3 py-2.5 text-sm text-slate-500">${f.time}</td></tr>`;
+  }).join('') || '<tr><td colspan="5" class="px-4 py-8 text-center text-sm text-slate-400">暂无审核记录</td></tr>';
+  const showExit = s.poolStatus === '已淘汰' || s.poolStatus === '已退出';
   const tabs = [
     ['profile', '基础信息', true],
+    ['qual', '资质档案', false],
+    ['audit', '审核记录', false],
+    ...(showExit ? [['exit', '淘汰退出', false]] : []),
     ['eval', '绩效评价', false],
     ['supply', '供货记录', false],
     ['accept', '验收记录', false],
@@ -6669,7 +6972,9 @@ function supplierDetailPage(backHref = 'supplier_list.html', code = 'GYS001') {
               <code data-supplier-field="code">${s.code}</code>
               <span class="text-slate-300">·</span>
               <span data-supplier-field="type">${s.type}</span>
+              <span data-supplier-field="poolStatus">${supplierPoolBadge(s.poolStatus)}</span>
               <span data-supplier-field="status">${supplierStatusBadge(s.status)}</span>
+              <span data-supplier-field="tier">${supplierTierBadge(s.tier)}</span>
             </div>
           </div>
           <a href="supplier_form.html?code=${s.code}&mode=edit" class="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-slate-900 px-3.5 py-2 text-sm font-medium text-white shadow-sm hover:bg-slate-800"><i class="fa-solid fa-pen text-[10px]"></i>编辑</a>
@@ -6686,13 +6991,47 @@ function supplierDetailPage(backHref = 'supplier_list.html', code = 'GYS001') {
             <div class="wms-supplier-panel-card">
               <dl class="grid gap-x-6 sm:grid-cols-2">
                 <div><dt>供应商简称</dt><dd data-supplier-field="shortName">${s.shortName}</dd></div>
+                <div><dt>统一社会信用代码</dt><dd class="font-mono text-xs" data-supplier-field="creditCode">${s.creditCode || '—'}</dd></div>
+                <div><dt>法定代表人</dt><dd data-supplier-field="legalPerson">${s.legalPerson || '—'}</dd></div>
                 <div><dt>联系人 / 电话</dt><dd><span data-supplier-field="contact">${s.contact}</span> / <span data-supplier-field="phone">${s.phone}</span></dd></div>
-                <div class="sm:col-span-2"><dt>地址</dt><dd data-supplier-field="address">${s.address}</dd></div>
-                <div><dt>添加时间</dt><dd data-supplier-field="createdAt">${s.createdAt}</dd></div>
+                <div class="sm:col-span-2"><dt>经营地址</dt><dd data-supplier-field="address">${s.address}</dd></div>
+                <div><dt>开户银行</dt><dd data-supplier-field="bankName">${s.bankName || '—'}</dd></div>
+                <div><dt>对公账号</dt><dd class="font-mono text-xs" data-supplier-field="bankAccount">${s.bankAccount || '—'}</dd></div>
+                <div><dt>开票抬头</dt><dd data-supplier-field="invoiceTitle">${s.invoiceTitle || s.name}</dd></div>
+                <div><dt>开票税号</dt><dd class="font-mono text-xs" data-supplier-field="invoiceTaxNo">${s.invoiceTaxNo || '—'}</dd></div>
+                <div><dt>入库日期</dt><dd data-supplier-field="admissionDate">${s.admissionDate || s.createdAt}</dd></div>
                 <div><dt>最近评价单号</dt><dd class="font-mono text-xs">${s.latestEvalNo !== '—' ? `<a href="supplier_eval_form.html?evalKey=${s.latestEvalNo}&mode=view" class="text-slate-900 hover:underline">${s.latestEvalNo}</a>` : '—'}</dd></div>
               </dl>
             </div>
           </div>
+          <div class="hidden" data-supplier-panel="qual">
+            <div class="wms-supplier-detail__table-wrap"><table class="min-w-full text-sm"><thead><tr>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">资料名称</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">状态</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">有效期至</th>
+            </tr></thead><tbody data-supplier-qual-tbody>${qualRows}</tbody></table></div>
+            ${(s.qualTypes || []).length ? `<p class="mt-3 text-xs text-slate-500">专项资质：${s.qualTypes.join('、')}</p>` : ''}
+          </div>
+          <div class="hidden" data-supplier-panel="audit">
+            <div class="wms-supplier-detail__table-wrap"><table class="min-w-full text-sm"><thead><tr>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">节点</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">处理人</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">结果</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">意见</th>
+              <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">时间</th>
+            </tr></thead><tbody data-supplier-audit-tbody>${auditRows}</tbody></table></div>
+          </div>
+          ${showExit ? `<div class="hidden" data-supplier-panel="exit">
+            <div class="wms-supplier-panel-card rounded-xl border border-rose-100 bg-rose-50/40 p-4 text-sm text-rose-900">
+              <p class="font-semibold mb-2">淘汰/退出信息</p>
+              <dl class="grid gap-2 sm:grid-cols-2">
+                <div><dt class="text-xs text-rose-700">库内状态</dt><dd data-supplier-field="poolStatusText">${s.poolStatus}</dd></div>
+                <div><dt class="text-xs text-rose-700">淘汰日期</dt><dd data-supplier-field="eliminationDate">${s.eliminationDate || '—'}</dd></div>
+                <div class="sm:col-span-2"><dt class="text-xs text-rose-700">原因</dt><dd data-supplier-field="eliminationReason">${s.eliminationReason || '—'}</dd></div>
+                <div class="sm:col-span-2"><dt class="text-xs text-rose-700">重新准入限制</dt><dd data-supplier-field="reEntryBanUntil">${s.reEntryBanUntil ? `至 ${s.reEntryBanUntil} 不得重新申请入库` : '—'}</dd></div>
+              </dl>
+            </div>
+          </div>` : ''}
           <div class="hidden" data-supplier-panel="eval">
             <div class="wms-supplier-detail__table-wrap"><table class="min-w-full text-sm" data-supplier-eval-tbody><thead><tr>
               <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">评价单号</th>
@@ -6744,10 +7083,10 @@ function supplierDetailPage(backHref = 'supplier_list.html', code = 'GYS001') {
 
 function supplierEvalSelectSupplierPage() {
   const th = `<th class="w-10 px-4 py-3"><input type="checkbox" class="rounded border-slate-300" data-eval-select-all /></th>` +
-    ['供应商编码', '供应商名称', '供应商简称', '供货状态', '联系人', '联系电话', '供应商类型']
+    ['供应商编码', '供应商名称', '库内状态', '合作状态', '分级', '联系人', '联系电话', '供应商类型']
       .map(c => `<th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">${c}</th>`).join('');
   const tr = EVAL_SUPPLIER_MASTER.map((cells, i) => {
-    const disabled = cells[3].includes('暂停') ? ' disabled' : '';
+    const disabled = cells[4].includes('暂停') || cells[4].includes('黑名单');
     return `<tr class="border-t border-slate-100 hover:bg-slate-50/80${disabled ? ' opacity-50' : ''}" data-supplier-pick-row data-supplier-code="${cells[0]}">
       <td class="px-4 py-3"><input type="checkbox" class="rounded border-slate-300" data-supplier-pick${disabled ? ' disabled' : i < 2 ? ' checked' : ''} /></td>
       ${cells.map(c => `<td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">${c}</td>`).join('')}
@@ -6757,7 +7096,7 @@ function supplierEvalSelectSupplierPage() {
     <div data-wms-modal data-modal-back="supplier_eval_form.html" data-modal-size="xl">
       <div data-wms-supplier-eval-select>
         <div class="wms-modal-toolbar">
-          <p class="text-sm text-slate-500">从供应商主数据选择待评价供应商（暂停供货不可选）</p>
+          <p class="text-sm text-slate-500">从合格供应商库选择待评价对象（仅<strong>在库 + 合作正常</strong>可选）</p>
           ${listSearchInput('请输入供应商编码或名称')}
         </div>
         <div class="wms-modal-table-wrap"><table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>${th}</tr></thead><tbody>${tr}</tbody></table></div>
@@ -8187,23 +8526,31 @@ const pages = {
   outside_count_report_list: page('outside_count_report_list', '库外盘点报告', '库外盘点 / 盘点报告', outsideCountReportListPage()),
   outside_count_report_detail: outsideCountReportDetailPage(),
 
-  supplier_list: page('supplier_list', '供应商列表', '供应商管理 / 供应商列表', listPage({
-    desc: '供应商档案与供货状态；审批通过的评价结果自动回写最新等级与评分',
-    addBtn: true, addHref: 'supplier_form.html',
-    searchPlaceholder: '供应商编码、名称、联系人',
-    filters: [{ label: '供货状态', key: 'status', column: 4, options: ['全部', '正常', '暂停', '黑名单'] }],
-    columns: ['供应商编码', '供应商名称', '联系人', '联系电话', '供货状态', '最新等级', '最近评价', '添加时间'],
+  supplier_admission_list: page('supplier_admission_list', '入库审核', '供应商管理 / 入库审核', supplierAdmissionListPage()),
+
+  supplier_list: page('supplier_list', '在库供应商', '供应商管理 / 供应商列表', listPage({
+    desc: '合格供应商资源库（一户一档）；采购选型仅可选<strong>在库 + 合作正常</strong>的供应商。评价结果自动回写最新等级与评分。',
+    addBtn: false,
+    searchPlaceholder: '供应商编码、名称、信用代码、联系人',
+    filters: [
+      { label: '库内状态', key: 'poolStatus', column: 2, options: ['全部', '在库', '暂缓入库', '已淘汰', '已退出'] },
+      { label: '合作状态', key: 'coopStatus', column: 3, options: ['全部', '正常', '暂停', '黑名单'] },
+      { label: '分级', key: 'tier', column: 4, options: ['全部', '核心供应商', '合格供应商', '备选供应商'] },
+    ],
+    columns: ['供应商编码', '供应商名称', '库内状态', '合作状态', '分级', '统一社会信用代码', '联系人', '联系电话', '最新等级', '入库日期'],
     rows: Object.values(SUPPLIER_SAMPLES).map(s => ({
       cells: [
-        s.code, s.name, s.contact, s.phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2'),
-        supplierStatusBadge(s.status), evalGradeBadge(s.latestGrade), s.latestEvalDate, s.createdAt,
+        s.code, s.name,
+        supplierPoolBadge(s.poolStatus), supplierStatusBadge(s.status), supplierTierBadge(s.tier),
+        s.creditCode || '—', s.contact, (s.phone || '').replace(/(\d{3})\d{4}(\d{4})/, '$1****$2'),
+        evalGradeBadge(s.latestGrade), s.admissionDate || s.createdAt,
       ],
       tab: '',
       actions: `<a href="supplier_detail.html?code=${s.code}" class="mr-3 hover:underline">查看</a><a href="supplier_form.html?code=${s.code}&mode=edit" class="hover:underline">编辑</a>`,
     })),
   })),
 
-  supplier_eval_list: page('supplier_eval_list', '供应商评价', '供应商管理 / 供应商评价', listPage({
+  supplier_eval_list: page('supplier_eval_list', '定期评价', '供应商管理 / 定期评价', listPage({
     desc: '供应商绩效评价批次记录，按创建时间降序；<a href="config_eval_weight.html" class="font-medium text-slate-800 hover:underline">评价设置</a>',
     addBtn: true, addHref: 'supplier_eval_form.html',
     secondary: ['<a href="config_eval_weight.html" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-sliders text-xs text-slate-400"></i>评价设置</a>'],
@@ -8214,10 +8561,10 @@ const pages = {
     filters: [{ label: '评价日期', key: 'evalDate', column: 4, options: ['全部', '2025-12-30', '2025-12-28', '2024-01-10'] }],
     columns: ['评价单号', '评价名称', '评价人', '评价日期', '供应商数', '平均综合分', '审批状态', '审批人', '创建时间'],
     rows: [
-      { cells: ['PJ2025001', '2025年度设备配件类供应商评价', '李四', '2025-12-30', '2', '8.35', badge('审核通过', 'success'), '王经理', '2025-12-30 09:15'], actions: '<a href="supplier_eval_form.html?evalKey=PJ2025001&mode=view" class="hover:underline">查看</a>' },
-      { cells: ['PJ2025002', '2025年度维修工具类供应商评价', '李四', '2025-12-30', '1', '8.60', badge('审核中', 'warning'), '—', '2025-12-30 14:00'], actions: '<a href="supplier_eval_form.html?evalKey=PJ2025002&mode=view" class="hover:underline">查看</a>' },
-      { cells: ['PJ2024001', '2024年度评价', '李四', '2025-12-28', '0', '—', badge('草稿', 'info'), '—', '2025-12-28 16:30'], actions: '<a href="supplier_eval_form.html?evalKey=PJ2024001" class="mr-3 hover:underline">编辑</a><a href="#" class="text-rose-600 hover:underline" data-eval-delete>删除</a>' },
-      { cells: ['PJ2023001', '2023年度耗材类供应商评价', '张三', '2024-01-10', '3', '—', badge('已驳回', 'danger'), '王经理', '2024-01-08 10:00'], actions: '<a href="supplier_eval_form.html?evalKey=PJ2023001&mode=view" class="mr-3 hover:underline">查看</a><a href="supplier_eval_form.html?evalKey=PJ2023001" class="hover:underline">编辑</a>' },
+      { cells: ['PJ2025001', '2025年度设备配件类供应商评价', '李四', '2025-12-30', '2', '8.35', badge('审核通过', 'success'), '王经理', '2025-12-30 09:15'], actions: '<a href="supplier_eval_form.html?evalKey=PJ2025001&mode=view" class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100" title="查看"><i class="fa-solid fa-eye text-[10px]"></i>查看</a>' },
+      { cells: ['PJ2025002', '2025年度维修工具类供应商评价', '李四', '2025-12-30', '1', '8.60', badge('审核中', 'warning'), '—', '2025-12-30 14:00'], actions: '<a href="supplier_eval_form.html?evalKey=PJ2025002&mode=view" class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100" title="查看"><i class="fa-solid fa-eye text-[10px]"></i>查看</a>' },
+      { cells: ['PJ2024001', '2024年度评价', '李四', '2025-12-28', '0', '—', badge('草稿', 'info'), '—', '2025-12-28 16:30'], actions: '<a href="supplier_eval_form.html?evalKey=PJ2024001" class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100" title="编辑"><i class="fa-solid fa-pen text-[10px]"></i>编辑</a><a href="#" class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-rose-600 hover:bg-rose-50" title="删除" data-eval-delete><i class="fa-solid fa-trash-can text-[10px]"></i>删除</a>' },
+      { cells: ['PJ2023001', '2023年度耗材类供应商评价', '张三', '2024-01-10', '3', '—', badge('已驳回', 'danger'), '王经理', '2024-01-08 10:00'], actions: '<a href="supplier_eval_form.html?evalKey=PJ2023001&mode=view" class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100" title="查看"><i class="fa-solid fa-eye text-[10px]"></i>查看</a><a href="supplier_eval_form.html?evalKey=PJ2023001" class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100" title="编辑"><i class="fa-solid fa-pen text-[10px]"></i>编辑</a>' },
     ],
   })),
 
@@ -8362,12 +8709,11 @@ const forms = {
 
   supplier_detail: page('supplier_list', '供应商详情', '供应商管理 / 供应商详情', supplierDetailPage()),
 
-  supplier_form: page('supplier_list', '新增供应商', '供应商管理 / 新增供应商', formBody('供应商档案', [
-    ['供应商名称', 'text', '', true],
-    ['联系人', 'text', '', true],
-    ['联系电话', 'text', '', true],
-    ['供货状态', 'select', ['正常', '暂停', '黑名单'], true],
-  ], 'supplier_list.html')),
+  supplier_form: page('supplier_list', '新增供应商', '供应商管理 / 新增供应商', supplierFormPage()),
+
+  supplier_admission_detail: page('supplier_admission_list', '入库审核详情', '供应商管理 / 入库审核', supplierAdmissionDetailPage()),
+
+  supplier_admission_form: page('supplier_admission_list', '登记申报', '供应商管理 / 登记申报', supplierAdmissionFormPage()),
 
   supplier_eval_form: page('supplier_eval_list', '新增评价', '供应商管理 / 新增评价', supplierEvalFormPage()),
 
@@ -8768,10 +9114,13 @@ const mapLabels = {
   warehouse_refund_consumable_form: ['耗材退货', '物资管理 · 表单'],
   warehouse_refund_success: ['退货成功', '物资管理 · 确认'],
   warehouse_refund_select_asset: ['选择退货资产', '物资管理 · 表单'],
-  supplier_list: ['供应商列表', '供应商管理'],
+  supplier_admission_list: ['入库审核', '供应商管理'],
+  supplier_list: ['在库供应商', '供应商管理'],
   supplier_detail: ['供应商详情', '供应商管理'],
+  supplier_admission_form: ['登记申报', '供应商管理 · 表单'],
+  supplier_admission_detail: ['入库审核详情', '供应商管理 · 表单'],
   supplier_form: ['新增供应商', '供应商管理 · 表单'],
-  supplier_eval_list: ['供应商评价', '供应商管理'],
+  supplier_eval_list: ['定期评价', '供应商管理'],
   supplier_eval_form: ['新增评价', '供应商管理 · 表单'],
   supplier_eval_select_supplier: ['选择供应商', '供应商管理 · 表单'],
   config_eval_weight: ['权重设置', '基础配置 · 评价设置'],

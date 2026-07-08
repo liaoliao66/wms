@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>入库审核详情 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="supplier_admission_list" data-title="入库审核详情" data-breadcrumb="供应商管理 / 入库审核">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="supplier_admission_list.html" data-modal-size="xl" data-wms-supplier-admission-detail data-admission-no="RK202607040002">
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">申请信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">申请单号</label><p class="font-mono text-sm text-slate-800" data-admission-field="no">RK202607040002</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">审核状态</label><div data-admission-field="auditStatus"></div></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">当前环节</label><div data-admission-field="stage"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">设备技术部初审</span></div></div>
+
+        <!-- 申报信息（与登记申报保持一致） -->
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">申报信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供应商全称</label><p class="text-sm text-slate-800" data-admission-field="name">武穴安防科技有限公司</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供应商简称</label><p class="text-sm text-slate-800" data-admission-field="shortName">武穴安防</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">统一社会信用代码</label><p class="font-mono text-sm text-slate-800" data-admission-field="creditCode">91421181MA4KFFFFFF</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供应商类型</label><p class="text-sm text-slate-800">安防物资供应商</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">法定代表人</label><p class="text-sm text-slate-800" data-admission-field="legalPerson">王某某</p></div>
+
+        <!-- 联系信息 -->
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">联系信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">联系人</label><p class="text-sm text-slate-800" data-admission-field="contact">李工</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">联系电话</label><p class="text-sm text-slate-800" data-admission-field="phone">13922223333</p></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">经营地址</label><p class="text-sm text-slate-800" data-admission-field="address">湖北省武穴市安防科技园 1 号</p></div>
+
+        <!-- 资质与开票 -->
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">资质与开票</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">开户银行</label><p class="text-sm text-slate-800" data-admission-field="bankName">中国银行武穴支行</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">对公账号</label><p class="font-mono text-sm text-slate-800" data-admission-field="bankAccount">6217001234567890123</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">开票抬头</label><p class="text-sm text-slate-800" data-admission-field="invoiceTitle">武穴安防科技有限公司</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">开票税号</label><p class="font-mono text-sm text-slate-800" data-admission-field="invoiceTaxNo">91421181MA4KFFFFFF</p></div>
+
+        <!-- 申报说明 -->
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">申报说明</h3></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">是否需要现场审核</label><p class="text-sm text-slate-800" data-admission-field="needSiteAudit">是</p></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">供货范围说明</label><p class="text-sm text-slate-800" data-admission-field="supplyScope">安防监控、门禁系统</p></div>
+
+        <!-- 申报资料 -->
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">申报资料</h3></div>
+        <div class="md:col-span-2"><ul class="space-y-1.5"><li class="flex items-center gap-2 text-sm text-slate-700"><i class="fa-solid fa-file-lines text-slate-400 text-xs"></i>入库申请表</li><li class="flex items-center gap-2 text-sm text-slate-700"><i class="fa-solid fa-file-lines text-slate-400 text-xs"></i>营业执照</li><li class="flex items-center gap-2 text-sm text-slate-700"><i class="fa-solid fa-file-lines text-slate-400 text-xs"></i>3C认证</li><li class="flex items-center gap-2 text-sm text-slate-700"><i class="fa-solid fa-file-lines text-slate-400 text-xs"></i>经营许可证</li></ul></div>
+
+      </div>
+      <div class="wms-modal-footer">
+        <a href="supplier_admission_list.html" class="wms-btn wms-btn-secondary">返回列表</a>
+      </div>
+    </div>
+  </div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body>
+</html></html>

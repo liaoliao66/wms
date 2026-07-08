@@ -289,8 +289,9 @@ const WMS_NAV = [
   { id: 'outside_count_diff_list', label: '库外差异处理', icon: 'fa-scale-unbalanced', href: 'outside_count_diff_list.html' },
   { id: 'outside_count_report_list', label: '库外盘点报告', icon: 'fa-chart-pie', href: 'outside_count_report_list.html' },
   { group: '供应商管理' },
-  { id: 'supplier_list', label: '供应商列表', icon: 'fa-building', href: 'supplier_list.html' },
-  { id: 'supplier_eval_list', label: '供应商评价', icon: 'fa-star', href: 'supplier_eval_list.html' },
+  { id: 'supplier_admission_list', label: '入库审核', icon: 'fa-clipboard-check', href: 'supplier_admission_list.html' },
+  { id: 'supplier_list', label: '在库供应商', icon: 'fa-building', href: 'supplier_list.html' },
+  { id: 'supplier_eval_list', label: '定期评价', icon: 'fa-star', href: 'supplier_eval_list.html' },
   { id: 'purchase_supply_list', label: '供应商供货单', icon: 'fa-truck', href: 'purchase_supply_list.html' },
   { group: '基础配置' },
   { id: 'config_warehouse', label: '仓库配置', icon: 'fa-sitemap', href: 'config_warehouse.html' },
@@ -529,6 +530,7 @@ function initLayout() {
   initPurchaseExecuteQuoteForm(root);
   initSupplierEvalSelect(root);
   initSupplierDetail(root);
+  initSupplierAdmissionDetail(root);
   initEvalConfig(root);
   initAppCount(root);
   initDashAnomalies(root);
@@ -4978,10 +4980,12 @@ function initModal(root, title, contentHtml) {
 }
 
 const WMS_EVAL_INDICATORS = [
-  { key: 'quality', name: '产品质量', weight: 0.4 },
-  { key: 'delivery', name: '交货及时性', weight: 0.2 },
-  { key: 'service', name: '售后服务', weight: 0.2 },
-  { key: 'price', name: '价格合理性', weight: 0.2 },
+  { key: 'quality', name: '产品质量', weight: 0.25 },
+  { key: 'delivery', name: '供货时效', weight: 0.2 },
+  { key: 'price', name: '价格优势', weight: 0.15 },
+  { key: 'service', name: '售后服务', weight: 0.15 },
+  { key: 'fulfillment', name: '履约能力', weight: 0.15 },
+  { key: 'compliance', name: '合规经营', weight: 0.1 },
 ];
 
 const WMS_EVAL_GRADES = [
@@ -4994,18 +4998,19 @@ const WMS_EVAL_GRADES = [
 const WMS_EVAL_BONUS_PENALTY_MAX = 2;
 
 const WMS_SUPPLIER_SAMPLES = {
-  GYS001: { code: 'GYS001', name: '科尼', shortName: '科尼', status: '正常', type: '设备配件供应商', contact: '李四', phone: '13912345678', address: '上海市浦东新区张江路 88 号', createdAt: '2024-03-15', latestScore: '8.60', latestGrade: '良好', latestEvalDate: '2025-12-30', latestEvalNo: 'PJ2025001', supplies: [{ no: 'GH2025001', material: '抓斗', qty: '10 / 10 个', status: '已供货', date: '2025-08-01' }], acceptances: [{ no: 'GH2025001-YS01', supplyNo: 'GH2025001', material: '抓斗', qualified: '10', unqualified: '0', date: '2025-08-08', status: '已验收' }], refunds: [], evalHistory: [{ evalNo: 'PJ2025001', evalName: '2025年度设备配件类供应商评价', period: '2025年度', score: '8.60', grade: '良好', evalDate: '2025-12-30', status: '审核通过' }, { evalNo: 'PJ2025002', evalName: '2025年度维修工具类供应商评价', period: '2025年度', score: '8.60', grade: '良好', evalDate: '2025-12-30', status: '审核中' }] },
-  GYS002: { code: 'GYS002', name: '上海佩纳', shortName: '上海佩纳', status: '正常', type: '设备配件供应商', contact: '李四', phone: '13912345678', address: '上海市嘉定区工业路 12 号', createdAt: '2024-05-20', latestScore: '8.10', latestGrade: '良好', latestEvalDate: '2025-12-30', latestEvalNo: 'PJ2025001', supplies: [{ no: 'GH2025002', material: '料斗', qty: '10 / 10 个', status: '已供货', date: '2025-09-01' }], acceptances: [{ no: 'GH2025002-YS01', supplyNo: 'GH2025002', material: '料斗', qualified: '10', unqualified: '0', date: '2025-11-16', status: '已验收' }], refunds: [], evalHistory: [{ evalNo: 'PJ2025001', evalName: '2025年度设备配件类供应商评价', period: '2025年度', score: '8.10', grade: '良好', evalDate: '2025-12-30', status: '审核通过' }] },
-  GYS003: { code: 'GYS003', name: '河南蒲瑞', shortName: '河南蒲瑞', status: '正常', type: '设备配件供应商', contact: '李经理', phone: '13800001234', address: '河南省郑州市高新区', createdAt: '2024-06-10', latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—', supplies: [{ no: 'GH2025003', material: '钢丝绳', qty: '100 / 50 m', status: '供货中', date: '2025-10-15' }], acceptances: [{ no: 'GH2025003-YS01', supplyNo: 'GH2025003', material: '钢丝绳', qualified: '50', unqualified: '0', date: '2025-11-20', status: '验收中' }], refunds: [{ no: 'TH20251121001', supplyNo: 'GH2025003', material: '钢丝绳', qty: '30 m', reason: '质量问题', date: '2025-11-21', status: '部分退货' }], evalHistory: [] },
-  GYS004: { code: 'GYS004', name: '江苏华能电子有限公司', shortName: '江苏华能', status: '正常', type: '耗材供应商', contact: '王工', phone: '13911112233', address: '江苏省南京市江宁区', createdAt: '2024-08-01', latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—', supplies: [{ no: 'GH2025004', material: '螺丝刀', qty: '20 / 10 个', status: '供货中', date: '2025-11-01' }], acceptances: [{ no: 'GH2025004-YS01', supplyNo: 'GH2025004', material: '螺丝刀', qualified: '9', unqualified: '1', date: '2025-11-22', status: '验收中' }], refunds: [{ no: 'GH2025004-YS02-TH', supplyNo: 'GH2025004', material: '螺丝刀', qty: '1 个', reason: '验收不合格', date: '—', status: '待退货' }], evalHistory: [] },
-  GYS005: { code: 'GYS005', name: '宁波北仑君威有限公司', shortName: '宁波北仑君威', status: '暂停', type: '耗材供应商', contact: '李四', phone: '13912345678', address: '浙江省宁波市北仑区', createdAt: '2024-09-12', latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—', supplies: [{ no: 'GH2025005', material: '扳手', qty: '20 / 0 个', status: '待供货', date: '2025-12-01' }], acceptances: [], refunds: [], evalHistory: [] },
-  GYS006: { code: 'GYS006', name: '华建物资有限公司', shortName: '华建物资', status: '正常', type: '电气材料供应商', contact: '陈经理', phone: '13888888221', address: '湖北省黄冈市武穴市', createdAt: '2026-01-15', latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—', supplies: [{ no: 'GH202605280002', material: '电缆 YJV-3×2.5', qty: '100 / 100 m', status: '已供货', date: '2026-05-28' }], acceptances: [], refunds: [{ no: 'TH202606030001', supplyNo: 'GH202605280002', material: '电缆 YJV-3×2.5', qty: '100 m', reason: '规格不符', date: '2026-06-03', status: '已退货' }], evalHistory: [] },
-  GYS007: { code: 'GYS007', name: '鄂东办公用品', shortName: '鄂东办公', status: '正常', type: '办公耗材供应商', contact: '刘主管', phone: '13933333002', address: '湖北省黄冈市', createdAt: '2026-02-20', latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—', supplies: [{ no: 'GH2025002', material: '安全帽', qty: '200 / 200 顶', status: '已供货', date: '2025-11-10' }], acceptances: [{ no: 'GH2025002-YS01', supplyNo: 'GH2025002', material: '安全帽', qualified: '200', unqualified: '0', date: '2025-11-16', status: '已验收' }], refunds: [{ no: 'RK202509002-TH01', supplyNo: 'GH2025002', material: '安全帽', qty: '50 顶', reason: '在库退货', date: '—', status: '待退货' }], evalHistory: [] },
+  GYS001: { code: 'GYS001', name: '科尼', shortName: '科尼', status: '正常', poolStatus: '在库', tier: '核心供应商', creditCode: '91310115MA1K3XXXXX', legalPerson: '王某某', bankName: '中国银行上海张江支行', bankAccount: '6217001234567890123', invoiceTitle: '科尼（上海）设备有限公司', invoiceTaxNo: '91310115MA1K3XXXXX', admissionDate: '2024-03-12', type: '设备配件供应商', contact: '李四', phone: '13912345678', address: '上海市浦东新区张江路 88 号', createdAt: '2024-03-15', documents: [{ name: '营业执照副本', status: '有效', expiry: '2028-12-31' }], auditHistory: [{ node: '终审', user: '分管领导', result: '准予入库', opinion: '同意', time: '2024-03-12 16:00' }], latestScore: '8.60', latestGrade: '良好', latestEvalDate: '2025-12-30', latestEvalNo: 'PJ2025001', supplies: [{ no: 'GH2025001', material: '抓斗', qty: '10 / 10 个', status: '已供货', date: '2025-08-01' }], acceptances: [{ no: 'GH2025001-YS01', supplyNo: 'GH2025001', material: '抓斗', qualified: '10', unqualified: '0', date: '2025-08-08', status: '已验收' }], refunds: [], evalHistory: [{ evalNo: 'PJ2025001', evalName: '2025年度设备配件类供应商评价', period: '2025年度', score: '8.60', grade: '良好', evalDate: '2025-12-30', status: '审核通过' }, { evalNo: 'PJ2025002', evalName: '2025年度维修工具类供应商评价', period: '2025年度', score: '8.60', grade: '良好', evalDate: '2025-12-30', status: '审核中' }] },
+  GYS002: { code: 'GYS002', name: '上海佩纳', shortName: '上海佩纳', status: '正常', poolStatus: '在库', tier: '核心供应商', creditCode: '91310114MA1K4YYYYY', legalPerson: '李某某', bankName: '工商银行上海嘉定支行', bankAccount: '6222009876543210987', invoiceTitle: '上海佩纳机械有限公司', invoiceTaxNo: '91310114MA1K4YYYYY', admissionDate: '2024-05-18', type: '设备配件供应商', contact: '李四', phone: '13912345678', address: '上海市嘉定区工业路 12 号', createdAt: '2024-05-20', documents: [{ name: '营业执照副本', status: '有效', expiry: '2028-12-31' }], auditHistory: [{ node: '终审', user: '分管领导', result: '准予入库', opinion: '同意', time: '2024-05-18 16:00' }], latestScore: '8.10', latestGrade: '良好', latestEvalDate: '2025-12-30', latestEvalNo: 'PJ2025001', supplies: [{ no: 'GH2025002', material: '料斗', qty: '10 / 10 个', status: '已供货', date: '2025-09-01' }], acceptances: [{ no: 'GH2025002-YS01', supplyNo: 'GH2025002', material: '料斗', qualified: '10', unqualified: '0', date: '2025-11-16', status: '已验收' }], refunds: [], evalHistory: [{ evalNo: 'PJ2025001', evalName: '2025年度设备配件类供应商评价', period: '2025年度', score: '8.10', grade: '良好', evalDate: '2025-12-30', status: '审核通过' }] },
+  GYS003: { code: 'GYS003', name: '河南蒲瑞', shortName: '河南蒲瑞', status: '正常', poolStatus: '在库', tier: '合格供应商', creditCode: '91410100MA45ZZZZZ', legalPerson: '张某某', bankName: '建设银行郑州高新支行', bankAccount: '6217001111222233334', invoiceTitle: '河南蒲瑞起重设备有限公司', invoiceTaxNo: '91410100MA45ZZZZZ', admissionDate: '2024-06-08', type: '设备配件供应商', contact: '李经理', phone: '13800001234', address: '河南省郑州市高新区', createdAt: '2024-06-10', documents: [{ name: '营业执照副本', status: '有效', expiry: '2028-12-31' }], auditHistory: [{ node: '终审', user: '分管领导', result: '准予入库', opinion: '同意', time: '2024-06-08 16:00' }], latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—', supplies: [{ no: 'GH2025003', material: '钢丝绳', qty: '100 / 50 m', status: '供货中', date: '2025-10-15' }], acceptances: [{ no: 'GH2025003-YS01', supplyNo: 'GH2025003', material: '钢丝绳', qualified: '50', unqualified: '0', date: '2025-11-20', status: '验收中' }], refunds: [{ no: 'TH20251121001', supplyNo: 'GH2025003', material: '钢丝绳', qty: '30 m', reason: '质量问题', date: '2025-11-21', status: '部分退货' }], evalHistory: [] },
+  GYS004: { code: 'GYS004', name: '江苏华能电子有限公司', shortName: '江苏华能', status: '正常', poolStatus: '在库', tier: '合格供应商', creditCode: '91320115MA1WAAAAA', legalPerson: '刘某某', bankName: '农业银行南京江宁支行', bankAccount: '6228480402564890018', invoiceTitle: '江苏华能电子有限公司', invoiceTaxNo: '91320115MA1WAAAAA', admissionDate: '2024-07-28', type: '耗材供应商', contact: '王工', phone: '13911112233', address: '江苏省南京市江宁区', createdAt: '2024-08-01', documents: [{ name: '营业执照副本', status: '有效', expiry: '2028-12-31' }], auditHistory: [{ node: '终审', user: '分管领导', result: '准予入库', opinion: '同意', time: '2024-07-28 16:00' }], latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—', supplies: [{ no: 'GH2025004', material: '螺丝刀', qty: '20 / 10 个', status: '供货中', date: '2025-11-01' }], acceptances: [{ no: 'GH2025004-YS01', supplyNo: 'GH2025004', material: '螺丝刀', qualified: '9', unqualified: '1', date: '2025-11-22', status: '验收中' }], refunds: [{ no: 'GH2025004-YS02-TH', supplyNo: 'GH2025004', material: '螺丝刀', qty: '1 个', reason: '验收不合格', date: '—', status: '待退货' }], evalHistory: [] },
+  GYS005: { code: 'GYS005', name: '宁波北仑君威有限公司', shortName: '宁波北仑君威', status: '暂停', poolStatus: '在库', tier: '合格供应商', creditCode: '91330206MA2XXXXXX', legalPerson: '陈某某', bankName: '宁波银行北仑支行', bankAccount: '6214180000001234567', invoiceTitle: '宁波北仑君威有限公司', invoiceTaxNo: '91330206MA2XXXXXX', admissionDate: '2024-09-10', type: '耗材供应商', contact: '李四', phone: '13912345678', address: '浙江省宁波市北仑区', createdAt: '2024-09-12', documents: [{ name: '营业执照副本', status: '有效', expiry: '2028-12-31' }], auditHistory: [{ node: '终审', user: '分管领导', result: '准予入库', opinion: '同意', time: '2024-09-10 16:00' }], latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—', supplies: [{ no: 'GH2025005', material: '扳手', qty: '20 / 0 个', status: '待供货', date: '2025-12-01' }], acceptances: [], refunds: [], evalHistory: [] },
+  GYS006: { code: 'GYS006', name: '华建物资有限公司', shortName: '华建物资', status: '正常', poolStatus: '在库', tier: '合格供应商', creditCode: '91421181MA4KBBBBB', legalPerson: '周某某', bankName: '湖北银行武穴支行', bankAccount: '6217005555666677778', invoiceTitle: '华建物资有限公司', invoiceTaxNo: '91421181MA4KBBBBB', admissionDate: '2026-01-12', type: '电气材料供应商', contact: '陈经理', phone: '13888888221', address: '湖北省黄冈市武穴市', createdAt: '2026-01-15', documents: [{ name: '营业执照副本', status: '有效', expiry: '2028-12-31' }], auditHistory: [{ node: '终审', user: '分管领导', result: '准予入库', opinion: '同意', time: '2026-01-12 16:00' }], latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—', supplies: [{ no: 'GH202605280002', material: '电缆 YJV-3×2.5', qty: '100 / 100 m', status: '已供货', date: '2026-05-28' }], acceptances: [], refunds: [{ no: 'TH202606030001', supplyNo: 'GH202605280002', material: '电缆 YJV-3×2.5', qty: '100 m', reason: '规格不符', date: '2026-06-03', status: '已退货' }], evalHistory: [] },
+  GYS007: { code: 'GYS007', name: '鄂东办公用品', shortName: '鄂东办公', status: '正常', poolStatus: '在库', tier: '备选供应商', creditCode: '91421100MA4KCCCCC', legalPerson: '吴某某', bankName: '工商银行黄冈支行', bankAccount: '6222023333444455556', invoiceTitle: '鄂东办公用品有限公司', invoiceTaxNo: '91421100MA4KCCCCC', admissionDate: '2026-02-18', type: '办公耗材供应商', contact: '刘主管', phone: '13933333002', address: '湖北省黄冈市', createdAt: '2026-02-20', documents: [{ name: '营业执照副本', status: '有效', expiry: '2028-12-31' }], auditHistory: [{ node: '终审', user: '分管领导', result: '准予入库', opinion: '同意', time: '2026-02-18 16:00' }], latestScore: '—', latestGrade: '—', latestEvalDate: '—', latestEvalNo: '—', supplies: [{ no: 'GH2025002', material: '安全帽', qty: '200 / 200 顶', status: '已供货', date: '2025-11-10' }], acceptances: [{ no: 'GH2025002-YS01', supplyNo: 'GH2025002', material: '安全帽', qualified: '200', unqualified: '0', date: '2025-11-16', status: '已验收' }], refunds: [{ no: 'RK202509002-TH01', supplyNo: 'GH2025002', material: '安全帽', qty: '50 顶', reason: '在库退货', date: '—', status: '待退货' }], evalHistory: [] },
+  GYS008: { code: 'GYS008', name: '荆州劣质配件厂', shortName: '荆州劣质', status: '黑名单', poolStatus: '已淘汰', tier: '—', creditCode: '91421000MA4DDDDDD', legalPerson: '赵某', bankName: '—', bankAccount: '—', invoiceTitle: '荆州劣质配件厂', invoiceTaxNo: '91421000MA4DDDDDD', admissionDate: '2023-06-01', type: '设备配件供应商', contact: '赵某', phone: '13700009999', address: '湖北省荆州市', createdAt: '2023-06-15', documents: [], auditHistory: [], eliminationReason: '产品质量连续两次抽检不合格，造成公司损失', eliminationDate: '2025-11-01', reEntryBanUntil: '2027-11-01', latestScore: '4.20', latestGrade: '不合格', latestEvalDate: '2025-10-15', latestEvalNo: '—', supplies: [], acceptances: [], refunds: [], evalHistory: [] },
 };
 
 const WMS_EVAL_ORDER_SAMPLES = {
-  PJ2025001: { no: 'PJ2025001', name: '2025年度设备配件类供应商评价', evaluator: '李四', evalDate: '2025-12-30', evalPeriod: '年度', periodStart: '2025-01-01', periodEnd: '2025-12-31', status: '审核通过', orderRemark: '年度例行评价', configVersion: 'V2026-001', lines: [{ code: 'GYS001', name: '科尼', quality: 9, delivery: 8, service: 8, price: 9, bonus: 0, penalty: 0, remark: '' }, { code: 'GYS002', name: '上海佩纳', quality: 8, delivery: 9, service: 7, price: 8, bonus: 0, penalty: 0, remark: '' }] },
-  PJ2025002: { no: 'PJ2025002', name: '2025年度维修工具类供应商评价', evaluator: '李四', evalDate: '2025-12-30', evalPeriod: '年度', periodStart: '2025-01-01', periodEnd: '2025-12-31', status: '审核中', orderRemark: '', configVersion: 'V2026-001', lines: [{ code: 'GYS001', name: '科尼', quality: 9, delivery: 8, service: 8, price: 9, bonus: 0, penalty: 0, remark: '' }] },
+  PJ2025001: { no: 'PJ2025001', name: '2025年度设备配件类供应商评价', evaluator: '李四', evalDate: '2025-12-30', evalPeriod: '年度', periodStart: '2025-01-01', periodEnd: '2025-12-31', status: '审核通过', orderRemark: '年度例行评价', configVersion: 'V2026-001', lines: [{ code: 'GYS001', name: '科尼', quality: 9, delivery: 8, price: 8, service: 8, fulfillment: 9, compliance: 9, bonus: 0, penalty: 0, remark: '' }, { code: 'GYS002', name: '上海佩纳', quality: 8, delivery: 9, price: 8, service: 7, fulfillment: 8, compliance: 9, bonus: 0, penalty: 0, remark: '' }] },
+  PJ2025002: { no: 'PJ2025002', name: '2025年度维修工具类供应商评价', evaluator: '李四', evalDate: '2025-12-30', evalPeriod: '年度', periodStart: '2025-01-01', periodEnd: '2025-12-31', status: '审核中', orderRemark: '', configVersion: 'V2026-001', lines: [{ code: 'GYS001', name: '科尼', quality: 9, delivery: 8, price: 8, service: 8, fulfillment: 9, compliance: 9, bonus: 0, penalty: 0, remark: '' }] },
   PJ2024001: { no: 'PJ2024001', name: '2024年度评价', evaluator: '李四', evalDate: '2025-12-28', evalPeriod: '年度', periodStart: '2024-01-01', periodEnd: '2024-12-31', status: '草稿', orderRemark: '', configVersion: 'V2026-001', lines: [] },
   PJ2023001: { no: 'PJ2023001', name: '2023年度耗材类供应商评价', evaluator: '张三', evalDate: '2024-01-10', evalPeriod: '年度', periodStart: '2023-01-01', periodEnd: '2023-12-31', status: '已驳回', orderRemark: '', configVersion: 'V2025-002', rejectReason: '评价期间数据不完整，请补充供货记录后重提', lines: [] },
 };
@@ -5019,6 +5024,17 @@ function wmsSupplierGradeBadge(grade) {
 function wmsSupplierStatusBadge(status) {
   const map = { 正常: 'success', 暂停: 'warning', 黑名单: 'danger' };
   return statusBadge(status, map[status] || 'info');
+}
+
+function wmsSupplierPoolBadge(status) {
+  const map = { 在库: 'success', 暂缓入库: 'warning', 已淘汰: 'danger', 已退出: 'info' };
+  return statusBadge(status, map[status] || 'info');
+}
+
+function wmsSupplierTierBadge(tier) {
+  if (!tier || tier === '—') return '—';
+  const map = { 核心供应商: 'success', 合格供应商: 'info', 备选供应商: 'warning' };
+  return statusBadge(tier, map[tier] || 'info');
 }
 
 function wmsEvalMatchGrade(score) {
@@ -5158,7 +5174,7 @@ function initSupplierEvalForm(root) {
   const readOnly = viewMode || ['审核通过', '审核中'].includes(sample?.status || form.dataset.evalStatus);
 
   if (sample) {
-    const setVal = (sel, val) => { const el = form.querySelector(sel); if (el && val != null && val !== '') el.value = val; };
+    const setVal = (sel, val) => { const el = form.querySelector(sel); if (el && val != null && val !== '') { if (el.multiple) { const values = val.split(',').map(v => v.trim()); [...el.options].forEach(o => { o.selected = values.includes(o.value); }); } else { el.value = val; } } };
     setVal('[data-eval-order-no]', sample.no);
     setVal('[data-eval-field="evalName"]', sample.name);
     setVal('[data-eval-field="evalDate"]', sample.evalDate);
@@ -5168,6 +5184,10 @@ function initSupplierEvalForm(root) {
     setVal('[data-eval-field="periodEnd"]', sample.periodEnd);
     setVal('[data-eval-field="orderRemark"]', sample.orderRemark);
     setVal('[data-eval-config-version]', sample.configVersion);
+    if (readOnly) {
+      const evalSelect = form.querySelector('[data-eval-field="evaluator"]');
+      if (evalSelect) evalSelect.disabled = true;
+    }
     const tbody = form.querySelector('[data-wms-eval-lines-tbody]');
     wmsEvalRebuildLines(tbody, sample.lines, readOnly);
     if (viewMode) {
@@ -5176,6 +5196,18 @@ function initSupplierEvalForm(root) {
       if (titleEl) titleEl.textContent = '查看评价';
     }
   } else {
+    const supplierCode = params.get('supplierCode');
+    if (supplierCode) {
+      const supplier = WMS_SUPPLIER_SAMPLES[supplierCode.toUpperCase()];
+      if (supplier) {
+        const tbody = form.querySelector('[data-wms-eval-lines-tbody]');
+        const lines = [{
+          code: supplier.code, name: supplier.name, quality: '', delivery: '', service: '', price: '',
+          fulfillment: '', compliance: '', bonus: 0, penalty: 0, remark: '',
+        }];
+        wmsEvalRebuildLines(tbody, lines, false);
+      }
+    }
     const picked = sessionStorage.getItem('wms_eval_picked_suppliers');
     if (picked) {
       try {
@@ -5183,7 +5215,8 @@ function initSupplierEvalForm(root) {
         const tbody = form.querySelector('[data-wms-eval-lines-tbody]');
         const existing = new Set([...form.querySelectorAll('[data-wms-eval-line]')].map(r => r.dataset.supplierCode));
         const newLines = suppliers.filter(s => !existing.has(s.code)).map(s => ({
-          code: s.code, name: s.name, quality: '', delivery: '', service: '', price: '', bonus: 0, penalty: 0, remark: '',
+          code: s.code, name: s.name, quality: '', delivery: '', service: '', price: '',
+          fulfillment: '', compliance: '', bonus: 0, penalty: 0, remark: '',
         }));
         const currentLines = [...form.querySelectorAll('[data-wms-eval-line]')].map(row => ({
           code: row.dataset.supplierCode,
@@ -5192,6 +5225,8 @@ function initSupplierEvalForm(root) {
           delivery: row.querySelector('[data-eval-dimension="delivery"]')?.value,
           service: row.querySelector('[data-eval-dimension="service"]')?.value,
           price: row.querySelector('[data-eval-dimension="price"]')?.value,
+          fulfillment: row.querySelector('[data-eval-dimension="fulfillment"]')?.value,
+          compliance: row.querySelector('[data-eval-dimension="compliance"]')?.value,
           bonus: row.querySelector('[data-eval-field="bonus"]')?.value || 0,
           penalty: row.querySelector('[data-eval-field="penalty"]')?.value || 0,
           remark: row.querySelector('[data-eval-field="lineRemark"]')?.value || '',
@@ -5256,6 +5291,7 @@ function initSupplierDetail(root) {
   detail.dataset.supplierCode = s.code;
   const backHref = document.querySelector('.wms-modal-backdrop')?.dataset.modalBack || 'supplier_list.html';
   detail.querySelector('a[href*="supplier_form"]')?.setAttribute('href', `supplier_form.html?code=${s.code}&mode=edit`);
+  detail.querySelector('a[href*="supplier_eval_form"]')?.setAttribute('href', `supplier_eval_form.html?supplierCode=${s.code}`);
   document.querySelector('.wms-modal-backdrop .wms-modal-footer a[href*="supplier_list"]')?.setAttribute('href', backHref);
   document.querySelector('.wms-modal-backdrop .wms-modal-close')?.setAttribute('href', backHref);
   const setText = (field, val) => {
@@ -5271,15 +5307,25 @@ function initSupplierDetail(root) {
   setText('code', s.code);
   setText('type', s.type);
   setHtml('status', wmsSupplierStatusBadge(s.status));
+  setHtml('tier', wmsSupplierTierBadge(s.tier));
   setText('latestScore', s.latestScore);
   setHtml('latestGrade', wmsSupplierGradeBadge(s.latestGrade));
   setText('latestEvalDate', s.latestEvalDate);
   setText('supplyCount', String((s.supplies || []).length));
   setText('shortName', s.shortName);
+  setText('creditCode', s.creditCode);
+  setText('legalPerson', s.legalPerson);
   setText('contact', s.contact);
   setText('phone', s.phone);
   setText('address', s.address);
-  setText('createdAt', s.createdAt);
+  setText('bankName', s.bankName);
+  setText('bankAccount', s.bankAccount);
+  setText('invoiceTitle', s.invoiceTitle || s.name);
+  setText('invoiceTaxNo', s.invoiceTaxNo);
+  setText('admissionDate', s.admissionDate || s.createdAt);
+  setText('eliminationDate', s.eliminationDate);
+  setText('eliminationReason', s.eliminationReason);
+  setText('reEntryBanUntil', s.reEntryBanUntil ? `至 ${s.reEntryBanUntil} 不得重新申请入库` : '—');
 
   if (s.latestEvalNo && s.latestEvalNo !== '—') {
     const evalDd = detail.querySelector('[data-supplier-panel="profile"] dd:last-of-type');
@@ -5323,6 +5369,76 @@ function initSupplierDetail(root) {
     ).join('') || '<tr><td colspan="7" class="px-4 py-8 text-center text-sm text-slate-400">暂无退货记录</td></tr>';
   }
 
+  const qualTbody = detail.querySelector('[data-supplier-qual-tbody]');
+  if (qualTbody) {
+    qualTbody.innerHTML = (s.documents || []).map(d =>
+      `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">${d.name}</td><td class="px-3 py-2.5 text-sm">${statusBadge(d.status, d.status === '有效' || d.status === '已归档' ? 'success' : 'warning')}</td><td class="px-3 py-2.5 text-sm text-slate-500">${d.expiry}</td></tr>`
+    ).join('') || '<tr><td colspan="3" class="px-4 py-8 text-center text-sm text-slate-400">暂无资质档案</td></tr>';
+  }
+
+  const auditTbody = detail.querySelector('[data-supplier-audit-tbody]');
+  if (auditTbody) {
+    auditTbody.innerHTML = (s.auditHistory || []).map(f => {
+      const rb = f.result === '通过' || f.result === '准予入库' ? statusBadge(f.result, 'success')
+        : f.result === '驳回' ? statusBadge(f.result, 'danger') : statusBadge(f.result, 'info');
+      return `<tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm">${f.node}</td><td class="px-3 py-2.5 text-sm">${f.user}</td><td class="px-3 py-2.5 text-sm">${rb}</td><td class="px-3 py-2.5 text-sm text-slate-600">${f.opinion || '—'}</td><td class="px-3 py-2.5 text-sm text-slate-500">${f.time}</td></tr>`;
+    }).join('') || '<tr><td colspan="5" class="px-4 py-8 text-center text-sm text-slate-400">暂无审核记录</td></tr>';
+  }
+}
+
+const WMS_ADMISSION_SAMPLES = {
+  RK202607050001: { no: 'RK202607050001', name: '黄冈鑫达物资有限公司', creditCode: '91421100MA4KEEEEE', stage: '资料申报', needSiteAudit: '否', auditStatus: '待审核', shortName: '黄冈鑫达', legalPerson: '陈某某', contact: '陈工', phone: '139****5678', address: '湖北省黄冈市黄州区工业路 88 号', bankName: '中国银行黄冈支行', bankAccount: '6217001234567890888', invoiceTitle: '黄冈鑫达物资有限公司', invoiceTaxNo: '91421100MA4KEEEEE', supplyScope: '办公用品、劳保用品' },
+  RK202607040002: { no: 'RK202607040002', name: '武穴安防科技有限公司', creditCode: '91421181MA4KFFFFFF', stage: '设备技术部初审', needSiteAudit: '是', auditStatus: '审核中', shortName: '武穴安防', legalPerson: '王某某', contact: '李工', phone: '13922223333', address: '湖北省武穴市安防科技园 1 号', bankName: '中国银行武穴支行', bankAccount: '6217001234567890123', invoiceTitle: '武穴安防科技有限公司', invoiceTaxNo: '91421181MA4KFFFFFF', supplyScope: '安防监控、门禁系统' },
+  RK202607030003: { no: 'RK202607030003', name: '湖北化工贸易有限公司', creditCode: '91421100MA4KGGGGG', stage: '联合复核', needSiteAudit: '是', auditStatus: '审核中', shortName: '湖北化工', legalPerson: '刘某某', contact: '刘工', phone: '138****7890', address: '湖北省武汉市东西湖区化工路 66 号', bankName: '工商银行武汉东西湖支行', bankAccount: '6217001234567890666', invoiceTitle: '湖北化工贸易有限公司', invoiceTaxNo: '91421100MA4KGGGGG', supplyScope: '化工原料、工业溶剂' },
+  RK202607020004: { no: 'RK202607020004', name: '鄂东定制机械厂', creditCode: '91421181MA4KHHHHH', stage: '现场核查', needSiteAudit: '是', auditStatus: '审核中', shortName: '鄂东机械', legalPerson: '张某某', contact: '张工', phone: '136****1234', address: '湖北省黄石市铁山区机械工业园', bankName: '建设银行黄石铁山支行', bankAccount: '6217001234567890555', invoiceTitle: '鄂东定制机械厂', invoiceTaxNo: '91421181MA4KHHHHH', supplyScope: '非标机械定制、零部件加工' },
+  RK202607010005: { no: 'RK202607010005', name: '黄石某贸易有限公司', creditCode: '91420200MA4KIIIII', stage: '待终审', needSiteAudit: '否', auditStatus: '审核中', shortName: '黄石贸易', legalPerson: '赵某某', contact: '赵工', phone: '137****4567', address: '湖北省黄石市黄石港区商贸路 12 号', bankName: '农业银行黄石港支行', bankAccount: '6217001234567890444', invoiceTitle: '黄石某贸易有限公司', invoiceTaxNo: '91420200MA4KIIIII', supplyScope: '办公耗材、日用百货' },
+  RK202606280006: { no: 'RK202606280006', name: '某建材供应站', creditCode: '91421100MA4KJJJJJ', stage: '暂缓入库', needSiteAudit: '否', auditStatus: '审核拒绝', shortName: '建材供应站', legalPerson: '孙某某', contact: '孙工', phone: '135****6789', address: '湖北省黄冈市建材大市场 B 区', bankName: '—', bankAccount: '—', invoiceTitle: '某建材供应站', invoiceTaxNo: '91421100MA4KJJJJJ', supplyScope: '建材、砂石、水泥' },
+  RK202606250007: { no: 'RK202606250007', name: '某空壳贸易有限公司', creditCode: '91421100MA4KKKKKK', stage: '不予入库', needSiteAudit: '否', auditStatus: '审核拒绝', shortName: '空壳贸易', legalPerson: '钱某某', contact: '钱某', phone: '134****0000', address: '—', bankName: '—', bankAccount: '—', invoiceTitle: '某空壳贸易有限公司', invoiceTaxNo: '91421100MA4KKKKKK', supplyScope: '—' },
+  RK202607060008: { no: 'RK202607060008', name: '湖北振华物资有限公司', creditCode: '91421100MA4KLLLLL', stage: '已入库', needSiteAudit: '否', auditStatus: '审核通过', shortName: '湖北振华', legalPerson: '周某某', contact: '周工', phone: '139****1111', address: '湖北省武汉市武昌区物资路 8 号', bankName: '交通银行武昌支行', bankAccount: '6217001234567890999', invoiceTitle: '湖北振华物资有限公司', invoiceTaxNo: '91421100MA4KLLLLL', supplyScope: '钢材、管材、五金件' },
+};
+
+function initSupplierAdmissionDetail(root) {
+  const detail = document.querySelector('[data-wms-supplier-admission-detail]');
+  if (!detail) return;
+  const params = new URLSearchParams(window.location.search);
+  const no = params.get('no') || detail.dataset.admissionNo;
+  const a = WMS_ADMISSION_SAMPLES[no];
+  if (!a) return;
+  const titleEl = document.getElementById('wms-modal-title');
+  if (titleEl) titleEl.textContent = `入库审核 · ${a.name}`;
+  document.title = `入库审核 · ${a.name} · 物资管理系统`;
+
+  // 填充动态字段（与登记申报字段保持一致）
+  const fieldMap = {
+    needSiteAudit: a.needSiteAudit === '是' ? '是' : '否',
+    shortName: a.shortName || '—',
+    legalPerson: a.legalPerson || '—',
+    contact: a.contact || '—',
+    phone: a.phone || '—',
+    address: a.address || '—',
+    bankName: a.bankName || '—',
+    bankAccount: a.bankAccount || '—',
+    invoiceTitle: a.invoiceTitle || '—',
+    invoiceTaxNo: a.invoiceTaxNo || '—',
+    supplyScope: a.supplyScope || '—',
+  };
+  Object.keys(fieldMap).forEach(key => {
+    const el = detail.querySelector(`[data-admission-field="${key}"]`);
+    if (el) el.textContent = fieldMap[key];
+  });
+
+  // 填充审核状态
+  const statusEl = detail.querySelector('[data-admission-field="auditStatus"]');
+  if (statusEl) {
+    const badgeMap = {
+      '待审核': 'bg-slate-100 text-slate-700 ring-slate-600/10',
+      '审核中': 'bg-amber-50 text-amber-700 ring-amber-600/20',
+      '审核通过': 'bg-emerald-50 text-emerald-700 ring-emerald-600/20',
+      '审核拒绝': 'bg-rose-50 text-rose-700 ring-rose-600/20',
+    };
+    const cls = badgeMap[a.auditStatus] || badgeMap['待审核'];
+    statusEl.innerHTML = `<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${cls}">${a.auditStatus}</span>`;
+  }
 }
 
 function initEvalConfig(root) {
