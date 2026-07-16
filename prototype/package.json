@@ -7,6 +7,7 @@
     "build:css": "tailwindcss -i ./css/tailwind.input.css -o ./css/tailwind.css --minify",
     "copy:docs": "node scripts/copy-docs.mjs",
     "build": "npm run build:css && npm run copy:docs",
+    "prepare:pages": "node scripts/prepare-pages.mjs",
     "vendor:fa": "node scripts/copy-vendor.mjs",
     "postinstall": "npm run vendor:fa && npm run copy:docs"
   },
