@@ -2768,7 +2768,7 @@ function supplyRowActions(supplyNo, status) {
     const p = new URLSearchParams({ no: supplyNo, back: 'purchase_supply_list.html', ...extra });
     return p.toString();
   };
-  const view = `<a href="#" class="mr-2 hover:underline">查看</a>`;
+  const view = `<a href="warehouse_acceptance_detail.html?${q()}" class="mr-2 hover:underline">查看</a>`;
   if (status === '已供货') return view;
   return `${view}<a href="purchase_supply_complete.html?${q()}" class="hover:underline">完成供货</a>`;
 }

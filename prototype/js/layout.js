@@ -2857,6 +2857,11 @@ function initAcceptanceFromQuery(root) {
 
   applyAcceptanceBackLinks(backHref);
 
+  if (title.includes('供货详情') && backHref.includes('purchase_supply_list')) {
+    const breadcrumbEl = document.querySelector('.wms-app-shell header .text-xs.text-slate-500');
+    if (breadcrumbEl) breadcrumbEl.textContent = '供应商管理 / 查看供货';
+  }
+
   const supplyScope = document.querySelector('[data-wms-acceptance-supply]');
   if (supplyScope) fillAcceptanceSupplyFields(supplyScope, sample);
 
