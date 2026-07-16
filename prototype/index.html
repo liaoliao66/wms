@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>物资管理系统 · 原型入口</title>
-  <!-- GitHub Pages 访问 /wms（无尾部斜杠）时，相对路径会解析到站点根目录；用 base 固定为当前目录 -->
+  <title>物资管理系统 · 原型全局总入口</title>
   <base id="wms-base" href="./" />
   <script>
     (function () {
@@ -22,88 +21,94 @@
   <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
 </head>
 <body class="wms-portal-body">
-  <div class="wms-portal">
+  <div class="wms-portal wms-portal--global">
     <header class="wms-portal-header">
       <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-lg font-bold text-white shadow-lg">W</div>
       <div>
-        <h1 class="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">物资管理系统</h1>
-        <p class="mt-1 text-sm text-slate-500">黄冈武穴 · 交互原型 V1.0</p>
+        <h1 class="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">物资管理系统 · 原型仓库</h1>
+        <p class="mt-1 text-sm text-slate-500">黄冈武穴 WMS · GitHub Pages 静态发布总入口</p>
       </div>
     </header>
 
-    <p class="wms-portal-desc">请选择访问端，进入对应原型环境。PC 端含完整侧栏导航；APP 端建议切换浏览器手机视口预览。</p>
+    <p class="wms-portal-desc">
+      本页为<strong>全版本统一访问门户</strong>，汇总各产品版本的多端原型与 PRD 文档链接。
+      部署地址建议带尾部斜杠访问：<code class="rounded bg-white/80 px-1.5 py-0.5 text-xs ring-1 ring-slate-200">https://liaoliao66.github.io/wms/</code>
+    </p>
 
-    <div class="wms-portal-grid">
-      <a href="pages/pc_home.html" class="wms-portal-card wms-portal-card--pc group">
-        <div class="wms-portal-card-icon">
-          <i class="fa-solid fa-desktop text-2xl"></i>
-        </div>
-        <div class="wms-portal-card-body">
-          <h2 class="text-xl font-semibold text-slate-900">PC 端入口</h2>
-          <p class="mt-2 text-sm leading-relaxed text-slate-500">仓库管理后台：采购、入库出库、台账、盘点计划与差异处理等完整业务流程。</p>
-          <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
-            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>工作台待办与统计看板</li>
-            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>侧栏导航 · 123+ 业务页面</li>
-            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>库场盘点 PC 全流程</li>
-          </ul>
-          <span class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-900 group-hover:gap-3 transition-all">
-            进入 PC 工作台 <i class="fa-solid fa-arrow-right text-xs"></i>
-          </span>
-        </div>
-      </a>
-
-      <a href="pages/app/app_count_home.html" class="wms-portal-card wms-portal-card--app group">
-        <div class="wms-portal-card-icon">
-          <i class="fa-solid fa-mobile-screen-button text-2xl"></i>
-        </div>
-        <div class="wms-portal-card-body">
-          <h2 class="text-xl font-semibold text-slate-900">APP 端入口</h2>
-          <p class="mt-2 text-sm leading-relaxed text-slate-500">iOS 18 风格移动原型（iPhone 16 外框 + 灵动岛）：扫码盘点、任务执行、账外资产登记。</p>
-          <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
-            <li><i class="fa-solid fa-check text-violet-500 mr-1.5"></i>移动盘点首页与任务列表</li>
-            <li><i class="fa-solid fa-check text-violet-500 mr-1.5"></i>扫码盘点 · 执行录入</li>
-            <li><i class="fa-solid fa-check text-violet-500 mr-1.5"></i>账外资产现场登记</li>
-            <li><i class="fa-solid fa-check text-violet-500 mr-1.5"></i>个人中心 · 3 Tab 导航</li>
-          </ul>
-          <span class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-900 group-hover:gap-3 transition-all">
-            进入移动盘点 <i class="fa-solid fa-arrow-right text-xs"></i>
-          </span>
-        </div>
-      </a>
+    <div class="wms-version-table-wrap card overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-200/80">
+      <table class="wms-version-table min-w-full text-sm">
+        <thead class="bg-slate-50/90 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+          <tr>
+            <th class="px-4 py-3 whitespace-nowrap">版本号</th>
+            <th class="px-4 py-3">版本迭代说明</th>
+            <th class="px-4 py-3 whitespace-nowrap">PC 端原型入口</th>
+            <th class="px-4 py-3 whitespace-nowrap">独立 App 原型入口</th>
+            <th class="px-4 py-3 whitespace-nowrap">企微 H5 原型入口</th>
+            <th class="px-4 py-3 whitespace-nowrap">对应版本 PRD</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          <tr class="hover:bg-slate-50/80">
+            <td class="px-4 py-4 font-mono font-medium text-slate-900 whitespace-nowrap">v1.0.0</td>
+            <td class="px-4 py-4 text-slate-600 leading-relaxed">
+              首版交付：PC 后台完整业务流程（采购·入库·台账·盘点·供应商）；独立 App 库场/库外盘点；
+              含验收审核、供货单查看修复；162 页静态原型。
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap">
+              <a href="versions/v1.0.0/index.html#pc" class="text-slate-900 font-medium hover:underline">进入 v1.0.0 PC</a>
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap">
+              <a href="versions/v1.0.0/index.html#app" class="text-slate-900 font-medium hover:underline">进入 v1.0.0 App</a>
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap text-slate-400">待规划</td>
+            <td class="px-4 py-4 whitespace-nowrap">
+              <a href="../docs/versions/v1.0.0/prd.md" class="mr-3 text-slate-900 font-medium hover:underline">prd.md</a>
+              <a href="versions/v1.0.0/pages/prd.html" class="text-slate-500 hover:underline">浏览器阅读</a>
+            </td>
+          </tr>
+          <tr class="hover:bg-slate-50/80">
+            <td class="px-4 py-4 font-mono font-medium text-slate-900 whitespace-nowrap">v1.1.0</td>
+            <td class="px-4 py-4 text-slate-600 leading-relaxed">
+              版本目录已创建：用于后续迭代交付。当前仅占位，待补齐 PRD 后再生成对应多端原型。
+            </td>
+            <td class="px-4 py-4 whitespace-nowrap text-slate-400">待生成</td>
+            <td class="px-4 py-4 whitespace-nowrap text-slate-400">待生成</td>
+            <td class="px-4 py-4 whitespace-nowrap text-slate-400">待规划</td>
+            <td class="px-4 py-4 whitespace-nowrap">
+              <a href="../docs/versions/v1.1.0/prd.md" class="text-slate-900 font-medium hover:underline">prd.md</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div class="wms-portal-links">
-      <a href="pages/prd.html" class="wms-portal-link">
-        <i class="fa-solid fa-file-lines"></i>
-        <span>产品需求文档</span>
-        <span class="text-slate-400">PRD · 浏览器阅读</span>
+    <div class="wms-portal-links mt-8">
+      <a href="versions/v1.0.0/index.html" class="wms-portal-link">
+        <i class="fa-solid fa-layer-group"></i>
+        <span>v1.0.0 版本门户</span>
+        <span class="text-slate-400">PC / App 双卡片</span>
       </a>
-      <a href="pages/prototype_map.html" class="wms-portal-link">
+      <a href="versions/v1.0.0/pages/prototype_map.html" class="wms-portal-link">
         <i class="fa-solid fa-table-cells"></i>
         <span>原型页面目录</span>
-        <span class="text-slate-400">133 页索引</span>
+        <span class="text-slate-400">全站页面索引</span>
       </a>
-      <a href="pages/pc_home.html" class="wms-portal-link">
+      <a href="versions/v1.0.0/pages/pc_home.html" class="wms-portal-link">
         <i class="fa-solid fa-gauge-high"></i>
         <span>PC 工作台</span>
         <span class="text-slate-400">直达看板</span>
       </a>
-      <a href="pages/app/app_count_task_list.html" class="wms-portal-link">
-        <i class="fa-solid fa-list-check"></i>
-        <span>APP 任务列表</span>
-        <span class="text-slate-400">库场盘点</span>
-      </a>
-      <a href="pages/app/app_outside_count_home.html" class="wms-portal-link">
-        <i class="fa-solid fa-map-location-dot"></i>
-        <span>库外盘点 APP</span>
-        <span class="text-slate-400">固定资产/类资产</span>
+      <a href="../docs/versions/v1.0.0/prd.md" class="wms-portal-link">
+        <i class="fa-solid fa-file-lines"></i>
+        <span>v1.0.0 PRD 源文件</span>
+        <span class="text-slate-400">docs/versions</span>
       </a>
     </div>
 
     <footer class="wms-portal-footer">
-      <a href="pages/prd.html" class="text-slate-500 hover:text-slate-700">查看 PRD 文档</a>
+      <span>仓库根目录 <code class="rounded bg-white/80 px-1.5 py-0.5 text-xs ring-1 ring-slate-200">prototype/index.html</code></span>
       <span class="mx-2 text-slate-300">·</span>
-      <span>源文件 <code class="rounded bg-white/80 px-1.5 py-0.5 text-xs ring-1 ring-slate-200">docs/prd.md</code></span>
+      <span>版本规范见 <code class="rounded bg-white/80 px-1.5 py-0.5 text-xs ring-1 ring-slate-200">rule/global_pipeline.mdc</code></span>
     </footer>
   </div>
 </body>
