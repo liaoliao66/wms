@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>库外盘点结果 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="outside_count_plan_list" data-title="库外盘点结果" data-breadcrumb="库外盘点 / 盘点结果">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="outside_count_plan_list.html" data-modal-size="xl">
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">结果摘要</h3></div>
+        <div class="md:col-span-2 grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">应盘行</div><div class="mt-1 text-lg font-semibold text-slate-900">46</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">已盘</div><div class="mt-1 text-lg font-semibold text-slate-900">40</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">固资丢失</div><div class="mt-1 text-lg font-semibold text-rose-600">2</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">类资产盘亏量</div><div class="mt-1 text-lg font-semibold text-rose-600">5</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">账外</div><div class="mt-1 text-lg font-semibold text-amber-600">3</div></div>
+          <div class="rounded-xl border border-slate-200 bg-white p-4"><div class="text-xs text-slate-500">地点回写</div><div class="mt-1 text-lg font-semibold text-slate-900">4</div></div>
+        </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">差异预览</h3></div>
+        <div class="md:col-span-2 rounded-xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 text-sm text-emerald-900">
+          本计划已由<strong>物资管理员手动结束</strong>，状态为「已结束」。确认摘要无误后可<strong>生成盘点报告</strong>（仅已结束计划可查看/生成报告）。
+        </div>
+        <div class="md:col-span-2 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
+          报告生成并冻结后<strong>不回改确认行</strong>。盘亏/账外/固资单件转派归属变更走独立差异处理。
+        </div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div class="overflow-x-auto wms-modal-table-wrap">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50/80"><tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">类型</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">资产类型</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">编码</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">名称</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">使用地点</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">账存</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">在场/丢失</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">状态</th>
+              </tr></thead>
+              <tbody>
+                <tr class="border-t border-slate-100">
+                  <td class="px-4 py-3.5">盘亏</td>
+                  <td class="px-4 py-3.5">固资</td>
+                  <td class="px-4 py-3.5 font-mono text-xs">ZC202601100</td>
+                  <td class="px-4 py-3.5">手持对讲机</td>
+                  <td class="px-4 py-3.5">施工临建</td>
+                  <td class="px-4 py-3.5">1</td>
+                  <td class="px-4 py-3.5">0 / 1</td>
+                  <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待处理</span></td>
+                </tr>
+                <tr class="border-t border-slate-100">
+                  <td class="px-4 py-3.5">盘亏</td>
+                  <td class="px-4 py-3.5">类资产</td>
+                  <td class="px-4 py-3.5 font-mono text-xs">BM-AQ-010</td>
+                  <td class="px-4 py-3.5">安全帽</td>
+                  <td class="px-4 py-3.5">施工临建</td>
+                  <td class="px-4 py-3.5">20</td>
+                  <td class="px-4 py-3.5">18 / 2</td>
+                  <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待处理</span></td>
+                </tr>
+                <tr class="border-t border-slate-100">
+                  <td class="px-4 py-3.5">盘盈(账外)</td>
+                  <td class="px-4 py-3.5">类资产</td>
+                  <td class="px-4 py-3.5 font-mono text-xs">NEW-BM-0001</td>
+                  <td class="px-4 py-3.5">办公凳（账外）</td>
+                  <td class="px-4 py-3.5">研发楼 3F</td>
+                  <td class="px-4 py-3.5">—</td>
+                  <td class="px-4 py-3.5">数量 3</td>
+                  <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待审批</span></td>
+                </tr>
+                <tr class="border-t border-slate-100">
+                  <td class="px-4 py-3.5">归属变更</td>
+                  <td class="px-4 py-3.5">固资</td>
+                  <td class="px-4 py-3.5 font-mono text-xs">PC-88901</td>
+                  <td class="px-4 py-3.5">办公电脑</td>
+                  <td class="px-4 py-3.5">办公楼 3F</td>
+                  <td class="px-4 py-3.5">1</td>
+                  <td class="px-4 py-3.5">单件转派</td>
+                  <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待对方确认</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="outside_count_plan_list.html" class="wms-btn wms-btn-secondary">关闭</a>
+        <a href="outside_count_diff_list.html" class="wms-btn wms-btn-secondary">去差异处理</a>
+        <a href="outside_count_report_detail.html?planNo=KWP202606290001" class="wms-btn wms-btn-primary">生成盘点报告</a>
+      </div>
+    </div>
+  </div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

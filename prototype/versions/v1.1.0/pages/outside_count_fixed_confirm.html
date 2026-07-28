@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>固资确认 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="outside_count_mine" data-title="固资确认" data-breadcrumb="库外盘点 / 物资盘点 / 固资确认">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="outside_count_mine.html" data-modal-size="lg">
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">物资信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">资产编码</label><input id="code" type="text" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" value="ZC202605012" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">物资名称</label><input id="name" type="text" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" value="工程测量仪" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">出库领用人</label><input type="text" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" value="王工" /></div>
+        <div id="wrap-loc">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">使用地点</label>
+          <input id="loc" type="text" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" value="武穴大桥施工点" />
+          <p class="mt-1 text-xs text-slate-500" id="loc-tip">「在场」「转派」时可修改；「丢失」不可改</p>
+        </div>
+
+        <div id="panel-pending" class="md:col-span-2 space-y-4">
+          <div>
+            <span class="mb-1.5 block text-sm font-medium text-slate-700">确认结果</span>
+            <div class="flex flex-wrap gap-2" id="result-choice">
+              <label class="cursor-pointer rounded-xl border border-sky-300 bg-sky-50 px-4 py-2.5 text-sm font-semibold text-sky-800"><input type="radio" name="result" value="在场" class="mr-1" checked />在场</label>
+              <label class="cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700"><input type="radio" name="result" value="转派" class="mr-1" />转派物资</label>
+              <label class="cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700"><input type="radio" name="result" value="丢失" class="mr-1" />丢失</label>
+            </div>
+          </div>
+          <div id="block-present">
+            <label class="flex items-start gap-2 rounded-xl border border-slate-200 bg-white p-3 text-sm">
+              <input type="checkbox" id="need-recode" class="mt-1" />
+              <span><span class="font-semibold">通知管理员补码</span><span class="mt-0.5 block text-slate-500">仅「在场」可选</span></span>
+            </label>
+          </div>
+          <div id="block-transfer" class="hidden space-y-3">
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-slate-700">转派给 <span class="text-rose-500">*</span></label>
+              <button type="button" id="btn-pick-user" class="flex w-full items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-left text-sm hover:border-sky-300">
+                <span id="transfer-user-label" class="text-slate-400">请选择转派人员</span>
+                <span class="text-slate-400"><i class="fa-solid fa-chevron-right text-xs"></i></span>
+              </button>
+              <input type="hidden" id="transfer-user" value="" />
+              <p class="mt-1 text-xs text-slate-500">入口对接通讯录选人（原型仅演示选中）</p>
+            </div>
+            <div>
+              <label class="mb-1.5 block text-sm font-medium text-slate-700">转派说明 <span class="text-rose-500">*</span></label>
+              <textarea id="transfer-reason" rows="2" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="例如：物资已不在我这里"></textarea>
+            </div>
+          </div>
+          <div id="block-lost" class="hidden">
+            <label class="mb-1.5 block text-sm font-medium text-slate-700">丢失说明</label>
+            <textarea rows="2" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="请说明情况"></textarea>
+          </div>
+        </div>
+
+        <div id="panel-inbox" class="md:col-span-2 hidden">
+          <div class="rounded-xl border border-amber-100 bg-amber-50/80 px-4 py-3 text-sm text-amber-900">张工将本物资转派给你。确认后归属变为你；拒绝则退回张工待确认。无需再选在场/丢失。</div>
+          <div class="mt-3">
+            <label class="mb-1.5 block text-sm font-medium text-slate-700">说明（选填）</label>
+            <textarea id="inbox-remark" rows="2" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"></textarea>
+          </div>
+        </div>
+
+        <div id="panel-sent" class="md:col-span-2 hidden">
+          <div class="rounded-xl border border-sky-100 bg-sky-50/80 px-4 py-3 text-sm text-sky-900">已转派给李工，等待对方确认。可撤回，撤回后回到你的待确认。</div>
+        </div>
+      </div>
+      <!-- 仅保留一个 footer：layout.js 只会抽第一个 .wms-modal-footer -->
+      <div class="wms-modal-footer" id="foot-actions">
+        <a href="outside_count_mine.html" class="wms-btn wms-btn-secondary" id="btn-cancel">取消</a>
+      </div>
+    </div>
+  </div>
+  <div id="toast" class="pointer-events-none fixed bottom-8 left-1/2 z-[110] hidden -translate-x-1/2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm text-white shadow-lg"></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+  <script>
+    (function () {
+      // 必须等 layout.js 抽出弹窗后再绑事件，否则选「转派」无法切换到选人区
+      function boot() {
+        var root = document.querySelector('.wms-modal-backdrop') || document;
+        function $(id) { return root.querySelector('#' + id) || document.getElementById(id); }
+
+        var params = new URLSearchParams(location.search);
+        var code = params.get('code') || 'ZC202605012';
+        var mode = params.get('mode') || 'pending';
+        var map = {
+          ZC202605012: ['工程测量仪', '武穴大桥施工点'],
+          'PC-77221': ['笔记本电脑', '办公楼 3F'],
+          'PC-88901': ['办公电脑', '办公楼 3F']
+        };
+        var info = map[code] || [code, '—'];
+        var codeEl = $('code');
+        var nameEl = $('name');
+        var locInput = $('loc');
+        if (codeEl) codeEl.value = code;
+        if (nameEl) nameEl.value = info[0];
+        if (locInput) locInput.value = info[1];
+
+        var toast = document.getElementById('toast');
+        function showToast(msg, goBack) {
+          toast.textContent = msg;
+          toast.classList.remove('hidden');
+          setTimeout(function () {
+            toast.classList.add('hidden');
+            if (goBack) location.href = 'outside_count_mine.html';
+          }, 900);
+        }
+
+        var foot = $('foot-actions');
+        var cancel = $('btn-cancel');
+
+        if (mode === 'inbox') {
+          $('panel-pending').classList.add('hidden');
+          $('panel-inbox').classList.remove('hidden');
+          if (cancel) cancel.textContent = '取消';
+          if (foot && !foot.querySelector('#btn-accept')) {
+            foot.insertAdjacentHTML('beforeend',
+              '<button type="button" class="wms-btn wms-btn-secondary" id="btn-reject">拒绝</button>' +
+              '<button type="button" class="wms-btn wms-btn-primary" id="btn-accept">确认接收</button>');
+          }
+          $('btn-accept').addEventListener('click', function () { showToast('已确认接收，归属变为你', true); });
+          $('btn-reject').addEventListener('click', function () { showToast('已拒绝，退回转出人', true); });
+        } else if (mode === 'sent') {
+          $('panel-pending').classList.add('hidden');
+          $('panel-sent').classList.remove('hidden');
+          if (cancel) cancel.textContent = '返回';
+          if (foot && !foot.querySelector('#btn-revoke')) {
+            foot.insertAdjacentHTML('beforeend',
+              '<button type="button" class="wms-btn wms-btn-primary" id="btn-revoke">撤回转派</button>');
+          }
+          $('btn-revoke').addEventListener('click', function () { showToast('已撤回转派', true); });
+        } else {
+          if (foot && !foot.querySelector('#btn-submit')) {
+            foot.insertAdjacentHTML('beforeend',
+              '<button type="button" class="wms-btn wms-btn-primary" id="btn-submit">提交</button>');
+          }
+          $('btn-pick-user').addEventListener('click', function () {
+            $('transfer-user').value = '李工（工程部）';
+            var lab = $('transfer-user-label');
+            lab.textContent = '李工（工程部）';
+            lab.className = 'text-slate-800 font-medium';
+            showToast('已选择转派人员（演示入口）', false);
+          });
+          $('btn-submit').addEventListener('click', function () {
+            var val = (root.querySelector('input[name="result"]:checked') || {}).value;
+            if (val === '转派') {
+              if (!$('transfer-user').value) {
+                showToast('请选择转派人员', false);
+                return;
+              }
+              if (!$('transfer-reason').value.trim()) {
+                showToast('请填写转派说明', false);
+                return;
+              }
+            }
+            showToast(val === '转派' ? '已转派' : (val === '丢失' ? '已确认丢失' : '已确认在场'), true);
+          });
+        }
+
+        var choice = $('result-choice');
+        function sync() {
+          var val = (root.querySelector('input[name="result"]:checked') || {}).value || '在场';
+          $('block-present').classList.toggle('hidden', val !== '在场');
+          $('block-transfer').classList.toggle('hidden', val !== '转派');
+          $('block-lost').classList.toggle('hidden', val !== '丢失');
+          var locEditable = val === '在场' || val === '转派';
+          if (locInput) {
+            locInput.readOnly = !locEditable;
+            locInput.className = locEditable
+              ? 'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm'
+              : 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600';
+          }
+          if (choice) {
+            Array.prototype.forEach.call(choice.querySelectorAll('label'), function (l) {
+              var on = l.querySelector('input').checked;
+              l.className = on
+                ? 'cursor-pointer rounded-xl border border-sky-300 bg-sky-50 px-4 py-2.5 text-sm font-semibold text-sky-800'
+                : 'cursor-pointer rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700';
+            });
+          }
+        }
+        if (mode === 'pending' && choice) {
+          choice.addEventListener('change', sync);
+          choice.addEventListener('click', function (e) {
+            var label = e.target.closest('label');
+            if (!label) return;
+            var input = label.querySelector('input');
+            if (input) input.checked = true;
+            sync();
+          });
+          sync();
+        } else if (locInput) {
+          locInput.readOnly = true;
+          locInput.className = 'w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600';
+          var tip = $('loc-tip');
+          if (tip) tip.classList.add('hidden');
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { setTimeout(boot, 0); });
+      } else {
+        setTimeout(boot, 0);
+      }
+    })();
+  </script>
+</body></html>

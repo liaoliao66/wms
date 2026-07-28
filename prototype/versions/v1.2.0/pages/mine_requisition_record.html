@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>领用记录 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="mine_pending_return" data-title="领用记录" data-breadcrumb="我的物资 / 领用记录">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="mine_pending_return.html" data-modal-size="lg">
+      <div class="wms-requisition-record">
+        <h4 class="mb-3 text-sm font-semibold text-slate-900">基础信息</h4>
+        <dl class="grid gap-4 sm:grid-cols-2 text-sm mb-6">
+          <div><dt class="text-slate-500">领用单号</dt><dd class="mt-1 font-mono font-semibold text-slate-900" data-req-field="no">LY202510001</dd></div>
+          <div><dt class="text-slate-500">审批状态</dt><dd class="mt-1" data-req-field="status"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">审核通过</span></dd></div>
+          <div><dt class="text-slate-500">申请名称</dt><dd class="mt-1 text-slate-900" data-req-field="name">生产部备件领用</dd></div>
+          <div><dt class="text-slate-500">申请事由</dt><dd class="mt-1 text-slate-800" data-req-field="reason">项目用料</dd></div>
+          <div><dt class="text-slate-500">关联计划单号</dt><dd class="mt-1 font-mono text-slate-800" data-req-field="plan">JH202509001 月度采购</dd></div>
+          <div><dt class="text-slate-500">申请时间</dt><dd class="mt-1 text-slate-800" data-req-field="applyTime">2025-08-28</dd></div>
+          <div><dt class="text-slate-500">申请人</dt><dd class="mt-1 text-slate-800" data-req-field="applicant">李四</dd></div>
+          <div><dt class="text-slate-500">申请部门</dt><dd class="mt-1 text-slate-800" data-req-field="dept">生产部</dd></div>
+        </dl>
+        <h4 class="mb-3 text-sm font-semibold text-slate-900">领用明细</h4>
+        <div class="mb-6 overflow-hidden rounded-xl border border-slate-200">
+          <table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">序号</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资编码</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资名称</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">规格型号</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">计量单位</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">申请数量</th>
+          </tr></thead><tbody data-req-materials><tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm text-slate-700">1</td><td class="px-3 py-2.5 font-mono text-sm text-slate-800">GD001001-001</td><td class="px-3 py-2.5 text-sm text-slate-800">抓斗</td><td class="px-3 py-2.5 text-sm text-slate-700">455</td><td class="px-3 py-2.5 text-sm text-slate-700">个</td><td class="px-3 py-2.5 text-sm text-slate-800">5</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2.5 text-sm text-slate-700">2</td><td class="px-3 py-2.5 font-mono text-sm text-slate-800">GD001001-002</td><td class="px-3 py-2.5 text-sm text-slate-800">料斗</td><td class="px-3 py-2.5 text-sm text-slate-700">455</td><td class="px-3 py-2.5 text-sm text-slate-700">个</td><td class="px-3 py-2.5 text-sm text-slate-800">10</td></tr></tbody></table>
+        </div>
+        <h4 class="mb-3 text-sm font-semibold text-slate-900">出库信息</h4>
+        <dl class="grid gap-4 sm:grid-cols-2 text-sm">
+          <div><dt class="text-slate-500">出库单号</dt><dd class="mt-1 font-mono text-slate-800" data-req-field="outboundNo">—</dd></div>
+          <div><dt class="text-slate-500">出库日期</dt><dd class="mt-1 text-slate-800" data-req-field="outboundDate">—</dd></div>
+          <div><dt class="text-slate-500">出库数量</dt><dd class="mt-1 text-slate-800" data-req-field="outboundQty">—</dd></div>
+        </dl>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="mine_pending_return.html" class="wms-btn wms-btn-secondary">关闭</a>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

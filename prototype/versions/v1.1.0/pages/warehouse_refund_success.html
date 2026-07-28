@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>退货成功 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_refund_list" data-title="退货成功" data-breadcrumb="物资管理 / 退货成功">
+  <div id="main-content">
+    <div class="mx-auto max-w-2xl" data-wms-refund-success>
+      <div class="card rounded-2xl bg-white p-8 text-center">
+        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><i class="fa-solid fa-check text-2xl"></i></div>
+        <h2 class="text-xl font-semibold text-slate-900" data-refund-success-title>退货成功</h2>
+        <p class="mt-2 text-sm text-slate-500" data-refund-success-desc>退货单号 TH202606090001 · 供货单 GH2025004</p>
+        <dl class="mt-6 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/50 p-4 text-left text-sm sm:grid-cols-2">
+          <div><dt class="text-slate-500">物资名称</dt><dd class="mt-1 font-medium text-slate-900" data-refund-success-name>螺丝刀</dd></div>
+          <div><dt class="text-slate-500">退货场景</dt><dd class="mt-1 text-slate-800" data-refund-success-scene>验收前</dd></div>
+          <div><dt class="text-slate-500">供应商</dt><dd class="mt-1 text-slate-800" data-refund-success-supplier>江苏华能电子有限公司</dd></div>
+          <div><dt class="text-slate-500">退货数量</dt><dd class="mt-1 text-slate-800" data-refund-success-qty>1 个</dd></div>
+        </dl>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <a href="ledger_transaction.html" class="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-right-left"></i> 出入库记录</a>
+          <a href="warehouse_refund_list.html" class="text-sm text-slate-500 hover:text-slate-900">返回退货列表</a>
+        </div>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

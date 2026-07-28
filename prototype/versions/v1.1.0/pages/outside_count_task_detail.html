@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>归属人应盘物资 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="outside_count_task_list" data-title="归属人应盘物资" data-breadcrumb="库外盘点 / 盘点进度 / 物资清单">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="outside_count_task_list.html" data-modal-size="xl">
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">确认范围</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">盘点计划</label><input type="text" value="KWP202606290001 · 6月库外综合盘点（盘点中）" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">领用人（归属人）</label><input type="text" value="王工（工程部）" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">应确认 / 已确认</label><input type="text" value="20 / 8" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">说明</label><input type="text" value="出库领用人确认；无执行人任务单" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
+        <div class="md:col-span-2 rounded-xl border border-sky-100 bg-sky-50/80 px-4 py-3 text-sm text-sky-900">
+          现场确认以企微为主。固资：在场 / 丢失 / <strong>单件转派</strong>。类资产：多地点增删改 + 在场/丢失，不可转派；地点回写台账。
+        </div>
+
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">固定资产（领用出库归属）</h3></div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div class="overflow-x-auto wms-modal-table-wrap">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50/80">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">资产编码</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">使用地点</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">出库领用人</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">确认结果</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-slate-100"><td class="px-4 py-3.5 font-mono text-xs">ZC202605012</td><td class="px-4 py-3.5">工程测量仪</td><td class="px-4 py-3.5">武穴大桥施工点</td><td class="px-4 py-3.5">王工</td><td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">未确认</span></td></tr>
+                <tr class="border-t border-slate-100"><td class="px-4 py-3.5 font-mono text-xs">PC-77221</td><td class="px-4 py-3.5">笔记本电脑</td><td class="px-4 py-3.5">办公楼 3F</td><td class="px-4 py-3.5">王工</td><td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-sky-50 text-sky-700 ring-sky-600/20">已转派·待李工确认</span></td></tr>
+                <tr class="border-t border-slate-100"><td class="px-4 py-3.5 font-mono text-xs">ZC202603201</td><td class="px-4 py-3.5">铝合金梯</td><td class="px-4 py-3.5">城东项目部</td><td class="px-4 py-3.5">王工</td><td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">在场</span></td></tr>
+                <tr class="border-t border-slate-100"><td class="px-4 py-3.5 font-mono text-xs">ZC202601100</td><td class="px-4 py-3.5">手持对讲机</td><td class="px-4 py-3.5">施工临建</td><td class="px-4 py-3.5">王工</td><td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-rose-50 text-rose-700 ring-rose-600/20">丢失</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">类资产（领用出库归属 · 按编码）</h3></div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div class="overflow-x-auto wms-modal-table-wrap">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50/80">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">名称</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">地点数</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">账存合计</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">在场 / 丢失</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">状态</th>
+                  <th class="wms-col-actions px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-slate-100">
+                  <td class="px-4 py-3.5 font-mono text-xs">BM-DZ-001</td>
+                  <td class="px-4 py-3.5">办公凳</td>
+                  <td class="px-4 py-3.5">2</td>
+                  <td class="px-4 py-3.5">15</td>
+                  <td class="px-4 py-3.5">— / —</td>
+                  <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">待盘</span></td>
+                  <td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="outside_count_class_confirm.html?code=BM-DZ-001&from=detail" class="hover:underline">维护地点/数量</a></td>
+                </tr>
+                <tr class="border-t border-slate-100">
+                  <td class="px-4 py-3.5 font-mono text-xs">BM-YC-002</td>
+                  <td class="px-4 py-3.5">折叠椅</td>
+                  <td class="px-4 py-3.5">1</td>
+                  <td class="px-4 py-3.5">8</td>
+                  <td class="px-4 py-3.5">— / —</td>
+                  <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待填地点</span></td>
+                  <td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="outside_count_class_confirm.html?code=BM-YC-002&from=detail" class="hover:underline">补填地点</a></td>
+                </tr>
+                <tr class="border-t border-slate-100">
+                  <td class="px-4 py-3.5 font-mono text-xs">BM-AQ-010</td>
+                  <td class="px-4 py-3.5">安全帽</td>
+                  <td class="px-4 py-3.5">1</td>
+                  <td class="px-4 py-3.5">20</td>
+                  <td class="px-4 py-3.5">18 / 2</td>
+                  <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">已确认·含丢失</span></td>
+                  <td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="outside_count_class_confirm.html?code=BM-AQ-010&from=detail" class="hover:underline">查看</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="outside_count_task_list.html" class="wms-btn wms-btn-secondary">返回进度</a>
+        <a href="outside_count_result.html?planNo=KWP202606290001" class="wms-btn wms-btn-primary">查看盘点结果</a>
+      </div>
+    </div>
+  </div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

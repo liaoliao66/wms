@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>盘点报告 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+  <style>
+    .wms-report-block { grid-column: 1 / -1; }
+    .wms-report-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #fff;
+    }
+    .wms-report-tip {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid #fde68a;
+      border-radius: 10px;
+      background: #fffbeb;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #92400e;
+    }
+    .wms-report-kpis {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+    }
+    @media (max-width: 900px) {
+      .wms-report-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 560px) {
+      .wms-report-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    .wms-report-kpi {
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #fff;
+      min-height: 0;
+    }
+    .wms-report-kpi .label {
+      font-size: 12px;
+      color: #64748b;
+      line-height: 1.2;
+    }
+    .wms-report-kpi .value {
+      margin-top: 6px;
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 1.2;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+    }
+    .wms-report-kpi .value.is-violet { color: #6d28d9; }
+    .wms-report-kpi .value.is-rose { color: #e11d48; }
+    .wms-report-kpi .value.is-amber { color: #d97706; }
+    .wms-report-table-wrap {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #fff;
+      overflow: hidden;
+    }
+    .wms-report-table th {
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      background: #f8fafc;
+      text-align: left;
+      white-space: nowrap;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .wms-report-table td {
+      padding: 11px 14px;
+      font-size: 13px;
+      color: #334155;
+      border-top: 1px solid #f1f5f9;
+      white-space: nowrap;
+    }
+    .wms-report-table tbody tr:hover td { background: #f8fafc; }
+    .wms-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.4;
+      ring: none;
+    }
+    .wms-chip-slate { background: #f1f5f9; color: #475569; }
+    .wms-chip-violet { background: #f5f3ff; color: #6d28d9; }
+    .wms-chip-amber { background: #fffbeb; color: #b45309; }
+    .wms-chip-status { background: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+  </style>
+</head>
+<body data-page="outside_count_report_list" data-title="盘点报告" data-breadcrumb="库外盘点 / 盘点报告">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="outside_count_report_list.html" data-modal-size="xl">
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="wms-form-section wms-report-block"><h3 class="wms-form-section-title">报告摘要</h3></div>
+
+        <div class="wms-report-block wms-report-head">
+          <div>
+            <div class="text-sm font-semibold text-slate-900">6月库外综合盘点报告</div>
+            <div class="mt-1 text-xs text-slate-500">计划 KWP202606290001 · 固资+类资产 · 口径 2026-06-29</div>
+          </div>
+          <span class="wms-chip wms-chip-status">待确认</span>
+        </div>
+
+        <div class="wms-report-block wms-report-tip">
+          <i class="fa-solid fa-lock mt-0.5 shrink-0"></i>
+          <span>确认并冻结后，本报告为盘点结束时点快照；后续差异处理<strong>不影响</strong>本报告行数据，也不回改盘点执行行。</span>
+        </div>
+
+        <div class="wms-report-block wms-report-kpis">
+          <div class="wms-report-kpi">
+            <div class="label">应盘行</div>
+            <div class="value">48</div>
+          </div>
+          <div class="wms-report-kpi">
+            <div class="label">其中补录</div>
+            <div class="value is-violet">2</div>
+          </div>
+          <div class="wms-report-kpi">
+            <div class="label">已盘</div>
+            <div class="value">48</div>
+          </div>
+          <div class="wms-report-kpi">
+            <div class="label">盘亏（件/量）</div>
+            <div class="value is-rose">1 / 5</div>
+          </div>
+          <div class="wms-report-kpi">
+            <div class="label">账外</div>
+            <div class="value is-amber">3</div>
+          </div>
+        </div>
+
+        <div class="wms-form-section wms-report-block"><h3 class="wms-form-section-title">差异摘要</h3></div>
+        <div class="wms-report-block wms-report-table-wrap">
+          <div class="overflow-x-auto">
+            <table class="wms-report-table min-w-full">
+              <thead>
+                <tr>
+                  <th>来源</th>
+                  <th>类型</th>
+                  <th>资产类型</th>
+                  <th>编码</th>
+                  <th>名称</th>
+                  <th>使用地点</th>
+                  <th>账存 / 差异</th>
+                  <th>状态</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="wms-chip wms-chip-slate">台账</span></td>
+                  <td>盘亏</td>
+                  <td>类资产</td>
+                  <td class="font-mono text-xs">BM-AQ-010</td>
+                  <td>安全帽</td>
+                  <td>施工临建</td>
+                  <td>20 / 丢失 2</td>
+                  <td><span class="wms-chip wms-chip-amber">待处理</span></td>
+                </tr>
+                <tr>
+                  <td><span class="wms-chip wms-chip-violet">补录</span></td>
+                  <td>盘亏</td>
+                  <td>固资</td>
+                  <td class="font-mono text-xs">—</td>
+                  <td>临时加盘电钻</td>
+                  <td>城东项目部</td>
+                  <td>1 / 丢失 1</td>
+                  <td><span class="wms-chip wms-chip-amber">待处理</span></td>
+                </tr>
+                <tr>
+                  <td><span class="wms-chip wms-chip-slate">台账</span></td>
+                  <td>盘盈(账外)</td>
+                  <td>类资产</td>
+                  <td class="font-mono text-xs">NEW-BM-0001</td>
+                  <td>办公凳（账外）</td>
+                  <td>研发楼 3F</td>
+                  <td>— / +3</td>
+                  <td><span class="wms-chip wms-chip-amber">待审批</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="outside_count_report_list.html" class="wms-btn wms-btn-secondary">关闭</a>
+        <a href="outside_count_diff_list.html" class="wms-btn wms-btn-secondary">查看差异处理</a>
+        <button type="button" class="wms-btn wms-btn-primary" id="btn-freeze">确认并冻结报告</button>
+      </div>
+    </div>
+  </div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+  <script>
+    document.getElementById('btn-freeze').addEventListener('click', function () {
+      this.textContent = '已冻结';
+      this.disabled = true;
+      this.classList.add('opacity-60');
+      var badge = document.querySelector('.wms-chip-status');
+      if (badge) {
+        badge.textContent = '已冻结';
+        badge.style.background = '#ecfdf5';
+        badge.style.color = '#047857';
+        badge.style.borderColor = '#a7f3d0';
+      }
+    });
+  </script>
+</body></html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>任务执行 · 企微 H5 · v1.0.0</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="wecom.css" />
+</head>
+<body>
+  <div class="wecom-page">
+    <header class="wecom-nav">
+      <div class="wecom-nav-side">
+        <a class="wecom-icon-btn" href="wecom_outside_count_task_list.html" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></a>
+      </div>
+      <h1 class="wecom-nav-title">任务执行</h1>
+      <div class="wecom-nav-side wecom-nav-side--right">
+        <a class="wecom-icon-btn" href="wecom_outside_count_scan.html" aria-label="扫码"><i class="fa-solid fa-qrcode"></i></a>
+      </div>
+    </header>
+
+    <main class="wecom-main">
+      <span class="wecom-badge-ver">v1.0.0 · 企微 H5</span>
+      <div class="wecom-card">
+        <p class="wecom-card-title">6月库外综合盘点</p>
+        <p class="wecom-muted" style="margin:4px 0 0">计划 KWP202606290001 · 领用人：王工</p>
+        <p class="wecom-muted" style="margin:6px 0 0">确认名下领用物资。固资可单件转派；类资产按地点录数量，不可转派。无执行人任务单。</p>
+      </div>
+
+      <div class="wecom-seg" data-tabs style="flex-wrap:wrap">
+        <button type="button" class="is-active" data-tab="pending">待盘 3</button>
+        <button type="button" data-tab="inbox">待我确认 1</button>
+        <button type="button" data-tab="sent">已转派 1</button>
+        <button type="button" data-tab="done">已确认 2</button>
+        <button type="button" data-tab="lost">丢失 1</button>
+      </div>
+
+      <!-- 待盘 -->
+      <div data-panel="pending">
+        <a class="wecom-card" href="wecom_outside_count_asset_confirm.html?code=ZC202605012&mode=pending&type=fixed" style="display:block">
+          <div class="wecom-card-head">
+            <div>
+              <p class="wecom-card-title">工程测量仪</p>
+              <p class="wecom-mono" style="margin:4px 0 0">ZC202605012 · 固定资产</p>
+              <p class="wecom-muted" style="margin:6px 0 0">领用人：王工</p>
+            </div>
+            <span class="wecom-tag wecom-tag--pending">待盘</span>
+          </div>
+        </a>
+
+        <a class="wecom-card" href="wecom_outside_count_asset_confirm.html?code=BM-DZ-001&mode=pending&type=class" style="display:block">
+          <div class="wecom-card-head">
+            <div>
+              <p class="wecom-card-title">办公凳</p>
+              <p class="wecom-mono" style="margin:4px 0 0">BM-DZ-001 · 类资产</p>
+              <p class="wecom-muted" style="margin:6px 0 0">2 个地点 · 账存合计 15（可增删改地点）</p>
+              <p class="wecom-muted" style="margin:4px 0 0">研发楼 3F(10) · 会议室 A(5)</p>
+            </div>
+            <span class="wecom-tag wecom-tag--pending">待盘</span>
+          </div>
+        </a>
+
+        <a class="wecom-card" href="wecom_outside_count_asset_confirm.html?code=BM-YC-002&mode=pending&type=class" style="display:block">
+          <div class="wecom-card-head">
+            <div>
+              <p class="wecom-card-title">折叠椅</p>
+              <p class="wecom-mono" style="margin:4px 0 0">BM-YC-002 · 类资产</p>
+              <p class="wecom-muted" style="margin:6px 0 0;color:#b45309">1 个地点待填名称 · 账存 8</p>
+            </div>
+            <span class="wecom-tag wecom-tag--warn">待填地点</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- 待我确认：仅固资他人转来 -->
+      <div class="hidden" data-panel="inbox">
+        <p class="wecom-hint" style="margin-top:0">仅固定资产支持单件转派确认。类资产无转派。</p>
+        <a class="wecom-card" href="wecom_outside_count_asset_confirm.html?code=PC-88901&mode=inbox&type=fixed" style="display:block">
+          <div class="wecom-card-head">
+            <div>
+              <p class="wecom-card-title">办公电脑</p>
+              <p class="wecom-mono" style="margin:4px 0 0">PC-88901 · 固定资产</p>
+              <p class="wecom-muted" style="margin:6px 0 0">由 张工 转派给你确认；确认后归属为你</p>
+            </div>
+            <span class="wecom-tag wecom-tag--warn">待我确认</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- 已转派：仅固资 -->
+      <div class="hidden" data-panel="sent">
+        <div class="wecom-card" data-sent-item>
+          <div class="wecom-card-head">
+            <div>
+              <p class="wecom-card-title">笔记本电脑</p>
+              <p class="wecom-mono" style="margin:4px 0 0">PC-77221 · 固定资产</p>
+              <p class="wecom-muted" style="margin:6px 0 0">已转派给 李工，等待对方确认</p>
+            </div>
+            <span class="wecom-tag wecom-tag--doing">已转派</span>
+          </div>
+          <div class="wecom-row-actions" style="margin-bottom:0">
+            <button type="button" class="wecom-btn wecom-btn--secondary wecom-btn--block" data-revoke>撤回转派</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 已确认 -->
+      <div class="hidden" data-panel="done">
+        <div class="wecom-card">
+          <div class="wecom-card-head">
+            <div>
+              <p class="wecom-card-title">铝合金梯</p>
+              <p class="wecom-mono" style="margin:4px 0 0">ZC202603201 · 固定资产</p>
+              <p class="wecom-muted" style="margin:6px 0 0">结果：在场 · 地点：城东项目部</p>
+              <p class="wecom-muted" style="margin:4px 0 0;color:#1d4ed8">已通知管理员补码</p>
+            </div>
+            <span class="wecom-tag wecom-tag--done">已确认</span>
+          </div>
+        </div>
+        <div class="wecom-card">
+          <div class="wecom-card-head">
+            <div>
+              <p class="wecom-card-title">办公凳</p>
+              <p class="wecom-mono" style="margin:4px 0 0">BM-DZ-001 · 类资产</p>
+              <p class="wecom-muted" style="margin:6px 0 0">地点：仓储临时区 · 账存 6</p>
+              <p class="wecom-muted" style="margin:4px 0 0">在场 6 · 丢失 0 · 地点已回写台账</p>
+            </div>
+            <span class="wecom-tag wecom-tag--done">已确认</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 丢失：固资整件 / 类资产有丢失数 -->
+      <div class="hidden" data-panel="lost">
+        <div class="wecom-card">
+          <div class="wecom-card-head">
+            <div>
+              <p class="wecom-card-title">手持对讲机</p>
+              <p class="wecom-mono" style="margin:4px 0 0">ZC202601100 · 固定资产</p>
+              <p class="wecom-muted" style="margin:6px 0 0">结果：丢失 · 归属仍为王工</p>
+            </div>
+            <span class="wecom-tag wecom-tag--warn">丢失</span>
+          </div>
+        </div>
+        <div class="wecom-card">
+          <div class="wecom-card-head">
+            <div>
+              <p class="wecom-card-title">安全帽</p>
+              <p class="wecom-mono" style="margin:4px 0 0">BM-AQ-010 · 类资产</p>
+              <p class="wecom-muted" style="margin:6px 0 0">地点：施工临建 · 账存 20</p>
+              <p class="wecom-muted" style="margin:4px 0 0">在场 18 · 丢失 2 → 盘亏候选</p>
+            </div>
+            <span class="wecom-tag wecom-tag--warn">含丢失</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="wecom-mask" id="revoke-mask" aria-hidden="true">
+    <div class="wecom-modal" role="dialog" aria-modal="true">
+      <h3>撤回转派</h3>
+      <p class="wecom-muted" style="margin:0 0 12px">仅固定资产可撤回。撤回后物资回到你的待盘。</p>
+      <div class="wecom-row-actions" style="margin:0">
+        <button type="button" class="wecom-btn wecom-btn--ghost wecom-btn--flex" id="revoke-cancel">取消</button>
+        <button type="button" class="wecom-btn wecom-btn--primary wecom-btn--flex" id="revoke-ok">确认撤回</button>
+      </div>
+    </div>
+  </div>
+  <div class="wecom-toast" id="toast"></div>
+
+  <script>
+    (function () {
+      var tabs = document.querySelector('[data-tabs]');
+      var toast = document.getElementById('toast');
+      function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add('is-show');
+        setTimeout(function () { toast.classList.remove('is-show'); }, 1800);
+      }
+      tabs.addEventListener('click', function (e) {
+        var btn = e.target.closest('button[data-tab]');
+        if (!btn) return;
+        Array.prototype.forEach.call(tabs.querySelectorAll('button'), function (b) { b.classList.remove('is-active'); });
+        btn.classList.add('is-active');
+        var tab = btn.getAttribute('data-tab');
+        Array.prototype.forEach.call(document.querySelectorAll('[data-panel]'), function (p) {
+          p.classList.toggle('hidden', p.getAttribute('data-panel') !== tab);
+        });
+      });
+
+      var mask = document.getElementById('revoke-mask');
+      var sentItem = null;
+      var revokeBtn = document.querySelector('[data-revoke]');
+      if (revokeBtn) {
+        revokeBtn.addEventListener('click', function () {
+          sentItem = document.querySelector('[data-sent-item]');
+          mask.classList.add('is-open');
+        });
+      }
+      document.getElementById('revoke-cancel').addEventListener('click', function () {
+        mask.classList.remove('is-open');
+      });
+      document.getElementById('revoke-ok').addEventListener('click', function () {
+        mask.classList.remove('is-open');
+        if (sentItem) sentItem.classList.add('hidden');
+        showToast('已撤回，物资已回待盘');
+      });
+    })();
+  </script>
+</body>
+</html>

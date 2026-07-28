@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>盘点物资 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+  <style>
+    .wms-picker-panel {
+      display: flex; flex-direction: column; width: 100%; max-width: 720px;
+      height: min(680px, 82vh); background: #fff; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(15,23,42,.06), 0 24px 48px -12px rgba(15,23,42,.28);
+    }
+    .wms-picker-filters {
+      display: grid; grid-template-columns: 168px 118px 128px 118px auto; gap: 8px; align-items: center;
+    }
+    .wms-picker-field {
+      height: 36px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 13px; color: #334155; background: #fff; outline: none;
+    }
+    .wms-picker-field:focus { border-color: #94a3b8; box-shadow: 0 0 0 3px rgba(148,163,184,.2); }
+    .wms-picker-search-wrap { position: relative; }
+    .wms-picker-search-wrap i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 12px; color: #94a3b8; pointer-events: none; }
+    .wms-picker-search-wrap input { width: 100%; padding: 0 10px 0 30px; }
+    .wms-picker-filters select { width: 100%; padding: 0 8px; }
+    .wms-picker-reset { font-size: 12px; color: #64748b; padding: 0 4px; white-space: nowrap; background: none; border: none; cursor: pointer; }
+    .wms-picker-reset:hover { color: #0f172a; text-decoration: underline; }
+    .wms-picker-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 10px; }
+    .wms-picker-tabs { display: inline-flex; padding: 3px; background: #f1f5f9; border-radius: 8px; }
+    .wms-picker-tabs .picker-tab {
+      display: inline-flex; align-items: center; gap: 6px; min-width: 72px; justify-content: center;
+      padding: 6px 12px; border: none; border-radius: 6px; font-size: 13px; font-weight: 500;
+      color: #64748b; background: transparent; cursor: pointer;
+    }
+    .wms-picker-tabs .picker-tab.is-on { background: #fff; color: #0f172a; box-shadow: 0 1px 2px rgba(15,23,42,.08); }
+    .wms-picker-tabs .picker-tab .cnt {
+      display: inline-flex; min-width: 18px; height: 18px; align-items: center; justify-content: center;
+      padding: 0 5px; border-radius: 999px; font-size: 11px; font-weight: 600; background: #e2e8f0; color: #64748b;
+    }
+    .wms-picker-tabs .picker-tab.is-on .cnt { background: #0f172a; color: #fff; }
+    .wms-picker-actions { display: flex; gap: 8px; }
+    .wms-picker-actions button {
+      height: 32px; padding: 0 12px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer;
+      border: 1px solid #e2e8f0; background: #fff; color: #334155;
+    }
+    .wms-picker-actions button:hover { background: #f8fafc; }
+    .wms-picker-actions button.primary-ghost { border-color: #cbd5e1; color: #0f172a; }
+    .wms-picker-table th {
+      font-size: 11px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: #94a3b8;
+      background: #f8fafc; padding: 10px 12px; text-align: left; white-space: nowrap;
+    }
+    .wms-picker-table td { padding: 10px 12px; font-size: 13px; color: #334155; border-top: 1px solid #f1f5f9; white-space: nowrap; }
+    .wms-picker-table tbody tr:hover td { background: #f8fafc; }
+  </style>
+</head>
+<body data-page="outside_count_plan_list" data-title="盘点物资" data-breadcrumb="库外盘点 / 盘点物资">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="outside_count_plan_list.html" data-modal-size="xl">
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">计划摘要</h3></div>
+        <div class="md:col-span-2 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p class="font-medium text-slate-900" id="plan-title">6月库外综合盘点</p>
+              <p class="mt-1 text-xs text-slate-500">计划 <span id="plan-no">KWP202606290001</span> · 状态 <span id="plan-status" class="font-medium text-amber-700">盘点中</span> · 口径日终 2026-06-29</p>
+            </div>
+            <span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-sky-50 text-sky-700 ring-sky-600/20">从库外台账追加</span>
+          </div>
+        </div>
+
+        <div class="md:col-span-2 rounded-xl border border-sky-100 bg-sky-50/80 px-4 py-3 text-sm text-sky-900">
+          适用于计划创建时未纳入、但领导要求加盘的台账物资。仅<strong>草稿 / 盘点中</strong>可追加；已存在于本计划的物资自动去重。追加后仅新增行待确认，已确认行不受影响。
+        </div>
+
+        <div class="md:col-span-2 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
+          <div>
+            <p class="text-sm font-medium text-slate-800">本次追加清单</p>
+            <p class="mt-0.5 text-xs text-slate-500">已选待追加 <strong id="picked-count">0</strong> 行（本计划已有物资不可重复勾选）</p>
+          </div>
+          <button type="button" id="btn-open-picker" class="wms-btn wms-btn-secondary text-sm">
+            <i class="fa-solid fa-list-check mr-1 text-xs"></i>从台账选择
+          </button>
+        </div>
+
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div class="border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-800">待追加预览</div>
+          <div class="overflow-x-auto wms-modal-table-wrap">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50/80">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">类型</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">编码</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">物资名称</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">使用地点</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">账存</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">确认人</th>
+                  <th class="px-4 py-3 text-right text-xs font-semibold text-slate-500">操作</th>
+                </tr>
+              </thead>
+              <tbody id="preview-tbody">
+                <tr class="border-t border-slate-100" id="empty-row">
+                  <td colspan="7" class="px-4 py-10 text-center text-sm text-slate-400">尚未选择，请点击「从台账选择」</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="outside_count_plan_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-primary" id="btn-submit">确认追加</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="picker-mask" class="fixed inset-0 hidden items-center justify-center p-4" style="z-index:300;background:rgba(15,23,42,.48)">
+    <div class="wms-picker-panel" role="dialog" aria-modal="true">
+      <div class="flex shrink-0 items-center justify-between px-5 py-3.5" style="border-bottom:1px solid #f1f5f9">
+        <div>
+          <h3 class="text-base font-semibold text-slate-900">从库外台账追加物资</h3>
+          <p class="mt-0.5 text-xs text-slate-500">已在本计划中的物资不可勾选</p>
+        </div>
+        <button type="button" id="picker-close" class="rounded-lg p-2 text-slate-400 hover:bg-slate-100" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="shrink-0 px-5 py-3" style="border-bottom:1px solid #f1f5f9">
+        <div class="wms-picker-filters">
+          <div class="wms-picker-search-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input id="picker-search" type="search" placeholder="编码 / 名称" class="wms-picker-field" />
+          </div>
+          <select id="picker-type" class="wms-picker-field">
+            <option value="">物资类型</option>
+            <option value="固资">固定资产</option>
+            <option value="类资产">类资产</option>
+          </select>
+          <select id="picker-loc" class="wms-picker-field">
+            <option value="">使用地点</option>
+            <option>城东项目部</option>
+            <option>武穴大桥施工点</option>
+            <option>研发楼 3F</option>
+            <option>办公楼 3F</option>
+            <option>施工临建</option>
+          </select>
+          <select id="picker-dept" class="wms-picker-field">
+            <option value="">使用部门</option>
+            <option>工程部</option>
+            <option>设备部</option>
+            <option>维保部</option>
+          </select>
+          <button type="button" id="picker-reset" class="wms-picker-reset">重置</button>
+        </div>
+        <div class="wms-picker-toolbar">
+          <div class="wms-picker-tabs">
+            <button type="button" class="picker-tab is-on" data-picker-tab="unselected">未选 <span class="cnt" id="tab-un-n">0</span></button>
+            <button type="button" class="picker-tab" data-picker-tab="selected">已选 <span class="cnt" id="tab-sel-n">0</span></button>
+          </div>
+          <div class="wms-picker-actions">
+            <button type="button" id="picker-all" class="primary-ghost">全选</button>
+            <button type="button" id="picker-none">清空勾选</button>
+          </div>
+        </div>
+      </div>
+      <div class="min-h-0 flex-1 overflow-auto">
+        <table class="wms-picker-table min-w-full">
+          <thead class="sticky top-0 z-10">
+            <tr>
+              <th style="width:40px"></th>
+              <th>类型</th>
+              <th>编码</th>
+              <th>名称</th>
+              <th>使用地点</th>
+              <th>部门</th>
+              <th>账存</th>
+              <th>领用人</th>
+            </tr>
+          </thead>
+          <tbody id="picker-tbody"></tbody>
+        </table>
+        <p id="picker-empty" class="hidden px-5 py-14 text-center text-sm text-slate-400">暂无数据</p>
+      </div>
+      <div class="flex shrink-0 items-center justify-between gap-3 px-5 py-3" style="border-top:1px solid #f1f5f9;background:#fafafa">
+        <p class="text-sm text-slate-500">已选 <strong id="picker-sel-n" class="text-slate-900">0</strong> 行</p>
+        <div class="flex gap-2">
+          <button type="button" class="wms-btn wms-btn-secondary" id="picker-cancel">取消</button>
+          <button type="button" class="wms-btn wms-btn-primary" id="picker-ok">确认选择</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="pointer-events-none fixed bottom-8 left-1/2 z-[110] hidden -translate-x-1/2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm text-white shadow-lg"></div>
+
+  <script src="../js/layout.js" charset="UTF-8"></script>
+  <script>
+    (function () {
+      function boot() {
+        var CATALOG = [
+          { id: 'r1', type: '固资', code: 'ZC202605012', name: '工程测量仪', loc: '武穴大桥施工点', book: 1, owner: '王工', dept: '工程部' },
+          { id: 'r2', type: '固资', code: 'PC-88901', name: '办公电脑', loc: '办公楼 3F', book: 1, owner: '张工', dept: '工程部' },
+          { id: 'r3', type: '固资', code: 'ZC202604088', name: '便携式发电机', loc: '城东项目部', book: 1, owner: '李工', dept: '设备部' },
+          { id: 'r7', type: '类资产', code: 'BM-AQ-010', name: '安全帽', loc: '施工临建', book: 20, owner: '赵六', dept: '维保部' },
+          { id: 'r8', type: '固资', code: 'PC-77221', name: '笔记本电脑', loc: '办公楼 3F', book: 1, owner: '李工', dept: '设备部' },
+          { id: 'r9', type: '固资', code: 'ZC202607100', name: '全站仪（领导加盘）', loc: '城东项目部', book: 1, owner: '王工', dept: '工程部' }
+        ];
+        var inPlan = { r1: true, r2: true, r3: true };
+        var selectedIds = [];
+        var draftCheck = {};
+        var pickerTab = 'unselected';
+        var toast = document.getElementById('toast');
+        function showToast(msg) {
+          toast.textContent = msg;
+          toast.classList.remove('hidden');
+          setTimeout(function () { toast.classList.add('hidden'); }, 2000);
+        }
+        function byId(id) { return CATALOG.filter(function (x) { return x.id === id; })[0]; }
+        function typeBadge(t) {
+          if (t === '固资') return '<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">固资</span>';
+          return '<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-sky-50 text-sky-700 ring-sky-600/20">类资产</span>';
+        }
+        function draftCount() {
+          var n = 0;
+          Object.keys(draftCheck).forEach(function (id) { if (draftCheck[id] && !inPlan[id]) n++; });
+          return n;
+        }
+        function passFilter(r) {
+          var q = (document.getElementById('picker-search').value || '').trim().toLowerCase();
+          var tp = document.getElementById('picker-type').value;
+          var loc = document.getElementById('picker-loc').value;
+          var dept = document.getElementById('picker-dept').value;
+          if (tp && r.type !== tp) return false;
+          if (dept && r.dept !== dept) return false;
+          if (loc && r.loc !== loc) return false;
+          if (q) {
+            var hay = (r.code + ' ' + r.name + ' ' + r.owner + ' ' + (r.loc || '')).toLowerCase();
+            if (hay.indexOf(q) < 0) return false;
+          }
+          return true;
+        }
+        function filteredList() {
+          return CATALOG.filter(function (r) {
+            if (inPlan[r.id]) return false;
+            if (!passFilter(r)) return false;
+            var sel = !!draftCheck[r.id];
+            return pickerTab === 'selected' ? sel : !sel;
+          });
+        }
+        function updateTabCounts() {
+          var un = 0, sel = 0;
+          CATALOG.forEach(function (r) {
+            if (inPlan[r.id] || !passFilter(r)) return;
+            if (draftCheck[r.id]) sel++;
+            else un++;
+          });
+          document.getElementById('tab-un-n').textContent = String(un);
+          document.getElementById('tab-sel-n').textContent = String(sel);
+          document.getElementById('picker-sel-n').textContent = String(draftCount());
+        }
+        function setPickerTab(tab) {
+          pickerTab = tab;
+          document.querySelectorAll('.picker-tab').forEach(function (btn) {
+            btn.classList.toggle('is-on', btn.getAttribute('data-picker-tab') === tab);
+          });
+          renderPicker();
+        }
+
+        var params = new URLSearchParams(location.search);
+        if (params.get('planNo')) document.getElementById('plan-no').textContent = params.get('planNo');
+        if (params.get('status') === '草稿') {
+          document.getElementById('plan-status').textContent = '草稿';
+          document.getElementById('plan-status').className = 'font-medium text-slate-700';
+          document.getElementById('plan-title').textContent = '7月库外草稿';
+        }
+
+        function renderPreview() {
+          var tbody = document.getElementById('preview-tbody');
+          tbody.innerHTML = '';
+          document.getElementById('picked-count').textContent = String(selectedIds.length);
+          if (!selectedIds.length) {
+            tbody.innerHTML = '<tr class="border-t border-slate-100"><td colspan="7" class="px-4 py-10 text-center text-sm text-slate-400">尚未选择，请点击「从台账选择」</td></tr>';
+            return;
+          }
+          selectedIds.forEach(function (id) {
+            var r = byId(id);
+            if (!r) return;
+            var tr = document.createElement('tr');
+            tr.className = 'border-t border-slate-100';
+            tr.innerHTML =
+              '<td class="px-4 py-2.5">' + typeBadge(r.type) + '</td>' +
+              '<td class="px-4 py-2.5 font-mono text-xs">' + r.code + '</td>' +
+              '<td class="px-4 py-2.5">' + r.name + '</td>' +
+              '<td class="px-4 py-2.5">' + (r.loc || '待补填') + '</td>' +
+              '<td class="px-4 py-2.5">' + r.book + '</td>' +
+              '<td class="px-4 py-2.5">' + r.owner + '</td>' +
+              '<td class="px-4 py-2.5 text-right"><button type="button" class="text-slate-600 hover:underline" data-rm="' + r.id + '">移除</button></td>';
+            tbody.appendChild(tr);
+          });
+        }
+
+        function openPicker() {
+          draftCheck = {};
+          selectedIds.forEach(function (id) { draftCheck[id] = true; });
+          document.getElementById('picker-search').value = '';
+          document.getElementById('picker-type').value = '';
+          document.getElementById('picker-loc').value = '';
+          document.getElementById('picker-dept').value = '';
+          var mask = document.getElementById('picker-mask');
+          if (mask && mask.parentNode !== document.body) document.body.appendChild(mask);
+          mask.style.zIndex = '300';
+          mask.classList.remove('hidden');
+          mask.classList.add('flex');
+          setPickerTab('unselected');
+        }
+        function closePicker() {
+          var mask = document.getElementById('picker-mask');
+          mask.classList.add('hidden');
+          mask.classList.remove('flex');
+        }
+        function renderPicker() {
+          var tbody = document.getElementById('picker-tbody');
+          var empty = document.getElementById('picker-empty');
+          var list = filteredList();
+          tbody.innerHTML = '';
+          list.forEach(function (r) {
+            var tr = document.createElement('tr');
+            tr.className = 'border-t border-slate-100 hover:bg-slate-50/80';
+            tr.innerHTML =
+              '<td class="px-3 py-2.5"><input type="checkbox" data-pick="' + r.id + '" ' + (draftCheck[r.id] ? 'checked' : '') + ' class="rounded border-slate-300" /></td>' +
+              '<td class="px-3 py-2.5">' + typeBadge(r.type) + '</td>' +
+              '<td class="px-3 py-2.5 font-mono text-xs">' + r.code + '</td>' +
+              '<td class="px-3 py-2.5">' + r.name + '</td>' +
+              '<td class="px-3 py-2.5">' + (r.loc || '待补填') + '</td>' +
+              '<td class="px-3 py-2.5 text-slate-600">' + (r.dept || '—') + '</td>' +
+              '<td class="px-3 py-2.5">' + r.book + '</td>' +
+              '<td class="px-3 py-2.5">' + r.owner + '</td>' +
+              '<td class="px-3 py-2.5 text-xs text-slate-400">—</td>';
+            tbody.appendChild(tr);
+          });
+          if (empty) empty.classList.toggle('hidden', list.length > 0);
+          updateTabCounts();
+        }
+
+        document.getElementById('btn-open-picker').addEventListener('click', openPicker);
+        document.getElementById('picker-close').addEventListener('click', closePicker);
+        document.getElementById('picker-cancel').addEventListener('click', closePicker);
+        document.getElementById('picker-search').addEventListener('input', renderPicker);
+        document.getElementById('picker-type').addEventListener('change', renderPicker);
+        document.getElementById('picker-loc').addEventListener('change', renderPicker);
+        document.getElementById('picker-dept').addEventListener('change', renderPicker);
+        document.getElementById('picker-reset').addEventListener('click', function () {
+          document.getElementById('picker-search').value = '';
+          document.getElementById('picker-type').value = '';
+          document.getElementById('picker-loc').value = '';
+          document.getElementById('picker-dept').value = '';
+          renderPicker();
+        });
+        document.querySelectorAll('.picker-tab').forEach(function (btn) {
+          btn.addEventListener('click', function () { setPickerTab(btn.getAttribute('data-picker-tab')); });
+        });
+        document.getElementById('picker-tbody').addEventListener('change', function (e) {
+          var cb = e.target.closest('[data-pick]');
+          if (!cb) return;
+          draftCheck[cb.getAttribute('data-pick')] = cb.checked;
+          renderPicker();
+        });
+        document.getElementById('picker-all').addEventListener('click', function () {
+          CATALOG.forEach(function (r) {
+            if (inPlan[r.id] || !passFilter(r)) return;
+            if (pickerTab === 'unselected' && !draftCheck[r.id]) draftCheck[r.id] = true;
+            if (pickerTab === 'selected') draftCheck[r.id] = true;
+          });
+          renderPicker();
+          showToast('已全选当前筛选结果');
+        });
+        document.getElementById('picker-none').addEventListener('click', function () {
+          if (pickerTab === 'selected') {
+            filteredList().forEach(function (r) { draftCheck[r.id] = false; });
+          } else {
+            draftCheck = {};
+          }
+          renderPicker();
+        });
+        document.getElementById('picker-ok').addEventListener('click', function () {
+          selectedIds = Object.keys(draftCheck).filter(function (id) { return draftCheck[id] && !inPlan[id]; });
+          if (!selectedIds.length) {
+            showToast('请至少选择 1 行可追加物资');
+            return;
+          }
+          closePicker();
+          renderPreview();
+          showToast('已选择 ' + selectedIds.length + ' 行待追加');
+        });
+        document.getElementById('preview-tbody').addEventListener('click', function (e) {
+          var btn = e.target.closest('[data-rm]');
+          if (!btn) return;
+          var id = btn.getAttribute('data-rm');
+          selectedIds = selectedIds.filter(function (x) { return x !== id; });
+          renderPreview();
+        });
+        document.getElementById('btn-submit').addEventListener('click', function () {
+          if (!selectedIds.length) {
+            showToast('请先选择要追加的物资');
+            return;
+          }
+          showToast('已追加 ' + selectedIds.length + ' 行应盘物资（演示）');
+          setTimeout(function () { location.href = 'outside_count_plan_list.html'; }, 900);
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { setTimeout(boot, 50); });
+      } else {
+        setTimeout(boot, 50);
+      }
+    })();
+  </script>
+</body></html>

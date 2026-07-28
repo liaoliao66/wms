@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>类资产盘点确认 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="outside_count_mine" data-title="类资产盘点确认" data-breadcrumb="库外盘点 / 物资盘点 / 类资产确认">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="outside_count_mine.html" data-modal-size="xl">
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">物资信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">物资编码</label><input id="code-input" type="text" value="BM-DZ-001" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">物资名称</label><input id="name-input" type="text" value="办公凳" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">出库领用人</label><input type="text" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" value="王工" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">账存合计 / 地点数</label><input id="summary-input" type="text" value="15 / 2" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600" /></div>
+
+        <div class="md:col-span-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+          各地点须「在场 + 丢失 = 账存」；可改地点名、拆账存新增、合并删除。类资产不可转派。
+        </div>
+
+        <div class="wms-form-section md:col-span-2 flex flex-wrap items-center justify-between gap-2">
+          <h3 class="wms-form-section-title !mb-0">分地点数量</h3>
+          <button type="button" id="btn-add" class="wms-btn wms-btn-secondary text-sm"><i class="fa-solid fa-plus mr-1 text-xs"></i>增加地点</button>
+        </div>
+
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200 bg-white">
+          <div class="overflow-x-auto wms-modal-table-wrap">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50/80">
+                <tr>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500">使用地点</th>
+                  <th class="w-20 px-3 py-2.5 text-left text-xs font-semibold text-slate-500">账存</th>
+                  <th class="w-28 px-3 py-2.5 text-left text-xs font-semibold text-slate-500">在场数</th>
+                  <th class="w-28 px-3 py-2.5 text-left text-xs font-semibold text-slate-500">丢失数</th>
+                  <th class="w-24 px-3 py-2.5 text-left text-xs font-semibold text-slate-500">校验</th>
+                  <th class="w-16 px-3 py-2.5 text-right text-xs font-semibold text-slate-500">操作</th>
+                </tr>
+              </thead>
+              <tbody id="loc-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+        <p class="md:col-span-2 text-sm text-slate-500" id="tip">各地点拆满后方可提交</p>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="outside_count_mine.html" class="wms-btn wms-btn-secondary" id="btn-cancel">取消</a>
+        <button type="button" id="btn-submit" class="wms-btn wms-btn-primary">提交</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 增加地点 -->
+  <div id="add-mask" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 p-4">
+    <div class="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl">
+      <h3 class="text-base font-semibold text-slate-900">增加使用地点</h3>
+      <p class="mt-1 text-sm text-slate-500">从已有地点拆出数量，账存合计不变。</p>
+      <div class="mt-4 space-y-3">
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">从哪个地点拆出</label>
+          <select id="add-from" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"></select>
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">新地点名称 <span class="text-rose-500">*</span></label>
+          <input id="add-name" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" placeholder="例如：会议室 B" />
+        </div>
+        <div>
+          <label class="mb-1 block text-sm font-medium text-slate-700">拆出数量 <span class="text-rose-500">*</span></label>
+          <input id="add-qty" type="number" min="1" step="1" value="1" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+        </div>
+      </div>
+      <div class="mt-5 flex justify-end gap-2">
+        <button type="button" id="add-cancel" class="wms-btn wms-btn-secondary">取消</button>
+        <button type="button" id="add-ok" class="wms-btn wms-btn-primary">确认增加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除合并 -->
+  <div id="del-mask" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/40 p-4">
+    <div class="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl">
+      <h3 class="text-base font-semibold text-slate-900">删除地点并合并</h3>
+      <p class="mt-1 text-sm text-slate-500" id="del-from-label">将删除：—</p>
+      <div class="mt-4">
+        <label class="mb-1 block text-sm font-medium text-slate-700">合并到</label>
+        <select id="del-to" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"></select>
+      </div>
+      <div class="mt-5 flex justify-end gap-2">
+        <button type="button" id="del-cancel" class="wms-btn wms-btn-secondary">取消</button>
+        <button type="button" id="del-ok" class="wms-btn wms-btn-primary">确认删除</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="pointer-events-none fixed bottom-8 left-1/2 z-[110] hidden -translate-x-1/2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm text-white shadow-lg"></div>
+
+  <script src="../js/layout.js" charset="UTF-8"></script>
+  <script>
+    (function () {
+      function boot() {
+        var root = document.querySelector('.wms-modal-backdrop') || document;
+        function $(id) { return root.querySelector('#' + id) || document.getElementById(id); }
+
+        var params = new URLSearchParams(location.search);
+        var code = params.get('code') || 'BM-DZ-001';
+        var readonly = params.get('readonly') === '1';
+        var from = params.get('from') || 'mine';
+        var backHref = from === 'detail' ? 'outside_count_task_detail.html' : 'outside_count_mine.html';
+        var backLink = root.querySelector('[data-modal-back]') || document.querySelector('[data-modal-back]');
+        if (backLink) backLink.setAttribute('data-modal-back', backHref);
+        var cancelBtn = $('btn-cancel');
+        if (cancelBtn) cancelBtn.setAttribute('href', backHref);
+
+        var seeds = {
+          'BM-DZ-001': { name: '办公凳', locs: [
+            { id: 'l1', name: '研发楼 3F', book: 10, present: 0, lost: 0 },
+            { id: 'l2', name: '会议室 A', book: 5, present: 0, lost: 0 }
+          ]},
+          'BM-YC-002': { name: '折叠椅', locs: [
+            { id: 'l1', name: '', book: 8, present: 0, lost: 0 }
+          ]},
+          'BM-AQ-010': { name: '安全帽', locs: [
+            { id: 'l1', name: '施工临建', book: 20, present: 18, lost: 2 }
+          ]}
+        };
+        var data = seeds[code] || { name: code, locs: [{ id: 'l1', name: '', book: 1, present: 0, lost: 0 }] };
+        var locs = data.locs.map(function (x) { return { id: x.id, name: x.name, book: x.book, present: x.present, lost: x.lost }; });
+        var uid = 10;
+        var delId = null;
+        $('code-input').value = code;
+        $('name-input').value = data.name;
+
+        var tbody = $('loc-tbody');
+        var toast = document.getElementById('toast');
+        function showToast(msg) {
+          toast.textContent = msg;
+          toast.classList.remove('hidden');
+          setTimeout(function () { toast.classList.add('hidden'); }, 2000);
+        }
+        function totalBook() { return locs.reduce(function (s, l) { return s + l.book; }, 0); }
+        function syncSummary() {
+          $('summary-input').value = totalBook() + ' / ' + locs.length;
+          var ok = locs.length > 0 && locs.every(function (l) { return l.name && l.present + l.lost === l.book; });
+          var tip = $('tip');
+          tip.textContent = ok ? '各地点已拆满，可提交' : '请完善地点名称，并保证各地点：在场+丢失=账存';
+          tip.className = 'md:col-span-2 text-sm ' + (ok ? 'text-emerald-600' : 'text-slate-500');
+        }
+        function rowCheck(loc) {
+          var sum = loc.present + loc.lost;
+          if (!loc.name) return { text: '待填地点', cls: 'text-amber-600' };
+          if (sum > loc.book) return { text: '超出', cls: 'text-amber-600' };
+          if (sum === loc.book) return { text: '已拆满', cls: 'text-emerald-600' };
+          return { text: '待拆 ' + (loc.book - sum), cls: 'text-slate-500' };
+        }
+        function render() {
+          tbody.innerHTML = '';
+          locs.forEach(function (loc) {
+            var ck = rowCheck(loc);
+            var tr = document.createElement('tr');
+            tr.className = 'border-t border-slate-100';
+            tr.setAttribute('data-id', loc.id);
+            tr.innerHTML =
+              '<td class="px-3 py-2"><input class="w-full min-w-[140px] rounded-md border border-slate-200 px-2 py-1.5 text-sm" data-name value="' + (loc.name || '').replace(/"/g, '&quot;') + '" placeholder="必填" /></td>' +
+              '<td class="px-3 py-2 text-slate-700">' + loc.book + '</td>' +
+              '<td class="px-3 py-2"><input class="w-full rounded-md border border-slate-200 px-2 py-1.5 text-sm" data-present type="number" min="0" step="1" value="' + loc.present + '" /></td>' +
+              '<td class="px-3 py-2"><input class="w-full rounded-md border border-slate-200 px-2 py-1.5 text-sm" data-lost type="number" min="0" step="1" value="' + loc.lost + '" /></td>' +
+              '<td class="px-3 py-2 text-xs ' + ck.cls + '" data-check>' + ck.text + '</td>' +
+              '<td class="px-3 py-2 text-right"><button type="button" class="text-sm text-rose-600 hover:underline" data-del' + (locs.length < 2 ? ' disabled style="opacity:.4"' : '') + '>删除</button></td>';
+            tbody.appendChild(tr);
+          });
+          syncSummary();
+        }
+        function syncFromDom() {
+          Array.prototype.forEach.call(tbody.querySelectorAll('tr[data-id]'), function (tr) {
+            var id = tr.getAttribute('data-id');
+            var item = locs.filter(function (l) { return l.id === id; })[0];
+            if (!item) return;
+            item.name = (tr.querySelector('[data-name]') || {}).value.trim();
+            var p = parseInt((tr.querySelector('[data-present]') || {}).value, 10);
+            var l = parseInt((tr.querySelector('[data-lost]') || {}).value, 10);
+            item.present = isNaN(p) || p < 0 ? 0 : p;
+            item.lost = isNaN(l) || l < 0 ? 0 : l;
+          });
+        }
+        tbody.addEventListener('input', function (e) {
+          var tr = e.target.closest('tr[data-id]');
+          if (!tr) return;
+          var id = tr.getAttribute('data-id');
+          var item = locs.filter(function (l) { return l.id === id; })[0];
+          if (!item) return;
+          if (e.target.hasAttribute('data-name')) item.name = e.target.value.trim();
+          if (e.target.hasAttribute('data-present')) {
+            var p = parseInt(e.target.value, 10); item.present = isNaN(p) || p < 0 ? 0 : p;
+          }
+          if (e.target.hasAttribute('data-lost')) {
+            var l = parseInt(e.target.value, 10); item.lost = isNaN(l) || l < 0 ? 0 : l;
+          }
+          var ck = rowCheck(item);
+          var cell = tr.querySelector('[data-check]');
+          if (cell) {
+            cell.textContent = ck.text;
+            cell.className = 'px-3 py-2 text-xs ' + ck.cls;
+          }
+          syncSummary();
+        });
+
+        tbody.addEventListener('click', function (e) {
+          var btn = e.target.closest('[data-del]');
+          if (!btn || btn.disabled) return;
+          syncFromDom();
+          delId = btn.closest('tr').getAttribute('data-id');
+          var fromLoc = locs.filter(function (l) { return l.id === delId; })[0];
+          document.getElementById('del-from-label').textContent =
+            '将删除：「' + (fromLoc.name || '未命名') + '」，账存 ' + fromLoc.book;
+          var sel = document.getElementById('del-to');
+          sel.innerHTML = '';
+          locs.forEach(function (l) {
+            if (l.id === delId) return;
+            var opt = document.createElement('option');
+            opt.value = l.id;
+            opt.textContent = (l.name || '未命名') + ' · 账存 ' + l.book;
+            sel.appendChild(opt);
+          });
+          document.getElementById('del-mask').classList.remove('hidden');
+          document.getElementById('del-mask').classList.add('flex');
+        });
+
+        $('btn-add').addEventListener('click', function () {
+          syncFromDom();
+          var sel = document.getElementById('add-from');
+          sel.innerHTML = '';
+          locs.forEach(function (l) {
+            var opt = document.createElement('option');
+            opt.value = l.id;
+            opt.textContent = (l.name || '未命名') + ' · 账存 ' + l.book;
+            sel.appendChild(opt);
+          });
+          document.getElementById('add-name').value = '';
+          document.getElementById('add-qty').value = '1';
+          document.getElementById('add-mask').classList.remove('hidden');
+          document.getElementById('add-mask').classList.add('flex');
+        });
+        document.getElementById('add-cancel').addEventListener('click', function () {
+          document.getElementById('add-mask').classList.add('hidden');
+          document.getElementById('add-mask').classList.remove('flex');
+        });
+        document.getElementById('add-ok').addEventListener('click', function () {
+          syncFromDom();
+          var fromId = document.getElementById('add-from').value;
+          var newName = document.getElementById('add-name').value.trim();
+          var qty = parseInt(document.getElementById('add-qty').value, 10);
+          if (!newName) { showToast('请填写新地点名称'); return; }
+          if (isNaN(qty) || qty < 1) { showToast('拆出数量至少为 1'); return; }
+          if (locs.some(function (l) { return l.name === newName; })) { showToast('地点名称已存在'); return; }
+          var fromLoc = locs.filter(function (l) { return l.id === fromId; })[0];
+          if (!fromLoc || qty > fromLoc.book) { showToast('拆出数量不能大于源地点账存'); return; }
+          fromLoc.book -= qty;
+          if (fromLoc.present + fromLoc.lost > fromLoc.book) { fromLoc.present = 0; fromLoc.lost = 0; }
+          locs.push({ id: 'l' + (++uid), name: newName, book: qty, present: 0, lost: 0 });
+          document.getElementById('add-mask').classList.add('hidden');
+          document.getElementById('add-mask').classList.remove('flex');
+          render();
+          showToast('已增加地点「' + newName + '」');
+        });
+        document.getElementById('del-cancel').addEventListener('click', function () {
+          document.getElementById('del-mask').classList.add('hidden');
+          document.getElementById('del-mask').classList.remove('flex');
+          delId = null;
+        });
+        document.getElementById('del-ok').addEventListener('click', function () {
+          syncFromDom();
+          var toId = document.getElementById('del-to').value;
+          var fromLoc = locs.filter(function (l) { return l.id === delId; })[0];
+          var to = locs.filter(function (l) { return l.id === toId; })[0];
+          if (!fromLoc || !to) return;
+          to.book += fromLoc.book; to.present += fromLoc.present; to.lost += fromLoc.lost;
+          locs = locs.filter(function (l) { return l.id !== delId; });
+          document.getElementById('del-mask').classList.add('hidden');
+          document.getElementById('del-mask').classList.remove('flex');
+          delId = null;
+          render();
+          showToast('已删除并合并');
+        });
+        $('btn-submit').addEventListener('click', function () {
+          syncFromDom();
+          for (var i = 0; i < locs.length; i++) {
+            var loc = locs[i];
+            if (!loc.name) { showToast('地点 ' + (i + 1) + ' 请填写名称'); return; }
+            if (loc.present + loc.lost !== loc.book) { showToast('「' + loc.name + '」须在场+丢失=账存'); return; }
+          }
+          showToast('已提交');
+          setTimeout(function () { location.href = backHref; }, 900);
+        });
+        render();
+
+        if (readonly) {
+          $('btn-add').classList.add('hidden');
+          $('btn-submit').classList.add('hidden');
+          if (cancelBtn) cancelBtn.textContent = '返回';
+          var tipBox = root.querySelector('.wms-modal-form .border-slate-200.bg-slate-50');
+          if (tipBox) tipBox.textContent = '历史只读：不可修改地点与数量。';
+          Array.prototype.forEach.call(tbody.querySelectorAll('input, button'), function (el) {
+            el.disabled = true;
+          });
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { setTimeout(boot, 0); });
+      } else {
+        setTimeout(boot, 0);
+      }
+    })();
+  </script>
+</body></html>

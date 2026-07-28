@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>物资管理系统 · v1.2.0 原型门户</title>
+  <base id="wms-base" href="./" />
+  <script>
+    (function () {
+      var path = location.pathname;
+      var base = path.endsWith('/')
+        ? path
+        : (/\.[a-z0-9]+$/i.test((path.split('/').pop() || ''))
+          ? path.replace(/\/[^/]*$/, '/')
+          : path + '/');
+      document.getElementById('wms-base').href = base;
+    })();
+  </script>
+  <link rel="stylesheet" href="css/tailwind.css" />
+  <link rel="stylesheet" href="css/custom.css" />
+  <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
+</head>
+<body class="wms-portal-body">
+  <div class="wms-portal">
+    <header class="wms-portal-header">
+      <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-lg font-bold text-white shadow-lg">W</div>
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">物资管理系统</h1>
+        <p class="mt-1 text-sm text-slate-500">
+          <span class="inline-flex rounded-lg bg-slate-900 px-2 py-0.5 text-xs font-medium text-white">v1.2.0</span>
+          <span class="ml-2">交互原型 · 库内（库场）盘点（PC + App）</span>
+        </p>
+      </div>
+    </header>
+
+    <p class="wms-portal-desc">
+      本版本交付<strong>库内盘点（库场盘点）</strong>：PC 管计划/任务/差异/调整；独立 App 现场扫码作业。基于 v1.0.0 基础业务叠加。
+      <a href="../../index.html" class="ml-1 font-medium text-slate-700 hover:underline">返回全局总入口</a>
+    </p>
+
+    <div class="wms-portal-grid">
+      <a id="pc" href="pages/count_plan_list.html" class="wms-portal-card wms-portal-card--pc group">
+        <div class="wms-portal-card-icon">
+          <i class="fa-solid fa-desktop text-2xl"></i>
+        </div>
+        <div class="wms-portal-card-body">
+          <h2 class="text-xl font-semibold text-slate-900">PC 端 · 库场盘点</h2>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500">按仓库/货架编制计划与任务，差异处理与库存调整闭环。</p>
+          <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>盘点计划 / 盘点任务</li>
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>差异处理</li>
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>库存调整</li>
+          </ul>
+          <span class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-900 group-hover:gap-3 transition-all">
+            进入盘点计划 <i class="fa-solid fa-arrow-right text-xs"></i>
+          </span>
+        </div>
+      </a>
+
+      <a id="app" href="pages/app/app_count_home.html" class="wms-portal-card wms-portal-card--app group">
+        <div class="wms-portal-card-icon">
+          <i class="fa-solid fa-mobile-screen-button text-2xl"></i>
+        </div>
+        <div class="wms-portal-card-body">
+          <h2 class="text-xl font-semibold text-slate-900">独立 App 入口</h2>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500">库场盘点独立 App：扫码盘点、任务执行、账外资产登记。</p>
+          <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
+            <li><i class="fa-solid fa-check text-violet-500 mr-1.5"></i>仅覆盖库场盘点移动端</li>
+            <li><i class="fa-solid fa-check text-violet-500 mr-1.5"></i>扫码盘点 · 执行录入</li>
+            <li><i class="fa-solid fa-check text-violet-500 mr-1.5"></i>账外资产现场登记</li>
+          </ul>
+          <span class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-900 group-hover:gap-3 transition-all">
+            进入库场盘点 App <i class="fa-solid fa-arrow-right text-xs"></i>
+          </span>
+        </div>
+      </a>
+    </div>
+
+    <div class="wms-portal-links">
+      <a href="../../../docs/versions/v1.2.0/prd.md" class="wms-portal-link">
+        <i class="fa-solid fa-book"></i>
+        <span>v1.2.0 PRD</span>
+        <span class="text-slate-400">docs/versions</span>
+      </a>
+      <a href="pages/pc_home.html" class="wms-portal-link">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span>PC 工作台</span>
+        <span class="text-slate-400">含库场侧栏</span>
+      </a>
+      <a href="pages/app/app_count_task_list.html" class="wms-portal-link">
+        <i class="fa-solid fa-list-check"></i>
+        <span>APP 任务列表</span>
+        <span class="text-slate-400">库场盘点</span>
+      </a>
+      <a href="../v1.0.0/index.html" class="wms-portal-link">
+        <i class="fa-solid fa-layer-group"></i>
+        <span>返回 v1.0.0</span>
+        <span class="text-slate-400">基础业务</span>
+      </a>
+    </div>
+
+    <footer class="wms-portal-footer">
+      <a href="../../index.html" class="text-slate-500 hover:text-slate-700">全局总入口</a>
+      <span class="mx-2 text-slate-300">·</span>
+      <span>版本 <code class="rounded bg-white/80 px-1.5 py-0.5 text-xs ring-1 ring-slate-200">v1.2.0</code></span>
+      <span class="mx-2 text-slate-300">·</span>
+      <span>库内（库场）盘点 · 2026-07-24</span>
+    </footer>
+  </div>
+</body>
+</html>

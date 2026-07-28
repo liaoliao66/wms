@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>固定资产归还 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_return_list" data-title="固定资产归还" data-breadcrumb="物资管理 / 固定资产归还">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="warehouse_return_list.html" data-modal-size="xl" data-wms-return-form data-return-material-type="fixed" data-return-expected-asset="ZC202605012">
+      <div class="wms-modal-form wms-warehouse-form wms-return-form">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">借用信息</h3></div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm"><tbody><tr><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">领用单号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="requisitionNo">LY202606010003</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">出库单号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="outboundNo">CK202606010003</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">借用人</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="borrower">张三</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">借用人部门</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="borrowerDept">工程部</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">出库日期</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="outboundDate">2026-06-01</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">应还日期</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="dueDate">2026-06-15</td></tr></tbody></table>
+  </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">物资信息</h3></div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200">
+    <table class="min-w-full text-sm"><tbody><tr><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">资产编码</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="assetCode">ZC202605012</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资编码</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="code">GD001001-005</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资名称</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="name">工程测量仪</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资大类</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="major">资产-固定资产</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">规格型号</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="spec">全站仪 TS06</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">计量单位</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="unit">台</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">出库数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="outboundQty">1</td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">已还数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="returnedQty">0</td></tr><tr class="border-t border-slate-200"><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">待还数量</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="pendingQty"><span class="font-semibold text-slate-900">1</span></td><td class="w-[18%] bg-slate-50 px-4 py-2.5 text-sm font-medium text-slate-500">物资子类</td><td class="px-4 py-2.5 text-sm text-slate-800" data-return-field="minor">办公设备</td></tr></tbody></table>
+  </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">归还信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">归还单号</label><input type="text" value="HK20260716001" readonly data-return-field="returnNo" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 归还日期</label><input type="date" value="2026-06-09" data-return-field="returnDate" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 实物状态</label><select data-return-field="condition" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>完好</option><option>需维修</option><option>损坏</option></select></div>
+        <div class="md:col-span-2" data-wms-return-fixed-asset>
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <label class="mb-0 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 资产编码确认</label>
+      <button type="button" id="wms-return-scan-asset" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-qrcode"></i> 扫码确认</button>
+    </div>
+    <input type="text" value="ZC202605012" placeholder="扫描或输入资产编码" data-return-field="assetCodeConfirm" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200 font-mono" />
+    <p class="mt-2 text-xs text-slate-500">须与待还资产编码 <strong class="font-mono">ZC202605012</strong> 一致</p>
+  </div>
+  <div class="md:col-span-2" data-wms-return-locations>
+    <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+      <h4 class="text-sm font-semibold text-slate-800">回库货位</h4>
+      <button type="button" class="text-sm font-medium text-slate-700 hover:underline" data-return-loc-add>添加</button>
+    </div>
+    <div data-return-loc-list><div class="return-loc-row mb-3 grid gap-3 rounded-xl border border-slate-200 bg-slate-50/40 p-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_100px_auto] sm:items-end" data-return-loc-row>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600"><span class="text-rose-500">*</span> 仓库</label><select data-return-warehouse class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>主仓库</option><option>辅仓库</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600">货架</label><select data-return-shelf class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>CK001001-HJ001</option><option>CK001001-HJ002</option><option>CK001001-HJ003</option><option>CK001001-HJ101</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600">架层</label><select data-return-level class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>1层</option><option>2层</option><option>3层</option></select></div>
+    <div><label class="mb-1 block text-xs font-medium text-slate-600"><span class="text-rose-500">*</span> 数量</label><input type="number" min="1" data-return-qty placeholder="请输入" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+    <span class="w-10"></span>
+  </div></div>
+    <p class="mt-2 text-xs text-slate-500">归还物资回库位置；各行数量之和不超过待还数量 <strong data-return-pending-qty-display>—</strong></p>
+  </div>
+        <div class="md:col-span-2 rounded-xl border border-blue-100 bg-blue-50/50 p-4">
+    <div class="mb-1 flex items-center gap-2 text-sm font-semibold text-slate-900"><i class="fa-solid fa-qrcode text-blue-500"></i> 固定资产须扫码确认资产编码</div>
+    <p class="text-xs text-slate-600">扫码 <code class="rounded bg-white/80 px-1">wms://asset/</code> 校验编码一致后回库；完好/需维修→在库（维修在外部系统）；损坏→待报废池。</p>
+  </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">其他信息</h3></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">归还说明</label><textarea rows="3" placeholder="0/500" data-return-field="remark" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">归还照片</label><div class="wms-photo-upload">
+    <button type="button" class="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50">
+      <i class="fa-solid fa-plus text-lg"></i>
+      <span class="mt-1 text-xs">上传图片</span>
+    </button>
+    <p class="mt-2 text-xs text-slate-400">支持 .jpg .jpeg .png，单个文件不能超过 100MB</p>
+  </div></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 归还人员</label><select data-return-field="returnPerson" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled>请选择</option><option selected>张三</option><option>王工</option><option>李工</option><option>赵六</option><option>王五</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 验收人员</label><select data-return-field="operator" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>张仓管</option><option>李仓管</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 验收部门</label><select data-return-field="department" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option value="" disabled selected>请选择</option><option>物资管理部</option><option>设备部</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="warehouse_return_list.html" class="wms-btn wms-btn-secondary" data-return-back-link>取消</a>
+        <button type="button" class="wms-btn wms-btn-primary" data-return-submit>确定</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

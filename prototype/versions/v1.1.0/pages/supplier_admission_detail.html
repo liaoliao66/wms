@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>入库审核详情 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="supplier_admission_list" data-title="入库审核详情" data-breadcrumb="供应商管理 / 入库审核">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="supplier_admission_list.html" data-modal-size="xl" data-wms-supplier-admission-detail data-admission-no="RK202607040002">
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">申请信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">申请单号</label><p class="font-mono text-sm text-slate-800" data-admission-field="no">RK202607040002</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">当前环节</label><div data-admission-field="stage"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">设备技术部初审</span></div></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供应商名称</label><p class="text-sm text-slate-800" data-admission-field="name">武穴安防科技有限公司</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">统一社会信用代码</label><p class="font-mono text-sm text-slate-800" data-admission-field="creditCode">91421181MA4KFFFFFF</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供应商类型</label><p class="text-sm text-slate-800">安防物资供应商</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供货范围</label><p class="text-sm text-slate-800">安防监控、门禁系统</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">联系人 / 电话</label><p class="text-sm text-slate-800">李工 / 13922223333</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">需现场核查</label><p class="text-sm text-slate-800">是（核心/大额/定制类）</p></div>
+        
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">申报资料</h3></div>
+        <div class="md:col-span-2"><ul class="space-y-1.5"><li class="flex items-center gap-2 text-sm text-slate-700"><i class="fa-solid fa-file-lines text-slate-400 text-xs"></i>入库申请表</li><li class="flex items-center gap-2 text-sm text-slate-700"><i class="fa-solid fa-file-lines text-slate-400 text-xs"></i>营业执照</li><li class="flex items-center gap-2 text-sm text-slate-700"><i class="fa-solid fa-file-lines text-slate-400 text-xs"></i>3C认证</li><li class="flex items-center gap-2 text-sm text-slate-700"><i class="fa-solid fa-file-lines text-slate-400 text-xs"></i>经营许可证</li></ul></div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">审核轨迹</h3></div>
+        <div class="md:col-span-2 overflow-x-auto rounded-lg ring-1 ring-slate-100"><table class="min-w-full text-sm"><thead class="bg-slate-50/80"><tr>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">节点</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">处理人</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">结果</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">意见</th>
+          <th class="px-3 py-2 text-left text-xs font-semibold text-slate-500">时间</th>
+        </tr></thead><tbody><tr class="border-t border-slate-100"><td class="px-3 py-2 text-sm">资料申报</td><td class="px-3 py-2 text-sm">武穴安防</td><td class="px-3 py-2 text-sm"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">提交</span></td><td class="px-3 py-2 text-sm text-slate-600">—</td><td class="px-3 py-2 text-sm text-slate-500">2026-07-04 09:00</td></tr><tr class="border-t border-slate-100"><td class="px-3 py-2 text-sm">设备技术部初审</td><td class="px-3 py-2 text-sm">张工</td><td class="px-3 py-2 text-sm"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">处理中</span></td><td class="px-3 py-2 text-sm text-slate-600">核查技术资质</td><td class="px-3 py-2 text-sm text-slate-500">2026-07-05 09:30</td></tr></tbody></table></div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">本次审核</h3></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 审核结论</label>
+          <div class="flex flex-wrap gap-4 text-sm">
+            <label class="inline-flex items-center gap-2"><input type="radio" name="admission-result" value="通过" checked class="rounded-full border-slate-300" /> 通过</label>
+            <label class="inline-flex items-center gap-2"><input type="radio" name="admission-result" value="暂缓入库" class="rounded-full border-slate-300" /> 暂缓入库</label>
+            <label class="inline-flex items-center gap-2"><input type="radio" name="admission-result" value="不予入库" class="rounded-full border-slate-300" /> 不予入库</label>
+          </div>
+        </div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 审核意见</label><textarea rows="3" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" placeholder="请填写审核意见"></textarea></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="supplier_admission_list.html" class="wms-btn wms-btn-secondary">返回列表</a>
+        <button type="button" class="wms-btn wms-btn-primary">提交审核</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>扫码盘点 · 企微 H5 · v1.0.0</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="wecom.css" />
+</head>
+<body>
+  <div class="wecom-page">
+    <header class="wecom-nav">
+      <div class="wecom-nav-side">
+        <a class="wecom-icon-btn" href="wecom_outside_count_task_list.html" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></a>
+      </div>
+      <h1 class="wecom-nav-title">扫码盘点</h1>
+      <div class="wecom-nav-side wecom-nav-side--right"></div>
+    </header>
+
+    <main class="wecom-main">
+      <span class="wecom-badge-ver">v1.0.0 · 企微 H5</span>
+      <p class="wecom-hint">固资码 → 在场/转派/丢失。类资产物料码 → 多地点增删改 + 在场/丢失数量（不可转派）。</p>
+
+      <div class="wecom-scan-box">
+        <i class="fa-solid fa-qrcode"></i>
+        <p style="margin:0;font-weight:700">对准资产 / 物料二维码</p>
+        <p class="wecom-muted" style="margin:6px 0 0">支持 wms://asset/ 与物资编码</p>
+      </div>
+
+      <div class="wecom-field">
+        <label class="wecom-label" for="asset-code">手动输入编码</label>
+        <input class="wecom-input" id="asset-code" placeholder="固资如 ZC202605012；类资产如 BM-DZ-001" value="BM-DZ-001" />
+      </div>
+
+      <div class="wecom-field">
+        <span class="wecom-label">演示快捷</span>
+        <div class="wecom-row-actions" style="margin:0;flex-wrap:wrap">
+          <button type="button" class="wecom-btn wecom-btn--secondary wecom-btn--flex" data-demo="ZC202605012">固资示例</button>
+          <button type="button" class="wecom-btn wecom-btn--secondary wecom-btn--flex" data-demo="BM-DZ-001">类资产多地点</button>
+          <button type="button" class="wecom-btn wecom-btn--secondary wecom-btn--flex" data-demo="BM-YC-002">类资产待填地点</button>
+        </div>
+      </div>
+    </main>
+
+    <div class="wecom-foot">
+      <button type="button" class="wecom-btn wecom-btn--primary wecom-btn--block" id="btn-mock-ok">进入物资确认</button>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var input = document.getElementById('asset-code');
+      function goConfirm(code) {
+        code = (code || '').trim() || 'ZC202605012';
+        var isClass = code.indexOf('BM-') === 0 || code.indexOf('LA-') === 0;
+        location.href = 'wecom_outside_count_asset_confirm.html?code=' + encodeURIComponent(code) + '&mode=pending&type=' + (isClass ? 'class' : 'fixed');
+      }
+      document.getElementById('btn-mock-ok').addEventListener('click', function () {
+        goConfirm(input.value);
+      });
+      Array.prototype.forEach.call(document.querySelectorAll('[data-demo]'), function (btn) {
+        btn.addEventListener('click', function () {
+          var code = btn.getAttribute('data-demo');
+          input.value = code;
+          goConfirm(code);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

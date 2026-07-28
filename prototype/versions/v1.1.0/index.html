@@ -2,53 +2,110 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>物资管理系统 · v1.1.0 原型门户</title>
-  <link rel="stylesheet" href="../v1.0.0/css/tailwind.css" />
-  <link rel="stylesheet" href="../v1.0.0/css/custom.css" />
-  <link rel="stylesheet" href="../v1.0.0/vendor/fontawesome/css/all.min.css" />
+  <base id="wms-base" href="./" />
+  <script>
+    (function () {
+      var path = location.pathname;
+      var base = path.endsWith('/')
+        ? path
+        : (/\.[a-z0-9]+$/i.test((path.split('/').pop() || ''))
+          ? path.replace(/\/[^/]*$/, '/')
+          : path + '/');
+      document.getElementById('wms-base').href = base;
+    })();
+  </script>
+  <link rel="stylesheet" href="css/tailwind.css" />
+  <link rel="stylesheet" href="css/custom.css" />
+  <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
 </head>
 <body class="wms-portal-body">
-  <div class="wms-portal wms-portal--global">
+  <div class="wms-portal">
     <header class="wms-portal-header">
       <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-lg font-bold text-white shadow-lg">W</div>
       <div>
         <h1 class="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">物资管理系统</h1>
         <p class="mt-1 text-sm text-slate-500">
           <span class="inline-flex rounded-lg bg-slate-900 px-2 py-0.5 text-xs font-medium text-white">v1.1.0</span>
-          <span class="ml-2">原型门户 · 待生成</span>
+          <span class="ml-2">交互原型 · 库外盘点（PC + 企微 H5）</span>
         </p>
       </div>
     </header>
 
     <p class="wms-portal-desc">
-      v1.1.0 已创建版本目录，但尚未生成对应原型页面。请先补齐该版本 PRD，再按流水线生成原型。
+      本版本交付<strong>库外盘点</strong>：PC 管理计划/进度/报告；企微 H5 供领用人确认。基于 v1.0.0 基础业务叠加。
+      <a href="../../index.html" class="ml-1 font-medium text-slate-700 hover:underline">返回全局总入口</a>
     </p>
 
-    <div class="wms-portal-links">
-      <a href="../../index.html" class="wms-portal-link">
-        <i class="fa-solid fa-layer-group"></i>
-        <span>返回全局总入口</span>
-        <span class="text-slate-400">prototype/index.html</span>
+    <div class="wms-portal-grid">
+      <a id="pc" href="pages/outside_count_plan_list.html" class="wms-portal-card wms-portal-card--pc group">
+        <div class="wms-portal-card-icon">
+          <i class="fa-solid fa-desktop text-2xl"></i>
+        </div>
+        <div class="wms-portal-card-body">
+          <h2 class="text-xl font-semibold text-slate-900">PC 端 · 库外盘点</h2>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500">计划发布即盘点中；结束后方可出报告。领用人经「物资盘点」确认；管理员看盘点进度。</p>
+          <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>草稿 / 盘点中 / 已结束</li>
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>固资转派 · 类资产多地点</li>
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>盘点进度 / 结果 / 报告</li>
+          </ul>
+          <span class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-900 group-hover:gap-3 transition-all">
+            进入盘点计划 <i class="fa-solid fa-arrow-right text-xs"></i>
+          </span>
+        </div>
       </a>
+
+      <a id="wecom" href="pages/wecom/wecom_outside_count_task_list.html" class="wms-portal-card wms-portal-card--app group">
+        <div class="wms-portal-card-icon">
+          <i class="fa-brands fa-weixin text-2xl"></i>
+        </div>
+        <div class="wms-portal-card-body">
+          <h2 class="text-xl font-semibold text-slate-900">企微 H5 入口</h2>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500">出库领用人确认名下物资；固资单件转派；类资产分地点录在场/丢失。</p>
+          <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
+            <li><i class="fa-solid fa-check text-sky-500 mr-1.5"></i>企微工作台内嵌 H5</li>
+            <li><i class="fa-solid fa-check text-sky-500 mr-1.5"></i>待盘 / 待我确认 / 已转派</li>
+            <li><i class="fa-solid fa-check text-sky-500 mr-1.5"></i>扫码确认入口</li>
+          </ul>
+          <span class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-900 group-hover:gap-3 transition-all">
+            进入库外盘点企微 H5 <i class="fa-solid fa-arrow-right text-xs"></i>
+          </span>
+        </div>
+      </a>
+    </div>
+
+    <div class="wms-portal-links">
       <a href="../../../docs/versions/v1.1.0/prd.md" class="wms-portal-link">
-        <i class="fa-solid fa-file-lines"></i>
-        <span>v1.1.0 PRD 源文件</span>
+        <i class="fa-solid fa-book"></i>
+        <span>v1.1.0 PRD</span>
         <span class="text-slate-400">docs/versions</span>
       </a>
+      <a href="pages/pc_home.html" class="wms-portal-link">
+        <i class="fa-solid fa-gauge-high"></i>
+        <span>PC 工作台</span>
+        <span class="text-slate-400">含库外侧栏</span>
+      </a>
+      <a href="pages/outside_count_mine.html" class="wms-portal-link">
+        <i class="fa-solid fa-box-open"></i>
+        <span>物资盘点（领用人）</span>
+        <span class="text-slate-400">PC</span>
+      </a>
       <a href="../v1.0.0/index.html" class="wms-portal-link">
-        <i class="fa-solid fa-arrow-left"></i>
-        <span>查看 v1.0.0 版本门户</span>
-        <span class="text-slate-400">上一版本</span>
+        <i class="fa-solid fa-layer-group"></i>
+        <span>返回 v1.0.0</span>
+        <span class="text-slate-400">基础业务</span>
       </a>
     </div>
 
     <footer class="wms-portal-footer">
+      <a href="../../index.html" class="text-slate-500 hover:text-slate-700">全局总入口</a>
+      <span class="mx-2 text-slate-300">·</span>
       <span>版本 <code class="rounded bg-white/80 px-1.5 py-0.5 text-xs ring-1 ring-slate-200">v1.1.0</code></span>
       <span class="mx-2 text-slate-300">·</span>
-      <span>状态：待生成</span>
+      <span>库外盘点 · 2026-07-24</span>
     </footer>
   </div>
 </body>
 </html>
-

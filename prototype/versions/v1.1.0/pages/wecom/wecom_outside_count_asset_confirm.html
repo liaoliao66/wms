@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>物资确认 · 企微 H5 · v1.0.0</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="wecom.css" />
+</head>
+<body>
+  <div class="wecom-page">
+    <header class="wecom-nav">
+      <div class="wecom-nav-side">
+        <a class="wecom-icon-btn" href="wecom_outside_count_execute.html" aria-label="返回"><i class="fa-solid fa-chevron-left"></i></a>
+      </div>
+      <h1 class="wecom-nav-title">物资确认</h1>
+      <div class="wecom-nav-side wecom-nav-side--right"></div>
+    </header>
+
+    <main class="wecom-main">
+      <span class="wecom-badge-ver">v1.0.0 · 企微 H5</span>
+      <div class="wecom-card">
+        <p class="wecom-card-title" id="asset-name">工程测量仪</p>
+        <p class="wecom-mono" style="margin:4px 0 0" id="asset-code">ZC202605012 · 固定资产</p>
+        <p class="wecom-muted" style="margin:8px 0 0" id="asset-owner">指定负责人：王工</p>
+        <p class="wecom-muted" style="margin:2px 0 0" id="asset-meta">系统位置：武穴大桥施工点</p>
+      </div>
+
+      <!-- 固资：待盘 -->
+      <div id="panel-fixed-pending" class="hidden">
+        <div class="wecom-field">
+          <span class="wecom-label">确认结果</span>
+          <div class="wecom-choice" id="result-choice">
+            <label class="is-on"><input type="radio" name="result" value="在场" checked />在场</label>
+            <label><input type="radio" name="result" value="转派" />转派物资</label>
+            <label><input type="radio" name="result" value="丢失" />丢失</label>
+          </div>
+        </div>
+        <div id="block-site" class="wecom-field">
+          <label class="wecom-label" for="site-loc">使用地点</label>
+          <input class="wecom-input" id="site-loc" value="武穴大桥施工点" />
+          <p class="wecom-hint" style="margin-top:6px">「在场」「转派」时可修改；「丢失」不可改</p>
+        </div>
+        <div id="block-present">
+          <label class="wecom-card" style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
+            <input type="checkbox" id="need-recode" style="margin-top:3px;width:18px;height:18px" />
+            <span>
+              <span style="font-weight:700;font-size:14px">通知管理员补码</span>
+              <span class="wecom-muted" style="display:block;margin-top:4px">仅「在场」可选。只通知管理员，无补码中状态。</span>
+            </span>
+          </label>
+        </div>
+        <div id="block-transfer" class="hidden">
+          <div class="wecom-field">
+            <span class="wecom-label">转派给 <span style="color:#dc2626">*</span></span>
+            <button type="button" class="wecom-picker-entry" id="btn-pick-user">
+              <span id="transfer-user-label" class="wecom-picker-placeholder">请选择转派人员</span>
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+            <input type="hidden" id="transfer-user" value="" />
+            <p class="wecom-hint" style="margin-top:6px">入口对接通讯录选人（原型仅演示选中）</p>
+          </div>
+          <div class="wecom-field">
+            <label class="wecom-label" for="transfer-reason">转派说明 <span style="color:#dc2626">*</span></label>
+            <textarea class="wecom-textarea" id="transfer-reason" placeholder="例如：物资已不在我这里，实际在对方处"></textarea>
+          </div>
+          <p class="wecom-hint">提交后移出我的待盘；对方确认后归属变为对方；对方拒绝则退回我的待盘。</p>
+        </div>
+        <div id="block-lost" class="hidden">
+          <div class="wecom-field">
+            <label class="wecom-label" for="lost-reason">丢失说明</label>
+            <textarea class="wecom-textarea" id="lost-reason" placeholder="请说明情况"></textarea>
+          </div>
+          <p class="wecom-hint">确认丢失后保留原归属人，并打丢失标记。后续差异处置在 PC 进行。</p>
+        </div>
+        <div class="wecom-field">
+          <label class="wecom-label" for="remark-fixed">备注</label>
+          <textarea class="wecom-textarea" id="remark-fixed" placeholder="选填"></textarea>
+        </div>
+      </div>
+
+      <!-- 固资：待我确认 -->
+      <div id="panel-fixed-inbox" class="hidden">
+        <p class="wecom-hint">张工将本物资转派给你。你确认后归属变为你；拒绝则退回张工待盘。无需再选在场/丢失。</p>
+        <div class="wecom-field">
+          <label class="wecom-label" for="inbox-remark">说明（选填）</label>
+          <textarea class="wecom-textarea" id="inbox-remark" placeholder="拒绝时可填写原因"></textarea>
+        </div>
+      </div>
+
+      <!-- 类资产：多地点增删改 + 数量 -->
+      <div id="panel-class" class="hidden">
+        <p class="wecom-hint">各地点须「在场 + 丢失 = 账存」。可改地点名、拆账存新增、合并删除。类资产不可转派。</p>
+
+        <div class="wecom-card" style="margin-bottom:12px">
+          <div class="wecom-card-head">
+            <div>
+              <p class="wecom-muted" style="margin:0">账存合计</p>
+              <p style="margin:4px 0 0;font-size:18px;font-weight:700" id="class-total-book">0</p>
+            </div>
+            <div style="text-align:right">
+              <p class="wecom-muted" style="margin:0">地点数</p>
+              <p style="margin:4px 0 0;font-size:18px;font-weight:700" id="class-loc-count">0</p>
+            </div>
+          </div>
+          <p class="wecom-muted" style="margin:8px 0 0" id="class-total-tip">各地点拆满后方可提交</p>
+        </div>
+
+        <div id="loc-list"></div>
+
+        <div class="wecom-row-actions">
+          <button type="button" class="wecom-btn wecom-btn--secondary wecom-btn--block" id="btn-add-loc">
+            <i class="fa-solid fa-plus"></i>增加地点
+          </button>
+        </div>
+
+        <div class="wecom-field">
+          <label class="wecom-label" for="remark-class">备注</label>
+          <textarea class="wecom-textarea" id="remark-class" placeholder="选填"></textarea>
+        </div>
+      </div>
+    </main>
+
+    <div class="wecom-foot" id="foot-pending">
+      <button type="button" class="wecom-btn wecom-btn--primary wecom-btn--block" id="btn-submit">提交</button>
+    </div>
+    <div class="wecom-foot hidden" id="foot-inbox">
+      <button type="button" class="wecom-btn wecom-btn--danger wecom-btn--flex" id="btn-reject">拒绝</button>
+      <button type="button" class="wecom-btn wecom-btn--primary wecom-btn--flex" id="btn-accept">确认接收</button>
+    </div>
+  </div>
+
+  <!-- 增加地点 -->
+  <div class="wecom-mask" id="add-mask" aria-hidden="true">
+    <div class="wecom-modal" role="dialog" aria-modal="true">
+      <h3>增加使用地点</h3>
+      <p class="wecom-muted" style="margin:0 0 12px">从已有地点拆出数量，生成新地点（账存合计不变）。</p>
+      <div class="wecom-field">
+        <label class="wecom-label" for="add-from">从哪个地点拆出</label>
+        <select class="wecom-select" id="add-from"></select>
+      </div>
+      <div class="wecom-field">
+        <label class="wecom-label" for="add-name">新地点名称 <span style="color:#dc2626">*</span></label>
+        <input class="wecom-input" id="add-name" placeholder="例如：会议室 B" />
+      </div>
+      <div class="wecom-field">
+        <label class="wecom-label" for="add-qty">拆出数量 <span style="color:#dc2626">*</span></label>
+        <input class="wecom-input" id="add-qty" type="number" inputmode="numeric" min="1" step="1" value="1" />
+      </div>
+      <div class="wecom-row-actions" style="margin:0">
+        <button type="button" class="wecom-btn wecom-btn--ghost wecom-btn--flex" id="add-cancel">取消</button>
+        <button type="button" class="wecom-btn wecom-btn--primary wecom-btn--flex" id="add-ok">确认增加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 删除并合并 -->
+  <div class="wecom-mask" id="del-mask" aria-hidden="true">
+    <div class="wecom-modal" role="dialog" aria-modal="true">
+      <h3>删除地点并合并</h3>
+      <p class="wecom-muted" style="margin:0 0 12px">删除前须将账存与已录数量合并到另一地点。</p>
+      <p class="wecom-muted" style="margin:0 0 12px" id="del-from-label">将删除：—</p>
+      <div class="wecom-field">
+        <label class="wecom-label" for="del-to">合并到</label>
+        <select class="wecom-select" id="del-to"></select>
+      </div>
+      <div class="wecom-row-actions" style="margin:0">
+        <button type="button" class="wecom-btn wecom-btn--ghost wecom-btn--flex" id="del-cancel">取消</button>
+        <button type="button" class="wecom-btn wecom-btn--danger wecom-btn--flex" id="del-ok">确认删除</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wecom-toast" id="toast"></div>
+
+  <script>
+    (function () {
+      var params = new URLSearchParams(location.search);
+      var code = params.get('code') || 'ZC202605012';
+      var mode = params.get('mode') || 'pending';
+      var type = params.get('type') || '';
+      if (!type) type = (code.indexOf('BM-') === 0 || code.indexOf('LA-') === 0) ? 'class' : 'fixed';
+
+      var toast = document.getElementById('toast');
+      function showToast(msg) {
+        toast.textContent = msg;
+        toast.classList.add('is-show');
+        setTimeout(function () { toast.classList.remove('is-show'); }, 2200);
+      }
+      function goBack() {
+        setTimeout(function () { location.href = 'wecom_outside_count_execute.html'; }, 900);
+      }
+
+      var panelFixedPending = document.getElementById('panel-fixed-pending');
+      var panelFixedInbox = document.getElementById('panel-fixed-inbox');
+      var panelClass = document.getElementById('panel-class');
+      var footPending = document.getElementById('foot-pending');
+      var footInbox = document.getElementById('foot-inbox');
+
+      /* ========== 类资产 ========== */
+      if (type === 'class') {
+        var seeds = {
+          'BM-DZ-001': {
+            name: '办公凳',
+            codeLabel: 'BM-DZ-001 · 类资产',
+            locs: [
+              { id: 'l1', name: '研发楼 3F', book: 10, present: 0, lost: 0 },
+              { id: 'l2', name: '会议室 A', book: 5, present: 0, lost: 0 }
+            ]
+          },
+          'BM-YC-002': {
+            name: '折叠椅',
+            codeLabel: 'BM-YC-002 · 类资产',
+            locs: [
+              { id: 'l1', name: '', book: 8, present: 0, lost: 0 }
+            ]
+          },
+          'BM-AQ-010': {
+            name: '安全帽',
+            codeLabel: 'BM-AQ-010 · 类资产',
+            locs: [
+              { id: 'l1', name: '施工临建', book: 20, present: 18, lost: 2 }
+            ]
+          }
+        };
+        var data = seeds[code] || {
+          name: code,
+          codeLabel: code + ' · 类资产',
+          locs: [{ id: 'l1', name: '', book: 1, present: 0, lost: 0 }]
+        };
+        var locs = data.locs.map(function (x) {
+          return { id: x.id, name: x.name, book: x.book, present: x.present, lost: x.lost };
+        });
+        var uid = 10;
+        var delTargetId = null;
+
+        document.getElementById('asset-name').textContent = data.name;
+        document.getElementById('asset-code').textContent = data.codeLabel;
+        document.getElementById('asset-owner').textContent = '出库领用人：王工';
+        document.getElementById('asset-meta').textContent = '按地点管理数量 · 地点可增删改';
+        panelClass.classList.remove('hidden');
+
+        var listEl = document.getElementById('loc-list');
+        var addMask = document.getElementById('add-mask');
+        var delMask = document.getElementById('del-mask');
+
+        function totalBook() {
+          return locs.reduce(function (s, l) { return s + l.book; }, 0);
+        }
+
+        function syncFromDom() {
+          Array.prototype.forEach.call(listEl.querySelectorAll('[data-loc-id]'), function (card) {
+            var id = card.getAttribute('data-loc-id');
+            var item = locs.filter(function (l) { return l.id === id; })[0];
+            if (!item) return;
+            var nameInput = card.querySelector('[data-name]');
+            var pInput = card.querySelector('[data-present]');
+            var lInput = card.querySelector('[data-lost]');
+            item.name = nameInput ? nameInput.value.trim() : item.name;
+            var p = parseInt(pInput && pInput.value, 10);
+            var l = parseInt(lInput && lInput.value, 10);
+            item.present = isNaN(p) || p < 0 ? 0 : p;
+            item.lost = isNaN(l) || l < 0 ? 0 : l;
+          });
+        }
+
+        function render() {
+          document.getElementById('class-total-book').textContent = String(totalBook());
+          document.getElementById('class-loc-count').textContent = String(locs.length);
+          var allOk = locs.length > 0;
+          var tip = document.getElementById('class-total-tip');
+          listEl.innerHTML = '';
+          if (!locs.length) {
+            listEl.innerHTML = '<p class="wecom-empty">暂无地点，请先增加使用地点</p>';
+            tip.textContent = '至少保留 1 个地点';
+            tip.style.color = '#dc2626';
+            allOk = false;
+          }
+          locs.forEach(function (loc, idx) {
+            var sum = loc.present + loc.lost;
+            var rowOk = loc.name && sum === loc.book;
+            if (!rowOk) allOk = false;
+            var statusText = !loc.name
+              ? '待填地点名称'
+              : (sum > loc.book ? '超出账存' : (sum === loc.book ? '已拆满' : ('待拆分 ' + (loc.book - sum))));
+            var statusColor = !loc.name || sum > loc.book ? '#b45309' : (sum === loc.book ? '#047857' : '#6b7280');
+            var card = document.createElement('div');
+            card.className = 'wecom-loc-card';
+            card.setAttribute('data-loc-id', loc.id);
+            card.innerHTML =
+              '<div class="wecom-loc-card-head">' +
+                '<strong>地点 ' + (idx + 1) + '</strong>' +
+                '<button type="button" class="wecom-link-btn wecom-link-btn--danger" data-act="del"' + (locs.length < 2 ? ' disabled style="opacity:.4"' : '') + '>删除</button>' +
+              '</div>' +
+              '<div class="wecom-field" style="margin-bottom:8px">' +
+                '<label class="wecom-label">使用地点 <span style="color:#dc2626">*</span></label>' +
+                '<input class="wecom-input" data-name placeholder="必填" value="' + (loc.name || '').replace(/"/g, '&quot;') + '" />' +
+              '</div>' +
+              '<div class="wecom-qty-grid">' +
+                '<div class="wecom-field"><label class="wecom-label">账存</label><input class="wecom-input" value="' + loc.book + '" readonly style="background:#f8fafc" /></div>' +
+                '<div class="wecom-field"><label class="wecom-label">在场数</label><input class="wecom-input" data-present type="number" inputmode="numeric" min="0" step="1" value="' + loc.present + '" /></div>' +
+                '<div class="wecom-field"><label class="wecom-label">丢失数</label><input class="wecom-input" data-lost type="number" inputmode="numeric" min="0" step="1" value="' + loc.lost + '" /></div>' +
+              '</div>' +
+              '<p class="wecom-muted" style="margin:8px 0 0;color:' + statusColor + '" data-status>' + statusText + '</p>';
+            listEl.appendChild(card);
+          });
+          if (locs.length) {
+            tip.textContent = allOk ? '各地点已拆满，可提交' : '请完善各地点名称，并保证在场+丢失=该地点账存';
+            tip.style.color = allOk ? '#047857' : '#6b7280';
+          }
+        }
+
+        listEl.addEventListener('input', function (e) {
+          var card = e.target.closest('[data-loc-id]');
+          if (!card) return;
+          var id = card.getAttribute('data-loc-id');
+          var item = locs.filter(function (l) { return l.id === id; })[0];
+          if (!item) return;
+          if (e.target.hasAttribute('data-name')) item.name = e.target.value.trim();
+          if (e.target.hasAttribute('data-present')) {
+            var p = parseInt(e.target.value, 10);
+            item.present = isNaN(p) || p < 0 ? 0 : p;
+          }
+          if (e.target.hasAttribute('data-lost')) {
+            var l = parseInt(e.target.value, 10);
+            item.lost = isNaN(l) || l < 0 ? 0 : l;
+          }
+          document.getElementById('class-total-book').textContent = String(totalBook());
+          document.getElementById('class-loc-count').textContent = String(locs.length);
+          var allOk = locs.length > 0 && locs.every(function (loc) {
+            return loc.name && loc.present + loc.lost === loc.book;
+          });
+          var tip = document.getElementById('class-total-tip');
+          tip.textContent = allOk ? '各地点已拆满，可提交' : '请完善各地点名称，并保证在场+丢失=该地点账存';
+          tip.style.color = allOk ? '#047857' : '#6b7280';
+          var sum = item.present + item.lost;
+          var statusEl = card.querySelector('[data-status]');
+          if (statusEl) {
+            var statusText = !item.name ? '待填地点名称' : (sum > item.book ? '超出账存' : (sum === item.book ? '已拆满' : ('待拆分 ' + (item.book - sum))));
+            var statusColor = !item.name || sum > item.book ? '#b45309' : (sum === item.book ? '#047857' : '#6b7280');
+            statusEl.textContent = statusText;
+            statusEl.style.color = statusColor;
+          }
+        });
+
+        listEl.addEventListener('click', function (e) {
+          var btn = e.target.closest('[data-act]');
+          if (!btn) return;
+          var card = btn.closest('[data-loc-id]');
+          var id = card && card.getAttribute('data-loc-id');
+          if (btn.getAttribute('data-act') === 'del') {
+            if (locs.length < 2) { showToast('至少保留 1 个地点，无法删除'); return; }
+            delTargetId = id;
+            var from = locs.filter(function (l) { return l.id === id; })[0];
+            document.getElementById('del-from-label').textContent =
+              '将删除：「' + (from.name || '未命名') + '」，账存 ' + from.book + '（在场 ' + from.present + ' / 丢失 ' + from.lost + '）';
+            var sel = document.getElementById('del-to');
+            sel.innerHTML = '';
+            locs.forEach(function (l) {
+              if (l.id === id) return;
+              var opt = document.createElement('option');
+              opt.value = l.id;
+              opt.textContent = (l.name || '未命名') + ' · 账存 ' + l.book;
+              sel.appendChild(opt);
+            });
+            delMask.classList.add('is-open');
+          }
+        });
+
+        document.getElementById('btn-add-loc').addEventListener('click', function () {
+          syncFromDom();
+          if (!locs.length) {
+            locs.push({ id: 'l' + (++uid), name: '', book: 0, present: 0, lost: 0 });
+            render();
+            showToast('已新增空地点，请填写名称；若账存为 0 请从其他物资调整（演示请先有账存地点）');
+            return;
+          }
+          var sel = document.getElementById('add-from');
+          sel.innerHTML = '';
+          locs.forEach(function (l) {
+            var opt = document.createElement('option');
+            opt.value = l.id;
+            opt.textContent = (l.name || '未命名') + ' · 可拆账存 ' + l.book;
+            sel.appendChild(opt);
+          });
+          document.getElementById('add-name').value = '';
+          document.getElementById('add-qty').value = '1';
+          addMask.classList.add('is-open');
+        });
+
+        document.getElementById('add-cancel').addEventListener('click', function () {
+          addMask.classList.remove('is-open');
+        });
+        document.getElementById('add-ok').addEventListener('click', function () {
+          syncFromDom();
+          var fromId = document.getElementById('add-from').value;
+          var newName = document.getElementById('add-name').value.trim();
+          var qty = parseInt(document.getElementById('add-qty').value, 10);
+          if (!newName) { showToast('请填写新地点名称'); return; }
+          if (isNaN(qty) || qty < 1) { showToast('拆出数量至少为 1'); return; }
+          if (locs.some(function (l) { return l.name === newName; })) {
+            showToast('地点名称已存在');
+            return;
+          }
+          var from = locs.filter(function (l) { return l.id === fromId; })[0];
+          if (!from) return;
+          if (qty > from.book) { showToast('拆出数量不能大于源地点账存'); return; }
+          // 拆账存；已录在场/丢失按比例不自动切，超出则压回
+          from.book -= qty;
+          if (from.present + from.lost > from.book) {
+            from.present = 0;
+            from.lost = 0;
+          }
+          locs.push({ id: 'l' + (++uid), name: newName, book: qty, present: 0, lost: 0 });
+          addMask.classList.remove('is-open');
+          render();
+          showToast('已增加地点「' + newName + '」，账存 ' + qty);
+        });
+
+        document.getElementById('del-cancel').addEventListener('click', function () {
+          delMask.classList.remove('is-open');
+          delTargetId = null;
+        });
+        document.getElementById('del-ok').addEventListener('click', function () {
+          syncFromDom();
+          var toId = document.getElementById('del-to').value;
+          var from = locs.filter(function (l) { return l.id === delTargetId; })[0];
+          var to = locs.filter(function (l) { return l.id === toId; })[0];
+          if (!from || !to) return;
+          to.book += from.book;
+          to.present += from.present;
+          to.lost += from.lost;
+          locs = locs.filter(function (l) { return l.id !== delTargetId; });
+          delMask.classList.remove('is-open');
+          delTargetId = null;
+          render();
+          showToast('已删除并合并到「' + (to.name || '未命名') + '」');
+        });
+
+        function submitClass() {
+          syncFromDom();
+          if (!locs.length) { showToast('至少保留 1 个使用地点'); return; }
+          for (var i = 0; i < locs.length; i++) {
+            var loc = locs[i];
+            if (!loc.name) { showToast('地点 ' + (i + 1) + ' 请填写名称'); return; }
+            if (loc.present + loc.lost !== loc.book) {
+              showToast('「' + loc.name + '」在场+丢失须等于账存 ' + loc.book);
+              return;
+            }
+          }
+          var lostTotal = locs.reduce(function (s, l) { return s + l.lost; }, 0);
+          showToast(lostTotal > 0
+            ? '已提交，丢失合计 ' + lostTotal
+            : '已提交');
+          goBack();
+        }
+
+        document.getElementById('btn-submit').addEventListener('click', function () { submitClass(); });
+        render();
+        return;
+      }
+
+      /* ========== 固资 ========== */
+      var fixedMap = {
+        ZC202605012: { name: '工程测量仪', code: 'ZC202605012 · 固定资产', owner: '出库领用人：王工', meta: '系统位置：武穴大桥施工点', site: '武穴大桥施工点' },
+        ZC202604088: { name: '便携式发电机', code: 'ZC202604088 · 固定资产', owner: '出库领用人：王工', meta: '系统位置：城东项目部', site: '城东项目部' },
+        'PC-88901': { name: '办公电脑', code: 'PC-88901 · 固定资产', owner: '原领用人：张工 · 待你确认后归你', meta: '系统位置：办公楼 3F', site: '办公楼 3F' }
+      };
+      var finfo = fixedMap[code] || { name: code, code: code + ' · 固定资产', owner: '出库领用人：王工', meta: '系统位置：—', site: '' };
+      document.getElementById('asset-name').textContent = finfo.name;
+      document.getElementById('asset-code').textContent = finfo.code;
+      document.getElementById('asset-owner').textContent = finfo.owner;
+      document.getElementById('asset-meta').textContent = finfo.meta;
+      document.getElementById('site-loc').value = finfo.site || '';
+
+      if (mode === 'inbox') {
+        panelFixedInbox.classList.remove('hidden');
+        footPending.classList.add('hidden');
+        footInbox.classList.remove('hidden');
+      } else {
+        panelFixedPending.classList.remove('hidden');
+      }
+
+      var choice = document.getElementById('result-choice');
+      var blockPresent = document.getElementById('block-present');
+      var blockTransfer = document.getElementById('block-transfer');
+      var blockLost = document.getElementById('block-lost');
+      var needRecode = document.getElementById('need-recode');
+      var siteLoc = document.getElementById('site-loc');
+      function syncResult() {
+        var val = (document.querySelector('input[name="result"]:checked') || {}).value || '在场';
+        blockPresent.classList.toggle('hidden', val !== '在场');
+        blockTransfer.classList.toggle('hidden', val !== '转派');
+        blockLost.classList.toggle('hidden', val !== '丢失');
+        var locEditable = val === '在场' || val === '转派';
+        siteLoc.readOnly = !locEditable;
+        siteLoc.style.background = locEditable ? '#fff' : '#f8fafc';
+        if (val !== '在场') needRecode.checked = false;
+      }
+      choice.addEventListener('click', function (e) {
+        var label = e.target.closest('label');
+        if (!label) return;
+        Array.prototype.forEach.call(choice.querySelectorAll('label'), function (l) { l.classList.remove('is-on'); });
+        label.classList.add('is-on');
+        var input = label.querySelector('input');
+        if (input) input.checked = true;
+        syncResult();
+      });
+      syncResult();
+
+      document.getElementById('btn-pick-user').addEventListener('click', function () {
+        document.getElementById('transfer-user').value = '李工（工程部）';
+        var lab = document.getElementById('transfer-user-label');
+        lab.textContent = '李工（工程部）';
+        lab.className = '';
+        showToast('已选择转派人员（演示入口）');
+      });
+
+      function submitPending() {
+        var val = (document.querySelector('input[name="result"]:checked') || {}).value;
+        if (val === '转派') {
+          if (!document.getElementById('transfer-user').value) { showToast('请选择转派人员'); return; }
+          if (!document.getElementById('transfer-reason').value.trim()) { showToast('请填写转派说明'); return; }
+          showToast('已转派，已移出待盘');
+        } else if (val === '丢失') {
+          showToast('已确认丢失（保留原归属）');
+        } else {
+          showToast(needRecode.checked ? '已确认在场，并已通知补码' : '已确认在场');
+        }
+        goBack();
+      }
+      document.getElementById('btn-submit').addEventListener('click', function () { submitPending(); });
+      document.getElementById('btn-accept').addEventListener('click', function () {
+        showToast('已确认接收，归属变为你');
+        goBack();
+      });
+      document.getElementById('btn-reject').addEventListener('click', function () {
+        showToast('已拒绝，物资退回转出人待盘');
+        goBack();
+      });
+    })();
+  </script>
+</body>
+</html>

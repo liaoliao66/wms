@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>我的库外盘点 · 企微 H5 · v1.0.0</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="stylesheet" href="wecom.css" />
+</head>
+<body>
+  <div class="wecom-page">
+    <header class="wecom-nav">
+      <div class="wecom-nav-side">
+        <a class="wecom-icon-btn" href="../../index.html#wecom" aria-label="返回门户"><i class="fa-solid fa-chevron-left"></i></a>
+      </div>
+      <h1 class="wecom-nav-title">我的库外盘点</h1>
+      <div class="wecom-nav-side wecom-nav-side--right">
+        <a class="wecom-icon-btn" href="wecom_outside_count_scan.html" aria-label="扫码"><i class="fa-solid fa-qrcode"></i></a>
+      </div>
+    </header>
+
+    <main class="wecom-main">
+      <span class="wecom-badge-ver">v1.0.0 · 企微 H5</span>
+      <p class="wecom-hint">你是出库领用人即需确认名下物资（无执行人任务单）。按盘点计划切换，默认盘点中。固资可单件转派；类资产按地点录数量。</p>
+
+      <div class="wecom-field" style="margin-bottom:12px">
+        <label class="wecom-label" for="plan-switch">盘点计划</label>
+        <select class="wecom-select" id="plan-switch">
+          <option value="doing" selected>6月库外综合盘点（盘点中）</option>
+          <option value="done">5月库外固定资产盘点（已结束）</option>
+        </select>
+      </div>
+
+      <div id="panel-doing">
+        <a class="wecom-card" href="wecom_outside_count_execute.html?plan=doing" style="display:block">
+          <div class="wecom-card-head">
+            <div>
+              <p class="wecom-card-title">6月库外综合盘点</p>
+              <p class="wecom-mono" style="margin:4px 0 0">计划 KWP202606290001</p>
+            </div>
+            <span class="wecom-tag wecom-tag--doing">盘点中</span>
+          </div>
+          <p class="wecom-muted" style="margin:8px 0 0">我的待确认 4 · 待填地点 1 · 待我确认转派 1 · 已确认 8 · 丢失 1</p>
+          <p class="wecom-muted" style="margin:4px 0 0;color:#b45309">有 1 件固资他人转派待你确认</p>
+        </a>
+      </div>
+
+      <div id="panel-done" class="hidden">
+        <a class="wecom-card" href="wecom_outside_count_execute.html?plan=done" style="display:block">
+          <div class="wecom-card-head">
+            <div>
+              <p class="wecom-card-title">5月库外固定资产盘点</p>
+              <p class="wecom-mono" style="margin:4px 0 0">计划 KWP202605150002</p>
+            </div>
+            <span class="wecom-tag wecom-tag--done">已结束</span>
+          </div>
+          <p class="wecom-muted" style="margin:8px 0 0">我的待确认 0 · 已确认 12 · 丢失 0</p>
+        </a>
+      </div>
+    </main>
+
+    <div class="wecom-foot">
+      <a class="wecom-btn wecom-btn--primary wecom-btn--block" href="wecom_outside_count_execute.html?plan=doing"><i class="fa-solid fa-list-check"></i>进入当前计划确认</a>
+    </div>
+  </div>
+  <script>
+    (function () {
+      var sel = document.getElementById('plan-switch');
+      var doing = document.getElementById('panel-doing');
+      var done = document.getElementById('panel-done');
+      sel.addEventListener('change', function () {
+        var v = sel.value;
+        doing.classList.toggle('hidden', v !== 'doing');
+        done.classList.toggle('hidden', v !== 'done');
+      });
+    })();
+  </script>
+</body>
+</html>

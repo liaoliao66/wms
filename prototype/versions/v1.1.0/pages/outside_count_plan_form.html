@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新建/编辑盘点计划 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+  <style>
+    /* 步骤显隐：不依赖 Tailwind purge */
+    [data-plan-step].is-hidden { display: none !important; }
+    .wms-plan-stepper {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+      background: #f8fafc;
+    }
+    .wms-plan-stepper .step {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #94a3b8;
+    }
+    .wms-plan-stepper .step.is-active { color: #0f172a; }
+    .wms-plan-stepper .step.is-done { color: #475569; }
+    .wms-plan-stepper .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      background: #e2e8f0;
+      color: #475569;
+    }
+    .wms-plan-stepper .step.is-active .step-num {
+      background: #0f172a;
+      color: #fff;
+    }
+    .wms-plan-stepper .step.is-done .step-num {
+      background: #059669;
+      color: #fff;
+    }
+    .wms-plan-hint {
+      grid-column: 1 / -1;
+      margin: 0;
+      font-size: 0.75rem;
+      line-height: 1.5;
+      color: #64748b;
+    }
+    .wms-btn.is-disabled,
+    .wms-btn:disabled {
+      opacity: 0.45;
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+
+    /* —— 选择物资二级弹窗 —— */
+    .wms-picker-panel {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 720px;
+      height: min(680px, 82vh);
+      background: #fff;
+      border-radius: 12px;
+      box-shadow:
+        0 0 0 1px rgba(15, 23, 42, 0.06),
+        0 24px 48px -12px rgba(15, 23, 42, 0.28);
+      overflow: hidden;
+    }
+    .wms-picker-filters {
+      display: grid;
+      grid-template-columns: 168px 118px 128px 118px auto;
+      gap: 8px;
+      align-items: center;
+    }
+    @media (max-width: 640px) {
+      .wms-picker-filters {
+        grid-template-columns: 1fr 1fr;
+      }
+      .wms-picker-filters .wms-picker-reset {
+        grid-column: 1 / -1;
+        justify-self: start;
+      }
+    }
+    .wms-picker-field {
+      height: 36px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #334155;
+      background: #fff;
+      outline: none;
+    }
+    .wms-picker-field:focus {
+      border-color: #94a3b8;
+      box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2);
+    }
+    .wms-picker-search-wrap {
+      position: relative;
+    }
+    .wms-picker-search-wrap i {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: #94a3b8;
+      pointer-events: none;
+    }
+    .wms-picker-search-wrap input {
+      width: 100%;
+      padding: 0 10px 0 30px;
+    }
+    .wms-picker-filters select {
+      width: 100%;
+      padding: 0 8px;
+    }
+    .wms-picker-reset {
+      font-size: 12px;
+      color: #64748b;
+      padding: 0 4px;
+      white-space: nowrap;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .wms-picker-reset:hover { color: #0f172a; text-decoration: underline; }
+    .wms-picker-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    .wms-picker-tabs {
+      display: inline-flex;
+      padding: 3px;
+      background: #f1f5f9;
+      border-radius: 8px;
+    }
+    .wms-picker-tabs .picker-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 72px;
+      justify-content: center;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #64748b;
+      background: transparent;
+      cursor: pointer;
+    }
+    .wms-picker-tabs .picker-tab.is-on {
+      background: #fff;
+      color: #0f172a;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
+    }
+    .wms-picker-tabs .picker-tab .cnt {
+      display: inline-flex;
+      min-width: 18px;
+      height: 18px;
+      align-items: center;
+      justify-content: center;
+      padding: 0 5px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: #e2e8f0;
+      color: #64748b;
+    }
+    .wms-picker-tabs .picker-tab.is-on .cnt {
+      background: #0f172a;
+      color: #fff;
+    }
+    .wms-picker-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .wms-picker-actions button {
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      color: #334155;
+    }
+    .wms-picker-actions button:hover { background: #f8fafc; }
+    .wms-picker-actions button.primary-ghost {
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+    .wms-picker-table th {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      background: #f8fafc;
+      padding: 10px 12px;
+      text-align: left;
+      white-space: nowrap;
+    }
+    .wms-picker-table td {
+      padding: 10px 12px;
+      font-size: 13px;
+      color: #334155;
+      border-top: 1px solid #f1f5f9;
+      white-space: nowrap;
+    }
+    .wms-picker-table tbody tr:hover td { background: #f8fafc; }
+  </style>
+</head><body data-page="outside_count_plan_list" data-title="新建/编辑盘点计划" data-breadcrumb="库外盘点 / 计划表单">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="outside_count_plan_list.html" data-modal-size="xl" data-wms-outside-count-plan-form>
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="wms-plan-stepper" id="plan-stepper">
+          <div class="step is-active" data-step-ind="1">
+            <span class="step-num">1</span>基础信息
+          </div>
+          <i class="fa-solid fa-chevron-right text-xs text-slate-300"></i>
+          <div class="step" data-step-ind="2">
+            <span class="step-num">2</span>选择应盘物资
+          </div>
+        </div>
+
+        <!-- ===== 步骤 1：全部为 .wms-modal-form 直系子节点，保证两列对齐 ===== -->
+        <div class="wms-form-section" data-plan-step="1"><h3 class="wms-form-section-title">计划信息</h3></div>
+        <div data-plan-step="1">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">计划编号</label>
+          <input type="text" value="系统自动生成" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" />
+        </div>
+        <div data-plan-step="1">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 计划名称</label>
+          <input id="plan-name" type="text" value="6月库外综合盘点" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+        </div>
+        <div data-plan-step="1">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 资产类型</label>
+          <select id="asset-type" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200">
+            <option value="both">固定资产/类资产</option>
+            <option value="fixed">固定资产</option>
+            <option value="class">类资产</option>
+          </select>
+        </div>
+        <div data-plan-step="1">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 口径日期</label>
+          <input id="baseline-date" type="date" value="2026-06-29" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+        </div>
+        <p class="wms-plan-hint" data-plan-step="1">以该日<strong>日终</strong>库外台账快照为准；发布后写入应盘；未结束前仍可追加物资或补录。</p>
+
+        <div class="wms-form-section" data-plan-step="1"><h3 class="wms-form-section-title">时间与说明</h3></div>
+        <div data-plan-step="1">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 开始日期</label>
+          <input id="start-date" type="date" value="2026-06-29" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+        </div>
+        <div data-plan-step="1">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 截止日期</label>
+          <input id="end-date" type="date" value="2026-07-03" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm" />
+        </div>
+        <div class="md:col-span-2" data-plan-step="1" style="grid-column: 1 / -1">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">备注</label>
+          <textarea id="remark" rows="2" placeholder="选填，最多 500 字" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"></textarea>
+        </div>
+
+        <!-- ===== 步骤 2 ===== -->
+        <div class="wms-form-section is-hidden" data-plan-step="2"><h3 class="wms-form-section-title">盘点范围（物资）</h3></div>
+        <div class="is-hidden rounded-xl border border-sky-100 bg-sky-50/80 px-4 py-3 text-sm text-sky-900" data-plan-step="2" style="grid-column: 1 / -1">
+          <p class="font-medium text-sky-950">物资数据来源</p>
+          <p class="mt-1">应盘对象取自<strong>库外资产台账</strong>。按口径日<strong>日终</strong>快照生成预览；须选择物资后方可发布。</p>
+        </div>
+
+        <div class="is-hidden" data-plan-step="2">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 范围方式</label>
+          <select id="scope-mode" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200">
+            <option value="category">指定物资大类</option>
+            <option value="all">全部库外资产</option>
+            <option value="location">指定使用地点</option>
+            <option value="list" selected>指定物资清单</option>
+          </select>
+        </div>
+        <div class="is-hidden" id="wrap-location" data-plan-step="2">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">使用地点（筛选）</label>
+          <select id="scope-location" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm">
+            <option value="">不限</option>
+            <option>城东项目部</option>
+            <option>武穴大桥施工点</option>
+            <option>研发楼 3F</option>
+            <option>会议室 A</option>
+          </select>
+        </div>
+        <div class="is-hidden" id="wrap-category" data-plan-step="2" style="grid-column: 1 / -1">
+          <label class="mb-1.5 block text-sm font-medium text-slate-700">物资大类</label>
+          <div class="flex flex-wrap gap-2">
+            <span class="inline-flex items-center rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">设备-仪器</span>
+            <span class="inline-flex items-center rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">办公-家具</span>
+          </div>
+        </div>
+
+        <div class="is-hidden" id="wrap-pick" data-plan-step="2" style="grid-column: 1 / -1">
+          <div class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
+            <div>
+              <p class="text-sm font-medium text-slate-800">指定物资清单</p>
+              <p class="mt-0.5 text-xs text-slate-500">从库外台账弹窗多选；已选 <strong id="picked-count">0</strong> 行</p>
+            </div>
+            <button type="button" id="btn-open-picker" class="wms-btn wms-btn-secondary text-sm">
+              <i class="fa-solid fa-list-check mr-1 text-xs"></i>选择物资
+            </button>
+          </div>
+        </div>
+
+        <div class="is-hidden" id="miss-loc-tip" data-plan-step="2" style="grid-column: 1 / -1">
+          <div class="rounded-xl border border-amber-100 bg-amber-50/60 px-4 py-3 text-sm text-amber-900">
+            <i class="fa-solid fa-triangle-exclamation mr-1"></i>应盘预览含 <strong id="miss-loc-n">0</strong> 项缺使用地点：可发布，须在盘点确认中补填。
+          </div>
+        </div>
+
+        <div class="is-hidden overflow-hidden rounded-xl border border-slate-200 bg-white" data-plan-step="2" style="grid-column: 1 / -1">
+          <div class="flex items-center justify-between border-b border-slate-100 px-4 py-3">
+            <div class="text-sm font-medium text-slate-800">应盘物资预览（共 <span id="preview-total">0</span> 项）</div>
+            <button type="button" id="btn-clear-one" class="text-xs font-medium text-slate-600 hover:underline" style="display:none">从清单移除勾选行</button>
+          </div>
+          <div class="overflow-x-auto wms-modal-table-wrap">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50/80">
+                <tr>
+                  <th class="w-10 px-3 py-3 text-left"><span class="sr-only">选</span></th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">类型</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">编码</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">物资名称</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">使用地点</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">账存</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">出库领用人</th>
+                </tr>
+              </thead>
+              <tbody id="preview-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="wms-form-section is-hidden" data-plan-step="2"><h3 class="wms-form-section-title">确认人预览（按出库领用人汇总）</h3></div>
+        <div class="is-hidden rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600" data-plan-step="2" style="grid-column: 1 / -1">
+          选择物资并<strong>发布</strong>后进入「盘点中」。须物资管理员<strong>结束</strong>后方可生成报告。
+        </div>
+        <div class="is-hidden overflow-hidden rounded-xl border border-slate-200 bg-white" data-plan-step="2" style="grid-column: 1 / -1">
+          <div class="overflow-x-auto wms-modal-table-wrap">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50/80">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">领用人</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">部门</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">应盘行数</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-slate-500">缺地点</th>
+                </tr>
+              </thead>
+              <tbody id="owner-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="wms-modal-footer" id="plan-form-footer">
+        <a href="outside_count_plan_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-secondary" id="btn-prev" style="display:none">上一步</button>
+        <button type="button" class="wms-btn wms-btn-primary" id="btn-next">下一步</button>
+        <button type="button" class="wms-btn wms-btn-secondary" id="btn-draft" style="display:none">保存草稿</button>
+        <button type="button" class="wms-btn wms-btn-primary is-disabled" id="btn-publish" style="display:none" disabled title="请先选择应盘物资">发布</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="picker-mask" class="fixed inset-0 hidden items-center justify-center p-4" style="z-index:300;background:rgba(15,23,42,.48)">
+    <div class="wms-picker-panel" role="dialog" aria-modal="true" aria-labelledby="picker-title">
+      <div class="flex shrink-0 items-center justify-between px-5 py-3.5" style="border-bottom:1px solid #f1f5f9">
+        <div>
+          <h3 id="picker-title" class="text-base font-semibold text-slate-900">选择应盘物资</h3>
+          <p class="mt-0.5 text-xs text-slate-500">库外资产台账 · 口径日终快照</p>
+        </div>
+        <button type="button" id="picker-close" class="rounded-lg p-2 text-slate-400 hover:bg-slate-100" aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="shrink-0 px-5 py-3" style="border-bottom:1px solid #f1f5f9">
+        <div class="wms-picker-filters">
+          <div class="wms-picker-search-wrap">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input id="picker-search" type="search" placeholder="编码 / 名称" class="wms-picker-field" />
+          </div>
+          <select id="picker-type" class="wms-picker-field">
+            <option value="">物资类型</option>
+            <option value="固资">固定资产</option>
+            <option value="类资产">类资产</option>
+          </select>
+          <select id="picker-loc" class="wms-picker-field">
+            <option value="">使用地点</option>
+            <option>城东项目部</option>
+            <option>武穴大桥施工点</option>
+            <option>研发楼 3F</option>
+            <option>会议室 A</option>
+            <option>办公楼 3F</option>
+            <option>施工临建</option>
+            <option value="__empty__">地点待补填</option>
+          </select>
+          <select id="picker-dept" class="wms-picker-field">
+            <option value="">使用部门</option>
+            <option>工程部</option>
+            <option>设备部</option>
+            <option>维保部</option>
+          </select>
+          <button type="button" id="picker-reset" class="wms-picker-reset">重置</button>
+        </div>
+        <div class="wms-picker-toolbar">
+          <div class="wms-picker-tabs">
+            <button type="button" class="picker-tab is-on" data-picker-tab="unselected">未选 <span class="cnt" id="tab-un-n">0</span></button>
+            <button type="button" class="picker-tab" data-picker-tab="selected">已选 <span class="cnt" id="tab-sel-n">0</span></button>
+          </div>
+          <div class="wms-picker-actions">
+            <button type="button" id="picker-all" class="primary-ghost">全选</button>
+            <button type="button" id="picker-none">清空勾选</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="min-h-0 flex-1 overflow-auto">
+        <table class="wms-picker-table min-w-full">
+          <thead class="sticky top-0 z-10">
+            <tr>
+              <th style="width:40px"></th>
+              <th>类型</th>
+              <th>编码</th>
+              <th>名称</th>
+              <th>使用地点</th>
+              <th>部门</th>
+              <th>账存</th>
+              <th>领用人</th>
+            </tr>
+          </thead>
+          <tbody id="picker-tbody"></tbody>
+        </table>
+        <p id="picker-empty" class="hidden px-5 py-14 text-center text-sm text-slate-400">暂无数据</p>
+      </div>
+
+      <div class="flex shrink-0 items-center justify-between gap-3 px-5 py-3" style="border-top:1px solid #f1f5f9;background:#fafafa">
+        <p class="text-sm text-slate-500">已选 <strong id="picker-sel-n" class="text-slate-900">0</strong> 行</p>
+        <div class="flex gap-2">
+          <button type="button" class="wms-btn wms-btn-secondary" id="picker-cancel">取消</button>
+          <button type="button" class="wms-btn wms-btn-primary" id="picker-ok">确认选择</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="pointer-events-none fixed bottom-8 left-1/2 hidden -translate-x-1/2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm text-white shadow-lg" style="z-index:310"></div>
+
+  <script src="../js/layout.js" charset="UTF-8"></script>
+  <script>
+    (function () {
+      function boot() {
+        var root = document.querySelector('.wms-modal-backdrop') || document;
+        function $(id) { return root.querySelector('#' + id) || document.getElementById(id); }
+
+        var CATALOG = [
+          { id: 'r1', type: '固资', code: 'ZC202605012', name: '工程测量仪', loc: '武穴大桥施工点', book: 1, owner: '王工', dept: '工程部', cat: '设备-仪器' },
+          { id: 'r2', type: '固资', code: 'PC-88901', name: '办公电脑', loc: '办公楼 3F', book: 1, owner: '张工', dept: '工程部', cat: '办公-家具' },
+          { id: 'r3', type: '固资', code: 'ZC202604088', name: '便携式发电机', loc: '城东项目部', book: 1, owner: '李工', dept: '设备部', cat: '设备-仪器' },
+          { id: 'r4', type: '类资产', code: 'BM-DZ-001', name: '办公凳', loc: '研发楼 3F', book: 10, owner: '王工', dept: '工程部', cat: '办公-家具' },
+          { id: 'r5', type: '类资产', code: 'BM-DZ-001', name: '办公凳', loc: '会议室 A', book: 5, owner: '王工', dept: '工程部', cat: '办公-家具' },
+          { id: 'r6', type: '类资产', code: 'BM-YC-002', name: '折叠椅', loc: '', book: 8, owner: '王工', dept: '工程部', cat: '办公-家具' },
+          { id: 'r7', type: '类资产', code: 'BM-AQ-010', name: '安全帽', loc: '施工临建', book: 20, owner: '赵六', dept: '维保部', cat: '设备-仪器' },
+          { id: 'r8', type: '固资', code: 'PC-77221', name: '笔记本电脑', loc: '办公楼 3F', book: 1, owner: '李工', dept: '设备部', cat: '办公-家具' }
+        ];
+
+        // 新建默认未选；编辑演示可带已选
+        var params = new URLSearchParams(location.search);
+        var selectedIds = params.get('planNo') ? ['r1', 'r4', 'r5', 'r6'] : [];
+        var draftCheck = {};
+        var pickerTab = 'unselected';
+        var step = 1;
+        var toast = document.getElementById('toast');
+        function showToast(msg) {
+          toast.textContent = msg;
+          toast.classList.remove('hidden');
+          setTimeout(function () { toast.classList.add('hidden'); }, 2000);
+        }
+
+        function byId(id) { return CATALOG.filter(function (x) { return x.id === id; })[0]; }
+        function selectedRows() { return selectedIds.map(byId).filter(Boolean); }
+        function draftCount() {
+          var n = 0;
+          Object.keys(draftCheck).forEach(function (id) { if (draftCheck[id]) n++; });
+          return n;
+        }
+        function passFilter(r) {
+          var q = (document.getElementById('picker-search').value || '').trim().toLowerCase();
+          var tp = document.getElementById('picker-type').value;
+          var loc = document.getElementById('picker-loc').value;
+          var dept = document.getElementById('picker-dept').value;
+          if (tp && r.type !== tp) return false;
+          if (dept && r.dept !== dept) return false;
+          if (loc === '__empty__') {
+            if (r.loc) return false;
+          } else if (loc && r.loc !== loc) return false;
+          if (q) {
+            var hay = (r.code + ' ' + r.name + ' ' + r.owner + ' ' + (r.loc || '') + ' ' + (r.dept || '')).toLowerCase();
+            if (hay.indexOf(q) < 0) return false;
+          }
+          return true;
+        }
+        function filteredList() {
+          return CATALOG.filter(function (r) {
+            if (!passFilter(r)) return false;
+            var sel = !!draftCheck[r.id];
+            if (pickerTab === 'selected') return sel;
+            return !sel;
+          });
+        }
+        function updateTabCounts() {
+          var un = 0, sel = 0;
+          CATALOG.forEach(function (r) {
+            if (!passFilter(r)) return;
+            if (draftCheck[r.id]) sel++;
+            else un++;
+          });
+          var unEl = document.getElementById('tab-un-n');
+          var selEl = document.getElementById('tab-sel-n');
+          if (unEl) unEl.textContent = String(un);
+          if (selEl) selEl.textContent = String(sel);
+          var total = document.getElementById('picker-sel-n');
+          if (total) total.textContent = String(draftCount());
+        }
+        function setPickerTab(tab) {
+          pickerTab = tab;
+          document.querySelectorAll('.picker-tab').forEach(function (btn) {
+            btn.classList.toggle('is-on', btn.getAttribute('data-picker-tab') === tab);
+          });
+          renderPicker();
+        }
+        function syncPublishBtn() {
+          var btn = $('btn-publish');
+          if (!btn) return;
+          var ok = selectedRows().length > 0;
+          btn.disabled = !ok;
+          btn.classList.toggle('is-disabled', !ok);
+          btn.title = ok ? '发布后进入盘点中' : '请先选择应盘物资';
+        }
+
+        function setStep(n) {
+          step = n;
+          root.querySelectorAll('[data-plan-step]').forEach(function (el) {
+            var show = el.getAttribute('data-plan-step') === String(n);
+            el.classList.toggle('is-hidden', !show);
+          });
+          // 范围子控件：步骤2时再按 mode 收窄
+          if (n === 2) syncScopeUi(false);
+
+          var s1 = root.querySelector('[data-step-ind="1"]');
+          var s2 = root.querySelector('[data-step-ind="2"]');
+          if (s1) {
+            s1.classList.toggle('is-active', n === 1);
+            s1.classList.toggle('is-done', n > 1);
+            var n1 = s1.querySelector('.step-num');
+            if (n1) n1.textContent = n > 1 ? '✓' : '1';
+          }
+          if (s2) {
+            s2.classList.toggle('is-active', n === 2);
+            var n2 = s2.querySelector('.step-num');
+            if (n2) n2.textContent = '2';
+          }
+
+          var prev = $('btn-prev');
+          var next = $('btn-next');
+          var draft = $('btn-draft');
+          var pub = $('btn-publish');
+          if (prev) prev.style.display = n === 1 ? 'none' : '';
+          if (next) next.style.display = n === 2 ? 'none' : '';
+          if (draft) draft.style.display = n === 1 ? 'none' : '';
+          if (pub) pub.style.display = n === 1 ? 'none' : '';
+          if (n === 2) {
+            renderPreview();
+            syncPublishBtn();
+          }
+        }
+
+        function validateStep1() {
+          if (!(($('plan-name') && $('plan-name').value) || '').trim()) {
+            showToast('请填写计划名称');
+            return false;
+          }
+          if (!$('baseline-date') || !$('baseline-date').value) {
+            showToast('请选择口径日期');
+            return false;
+          }
+          if (!$('start-date').value || !$('end-date').value) {
+            showToast('请填写开始/截止日期');
+            return false;
+          }
+          return true;
+        }
+
+        function syncScopeUi(resetList) {
+          var modeEl = $('scope-mode');
+          if (!modeEl) return;
+          var mode = modeEl.value;
+          var wrapPick = $('wrap-pick');
+          var wrapCat = $('wrap-category');
+          var wrapLoc = $('wrap-location');
+          if (wrapPick) wrapPick.classList.toggle('is-hidden', mode !== 'list');
+          if (wrapCat) wrapCat.classList.toggle('is-hidden', mode !== 'category');
+          if (wrapLoc) wrapLoc.classList.toggle('is-hidden', mode !== 'location' && mode !== 'category');
+          // 步骤外的 is-hidden 由 setStep 管；此处仅在 step2 且对应 mode 时显示
+          if (step === 2) {
+            if (wrapPick && mode === 'list') wrapPick.classList.remove('is-hidden');
+            if (wrapCat && mode === 'category') wrapCat.classList.remove('is-hidden');
+            if (wrapLoc && (mode === 'location' || mode === 'category')) wrapLoc.classList.remove('is-hidden');
+          }
+          if (resetList !== false) {
+            if (mode === 'all') {
+              selectedIds = CATALOG.map(function (x) { return x.id; });
+            } else if (mode === 'category') {
+              selectedIds = CATALOG.filter(function (x) {
+                return x.cat === '设备-仪器' || x.cat === '办公-家具';
+              }).map(function (x) { return x.id; });
+            } else if (mode === 'location') {
+              var loc = $('scope-location').value;
+              selectedIds = CATALOG.filter(function (x) { return !loc || x.loc === loc; }).map(function (x) { return x.id; });
+            }
+          }
+          renderPreview();
+          syncPublishBtn();
+        }
+
+        function typeBadge(t) {
+          if (t === '固资') return '<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">固资</span>';
+          return '<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-sky-50 text-sky-700 ring-sky-600/20">类资产</span>';
+        }
+
+        function renderPreview() {
+          var rows = selectedRows();
+          var tbody = $('preview-tbody');
+          if (!tbody) return;
+          tbody.innerHTML = '';
+          var miss = 0;
+          if (!rows.length) {
+            tbody.innerHTML = '<tr class="border-t border-slate-100"><td colspan="7" class="px-4 py-8 text-center text-sm text-slate-400">尚未选择物资，请先「选择物资」或切换范围方式</td></tr>';
+          } else {
+            rows.forEach(function (r) {
+              if (!r.loc) miss++;
+              var tr = document.createElement('tr');
+              tr.className = 'border-t border-slate-100' + (!r.loc ? ' bg-amber-50/40' : '');
+              tr.innerHTML =
+                '<td class="px-3 py-2.5"><input type="checkbox" data-rm="' + r.id + '" class="rounded border-slate-300" /></td>' +
+                '<td class="px-4 py-2.5">' + typeBadge(r.type) + '</td>' +
+                '<td class="px-4 py-2.5 font-mono text-xs">' + r.code + '</td>' +
+                '<td class="px-4 py-2.5">' + r.name + '</td>' +
+                '<td class="px-4 py-2.5' + (!r.loc ? ' text-amber-700 font-medium' : '') + '">' + (r.loc || '待补填') + '</td>' +
+                '<td class="px-4 py-2.5">' + r.book + '</td>' +
+                '<td class="px-4 py-2.5">' + r.owner + '</td>';
+              tbody.appendChild(tr);
+            });
+          }
+          var pt = $('preview-total');
+          var pc = $('picked-count');
+          var mn = $('miss-loc-n');
+          var tip = $('miss-loc-tip');
+          if (pt) pt.textContent = String(rows.length);
+          if (pc) pc.textContent = String(rows.length);
+          if (mn) mn.textContent = String(miss);
+          if (tip) tip.classList.toggle('is-hidden', miss === 0 || step !== 2);
+
+          var owners = {};
+          rows.forEach(function (r) {
+            var k = r.owner;
+            if (!owners[k]) owners[k] = { owner: r.owner, dept: r.dept, n: 0, miss: 0 };
+            owners[k].n++;
+            if (!r.loc) owners[k].miss++;
+          });
+          var ot = $('owner-tbody');
+          if (ot) {
+            ot.innerHTML = '';
+            Object.keys(owners).forEach(function (k) {
+              var o = owners[k];
+              var tr = document.createElement('tr');
+              tr.className = 'border-t border-slate-100';
+              tr.innerHTML = '<td class="px-4 py-2.5">' + o.owner + '</td><td class="px-4 py-2.5">' + o.dept + '</td><td class="px-4 py-2.5">' + o.n + '</td><td class="px-4 py-2.5' + (o.miss ? ' text-amber-700' : '') + '">' + o.miss + '</td>';
+              ot.appendChild(tr);
+            });
+            if (!Object.keys(owners).length) {
+              ot.innerHTML = '<tr class="border-t border-slate-100"><td colspan="4" class="px-4 py-6 text-center text-sm text-slate-400">选择物资后汇总确认人</td></tr>';
+            }
+          }
+          syncPublishBtn();
+        }
+
+        function openPicker() {
+          draftCheck = {};
+          selectedIds.forEach(function (id) { draftCheck[id] = true; });
+          document.getElementById('picker-search').value = '';
+          document.getElementById('picker-type').value = '';
+          document.getElementById('picker-loc').value = '';
+          document.getElementById('picker-dept').value = '';
+          var mask = document.getElementById('picker-mask');
+          if (mask && mask.parentNode !== document.body) {
+            document.body.appendChild(mask);
+          }
+          mask.style.zIndex = '300';
+          mask.classList.remove('hidden');
+          mask.classList.add('flex');
+          setPickerTab('unselected');
+        }
+        function closePicker() {
+          var mask = document.getElementById('picker-mask');
+          mask.classList.add('hidden');
+          mask.classList.remove('flex');
+        }
+        function renderPicker() {
+          var tbody = document.getElementById('picker-tbody');
+          var empty = document.getElementById('picker-empty');
+          var list = filteredList();
+          tbody.innerHTML = '';
+          list.forEach(function (r) {
+            var tr = document.createElement('tr');
+            tr.className = 'border-t border-slate-100 hover:bg-slate-50/80';
+            tr.innerHTML =
+              '<td><input type="checkbox" data-pick="' + r.id + '" ' + (draftCheck[r.id] ? 'checked' : '') + ' class="rounded border-slate-300" /></td>' +
+              '<td>' + typeBadge(r.type) + '</td>' +
+              '<td class="font-mono text-xs">' + r.code + '</td>' +
+              '<td>' + r.name + '</td>' +
+              '<td' + (!r.loc ? ' class="text-amber-700"' : '') + '>' + (r.loc || '待补填') + '</td>' +
+              '<td class="text-slate-500">' + (r.dept || '—') + '</td>' +
+              '<td>' + r.book + '</td>' +
+              '<td>' + r.owner + '</td>';
+            tbody.appendChild(tr);
+          });
+          if (empty) empty.classList.toggle('hidden', list.length > 0);
+          updateTabCounts();
+        }
+
+        $('btn-next').addEventListener('click', function () {
+          if (!validateStep1()) return;
+          setStep(2);
+        });
+        $('btn-prev').addEventListener('click', function () { setStep(1); });
+        $('scope-mode').addEventListener('change', function () { syncScopeUi(true); });
+        $('scope-location').addEventListener('change', function () {
+          if ($('scope-mode').value === 'location') syncScopeUi(true);
+        });
+        $('btn-open-picker').addEventListener('click', openPicker);
+        document.getElementById('picker-close').addEventListener('click', closePicker);
+        document.getElementById('picker-cancel').addEventListener('click', closePicker);
+        document.getElementById('picker-search').addEventListener('input', renderPicker);
+        document.getElementById('picker-type').addEventListener('change', renderPicker);
+        document.getElementById('picker-loc').addEventListener('change', renderPicker);
+        document.getElementById('picker-dept').addEventListener('change', renderPicker);
+        document.getElementById('picker-reset').addEventListener('click', function () {
+          document.getElementById('picker-search').value = '';
+          document.getElementById('picker-type').value = '';
+          document.getElementById('picker-loc').value = '';
+          document.getElementById('picker-dept').value = '';
+          renderPicker();
+        });
+        document.querySelectorAll('.picker-tab').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            setPickerTab(btn.getAttribute('data-picker-tab'));
+          });
+        });
+        document.getElementById('picker-tbody').addEventListener('change', function (e) {
+          var cb = e.target.closest('[data-pick]');
+          if (!cb) return;
+          draftCheck[cb.getAttribute('data-pick')] = cb.checked;
+          renderPicker();
+        });
+        document.getElementById('picker-all').addEventListener('click', function () {
+          // 全选：当前筛选条件下，将「未选」全部勾入；在已选页签则保持已选并勾选当前列表
+          if (pickerTab === 'unselected') {
+            CATALOG.forEach(function (r) {
+              if (passFilter(r) && !draftCheck[r.id]) draftCheck[r.id] = true;
+            });
+          } else {
+            filteredList().forEach(function (r) { draftCheck[r.id] = true; });
+          }
+          renderPicker();
+          showToast('已全选当前筛选结果');
+        });
+        document.getElementById('picker-none').addEventListener('click', function () {
+          if (pickerTab === 'selected') {
+            filteredList().forEach(function (r) { draftCheck[r.id] = false; });
+          } else {
+            draftCheck = {};
+          }
+          renderPicker();
+        });
+        document.getElementById('picker-ok').addEventListener('click', function () {
+          selectedIds = Object.keys(draftCheck).filter(function (id) { return draftCheck[id]; });
+          if (!selectedIds.length) {
+            showToast('请至少选择 1 行物资');
+            return;
+          }
+          $('scope-mode').value = 'list';
+          syncScopeUi(false);
+          closePicker();
+          showToast('已选择 ' + selectedIds.length + ' 行应盘物资');
+        });
+
+        $('preview-tbody').addEventListener('change', function () {
+          var any = root.querySelector('#preview-tbody [data-rm]:checked');
+          var btn = $('btn-clear-one');
+          if (btn) btn.style.display = any ? '' : 'none';
+        });
+        $('btn-clear-one').addEventListener('click', function () {
+          var remove = [];
+          root.querySelectorAll('#preview-tbody [data-rm]:checked').forEach(function (cb) {
+            remove.push(cb.getAttribute('data-rm'));
+          });
+          selectedIds = selectedIds.filter(function (id) { return remove.indexOf(id) < 0; });
+          $('scope-mode').value = 'list';
+          renderPreview();
+          $('btn-clear-one').style.display = 'none';
+          showToast('已从清单移除 ' + remove.length + ' 行');
+        });
+
+        $('btn-draft').addEventListener('click', function () {
+          showToast('草稿已保存（演示）');
+          setTimeout(function () { location.href = 'outside_count_plan_list.html'; }, 800);
+        });
+        $('btn-publish').addEventListener('click', function () {
+          if (!selectedRows().length) {
+            showToast('请先选择应盘物资后再发布');
+            return;
+          }
+          showToast('已发布 → 盘点中');
+          setTimeout(function () { location.href = 'outside_count_plan_list.html'; }, 900);
+        });
+
+        setStep(1);
+      }
+
+      // 等 layout 抽出弹窗后再绑定，避免 footer 重建丢事件 / 改错节点
+      function start() { setTimeout(boot, 50); }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start);
+      } else {
+        start();
+      }
+    })();
+  </script>
+</body></html>

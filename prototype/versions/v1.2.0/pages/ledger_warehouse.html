@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>仓库台账 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="ledger_warehouse" data-title="仓库台账" data-breadcrumb="物资台账 / 仓库台账">
+  <div id="main-content">
+    <p class="mb-4 text-sm text-slate-500">按仓库树形结构查看库存；<strong class="font-medium text-slate-700">固定资产</strong>一物一码，可查看/下载专属资产二维码</p>
+    <div class="mb-4 flex flex-wrap items-center gap-3">
+      <select class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"><option>全部大类</option><option selected>固定资产</option><option>类资产</option><option>耗材</option></select>
+      <div class="relative flex-1 min-w-[200px] max-w-md">
+        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+        <input type="search" placeholder="资产编码、物资编码、名称…" class="w-full rounded-xl border border-slate-200 py-2 pl-9 pr-3 text-sm outline-none focus:border-slate-400" />
+      </div>
+      <button class="rounded-xl bg-white px-3 py-2 text-sm ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-filter mr-1"></i>筛选</button>
+      <button type="button" id="wms-ledger-batch-qr" class="ml-auto inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-qrcode text-xs"></i>批量下载资产二维码</button>
+    </div>
+    <div class="wms-ledger-layout grid gap-4 lg:grid-cols-12">
+      <aside class="wms-ledger-tree card rounded-2xl bg-white p-4 lg:col-span-3" data-wms-ledger-tree data-ledger-tree-path="主仓库/A区/A-02">
+    <h3 class="mb-3 px-2 text-xs font-semibold uppercase tracking-wide text-slate-400">仓库目录</h3>
+    <div class="wms-ledger-tree-scroll">
+      <ul class="wms-tree space-y-0.5 text-sm" data-wms-ledger-tree-root><li data-wms-ledger-tree-branch data-wms-ledger-tree-item data-ledger-tree-path="主仓库" data-wms-ledger-expanded="true">
+    <div class="flex items-center gap-0.5">
+      <button type="button" class="wms-ledger-tree-toggle is-expanded flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-ledger-tree-toggle aria-expanded="true" aria-label="收起"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+      <button type="button" class="wms-tree-node wms-tree-node--ledger wms-tree-node--warehouse is-context flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-50" data-wms-ledger-tree-pick data-ledger-tree-path="主仓库" data-ledger-tree-level="warehouse" data-ledger-tree-label="主仓库">
+        <i class="fa-solid fa-warehouse shrink-0 text-xs w-4 text-center"></i><span class="truncate">主仓库</span>
+      </button>
+    </div>
+    <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2" data-wms-ledger-tree-children><li data-wms-ledger-tree-branch data-wms-ledger-tree-item data-ledger-tree-path="主仓库/A区" data-wms-ledger-expanded="true">
+    <div class="flex items-center gap-0.5">
+      <button type="button" class="wms-ledger-tree-toggle is-expanded flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-ledger-tree-toggle aria-expanded="true" aria-label="收起"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+      <button type="button" class="wms-tree-node wms-tree-node--ledger wms-tree-node--zone flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-50" data-wms-ledger-tree-pick data-ledger-tree-path="主仓库/A区" data-ledger-tree-level="zone" data-ledger-tree-label="A区 · 通用物资">
+        <i class="fa-solid fa-folder-open shrink-0 text-xs w-4 text-center"></i><span class="truncate">A区 · 通用物资</span>
+      </button>
+    </div>
+    <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2" data-wms-ledger-tree-children><li data-wms-ledger-tree-item data-ledger-tree-path="主仓库/A区/A-01">
+      <button type="button" class="wms-tree-node wms-tree-node--ledger wms-tree-node--shelf w-full rounded-lg py-1.5 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-ledger-tree-pick data-ledger-tree-path="主仓库/A区/A-01" data-ledger-tree-level="shelf" data-ledger-tree-label="A-01 货架">
+        <span class="flex items-center gap-2 truncate"><span class="w-4 shrink-0"></span><span class="truncate">A-01 货架</span></span>
+      </button>
+    </li><li data-wms-ledger-tree-item data-ledger-tree-path="主仓库/A区/A-02">
+      <button type="button" class="wms-tree-node wms-tree-node--ledger wms-tree-node--shelf is-active w-full rounded-lg py-1.5 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-ledger-tree-pick data-ledger-tree-path="主仓库/A区/A-02" data-ledger-tree-level="shelf" data-ledger-tree-label="A-02 货架">
+        <span class="flex items-center gap-2 truncate"><span class="w-4 shrink-0"></span><span class="truncate">A-02 货架</span></span>
+      </button>
+    </li></ul>
+  </li><li data-wms-ledger-tree-branch data-wms-ledger-tree-item data-ledger-tree-path="主仓库/B区" data-wms-ledger-expanded="false">
+    <div class="flex items-center gap-0.5">
+      <button type="button" class="wms-ledger-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-ledger-tree-toggle aria-expanded="false" aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+      <button type="button" class="wms-tree-node wms-tree-node--ledger wms-tree-node--zone flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-50" data-wms-ledger-tree-pick data-ledger-tree-path="主仓库/B区" data-ledger-tree-level="zone" data-ledger-tree-label="B区 · 设备">
+        <i class="fa-solid fa-folder-open shrink-0 text-xs w-4 text-center"></i><span class="truncate">B区 · 设备</span>
+      </button>
+    </div>
+    <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2 hidden" data-wms-ledger-tree-children><li data-wms-ledger-tree-item data-ledger-tree-path="主仓库/B区/B-01">
+      <button type="button" class="wms-tree-node wms-tree-node--ledger wms-tree-node--shelf w-full rounded-lg py-1.5 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-ledger-tree-pick data-ledger-tree-path="主仓库/B区/B-01" data-ledger-tree-level="shelf" data-ledger-tree-label="B-01 货架">
+        <span class="flex items-center gap-2 truncate"><span class="w-4 shrink-0"></span><span class="truncate">B-01 货架</span></span>
+      </button>
+    </li><li data-wms-ledger-tree-item data-ledger-tree-path="主仓库/B区/B-03">
+      <button type="button" class="wms-tree-node wms-tree-node--ledger wms-tree-node--shelf w-full rounded-lg py-1.5 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-ledger-tree-pick data-ledger-tree-path="主仓库/B区/B-03" data-ledger-tree-level="shelf" data-ledger-tree-label="B-03 货架">
+        <span class="flex items-center gap-2 truncate"><span class="w-4 shrink-0"></span><span class="truncate">B-03 货架</span></span>
+      </button>
+    </li></ul>
+  </li></ul>
+  </li><li data-wms-ledger-tree-branch data-wms-ledger-tree-item data-ledger-tree-path="辅仓库" data-wms-ledger-expanded="false">
+    <div class="flex items-center gap-0.5">
+      <button type="button" class="wms-ledger-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-ledger-tree-toggle aria-expanded="false" aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+      <button type="button" class="wms-tree-node wms-tree-node--ledger wms-tree-node--warehouse flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-50" data-wms-ledger-tree-pick data-ledger-tree-path="辅仓库" data-ledger-tree-level="warehouse" data-ledger-tree-label="辅仓库">
+        <i class="fa-solid fa-warehouse shrink-0 text-xs w-4 text-center"></i><span class="truncate">辅仓库</span>
+      </button>
+    </div>
+    <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2 hidden" data-wms-ledger-tree-children><li data-wms-ledger-tree-branch data-wms-ledger-tree-item data-ledger-tree-path="辅仓库/C区" data-wms-ledger-expanded="false">
+    <div class="flex items-center gap-0.5">
+      <button type="button" class="wms-ledger-tree-toggle flex h-7 w-6 shrink-0 items-center justify-center rounded text-slate-400 hover:bg-slate-50" data-wms-ledger-tree-toggle aria-expanded="false" aria-label="展开"><i class="fa-solid fa-chevron-right text-[10px]"></i></button>
+      <button type="button" class="wms-tree-node wms-tree-node--ledger wms-tree-node--zone flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-2 text-left text-sm hover:bg-slate-50" data-wms-ledger-tree-pick data-ledger-tree-path="辅仓库/C区" data-ledger-tree-level="zone" data-ledger-tree-label="C区 · 备件">
+        <i class="fa-solid fa-folder-open shrink-0 text-xs w-4 text-center"></i><span class="truncate">C区 · 备件</span>
+      </button>
+    </div>
+    <ul class="ml-5 mt-0.5 space-y-0.5 border-l border-slate-100 pl-2 hidden" data-wms-ledger-tree-children><li data-wms-ledger-tree-item data-ledger-tree-path="辅仓库/C区/C-01">
+      <button type="button" class="wms-tree-node wms-tree-node--ledger wms-tree-node--shelf w-full rounded-lg py-1.5 pl-2 pr-2 text-left text-sm text-slate-600 hover:bg-slate-50" data-wms-ledger-tree-pick data-ledger-tree-path="辅仓库/C区/C-01" data-ledger-tree-level="shelf" data-ledger-tree-label="C-01 货架">
+        <span class="flex items-center gap-2 truncate"><span class="w-4 shrink-0"></span><span class="truncate">C-01 货架</span></span>
+      </button>
+    </li></ul>
+  </li></ul>
+  </li></ul>
+    </div>
+    <p class="mt-3 border-t border-slate-100 px-2 pt-3 text-xs text-slate-500" data-wms-ledger-tree-breadcrumb>当前：<span class="font-medium text-slate-700">主仓库 › A区 › A-02 货架</span></p>
+  </aside>
+      <div class="card overflow-hidden rounded-2xl bg-white lg:col-span-9" data-wms-ledger-panel>
+        <div class="overflow-x-auto wms-modal-table-wrap">
+          <table class="min-w-full text-sm wms-data-table">
+            <thead class="bg-slate-50/80">
+              <tr>
+                <th class="w-10 px-4 py-3"><input type="checkbox" id="wms-ledger-check-all" class="rounded border-slate-300" title="全选固定资产" /></th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">资产/物资编码</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">物资名称</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">大类</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">数量</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">货位</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">状态</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-slate-500">变动时间</th>
+                <th class="wms-col-actions px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th>
+              </tr>
+            </thead>
+            <tbody><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-ledger-row data-is-fixed="true" data-ledger-location="主仓库/B区/B-03">
+      <td class="px-4 py-3.5"><input type="checkbox" class="wms-ledger-check rounded border-slate-300" data-asset-code="ZC202606001" checked /></td>
+      <td class="px-4 py-3.5 font-mono text-xs">ZC202606001</td>
+      <td class="px-4 py-3.5">笔记本电脑</td>
+      <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">固定资产</span></td>
+      <td class="px-4 py-3.5">1</td>
+      <td class="px-4 py-3.5">主仓库/B区/B-03</td>
+      <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">在库</span></td>
+      <td class="px-4 py-3.5 text-slate-500">2026-06-09 11:20</td>
+      <td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="ledger_asset_detail.html?code=ZC202606001&back=ledger_warehouse.html" class="mr-2 hover:underline">查看</a><a href="ledger_asset_qrcode.html?code=ZC202606001&back=ledger_warehouse.html" class="mr-2 hover:underline">二维码</a><button type="button" class="wms-qr-download-single hover:underline" data-asset-code="ZC202606001">下载</button></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-ledger-row data-is-fixed="true" data-ledger-location="主仓库/B区/B-03">
+      <td class="px-4 py-3.5"><input type="checkbox" class="wms-ledger-check rounded border-slate-300" data-asset-code="ZC202606002" checked /></td>
+      <td class="px-4 py-3.5 font-mono text-xs">ZC202606002</td>
+      <td class="px-4 py-3.5">笔记本电脑</td>
+      <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">固定资产</span></td>
+      <td class="px-4 py-3.5">1</td>
+      <td class="px-4 py-3.5">主仓库/B区/B-03</td>
+      <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">在库</span></td>
+      <td class="px-4 py-3.5 text-slate-500">2026-06-09 11:20</td>
+      <td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="ledger_asset_detail.html?code=ZC202606002&back=ledger_warehouse.html" class="mr-2 hover:underline">查看</a><a href="ledger_asset_qrcode.html?code=ZC202606002&back=ledger_warehouse.html" class="mr-2 hover:underline">二维码</a><button type="button" class="wms-qr-download-single hover:underline" data-asset-code="ZC202606002">下载</button></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-ledger-row data-is-fixed="true" data-ledger-location="主仓库/B区/B-01">
+      <td class="px-4 py-3.5"><input type="checkbox" class="wms-ledger-check rounded border-slate-300" data-asset-code="ZC202605012" checked /></td>
+      <td class="px-4 py-3.5 font-mono text-xs">ZC202605012</td>
+      <td class="px-4 py-3.5">工程测量仪</td>
+      <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">固定资产</span></td>
+      <td class="px-4 py-3.5">1</td>
+      <td class="px-4 py-3.5">主仓库/B区/B-01</td>
+      <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">借出</span></td>
+      <td class="px-4 py-3.5 text-slate-500">2026-06-01 09:00</td>
+      <td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="ledger_asset_detail.html?code=ZC202605012&back=ledger_warehouse.html" class="mr-2 hover:underline">查看</a><a href="ledger_asset_qrcode.html?code=ZC202605012&back=ledger_warehouse.html" class="mr-2 hover:underline">二维码</a><button type="button" class="wms-qr-download-single hover:underline" data-asset-code="ZC202605012">下载</button></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-ledger-row data-is-fixed="false" data-ledger-location="主仓库/A区/A-02">
+      <td class="px-4 py-3.5"><input type="checkbox" class="wms-ledger-check rounded border-slate-300" disabled title="仅固定资产支持资产二维码" /></td>
+      <td class="px-4 py-3.5 font-mono text-xs">HC-00089</td>
+      <td class="px-4 py-3.5">打印纸 A4</td>
+      <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">耗材</span></td>
+      <td class="px-4 py-3.5">186</td>
+      <td class="px-4 py-3.5">主仓库/A区/A-02</td>
+      <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">在库</span></td>
+      <td class="px-4 py-3.5 text-slate-500">2026-06-08 16:00</td>
+      <td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="ledger_warehouse_detail.html?code=HC-00089&location=%E4%B8%BB%E4%BB%93%E5%BA%93%2FA%E5%8C%BA%2FA-02&back=ledger_warehouse.html" class="mr-2 hover:underline">查看</a><a href="ledger_material_detail.html?code=HC-00089&back=ledger_warehouse.html" class="mr-2 hover:underline">库存</a><a href="ledger_transaction.html" class="hover:underline">流水</a></td>
+    </tr><tr class="border-t border-slate-100 hover:bg-slate-50/80" data-ledger-row data-is-fixed="false" data-ledger-location="主仓库/A区/A-02">
+      <td class="px-4 py-3.5"><input type="checkbox" class="wms-ledger-check rounded border-slate-300" disabled title="仅固定资产支持资产二维码" /></td>
+      <td class="px-4 py-3.5 font-mono text-xs">LA-00456</td>
+      <td class="px-4 py-3.5">电钻</td>
+      <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">类资产</span></td>
+      <td class="px-4 py-3.5">8</td>
+      <td class="px-4 py-3.5">主仓库/A区/A-02</td>
+      <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">在库</span></td>
+      <td class="px-4 py-3.5 text-slate-500">2026-06-07 09:15</td>
+      <td class="wms-col-actions px-4 py-3.5 text-right text-sm whitespace-nowrap"><a href="ledger_warehouse_detail.html?code=LA-00456&location=%E4%B8%BB%E4%BB%93%E5%BA%93%2FA%E5%8C%BA%2FA-02&back=ledger_warehouse.html" class="mr-2 hover:underline">查看</a><a href="ledger_material_detail.html?code=LA-00456&back=ledger_warehouse.html" class="mr-2 hover:underline">库存</a><a href="ledger_transaction.html" class="hover:underline">流水</a></td>
+    </tr></tbody>
+          </table>
+        </div>
+        <div class="flex items-center justify-between border-t border-slate-100 px-4 py-3 text-sm text-slate-500">
+          <span>共 <span data-wms-ledger-total>248</span> 条 · 已选 <span id="wms-ledger-selected-count">3</span> 条固定资产</span>
+          <div class="flex gap-1"><span class="rounded-lg bg-slate-900 px-3 py-1 text-white">1</span><span class="rounded-lg px-3 py-1 hover:bg-slate-100">2</span><span class="rounded-lg px-3 py-1 hover:bg-slate-100">…</span></div>
+        </div>
+      </div>
+    </div>
+    <div id="wms-qr-toast" class="wms-qr-toast hidden" role="status"></div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

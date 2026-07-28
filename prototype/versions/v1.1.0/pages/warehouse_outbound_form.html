@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>选择出库类型 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="warehouse_outbound_list" data-title="选择出库类型" data-breadcrumb="物资管理 / 执行出库">
+  <div id="main-content">
+    <div class="mb-4"><a href="warehouse_outbound_list.html" class="text-sm text-slate-500 hover:text-slate-900"><i class="fa-solid fa-arrow-left mr-1"></i>返回</a></div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <a href="warehouse_outbound_fixed_form.html" class="card flex items-start gap-4 rounded-2xl bg-white p-5 hover:ring-1 hover:ring-slate-200 transition">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid fa-computer"></i></div>
+      <div><div class="font-semibold text-slate-900">固定资产出库</div><p class="mt-1 text-sm text-slate-500">必选资产编码，一码一物</p></div>
+      <i class="fa-solid fa-chevron-right ml-auto text-slate-300 text-xs mt-1"></i>
+    </a>
+    <a href="warehouse_outbound_like_form.html" class="card flex items-start gap-4 rounded-2xl bg-white p-5 hover:ring-1 hover:ring-slate-200 transition">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+      <div><div class="font-semibold text-slate-900">类资产出库</div><p class="mt-1 text-sm text-slate-500">按数量从货位扣减</p></div>
+      <i class="fa-solid fa-chevron-right ml-auto text-slate-300 text-xs mt-1"></i>
+    </a>
+    <a href="warehouse_outbound_consumable_form.html" class="card flex items-start gap-4 rounded-2xl bg-white p-5 hover:ring-1 hover:ring-slate-200 transition">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid fa-boxes-stacked"></i></div>
+      <div><div class="font-semibold text-slate-900">耗材出库</div><p class="mt-1 text-sm text-slate-500">按数量 FIFO 扣减</p></div>
+      <i class="fa-solid fa-chevron-right ml-auto text-slate-300 text-xs mt-1"></i>
+    </a></div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新增使用地点 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="config_location_list" data-title="新增使用地点" data-breadcrumb="基础配置 / 新增地点">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="config_location_list.html" data-modal-size="md">
+      <div class="wms-modal-form" data-wms-location-form data-location-mode="major" data-location-child="0">
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 所属区域</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-wms-location-region required><option selected>作业区</option><option>办公区</option></select></div><div><label class="mb-1.5 block text-sm font-medium text-slate-700">地点编码</label><input type="text" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" value="系统自动生成" /></div><div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 地点名称</label><input type="text" placeholder="请输入" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" value="" data-wms-location-name required /></div><div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">备注</label><textarea rows="3" placeholder="0/500" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-wms-location-remark></textarea></div><div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">启用</label><label class="wms-toggle"><input type="checkbox" data-wms-location-form-enabled checked /><span class="wms-toggle-track"></span></label></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="config_location_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-primary" data-wms-location-save>确定</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

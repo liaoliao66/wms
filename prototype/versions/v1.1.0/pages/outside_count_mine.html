@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>物资盘点 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="outside_count_mine" data-title="物资盘点" data-breadcrumb="库外盘点 / 物资盘点">
+  <div id="main-content">
+    <div>
+      <p class="mb-4 text-sm text-slate-500">当前登录：<strong>王工</strong>（出库领用人）。确认名下物资；可切换历史计划（只读）。仅<strong>盘点中</strong>可提交确认。固资支持单件转派；类资产维护地点与数量。</p>
+
+      <div class="mb-4 flex flex-wrap items-end gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="min-w-[260px] flex-1">
+          <label class="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">盘点计划</label>
+          <select id="plan-switch" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200">
+            <option value="doing" selected>KWP202606290001 · 6月库外综合盘点（盘点中）</option>
+            <option value="done">KWP202606200001 · 6月库外类资产盘点（已结束）</option>
+            <option value="ended">KWP202606010001 · 5月库外全量盘点（已结束·已有报告）</option>
+          </select>
+        </div>
+        <div class="pb-2.5 text-sm" id="plan-hint">
+          <span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">可确认</span>
+          <span class="ml-2 text-slate-500">待确认 4 · 已确认 8</span>
+        </div>
+      </div>
+
+      <div id="readonly-banner" class="mb-4 hidden rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+        当前计划非「盘点中」，仅可查看历史确认结果，不可再修改。
+      </div>
+
+      <div class="mb-4 flex flex-wrap gap-2" id="tabs">
+        <button type="button" class="rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white" data-tab="pending">待确认</button>
+        <button type="button" class="rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-tab="inbox">待我确认（转派）</button>
+        <button type="button" class="rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-tab="done">已确认</button>
+      </div>
+
+      <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" data-panel="pending">
+        <div class="border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-800">我的待确认物资</div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-50/80">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">类型</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">编码</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">名称</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">说明</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">状态</th>
+                <th class="wms-col-actions px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-t border-slate-100">
+                <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">固资</span></td>
+                <td class="px-4 py-3.5 font-mono text-xs">ZC202605012</td>
+                <td class="px-4 py-3.5">工程测量仪</td>
+                <td class="px-4 py-3.5 text-slate-500">武穴大桥施工点</td>
+                <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">未确认</span></td>
+                <td class="wms-col-actions px-4 py-3.5 text-right whitespace-nowrap">
+                  <a href="outside_count_fixed_confirm.html?code=ZC202605012&from=mine" class="act-edit text-slate-900 hover:underline">确认</a>
+                  <span class="act-view hidden text-slate-400">查看</span>
+                </td>
+              </tr>
+              <tr class="border-t border-slate-100">
+                <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-sky-50 text-sky-700 ring-sky-600/20">类资产</span></td>
+                <td class="px-4 py-3.5 font-mono text-xs">BM-DZ-001</td>
+                <td class="px-4 py-3.5">办公凳</td>
+                <td class="px-4 py-3.5 text-slate-500">2 地点 · 账存 15</td>
+                <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">待盘</span></td>
+                <td class="wms-col-actions px-4 py-3.5 text-right whitespace-nowrap">
+                  <a href="outside_count_class_confirm.html?code=BM-DZ-001&from=mine" class="act-edit text-slate-900 hover:underline">确认</a>
+                  <a href="outside_count_class_confirm.html?code=BM-DZ-001&from=mine&readonly=1" class="act-view hidden text-slate-900 hover:underline">查看</a>
+                </td>
+              </tr>
+              <tr class="border-t border-slate-100">
+                <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-sky-50 text-sky-700 ring-sky-600/20">类资产</span></td>
+                <td class="px-4 py-3.5 font-mono text-xs">BM-YC-002</td>
+                <td class="px-4 py-3.5">折叠椅</td>
+                <td class="px-4 py-3.5 text-amber-700">待填地点 · 账存 8</td>
+                <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待填地点</span></td>
+                <td class="wms-col-actions px-4 py-3.5 text-right whitespace-nowrap">
+                  <a href="outside_count_class_confirm.html?code=BM-YC-002&from=mine" class="act-edit text-slate-900 hover:underline">补填并确认</a>
+                  <a href="outside_count_class_confirm.html?code=BM-YC-002&from=mine&readonly=1" class="act-view hidden text-slate-900 hover:underline">查看</a>
+                </td>
+              </tr>
+              <tr class="border-t border-slate-100">
+                <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">固资</span></td>
+                <td class="px-4 py-3.5 font-mono text-xs">PC-77221</td>
+                <td class="px-4 py-3.5">笔记本电脑</td>
+                <td class="px-4 py-3.5 text-slate-500">已转派李工，等待对方</td>
+                <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-sky-50 text-sky-700 ring-sky-600/20">已转派</span></td>
+                <td class="wms-col-actions px-4 py-3.5 text-right whitespace-nowrap">
+                  <a href="outside_count_fixed_confirm.html?code=PC-77221&mode=sent&from=mine" class="act-edit text-slate-900 hover:underline">撤回/查看</a>
+                  <span class="act-view hidden text-slate-400">只读</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="mb-4 hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" data-panel="inbox">
+        <div class="border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-800">他人转派待我确认（仅固资）</div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-50/80">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">编码</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">名称</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">说明</th>
+                <th class="wms-col-actions px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500">操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-t border-slate-100">
+                <td class="px-4 py-3.5 font-mono text-xs">PC-88901</td>
+                <td class="px-4 py-3.5">办公电脑</td>
+                <td class="px-4 py-3.5 text-slate-500">张工转派给你，确认后归属为你</td>
+                <td class="wms-col-actions px-4 py-3.5 text-right">
+                  <a href="outside_count_fixed_confirm.html?code=PC-88901&mode=inbox&from=mine" class="act-edit text-slate-900 hover:underline">确认接收</a>
+                  <span class="act-view hidden text-slate-400">历史无此待办</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" data-panel="done">
+        <div class="border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-800">已确认</div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="bg-slate-50/80">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">类型</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">编码</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">名称</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">结果</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-t border-slate-100">
+                <td class="px-4 py-3.5">固资</td>
+                <td class="px-4 py-3.5 font-mono text-xs">ZC202603201</td>
+                <td class="px-4 py-3.5">铝合金梯</td>
+                <td class="px-4 py-3.5"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">在场</span></td>
+              </tr>
+              <tr class="border-t border-slate-100">
+                <td class="px-4 py-3.5">类资产</td>
+                <td class="px-4 py-3.5 font-mono text-xs">BM-AQ-010</td>
+                <td class="px-4 py-3.5">安全帽</td>
+                <td class="px-4 py-3.5">在场 18 · 丢失 2</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+  <script>
+    (function () {
+      var sel = document.getElementById('plan-switch');
+      var hint = document.getElementById('plan-hint');
+      var banner = document.getElementById('readonly-banner');
+      var meta = {
+        doing: { editable: true, html: '<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">可确认</span><span class="ml-2 text-slate-500">待确认 4 · 已确认 8</span>' },
+        done: { editable: false, html: '<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">已结束 · 只读</span><span class="ml-2 text-slate-500">历史确认可查看</span>' },
+        ended: { editable: false, html: '<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">已结束 · 只读</span><span class="ml-2 text-slate-500">历史确认可查看</span>' }
+      };
+      function syncPlan() {
+        var m = meta[sel.value] || meta.doing;
+        hint.innerHTML = m.html;
+        banner.classList.toggle('hidden', m.editable);
+        document.querySelectorAll('.act-edit').forEach(function (el) {
+          el.classList.toggle('hidden', !m.editable);
+        });
+        document.querySelectorAll('.act-view').forEach(function (el) {
+          el.classList.toggle('hidden', m.editable);
+        });
+      }
+      sel.addEventListener('change', syncPlan);
+      syncPlan();
+
+      var tabs = document.getElementById('tabs');
+      tabs.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-tab]');
+        if (!btn) return;
+        Array.prototype.forEach.call(tabs.querySelectorAll('[data-tab]'), function (b) {
+          b.className = 'rounded-xl bg-white px-4 py-2 text-sm font-medium text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50';
+        });
+        btn.className = 'rounded-xl bg-slate-900 px-4 py-2 text-sm font-medium text-white';
+        var tab = btn.getAttribute('data-tab');
+        document.querySelectorAll('[data-panel]').forEach(function (p) {
+          p.classList.toggle('hidden', p.getAttribute('data-panel') !== tab);
+        });
+      });
+    })();
+  </script>
+</body></html>

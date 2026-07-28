@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新建计划采购 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="purchase_plan_apply" data-title="新建计划采购" data-breadcrumb="采购管理 / 新建计划采购">
+  <div id="main-content">
+    <div class="mb-4"><a href="purchase_plan_apply.html" class="text-sm text-slate-500 hover:text-slate-900"><i class="fa-solid fa-arrow-left mr-1"></i>返回</a></div>
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <a href="purchase_plan_direct.html" class="card flex items-start gap-4 rounded-2xl bg-white p-5 hover:ring-1 hover:ring-slate-200 transition">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid fa-bolt"></i></div>
+      <div><div class="font-semibold text-slate-900">直采</div><p class="mt-1 text-sm text-slate-500">指定供应商直接采购</p></div>
+      <i class="fa-solid fa-chevron-right ml-auto text-slate-300 text-xs mt-1"></i>
+    </a>
+    <a href="purchase_plan_inquiry_bid.html" class="card flex items-start gap-4 rounded-2xl bg-white p-5 hover:ring-1 hover:ring-slate-200 transition">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid fa-gavel"></i></div>
+      <div><div class="font-semibold text-slate-900">询价/招标</div><p class="mt-1 text-sm text-slate-500">多供应商比价或招标</p></div>
+      <i class="fa-solid fa-chevron-right ml-auto text-slate-300 text-xs mt-1"></i>
+    </a>
+    <a href="purchase_plan_add_material.html" class="card flex items-start gap-4 rounded-2xl bg-white p-5 hover:ring-1 hover:ring-slate-200 transition">
+      <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600"><i class="fa-solid fa-list"></i></div>
+      <div><div class="font-semibold text-slate-900">添加物资</div><p class="mt-1 text-sm text-slate-500">维护采购明细行</p></div>
+      <i class="fa-solid fa-chevron-right ml-auto text-slate-300 text-xs mt-1"></i>
+    </a></div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>
