@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>产品需求文档 · WMS PRD</title>
+  <title>产品需求文档 · WMS PRD · v1.1.0</title>
   <link rel="stylesheet" href="../css/tailwind.css" />
   <link rel="stylesheet" href="../css/custom.css" />
   <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
@@ -34,40 +34,94 @@
     </article>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+  <!-- 本地 marked，避免 CDN 不可用导致正文无法渲染 -->
+  <script src="../vendor/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@10.9.1/dist/mermaid.min.js"></script>
   <script src="./prd-content.js"></script>
   <script>
     (function () {
+      var PRD_FETCH_URL = '../../../docs/versions/v1.1.0/prd.md';
+      var PRD_FALLBACK_HINT = 'docs/versions/v1.1.0/prd.md';
+
       var contentEl = document.getElementById('prd-content');
       var metaEl = document.getElementById('prd-meta');
       var tocNav = document.getElementById('prd-toc-nav');
       var embeddedMd = window.__WMS_PRD_MARKDOWN__ || '';
 
       function slugHeading(text) {
-        return text.trim()
+        return String(text || '').trim()
           .replace(/[（(].*?[）)]/g, '')
           .toLowerCase()
           .replace(/[^\w\u4e00-\u9fff\s-]/g, '')
           .replace(/\s+/g, '-');
       }
 
-      var renderer = new marked.Renderer();
-      renderer.heading = function (text, level) {
-        var slug = slugHeading(text);
-        return '<h' + level + ' id="' + slug + '">' + text + '</h' + level + '>';
-      };
+      function getParseFn() {
+        if (typeof marked === 'undefined' || !marked) return null;
+        if (typeof marked.parse === 'function') return function (md) { return marked.parse(md); };
+        if (typeof marked === 'function') return function (md) { return marked(md); };
+        return null;
+      }
 
-      marked.setOptions({ gfm: true, breaks: false, renderer: renderer });
+      function configureMarked() {
+        if (typeof marked === 'undefined' || !marked) return false;
+        try {
+          if (typeof marked.use === 'function') {
+            marked.use({
+              gfm: true,
+              breaks: false,
+              renderer: {
+                heading: function (token) {
+                  var text = typeof token === 'string'
+                    ? token
+                    : (this.parser && token.tokens
+                      ? this.parser.parseInline(token.tokens)
+                      : (token && token.text) || '');
+                  var level = typeof token === 'string'
+                    ? arguments[1]
+                    : (token && token.depth) || 1;
+                  var slug = slugHeading(text);
+                  return '<h' + level + ' id="' + slug + '">' + text + '</h' + level + '>\n';
+                }
+              }
+            });
+            return true;
+          }
+          if (marked.Renderer && marked.setOptions) {
+            var renderer = new marked.Renderer();
+            renderer.heading = function (text, level) {
+              if (text && typeof text === 'object') {
+                level = text.depth || level || 1;
+                text = text.text || '';
+              }
+              var slug = slugHeading(text);
+              return '<h' + level + ' id="' + slug + '">' + text + '</h' + level + '>\n';
+            };
+            marked.setOptions({ gfm: true, breaks: false, renderer: renderer });
+            return true;
+          }
+        } catch (err) {
+          console.warn('[PRD] marked configure failed', err);
+        }
+        return !!getParseFn();
+      }
 
-      mermaid.initialize({
-        startOnLoad: false,
-        theme: 'neutral',
-        securityLevel: 'loose',
-        flowchart: { htmlLabels: true, curve: 'basis' },
-        stateDiagram: { htmlLabels: true },
-        sequence: { mirrorActors: false, showSequenceNumbers: true },
-      });
+      var markedReady = configureMarked();
+
+      if (typeof mermaid !== 'undefined' && mermaid.initialize) {
+        try {
+          mermaid.initialize({
+            startOnLoad: false,
+            theme: 'neutral',
+            securityLevel: 'loose',
+            flowchart: { htmlLabels: true, curve: 'basis' },
+            stateDiagram: { htmlLabels: true },
+            sequence: { mirrorActors: false, showSequenceNumbers: true },
+          });
+        } catch (err) {
+          console.warn('[PRD] mermaid init failed', err);
+        }
+      }
 
       function decodeCode(html) {
         return html
@@ -88,11 +142,13 @@
 
       function extractMeta(md) {
         var version = (md.match(/\|\s*文档版本\s*\|\s*([^|]+)\|/) || [])[1];
+        if (!version) version = (md.match(/\|\s*\*\*版本号\*\*\s*\|\s*([^|]+)\|/) || [])[1];
         var updated = (md.match(/\|\s*最后更新\s*\|\s*([^|]+)\|/) || [])[1];
+        if (!updated) updated = (md.match(/\|\s*\*\*版本更新时间\*\*\s*\|\s*([^|]+)\|/) || [])[1];
         var parts = [];
         if (version) parts.push('版本 ' + version.trim());
         if (updated) parts.push('更新 ' + updated.trim());
-        return parts.join(' · ') || 'docs/prd.md';
+        return parts.join(' · ') || PRD_FALLBACK_HINT;
       }
 
       function parseTocFromMarkdown(md) {
@@ -110,13 +166,27 @@
         return items;
       }
 
+      function buildTocFromHeadings(root) {
+        var headings = root.querySelectorAll('h2, h3, h4');
+        if (!headings.length) return '';
+        return Array.prototype.map.call(headings, function (h) {
+          if (!h.id) h.id = slugHeading(h.textContent);
+          var cls = 'wms-prd-toc-link';
+          if (h.tagName === 'H3') cls += ' wms-prd-toc-link--l2';
+          if (h.tagName === 'H4') cls += ' wms-prd-toc-link--l3';
+          return '<a href="#' + h.id + '" class="' + cls + '" data-toc-href="#' + h.id + '">' +
+            h.textContent + '</a>';
+        }).join('');
+      }
+
       function buildTocNav(items) {
         if (!items.length) return '';
         return items.map(function (item) {
           var cls = 'wms-prd-toc-link';
           if (item.indent >= 4) cls += ' wms-prd-toc-link--l3';
           else if (item.indent >= 2) cls += ' wms-prd-toc-link--l2';
-          return '<a href="' + item.href + '" class="' + cls + '" data-toc-href="' + item.href + '">' + item.label + '</a>';
+          return '<a href="' + item.href + '" class="' + cls + '" data-toc-href="' + item.href + '">' +
+            item.label + '</a>';
         }).join('');
       }
 
@@ -135,7 +205,6 @@
           });
         });
 
-        // 正文内目录链接同样平滑滚动
         contentEl.querySelectorAll('a[href^="#"]').forEach(function (a) {
           a.addEventListener('click', function (e) {
             var id = a.getAttribute('href').slice(1);
@@ -148,51 +217,95 @@
           });
         });
 
-        // 深链：打开时滚动到 hash
         if (location.hash) {
           var el = document.getElementById(location.hash.slice(1));
           if (el) setTimeout(function () { el.scrollIntoView({ block: 'start' }); }, 100);
         }
       }
 
-      function renderMd(md) {
-        metaEl.textContent = extractMeta(md);
-        var tocItems = parseTocFromMarkdown(md);
-        tocNav.innerHTML = buildTocNav(tocItems);
-
-        // 去掉正文中的「目录」块，避免与侧栏重复
-        var bodyMd = md.replace(/^##\s+目录[\s\S]*?^---\s*$/m, '');
-        var html = marked.parse(bodyMd);
-        html = renderMermaid(html);
-        contentEl.innerHTML = html;
-        bindTocScroll();
-        return mermaid.run({ nodes: contentEl.querySelectorAll('.mermaid') });
+      function looksLikeHtml(html) {
+        return typeof html === 'string' && /<(h[1-6]|p|table|ul|ol|pre|blockquote)\b/i.test(html);
       }
 
       function renderLoadError(err) {
         metaEl.textContent = '加载失败';
         contentEl.innerHTML =
           '<div class="wms-prd-error">' +
-          '<p><strong>无法加载 PRD 文档</strong></p>' +
-          '<p class="mt-2 text-sm">当前浏览器无法读取远程或本地 PRD 源文件。</p>' +
-          '<p class="mt-2 text-sm text-slate-500">' + err.message + '</p>' +
-          '<p class="mt-4 text-sm">也可在仓库中直接打开 <code>docs/versions/v1.0.0/prd.md</code>。</p>' +
+          '<p><strong>无法加载或渲染 PRD 文档</strong></p>' +
+          '<p class="mt-2 text-sm">请确认本地已引入 marked，或检查网络后刷新。</p>' +
+          '<p class="mt-2 text-sm text-slate-500">' + (err && err.message ? err.message : String(err)) + '</p>' +
+          '<p class="mt-4 text-sm">也可打开源文件 <code>' + PRD_FALLBACK_HINT + '</code>。</p>' +
           '</div>';
       }
 
-      fetch('../../../docs/versions/v1.0.0/prd.md')
-        .then(function (res) {
-          if (!res.ok) throw new Error('HTTP ' + res.status);
-          return res.text();
-        })
-        .then(renderMd)
-        .catch(function (err) {
-          if (embeddedMd) {
+      function renderMd(md) {
+        if (!md) throw new Error('PRD 内容为空');
+        metaEl.textContent = extractMeta(md);
+
+        var tocItems = parseTocFromMarkdown(md);
+        tocNav.innerHTML = buildTocNav(tocItems);
+
+        var bodyMd = md.replace(/^##\s+目录[\s\S]*?^---\s*$/m, '');
+        var parse = getParseFn();
+        if (!parse) throw new Error('marked 未加载，无法渲染 Markdown');
+
+        var html = parse(bodyMd);
+        if (!looksLikeHtml(html)) {
+          // 若自定义 renderer 异常，回退到默认解析
+          if (marked.setOptions) marked.setOptions({ renderer: null });
+          html = parse(bodyMd);
+        }
+        if (!looksLikeHtml(html)) {
+          throw new Error('Markdown 解析结果异常（未得到 HTML）');
+        }
+
+        html = renderMermaid(html);
+        contentEl.innerHTML = html;
+
+        if (!tocNav.innerHTML) {
+          tocNav.innerHTML = buildTocFromHeadings(contentEl);
+        }
+
+        bindTocScroll();
+
+        if (typeof mermaid !== 'undefined' && mermaid.run) {
+          return mermaid.run({ nodes: contentEl.querySelectorAll('.mermaid') }).catch(function (err) {
+            console.warn('[PRD] mermaid.run failed', err);
+          });
+        }
+      }
+
+      function boot() {
+        if (!markedReady && !getParseFn()) {
+          renderLoadError(new Error('本地 marked 脚本加载失败'));
+          return;
+        }
+
+        // 优先内嵌（兼容 file://）；再尝试 fetch 最新源文件
+        var started = false;
+        if (embeddedMd) {
+          try {
             renderMd(embeddedMd);
-            return;
+            started = true;
+          } catch (err) {
+            console.warn('[PRD] embedded render failed', err);
           }
-          renderLoadError(err);
-        });
+        }
+
+        fetch(PRD_FETCH_URL)
+          .then(function (res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.text();
+          })
+          .then(function (md) {
+            renderMd(md);
+          })
+          .catch(function (err) {
+            if (!started) renderLoadError(err);
+          });
+      }
+
+      boot();
     })();
   </script>
 </body>
