@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>物资管理系统 · v1.0.1 原型门户</title>
+  <base id="wms-base" href="./" />
+  <script>
+    (function () {
+      var path = location.pathname;
+      var base = path.endsWith('/')
+        ? path
+        : (/\.[a-z0-9]+$/i.test((path.split('/').pop() || ''))
+          ? path.replace(/\/[^/]*$/, '/')
+          : path + '/');
+      document.getElementById('wms-base').href = base;
+    })();
+  </script>
+  <link rel="stylesheet" href="../v1.0.0/css/tailwind.css" />
+  <link rel="stylesheet" href="../v1.0.0/css/custom.css" />
+  <link rel="stylesheet" href="../v1.0.0/vendor/fontawesome/css/all.min.css" />
+</head>
+<body class="wms-portal-body">
+  <div class="wms-portal">
+    <header class="wms-portal-header">
+      <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-lg font-bold text-white shadow-lg">W</div>
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">物资管理系统</h1>
+        <p class="mt-1 text-sm text-slate-500">
+          <span class="inline-flex rounded-lg bg-slate-900 px-2 py-0.5 text-xs font-medium text-white">v1.0.1</span>
+          <span class="ml-2">计划采购分流补丁 · 相对 v1.0.0 增量</span>
+        </p>
+      </div>
+    </header>
+
+    <p class="wms-portal-desc">
+      本版本为 <strong>v1.0.0 流程补丁</strong>：急件：计划→物资采购→供货验收；一般：待采→申请→物资采购→供货验收。
+      PC 关联页已按 PRD 绘制，可从工作台进入演示。
+      <a href="../../index.html" class="ml-1 font-medium text-slate-700 hover:underline">返回全局总入口</a>
+    </p>
+
+    <div class="wms-portal-grid">
+      <a id="pc" href="pages/pc_home.html" class="wms-portal-card wms-portal-card--pc group">
+        <div class="wms-portal-card-icon">
+          <i class="fa-solid fa-desktop text-2xl"></i>
+        </div>
+        <div class="wms-portal-card-body">
+          <h2 class="text-xl font-semibold text-slate-900">PC 端原型</h2>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500">关联页：物资采购含急件+一般；已移除新增；供货后计划人与需求人共同验收。</p>
+          <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>工作台：待采（一般）+ 急件待采购</li>
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>物资采购：计划类型 / 来源计划单号</li>
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>直采：锁定 1 供应商</li>
+          </ul>
+          <span class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-900 group-hover:gap-3 transition-all">
+            进入 PC 工作台 <i class="fa-solid fa-arrow-right text-xs"></i>
+          </span>
+        </div>
+      </a>
+      <a id="prd" href="pages/prd.html" class="wms-portal-card wms-portal-card--pc group">
+        <div class="wms-portal-card-icon">
+          <i class="fa-solid fa-book text-2xl"></i>
+        </div>
+        <div class="wms-portal-card-body">
+          <h2 class="text-xl font-semibold text-slate-900">PRD 浏览器阅读</h2>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500">查看 v1.0.1 增量需求：急件/一般计划分流、待采与物资采购规则变更。</p>
+          <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>增量 PRD · 相对 v1.0.0</li>
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>含职能泳道权威图</li>
+          </ul>
+          <span class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-900 group-hover:gap-3 transition-all">
+            打开 PRD <i class="fa-solid fa-arrow-right text-xs"></i>
+          </span>
+        </div>
+      </a>
+      <a href="pages/flow_core_swimlane.html" class="wms-portal-card wms-portal-card--pc group">
+        <div class="wms-portal-card-icon">
+          <i class="fa-solid fa-project-diagram text-2xl"></i>
+        </div>
+        <div class="wms-portal-card-body">
+          <h2 class="text-xl font-semibold text-slate-900">核心业务职能泳道图</h2>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500">一列一个部门（需求 / 采购 / 供应商 / 仓库），对齐标准职能流程图样式。</p>
+          <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>急件 → 物资采购直采</li>
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>一般 → 待采全流程；均可领用</li>
+          </ul>
+          <span class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-900 group-hover:gap-3 transition-all">
+            打开泳道图 <i class="fa-solid fa-arrow-right text-xs"></i>
+          </span>
+        </div>
+      </a>
+    </div>
+
+    <div class="wms-portal-links">
+      <a href="pages/flow_core_swimlane.html" class="wms-portal-link">
+        <i class="fa-solid fa-project-diagram"></i>
+        <span>核心业务职能泳道图</span>
+        <span class="text-slate-400">一列一个部门</span>
+      </a>
+      <a href="pages/prd.html" class="wms-portal-link">
+        <i class="fa-solid fa-book"></i>
+        <span>v1.0.1 PRD 浏览器阅读</span>
+        <span class="text-slate-400">带样式阅读页</span>
+      </a>
+      <a href="../../../docs/versions/v1.0.1/prd.md" class="wms-portal-link">
+        <i class="fa-solid fa-file-lines"></i>
+        <span>v1.0.1 PRD 源文件</span>
+        <span class="text-slate-400">docs/versions</span>
+      </a>
+      <a href="../v1.0.0/index.html" class="wms-portal-link">
+        <i class="fa-solid fa-layer-group"></i>
+        <span>v1.0.0 基础业务</span>
+        <span class="text-slate-400">对照基线</span>
+      </a>
+    </div>
+
+    <footer class="wms-portal-footer">
+      <a href="../../index.html" class="text-slate-500 hover:text-slate-700">全局总入口</a>
+      <span class="mx-2 text-slate-300">·</span>
+      <span>版本 <code class="rounded bg-white/80 px-1.5 py-0.5 text-xs ring-1 ring-slate-200">v1.0.1</code></span>
+      <span class="mx-2 text-slate-300">·</span>
+      <span>计划采购分流 · 增量补丁</span>
+    </footer>
+  </div>
+</body>
+</html>

@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-VERSIONS = ("v1.0.0", "v1.1.0", "v1.2.0")
+VERSIONS = ("v1.0.0", "v1.0.1", "v1.1.0", "v1.2.0")
 
 
 def main() -> None:

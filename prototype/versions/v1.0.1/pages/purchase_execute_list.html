@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>物资采购 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="purchase_execute_list" data-title="物资采购" data-breadcrumb="采购管理 / 物资采购">
+  <div id="main-content">
+    <div data-wms-list-page>
+      <p class="mb-4 text-sm text-slate-500">
+        <strong>v1.0.1</strong>：列表同时包含<strong>急件</strong>（计划审核通过后自动生成）与<strong>一般</strong>（采购申请审核通过后自动生成）；
+        <strong>已移除手工新增入口</strong>。下游统一：采购审核通过 → 供货 → 验收（计划人+需求人）→ 入库。
+      </p>
+      <div class="mb-4 flex flex-wrap gap-2" data-wms-list-tabs>
+        <button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-slate-900 text-white" data-wms-list-tab="全部">全部</button>
+        <button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-list-tab="待执行">待执行</button>
+        <button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-list-tab="审核中">审核中</button>
+        <button type="button" class="wms-list-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-list-tab="已审核">已审核</button>
+      </div>
+      <div class="mb-4 flex w-full flex-nowrap items-center justify-end gap-2 overflow-x-auto" data-wms-list-toolbar>
+        <label class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">
+          <span class="text-slate-500 shrink-0">计划类型</span>
+          <select class="border-0 bg-transparent py-0.5 pr-6 text-sm font-medium text-slate-800 outline-none focus:ring-0" data-wms-list-filter="planType" data-wms-list-filter-default="全部">
+            <option value="全部" selected>全部</option>
+            <option value="急件计划">急件计划</option>
+            <option value="一般计划">一般计划</option>
+          </select>
+        </label>
+        <label class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">
+          <span class="text-slate-500 shrink-0">采购方式</span>
+          <select class="border-0 bg-transparent py-0.5 pr-6 text-sm font-medium text-slate-800 outline-none focus:ring-0" data-wms-list-filter="method" data-wms-list-filter-default="全部">
+            <option value="全部" selected>全部</option>
+            <option value="直采">直采</option>
+          </select>
+        </label>
+        <div class="relative shrink-0 w-[280px]">
+          <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-slate-400"></i>
+          <input type="search" data-wms-list-search placeholder="采购单号、来源计划单号、申请单号" class="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-9 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" />
+          <button type="button" data-wms-list-search-clear class="hidden absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" title="清空"><i class="fa-solid fa-xmark text-xs"></i></button>
+        </div>
+        <button type="button" class="hidden shrink-0 items-center gap-1.5 rounded-xl px-3 py-2 text-sm text-slate-600 hover:bg-slate-100" data-wms-list-reset><i class="fa-solid fa-rotate-left text-xs"></i>重置</button>
+      </div>
+      <div class="card overflow-hidden rounded-2xl bg-white shadow-sm" data-wms-list-card>
+        <div class="overflow-x-auto wms-modal-table-wrap" data-wms-list-table-wrap>
+          <table class="min-w-full wms-data-table">
+            <thead class="bg-slate-50/80">
+              <tr>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">采购单号</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划类型</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">来源计划单号</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">采购申请单号</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">采购方式</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">参考总额（元）</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">生成时间</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">状态</th>
+                <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">审批状态</th>
+                <th class="wms-col-actions px-4 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th>
+              </tr>
+            </thead>
+            <tbody data-wms-list-tbody>
+              <tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-search="1 wzcg202606090001 急件计划 jjjh202606080001 直采 待执行" data-list-tab="待执行" data-list-filter-method="直采" data-list-filter-planType="急件计划">
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">1</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">WZCG202606090001</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-rose-50 text-rose-700 ring-rose-600/20">急件计划</span></td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">JJJH202606080001</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="text-slate-400">—</span></td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">直采</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">28,600.00</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2026-06-09 10:30</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待执行</span></td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">待提交</span></td>
+                <td class="wms-col-actions px-4 py-3.5 text-slate-900 text-right text-sm whitespace-nowrap">
+                  <a href="purchase_execute_direct.html?mode=view&amp;po=WZCG202606090001&amp;planNo=JJJH202606080001" class="mr-2 hover:underline">查看</a>
+                  <a href="purchase_execute_direct.html?po=WZCG202606090001&amp;planNo=JJJH202606080001" class="hover:underline">采购</a>
+                </td>
+              </tr>
+              <tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-search="2 wzcg202606090002 一般计划 jh202606090001 jjsq202606090008 直采 待执行" data-list-tab="待执行" data-list-filter-method="直采" data-list-filter-planType="一般计划">
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">WZCG202606090002</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">一般计划</span></td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">JH202606090001</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><a href="purchase_request_form.html?mode=view&amp;requestNo=JJSQ202606090008" class="hover:underline">JJSQ202606090008</a></td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">直采</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">6,800.00</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2026-06-09 15:20</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">待执行</span></td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">待提交</span></td>
+                <td class="wms-col-actions px-4 py-3.5 text-slate-900 text-right text-sm whitespace-nowrap">
+                  <a href="purchase_execute_direct.html?mode=view&amp;po=WZCG202606090002&amp;planType=general" class="mr-2 hover:underline">查看</a>
+                  <a href="purchase_execute_direct.html?po=WZCG202606090002&amp;planType=general" class="hover:underline">采购</a>
+                </td>
+              </tr>
+              <tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-search="3 wzcg202606070001 急件计划 jjjh202606050002 直采 审核中" data-list-tab="审核中" data-list-filter-method="直采" data-list-filter-planType="急件计划">
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">3</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">WZCG202606070001</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-rose-50 text-rose-700 ring-rose-600/20">急件计划</span></td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">JJJH202606050002</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="text-slate-400">—</span></td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">直采</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">12,400.00</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2026-06-07 09:12</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-sky-50 text-sky-700 ring-sky-600/20">执行中</span></td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-amber-50 text-amber-700 ring-amber-600/20">审核中</span></td>
+                <td class="wms-col-actions px-4 py-3.5 text-slate-900 text-right text-sm whitespace-nowrap">
+                  <a href="purchase_execute_direct.html?mode=view&amp;po=WZCG202606070001" class="mr-2 hover:underline">查看</a>
+                  <a href="purchase_execute_direct.html?mode=audit&amp;po=WZCG202606070001" class="hover:underline">审核</a>
+                </td>
+              </tr>
+              <tr class="border-t border-slate-100 hover:bg-slate-50/80" data-wms-list-row data-list-search="4 wzcg202606010001 一般计划 jjjh202606050001 jjsq202606050001 直采 已审核" data-list-tab="已审核" data-list-filter-method="直采" data-list-filter-planType="一般计划">
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">4</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">WZCG202606010001</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">一般计划</span></td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">JJJH202606050001</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><a href="purchase_request_form.html?mode=view&amp;requestNo=JJSQ202606050001" class="hover:underline">JJSQ202606050001</a></td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">直采</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">14,000.00</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap">2026-06-06 11:05</td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">已完成</span></td>
+                <td class="px-4 py-3.5 text-sm text-slate-700 whitespace-nowrap"><span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">已审核</span></td>
+                <td class="wms-col-actions px-4 py-3.5 text-slate-900 text-right text-sm whitespace-nowrap">
+                  <a href="purchase_execute_direct.html?mode=view&amp;po=WZCG202606010001&amp;planType=general" class="mr-2 hover:underline">查看</a>
+                  <a href="purchase_supply_list.html" class="hover:underline">供货</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="hidden py-16 text-center" data-wms-list-empty>
+          <i class="fa-solid fa-inbox mb-3 text-3xl text-slate-300"></i>
+          <p class="text-sm text-slate-500">暂无采购单。急件须计划审核通过；一般须采购申请审核通过后自动生成。</p>
+        </div>
+        <div class="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-4 py-3 text-sm text-slate-500">
+          <span data-wms-list-count>共 4 条</span>
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="flex gap-1"><span class="rounded-lg bg-slate-900 px-3 py-1 text-white">1</span></div>
+            <span class="text-slate-400">10 条/页</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body>
+</html>

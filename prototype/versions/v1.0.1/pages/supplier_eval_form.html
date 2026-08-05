@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新增评价 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="supplier_eval_list" data-title="新增评价" data-breadcrumb="供应商管理 / 新增评价">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="supplier_eval_list.html" data-modal-size="xl">
+      <div class="wms-modal-form wms-warehouse-form" data-wms-supplier-eval-form data-eval-key="" data-eval-view="0" data-eval-status="">
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">基础信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">评价单号</label><input type="text" value="系统自动生成" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" data-eval-order-no /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">配置版本</label><input type="text" value="V2026-001" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" data-eval-config-version /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价名称</label><input type="text" value="" placeholder="请输入评价名称" data-eval-field="evalName" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价周期</label><select data-eval-field="evalPeriod" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option selected>年度</option><option>半年度</option><option>季度</option><option>项目单次</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价期间</label><div class="flex items-center gap-2"><input type="date" value="2026-01-01" data-eval-field="periodStart" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /><span class="text-slate-400">至</span><input type="date" value="2026-12-31" data-eval-field="periodEnd" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div></div>
+        
+        <div class="md:col-span-2 rounded-xl border border-blue-100 bg-blue-50/40 p-4 text-xs text-slate-600 leading-relaxed">
+    <p class="font-semibold text-slate-800 mb-1">评分说明</p>
+    <p>各维度评分范围 0～10 分（支持一位小数）；表头指标来自 <a href="config_eval_weight.html" class="font-medium text-slate-800 hover:underline">评价设置 → 权重设置</a></p>
+    <p>综合评分 = 加权基础分 + 特殊加分 − 特殊扣分（单项加分/扣分上限 2 分，有加减分时备注必填）</p>
+    <p>评价等级按评价等级设置自动匹配；配置版本 V2026-001</p>
+  </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">评价记录</h3></div>
+        <div class="md:col-span-2 flex flex-wrap items-center justify-between gap-3 mb-2">
+          <p class="text-xs text-slate-500">一张评价单可评价多家供应商；综合得分与等级自动计算；审批通过后回写供应商档案</p>
+          <a href="supplier_eval_select_supplier.html" class="inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-plus text-[10px]"></i> 选择供应商</a>
+        </div>
+        <div class="md:col-span-2 overflow-x-auto wms-modal-table-wrap -mx-1">
+          <table class="min-w-full wms-data-table text-sm" data-wms-eval-lines-table>
+            <thead class="bg-slate-50/80"><tr><th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">序号</th>
+    <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">供应商编码</th>
+    <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">供应商名称</th>
+    <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 产品质量</th><th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 供货时效</th><th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 价格优势</th><th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 售后服务</th><th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 履约能力</th><th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 合规经营</th>
+    <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">特殊加分</th>
+    <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">特殊扣分</th>
+    <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">综合评分</th>
+    <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">评价等级</th>
+    <th class="px-3 py-2.5 text-left text-xs font-semibold text-slate-500 whitespace-nowrap">备注</th>
+    <th class="wms-col-actions px-3 py-2.5 text-right text-xs font-semibold text-slate-500 whitespace-nowrap">操作</th></tr></thead>
+            <tbody data-wms-eval-lines-tbody><tr data-wms-eval-empty><td colspan="20" class="px-4 py-8 text-center text-sm text-slate-400">请点击「选择供应商」添加评价对象</td></tr></tbody>
+          </table>
+        </div>
+        
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">其他信息</h3></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">备注</label><textarea rows="3" maxlength="500" placeholder="0/500" data-eval-field="orderRemark" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">评价佐证材料</label><div class="wms-upload-zone">
+    <i class="fa-solid fa-cloud-arrow-up text-lg text-slate-400"></i>
+    <p class="mt-2 text-sm text-slate-600">上传文件</p>
+    <p class="mt-1 text-xs text-slate-400">支持 .rar .zip .doc .docx .pdf，单个文件不能超过 500MB</p>
+  </div></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价人</label><select data-eval-field="evaluator" multiple class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" style="min-height:80px"><option value="李四" selected>李四</option><option value="张三">张三</option><option value="王经理">王经理</option><option value="赵工">赵工</option></select><p class="mt-1 text-xs text-slate-400">按住 Ctrl 键点击可多选</p></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 评价日期</label><input type="date" value="2026-06-09" data-eval-field="evalDate" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="supplier_eval_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-secondary" data-eval-save-draft>保存草稿</button><button type="button" class="wms-btn wms-btn-primary" data-eval-submit>提交审批</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

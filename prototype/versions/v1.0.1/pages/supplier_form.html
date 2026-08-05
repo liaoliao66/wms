@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新增供应商 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="supplier_list" data-title="新增供应商" data-breadcrumb="供应商管理 / 新增供应商">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="supplier_list.html" data-modal-size="lg">
+      <div class="wms-modal-form wms-warehouse-form">
+        <div class="md:col-span-2 rounded-lg border border-sky-100 bg-sky-50/80 px-3 py-2 text-xs text-sky-900">
+          <i class="fa-solid fa-circle-info mr-1"></i>新供应商须先通过<strong>入库审核</strong>；本表单用于已通过审核供应商的档案维护与信息变更报备。
+        </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">基本信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 供应商名称</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供应商简称</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 供应商类型</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>设备配件供应商</option><option>耗材供应商</option><option>电气材料供应商</option><option>办公耗材供应商</option><option>安防物资供应商</option><option>化工物资供应商</option><option>定制生产供应商</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 统一社会信用代码</label><input type="text" value="" maxlength="18" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 法定代表人</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">联系信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 联系人</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 联系电话</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 经营地址</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">资质与开票</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 开户银行</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 对公账号</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 开票抬头</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 开票税号</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">合作设置</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 合作状态</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>正常</option><option>暂停</option><option>黑名单</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">供应商分级</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>核心供应商</option><option>合格供应商</option><option>备选供应商</option></select></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="supplier_list.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-primary">保存</button>
+      </div>
+    </div></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>
