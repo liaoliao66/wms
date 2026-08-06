@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>确认计划额度转让 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="mine_plan_material" data-title="确认计划额度转让" data-breadcrumb="我的物资 / 计划记录 / 确认转让">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="mine_plan_material.html" data-modal-size="lg" data-wms-plan-transfer-confirm>
+      <div class="wms-modal-form">
+        <div class="md:col-span-2 rounded-xl border border-amber-100 bg-amber-50/60 px-4 py-3 text-sm text-slate-700">
+          接受后，下列<strong>计划领用额度</strong>将划入你的「计划记录」；你可再次转让。拒绝则额度退回转让人并解除锁定。
+        </div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">转让单号</label><input type="text" value="JHZR20260608002" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-mono text-slate-700" data-field="transferNo" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">状态</label><input type="text" value="待确认" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-amber-800" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">计划单号</label><input type="text" value="JJJH202606080001" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-mono text-slate-700" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">计划类型</label><input type="text" value="急件" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">物资</label><input type="text" value="XF-00102 · 防汛沙袋" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">规格 / 单位</label><input type="text" value="50×80cm / 条" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">转让数量</label><input type="text" value="200" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-900" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">转让人</label><input type="text" value="赵六 · 工程部" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">原因说明</label>
+          <textarea rows="2" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">本部门用量下调，额度转让</textarea>
+        </div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">拒绝原因（拒绝时填写）</label>
+          <textarea rows="2" maxlength="200" placeholder="若拒绝请填写原因" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-field="rejectReason"></textarea>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="mine_plan_material.html" class="wms-btn wms-btn-secondary">返回</a>
+        <button type="button" class="wms-btn wms-btn-secondary" data-wms-plan-transfer-reject>拒绝</button>
+        <button type="button" class="wms-btn wms-btn-primary" data-wms-plan-transfer-accept>确认接受</button>
+      </div>
+    </div>
+  </div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

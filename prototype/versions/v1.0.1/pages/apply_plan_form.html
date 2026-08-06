@@ -8,27 +8,99 @@
   <link rel="stylesheet" href="../css/custom.css" />
   <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
 </head>
-<body data-page="apply_plan_list" data-title="新增物资计划" data-breadcrumb="物资申请 / 新增计划">
+<body data-page="apply_plan_list" data-title="新增物资计划" data-breadcrumb="物资申请 / 新增计划" data-wms-apply-plan-form>
   <div id="main-content">
     <p class="mb-4 rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200" data-wms-plan-type-hint><strong>类型分流（v1.0.1）</strong>：急件：计划→物资采购→供货→验收；一般：计划→待采→采购申请→物资采购→供货→验收；二者均可作领用依据。</p>
     <div data-wms-modal data-modal-back="apply_plan_list.html" data-modal-size="xl">
-      <div class="wms-modal-form"><div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 计划名称</label><input type="text" value="六月办公物资计划" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div><div><label class="mb-1.5 block text-sm font-medium text-slate-700">计划单号</label><input type="text" value="JH202606090001（系统自动）" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div><div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 计划类型</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"><option>一般计划</option><option>急件计划</option></select></div><div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">需求说明</label><textarea rows="3" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div><div class="md:col-span-2 rounded-xl bg-slate-50 p-4" data-wms-apply-plan-lines>
-      <div class="mb-3 flex items-center justify-between"><span class="text-sm font-medium text-slate-900">计划明细</span>
-        <a href="apply_plan_select_material.html" class="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800"><i class="fa-solid fa-plus"></i> 选择物资清单</a></div>
-      <div class="overflow-x-auto wms-modal-table-wrap rounded-xl border border-slate-200 bg-white">
-        <table class="min-w-[720px] w-full text-sm wms-data-table"><thead class="bg-slate-50/90"><tr><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资大类</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资子类</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">在库数量</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 计划需求数量</th><th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 计划需要日期</th></tr></thead><tbody><tr class="border-t border-slate-100 hover:bg-slate-50/60" data-apply-plan-row>
-      <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">HC-00089</td>
-      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">打印纸 A4</td>
-      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">耗材-办公耗材</td>
-      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">办公用纸</td>
-      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">170</td>
-      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="number" min="1" value="1" class="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" data-apply-plan-qty /></td>
-      <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="date" value="2026-06-29" class="w-[132px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" data-apply-plan-need-date /></td>
-    </tr></tbody></table>
-      </div></div></div>
-      <div class="wms-modal-footer">
-        <a href="apply_plan_list.html" class="wms-btn wms-btn-secondary">取消</a><button type="button" class="wms-btn wms-btn-primary">保存</button><button type="button" class="wms-btn wms-btn-primary">确定</button>
+      <div class="wms-modal-form">
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 计划名称</label><input type="text" value="六月办公物资计划" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-wms-plan-field="name" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">计划单号</label><input type="text" value="JH202606090001（系统自动）" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 计划类型</label><select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-wms-plan-field="planType"><option>一般计划</option><option>急件计划</option></select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 预估总金额（元）</label><input type="number" min="0" step="0.01" placeholder="请输入，保留两位小数" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-wms-plan-field="estimateAmount" required /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700" data-wms-plan-desc-label>需求说明</label><textarea rows="3" placeholder="一般计划选填；急件计划必填" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-wms-plan-field="desc"></textarea></div>
+        <div class="md:col-span-2 rounded-xl bg-slate-50 p-4" data-wms-apply-plan-lines>
+          <div class="mb-3 flex items-center justify-between">
+            <span class="text-sm font-medium text-slate-900">计划明细</span>
+            <a href="apply_plan_select_material.html" class="inline-flex items-center gap-1 rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-medium text-white hover:bg-slate-800" data-wms-plan-select-material><i class="fa-solid fa-plus"></i> 选择物资清单</a>
+          </div>
+          <div class="overflow-x-auto wms-modal-table-wrap rounded-xl border border-slate-200 bg-white">
+            <table class="min-w-[1100px] w-full text-sm wms-data-table">
+              <thead class="bg-slate-50/90">
+                <tr>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资大类</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资子类</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">在库数量</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 计划需求数量</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 计划需要日期</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">图片</th>
+                  <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">备注</th>
+                  <th class="wms-col-actions px-3 py-2.5 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap" data-wms-plan-op-col>操作</th>
+                </tr>
+              </thead>
+              <tbody data-wms-plan-lines-tbody>
+                <tr class="border-t border-slate-100 hover:bg-slate-50/60" data-apply-plan-row>
+                  <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">HC-00089</td>
+                  <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">打印纸 A4</td>
+                  <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">耗材-办公耗材</td>
+                  <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">办公用纸</td>
+                  <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">170</td>
+                  <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="number" min="1" value="50" class="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" data-apply-plan-qty /></td>
+                  <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="date" value="2026-06-29" class="w-[132px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" data-apply-plan-need-date /></td>
+                  <td class="px-3 py-2.5 align-top">
+                    <div class="flex max-w-[240px] flex-row flex-nowrap items-center gap-1.5 overflow-x-auto" data-wms-plan-line-images data-max="9" data-count="1">
+                      <div class="relative h-10 w-10 shrink-0" data-wms-plan-image-thumb data-preview-label="图1">
+                        <button type="button" class="flex h-10 w-10 overflow-hidden rounded-lg bg-slate-200 ring-1 ring-slate-200 hover:ring-sky-400 cursor-pointer" data-wms-plan-image-preview title="点击预览">
+                          <span class="flex h-full w-full items-center justify-center text-[10px] text-slate-500">图1</span>
+                        </button>
+                        <button type="button" class="absolute -right-1 -top-1 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] text-white" data-wms-plan-image-remove aria-label="删除图片"><i class="fa-solid fa-xmark"></i></button>
+                      </div>
+                      <button type="button" class="inline-flex h-10 w-10 flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 text-slate-400 hover:border-slate-400 hover:bg-slate-50" data-wms-plan-image-add title="上传图片"><i class="fa-solid fa-plus text-xs"></i></button>
+                      <span class="text-[11px] text-slate-400" data-wms-plan-image-count>1/9</span>
+                    </div>
+                  </td>
+                  <td class="px-3 py-2.5 align-top">
+                    <input type="text" maxlength="200" value="季度办公补库" placeholder="0/200" class="w-[140px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" data-wms-plan-line-remark />
+                  </td>
+                  <td class="wms-col-actions px-3 py-2.5 text-right text-sm whitespace-nowrap" data-wms-plan-op-cell>
+                    <button type="button" class="text-rose-600 hover:underline" data-wms-plan-line-delete>删除</button>
+                  </td>
+                </tr>
+                <tr class="border-t border-slate-100 hover:bg-slate-50/60" data-apply-plan-row>
+                  <td class="px-3 py-2.5 font-mono text-xs text-slate-700 whitespace-nowrap">HC-00128</td>
+                  <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">安全帽</td>
+                  <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">耗材-劳保耗材</td>
+                  <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">安全防护</td>
+                  <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">45</td>
+                  <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="number" min="1" value="100" class="w-20 rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" data-apply-plan-qty /></td>
+                  <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap"><input type="date" value="2026-06-30" class="w-[132px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" data-apply-plan-need-date /></td>
+                  <td class="px-3 py-2.5 align-top">
+                    <div class="flex max-w-[240px] flex-row flex-nowrap items-center gap-1.5 overflow-x-auto" data-wms-plan-line-images data-max="9" data-count="0">
+                      <button type="button" class="inline-flex h-10 w-10 flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 text-slate-400 hover:border-slate-400 hover:bg-slate-50" data-wms-plan-image-add title="上传图片"><i class="fa-solid fa-plus text-xs"></i></button>
+                      <span class="text-[11px] text-slate-400" data-wms-plan-image-count>0/9</span>
+                    </div>
+                  </td>
+                  <td class="px-3 py-2.5 align-top">
+                    <input type="text" maxlength="200" value="" placeholder="0/200" class="w-[140px] rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-slate-400 focus:ring-1 focus:ring-slate-200" data-wms-plan-line-remark />
+                  </td>
+                  <td class="wms-col-actions px-3 py-2.5 text-right text-sm whitespace-nowrap" data-wms-plan-op-cell>
+                    <button type="button" class="text-rose-600 hover:underline" data-wms-plan-line-delete>删除</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="mt-2 text-xs text-slate-500">图片非必填，最多 9 张；备注非必填，最多 200 字；明细至少保留 1 行。</p>
+        </div>
       </div>
-    </div></div>
+      <div class="wms-modal-footer" data-wms-plan-footer>
+        <a href="apply_plan_list.html" class="wms-btn wms-btn-secondary" data-wms-plan-cancel>取消</a>
+        <button type="button" class="wms-btn wms-btn-primary" data-wms-plan-save>保存</button>
+        <button type="button" class="wms-btn wms-btn-primary" data-wms-plan-submit>确定</button>
+      </div>
+    </div>
+  </div>
   <script src="../js/layout.js" charset="UTF-8"></script>
-</body></html>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>计划额度转让 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="mine_plan_material" data-title="计划额度转让" data-breadcrumb="我的物资 / 计划记录 / 转让">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="mine_plan_material.html" data-modal-size="lg" data-wms-plan-transfer-form>
+      <div class="wms-modal-form">
+        <div class="md:col-span-2 rounded-xl border border-sky-100 bg-sky-50/60 px-4 py-3 text-sm text-slate-700">
+          提交后转让数量将<strong>立即锁定</strong>，不可再领用或再次转让该数量；受让人确认后额度划转。本操作<strong>不改变</strong>待采与采购数量。
+        </div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">转让单号</label><input type="text" value="系统自动生成" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" data-transfer-no /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">状态</label><input type="text" value="草稿" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" data-transfer-status /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">计划单号</label><input type="text" value="JJJH202606050001" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-mono text-slate-700" data-field="planNo" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">物资</label><input type="text" value="XF-00105 · 抽水泵" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700" data-field="material" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">规格型号</label><input type="text" value="QZ10-15" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700" data-field="spec" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">计量单位</label><input type="text" value="台" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700" data-field="unit" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">可转让余量</label><input type="text" value="4" readonly class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-900" data-field="transferable" /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 转让数量</label><input type="number" min="1" value="2" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-field="qty" /></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 受让人</label>
+          <select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-field="assignee">
+            <option value="">请选择（系统内任何人）</option>
+            <option value="wangwu">王五 · 维保部</option>
+            <option value="zhaoliu">赵六 · 工程部</option>
+            <option value="lisi">李四 · 设备部</option>
+            <option value="zhangsan">张三 · 行政部</option>
+          </select>
+        </div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 原因说明</label>
+          <textarea rows="3" maxlength="200" placeholder="请说明转让原因（最多 200 字）" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-field="reason">计划用量下调，额度转让给实际使用人</textarea>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="mine_plan_material.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" class="wms-btn wms-btn-primary" data-wms-plan-transfer-submit>提交并锁定</button>
+      </div>
+    </div>
+  </div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+</body></html>

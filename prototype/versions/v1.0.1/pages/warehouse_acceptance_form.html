@@ -27,6 +27,21 @@
           <div class="mb-2 text-xs font-medium text-sky-800">验收进度（已验 / 需求）</div>
           <div class="min-w-[92px]"><div class="mb-1 flex justify-between text-xs text-slate-500"><span>10/10</span><span>100%</span></div><div class="h-1.5 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-emerald-500" style="width:100%"></div></div></div>
         </div>
+        
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">计划来源信息（只读）</h3></div>
+        <div class="md:col-span-2 overflow-hidden rounded-xl border border-slate-200 bg-slate-50/40 p-4">
+          <dl class="grid gap-4 sm:grid-cols-2">
+            <div>
+              <dt class="mb-1.5 text-xs font-medium text-slate-500">计划备注</dt>
+              <dd class="text-sm text-slate-800" data-accept-field="planRemark">优先到货</dd>
+            </div>
+            <div class="sm:col-span-2">
+              <dt class="mb-1.5 text-xs font-medium text-slate-500">计划图片</dt>
+              <dd data-accept-field="planImages"><div class="flex max-w-[240px] flex-row flex-nowrap items-center gap-1.5 overflow-x-auto" data-wms-plan-line-images data-max="9" data-count="1" data-readonly="1"><button type="button" class="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-slate-200 ring-1 ring-slate-200 hover:ring-sky-400 cursor-pointer" data-wms-plan-image-thumb data-preview-label="图1" title="点击预览"><span class="flex h-full w-full items-center justify-center text-[10px] text-slate-500">图1</span></button></div></dd>
+            </div>
+          </dl>
+          <p class="mt-2 text-xs text-slate-400">来自物资计划明细，沿待采→采购申请→物资采购透传，验收时仅供对照。</p>
+        </div>
         <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">验收信息</h3></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700">验收单号</label><input type="text" value="GH2025001-YS01" readonly data-accept-field="recordNo" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" /></div>
         <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 批次单号</label><input type="text" value="1" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" /></div>

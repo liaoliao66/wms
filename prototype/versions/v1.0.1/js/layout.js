@@ -11,11 +11,12 @@ const WMS_APPLY_PLAN_SAMPLES = {
     reporter: '李四', department: '设备部', applyDate: '2026-06-08', createTime: '2026-06-08 09:15', needDate: '2026-06-10',
     auditPassTime: '2026-06-09 10:30', workflow: 'WF-PLAN',
     remark: '汛期临近，需尽快补齐防汛物资库存。',
+    estimateAmount: '28,600.00',
     lines: [
-      { code: 'XF-00102', name: '防汛沙袋', spec: '50×80cm', major: '耗材-防汛物资', minor: '防汛物资', unit: '条', stock: '120', qty: '500', needDate: '2026-06-12' },
-      { code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', major: '资产-类资产', minor: '防汛设备', unit: '台', stock: '2', qty: '5', needDate: '2026-06-10' },
-      { code: 'XF-00108', name: '救生衣', spec: '成人款', major: '耗材-防汛物资', minor: '防汛物资', unit: '件', stock: '80', qty: '50', needDate: '2026-06-12' },
-      { code: 'XF-00112', name: '应急照明灯', spec: 'LED 充电式', major: '耗材-防汛物资', minor: '防汛物资', unit: '盏', stock: '15', qty: '30', needDate: '2026-06-14' },
+      { code: 'XF-00102', name: '防汛沙袋', spec: '50×80cm', major: '耗材-防汛物资', minor: '防汛物资', unit: '条', stock: '120', qty: '500', needDate: '2026-06-12', images: 2, lineRemark: '汛期备货' },
+      { code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', major: '资产-类资产', minor: '防汛设备', unit: '台', stock: '2', qty: '5', needDate: '2026-06-10', images: 0, lineRemark: '' },
+      { code: 'XF-00108', name: '救生衣', spec: '成人款', major: '耗材-防汛物资', minor: '防汛物资', unit: '件', stock: '80', qty: '50', needDate: '2026-06-12', images: 1, lineRemark: '现场配发' },
+      { code: 'XF-00112', name: '应急照明灯', spec: 'LED 充电式', major: '耗材-防汛物资', minor: '防汛物资', unit: '盏', stock: '15', qty: '30', needDate: '2026-06-14', images: 0, lineRemark: '' },
     ],
   },
   JJJH202510001: {
@@ -23,9 +24,10 @@ const WMS_APPLY_PLAN_SAMPLES = {
     reporter: '李四', department: '设备部', applyDate: '2026-05-04', createTime: '2026-05-04 10:00', needDate: '2026-06-15',
     auditPassTime: '2026-05-05 11:00', workflow: 'WF-PLAN',
     remark: '抓斗备件库存不足，申请补库。',
+    estimateAmount: '15,800.00',
     lines: [
-      { code: 'GD001001-001', name: '抓斗', spec: '4m³-Q345B', major: '资产-固定资产', minor: '设备-配件', unit: '个', stock: '—', qty: '10', needDate: '2026-06-15' },
-      { code: 'GD001001-003', name: '钢丝绳', spec: 'Φ18×100m', major: '资产-类资产', minor: '设备-配件', unit: 'm', stock: '200', qty: '100', needDate: '2026-06-20' },
+      { code: 'GD001001-001', name: '抓斗', spec: '4m³-Q345B', major: '资产-固定资产', minor: '设备-配件', unit: '个', stock: '—', qty: '10', needDate: '2026-06-15', images: 1, lineRemark: '优先到货' },
+      { code: 'GD001001-003', name: '钢丝绳', spec: 'Φ18×100m', major: '资产-类资产', minor: '设备-配件', unit: 'm', stock: '200', qty: '100', needDate: '2026-06-20', images: 0, lineRemark: '' },
     ],
   },
   JJJH202510002: {
@@ -33,9 +35,10 @@ const WMS_APPLY_PLAN_SAMPLES = {
     reporter: '李四', department: '设备部', applyDate: '2026-05-04', createTime: '2026-05-04 10:20', needDate: '2026-06-15',
     auditPassTime: '2026-05-05 11:00', workflow: 'WF-PLAN',
     remark: '料斗备件补库。',
+    estimateAmount: '12,400.00',
     lines: [
-      { code: 'GD001001-002', name: '料斗', spec: '4m³', major: '资产-固定资产', minor: '设备-配件', unit: '个', stock: '—', qty: '10', needDate: '2026-06-15' },
-      { code: 'GD001001-004', name: '螺丝刀', spec: '十字 PH2', major: '资产-类资产', minor: '工具', unit: '把', stock: '24', qty: '20', needDate: '2026-06-18' },
+      { code: 'GD001001-002', name: '料斗', spec: '4m³', major: '资产-固定资产', minor: '设备-配件', unit: '个', stock: '—', qty: '10', needDate: '2026-06-15', images: 0, lineRemark: '' },
+      { code: 'GD001001-004', name: '螺丝刀', spec: '十字 PH2', major: '资产-类资产', minor: '工具', unit: '把', stock: '24', qty: '20', needDate: '2026-06-18', images: 2, lineRemark: '维修班组' },
     ],
   },
   JJJH202606050001: {
@@ -43,10 +46,11 @@ const WMS_APPLY_PLAN_SAMPLES = {
     reporter: '王五', department: '维保部', applyDate: '2026-06-05', createTime: '2026-06-05 08:40', needDate: '2026-06-18',
     auditPassTime: '2026-06-06 14:00', workflow: 'WF-PLAN',
     remark: '维保季度集中采购。',
+    estimateAmount: '45,200.00',
     lines: [
-      { code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', major: '资产-类资产', minor: '防汛设备', unit: '台', stock: '2', qty: '5', needDate: '2026-06-18' },
-      { code: 'HC-00128', name: '安全帽', spec: 'ABS 标准款', major: '耗材-安全防护', minor: '安全防护', unit: '顶', stock: '45', qty: '100', needDate: '2026-06-20' },
-      { code: 'DL-00234', name: '电缆 YJV-3×2.5', spec: '国标铜芯', major: '资产-类资产', minor: '电气材料', unit: 'm', stock: '320', qty: '200', needDate: '2026-06-22' },
+      { code: 'XF-00105', name: '抽水泵', spec: 'QZ10-15', major: '资产-类资产', minor: '防汛设备', unit: '台', stock: '2', qty: '5', needDate: '2026-06-18', images: 0, lineRemark: '' },
+      { code: 'HC-00128', name: '安全帽', spec: 'ABS 标准款', major: '耗材-安全防护', minor: '安全防护', unit: '顶', stock: '45', qty: '100', needDate: '2026-06-20', images: 1, lineRemark: '季度集采' },
+      { code: 'DL-00234', name: '电缆 YJV-3×2.5', spec: '国标铜芯', major: '资产-类资产', minor: '电气材料', unit: 'm', stock: '320', qty: '200', needDate: '2026-06-22', images: 0, lineRemark: '' },
     ],
   },
 };
@@ -251,12 +255,12 @@ const WMS_ASSET_SAMPLES = {
 };
 
 const WMS_NAV = [
-  { id: 'dashboard', label: '工作台', icon: 'fa-gauge-high', href: 'pc_home.html' },
   { group: '物资台账' },
   { id: 'ledger_material', label: '物资台账', icon: 'fa-boxes-stacked', href: 'ledger_material.html' },
   { id: 'ledger_warehouse', label: '仓库台账', icon: 'fa-warehouse', href: 'ledger_warehouse.html' },
   { id: 'ledger_transaction', label: '出入库记录', icon: 'fa-right-left', href: 'ledger_transaction.html' },
   { group: '我的物资' },
+  { id: 'mine_plan_material', label: '计划记录', icon: 'fa-arrows-turn-right', href: 'mine_plan_material.html' },
   { id: 'mine_pending_pickup', label: '领用记录', icon: 'fa-hand-holding-box', href: 'mine_pending_pickup.html' },
   { id: 'mine_pending_return', label: '归还记录', icon: 'fa-rotate-left', href: 'mine_pending_return.html' },
   { group: '物资申请' },
@@ -386,8 +390,8 @@ function initAppOutsideCount(root) {
 
 function initLayout() {
   const root = document.body;
-  const activeId = root.dataset.page || 'dashboard';
-  const title = root.dataset.title || '工作台';
+  const activeId = root.dataset.page || 'ledger_material';
+  const title = root.dataset.title || '物资台账';
   const breadcrumb = root.dataset.breadcrumb || title;
   const isIndex = root.dataset.index === 'true';
   const pagesPrefix = isIndex ? 'pages/' : '';
@@ -509,8 +513,14 @@ function initLayout() {
   initLocationFormFromQuery(root);
   initSupplierEvalForm(root);
   initPurchasePendingApply(root);
+  initPlanMaterialList(root);
+  initPlanMaterialTransfer(root);
+  initPlanMaterialConfirm(root);
+  initPurchasePendingGroup(root);
   initPurchasePendingBatch(root);
   initApplyPlanDetailFromQuery(root);
+  initApplyPlanForm(root);
+  initPlanImagePreview(root);
   initPurchaseRequestFromQuery(root);
   initRequisitionForm(root);
   initAcceptanceFormInteraction(root);
@@ -840,7 +850,7 @@ function initDashAnomalies(root) {
 }
 
 function initListToolbar(root) {
-  document.querySelectorAll('[data-wms-list-page]:not([data-wms-location-page])').forEach(pageEl => {
+  document.querySelectorAll('[data-wms-list-page]:not([data-wms-location-page]):not([data-wms-plan-material-list])').forEach(pageEl => {
     const tbody = pageEl.querySelector('[data-wms-list-tbody]') || pageEl.querySelector('tbody');
     if (!tbody) return;
 
@@ -917,6 +927,15 @@ function initListToolbar(root) {
     }
 
     function applyFilters() {
+      if (activeTab === '报警物资') {
+        rows().forEach(row => row.classList.add('hidden'));
+        if (countEl) countEl.textContent = '';
+        emptyEl?.classList.add('hidden');
+        tableWrap?.classList.add('hidden');
+        updateClearBtn();
+        updateResetBtn();
+        return;
+      }
       let visible = 0;
       rows().forEach(row => {
         const show = rowVisible(row);
@@ -1063,6 +1082,423 @@ function initPurchasePendingApply(root) {
   if (titleEl && planNo) titleEl.textContent = `待采采购申请 · ${planNo}`;
 }
 
+function initPlanMaterialList(root) {
+  if (root.dataset.page !== 'mine_plan_material') return;
+  if (root.dataset.title !== '计划记录') return;
+  const page = document.querySelector('[data-wms-plan-material-list]');
+  if (!page || page.dataset.wmsPlanMaterialInit) return;
+  page.dataset.wmsPlanMaterialInit = '1';
+
+  const holdCard = page.querySelector('[data-wms-plan-hold-card]');
+  const holdRows = () => [...page.querySelectorAll('[data-wms-plan-hold-tbody] [data-wms-list-row]')];
+  const tabBtns = [...page.querySelectorAll('[data-wms-list-tab]')];
+  const searchInput = page.querySelector('[data-wms-list-search]');
+  const searchClear = page.querySelector('[data-wms-list-search-clear]');
+  const resetBtn = page.querySelector('[data-wms-list-reset]');
+  const countEl = page.querySelector('[data-wms-list-count]');
+  const emptyEl = page.querySelector('[data-wms-list-empty]');
+  let activeTab = tabBtns[0]?.getAttribute('data-wms-list-tab') || '未领用';
+
+  const rowMatchTab = (row, tab) => {
+    if (tab === '未领用') return Number(row.dataset.unused || 0) > 0;
+    if (tab === '已领用') return Number(row.dataset.received || 0) > 0;
+    if (tab === '可转让') return Number(row.dataset.transferable || 0) > 0;
+    if (tab === '已转让') return Number(row.dataset.transferred || 0) > 0 || row.dataset.listTab === '已转让';
+    if (tab === '待接受') return row.dataset.listTab === '待接受';
+    if (tab === '已接受') return row.dataset.listTab === '已接受';
+    return (row.dataset.listTab || '') === tab;
+  };
+
+  const syncRowActions = () => {
+    const withPlan = ['未领用', '已领用', '可转让', '已转让'].includes(activeTab);
+    holdRows().forEach(row => {
+      const cell = row.querySelector('[data-wms-plan-actions]');
+      if (!cell) return;
+      const planNo = row.dataset.planNo || '';
+      const parts = [];
+      if (withPlan && planNo) {
+        parts.push(`<a href="apply_plan_form.html?mode=view&planNo=${encodeURIComponent(planNo)}" class="mr-2 hover:underline">查看计划</a>`);
+      }
+      parts.push(`<button type="button" class="font-medium text-slate-900 hover:underline" data-wms-plan-transfer-record-open data-plan-no="${planNo}">转让记录</button>`);
+      cell.innerHTML = parts.join('');
+    });
+  };
+
+  const apply = () => {
+    const q = (searchInput?.value || '').trim().toLowerCase();
+    let visible = 0;
+    holdRows().forEach(row => {
+      let show = rowMatchTab(row, activeTab);
+      if (q && !(row.dataset.listSearch || '').includes(q)) show = false;
+      row.classList.toggle('hidden', !show);
+      if (show) visible += 1;
+    });
+
+    holdCard?.classList.toggle('hidden', visible === 0);
+    syncRowActions();
+
+    if (countEl) countEl.textContent = `共 ${visible} 条`;
+    emptyEl?.classList.toggle('hidden', visible > 0);
+    if (searchClear && searchInput) {
+      const has = !!searchInput.value.trim();
+      searchClear.classList.toggle('hidden', !has);
+      searchClear.classList.toggle('inline-flex', has);
+    }
+    if (resetBtn) {
+      const def = tabBtns[0]?.getAttribute('data-wms-list-tab') || '未领用';
+      const showReset = !!(q || activeTab !== def);
+      resetBtn.classList.toggle('hidden', !showReset);
+      resetBtn.classList.toggle('inline-flex', showReset);
+    }
+  };
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeTab = btn.getAttribute('data-wms-list-tab') || '未领用';
+      setListTabStyles(tabBtns, activeTab);
+      apply();
+    });
+  });
+  searchInput?.addEventListener('input', apply);
+  searchClear?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    apply();
+  });
+  resetBtn?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    activeTab = tabBtns[0]?.getAttribute('data-wms-list-tab') || '未领用';
+    setListTabStyles(tabBtns, activeTab);
+    apply();
+  });
+
+  page.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-wms-plan-transfer-record-open]');
+    if (!btn || !page.contains(btn)) return;
+    e.preventDefault();
+    openPlanTransferRecordDialog(btn.getAttribute('data-plan-no') || '');
+  });
+
+  const urlTab = new URLSearchParams(window.location.search).get('tab');
+  if (urlTab && tabBtns.some(b => b.getAttribute('data-wms-list-tab') === urlTab)) {
+    activeTab = urlTab;
+    setListTabStyles(tabBtns, activeTab);
+  } else {
+    setListTabStyles(tabBtns, activeTab);
+  }
+  apply();
+}
+
+const WMS_PLAN_TRANSFER_RECORDS = [
+  { no: 'JHZR20260510001', dir: '我转出', planNo: 'JJJH202510002', code: 'GD001001-002', name: '料斗', qty: '5个', party: '王五 · 维保部', auditTime: '2026-05-12 14:20', reason: '本部门用量下调' },
+  { no: 'JHZR20260508003', dir: '我转入', planNo: 'JJJH202510001', code: 'GD001001-001', name: '抓斗', qty: '6个', party: '王五 · 维保部', auditTime: '2026-05-09 10:05', reason: '支援设备部领用' },
+  { no: 'JHZR20260601008', dir: '我转出', planNo: 'JJJH202606090001', code: 'HC-00089', name: '打印纸 A4', qty: '20盒', party: '张三 · 行政部', auditTime: '2026-06-02 11:30', reason: '超额申请，转让闲置额度' },
+];
+
+function closePlanTransferRecordDialog() {
+  document.querySelector('[data-wms-plan-transfer-dialog]')?.remove();
+  if (closePlanTransferRecordDialog._onEsc) {
+    document.removeEventListener('keydown', closePlanTransferRecordDialog._onEsc);
+    closePlanTransferRecordDialog._onEsc = null;
+  }
+}
+
+function openPlanTransferRecordDialog(planNo) {
+  closePlanTransferRecordDialog();
+  const rows = WMS_PLAN_TRANSFER_RECORDS.filter(r => !planNo || r.planNo === planNo);
+  const dirBadge = (dir) => dir === '我转入'
+    ? '<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-sky-50 text-sky-700 ring-sky-600/20">我转入</span>'
+    : '<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-slate-100 text-slate-700 ring-slate-600/10">我转出</span>';
+  const statusBadge = '<span class="inline-flex rounded-lg px-2 py-0.5 text-xs font-medium ring-1 ring-inset bg-emerald-50 text-emerald-700 ring-emerald-600/20">审核通过</span>';
+  const bodyRows = rows.length
+    ? rows.map((r, i) => `
+      <tr class="border-t border-slate-100">
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${i + 1}</td>
+        <td class="px-3 py-2.5 text-sm font-mono text-slate-700 whitespace-nowrap">${r.no}</td>
+        <td class="px-3 py-2.5 text-sm whitespace-nowrap">${dirBadge(r.dir)}</td>
+        <td class="px-3 py-2.5 text-sm font-mono text-slate-700 whitespace-nowrap">${r.planNo}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.code}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.name}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.qty}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.party}</td>
+        <td class="px-3 py-2.5 text-sm whitespace-nowrap">${statusBadge}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.auditTime}</td>
+        <td class="px-3 py-2.5 text-sm text-slate-700 whitespace-nowrap">${r.reason}</td>
+      </tr>`).join('')
+    : `<tr><td colspan="11" class="px-3 py-10 text-center text-sm text-slate-500">该计划暂无审核通过的转让记录</td></tr>`;
+
+  const filterTip = planNo
+    ? `<p class="mb-3 text-sm text-slate-600">计划单号：<span class="font-mono font-medium text-slate-900">${planNo}</span>（含我转出 / 我转入；仅审核通过写入）</p>`
+    : `<p class="mb-3 text-sm text-slate-600">展示我转出与我转入记录；仅<strong>审核通过</strong>后写入。</p>`;
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'wms-dialog-backdrop';
+  backdrop.dataset.wmsPlanTransferDialog = '';
+  backdrop.setAttribute('role', 'presentation');
+  backdrop.innerHTML = `
+    <div class="wms-dialog" style="max-width:960px" role="dialog" aria-modal="true" aria-labelledby="wms-plan-transfer-record-title">
+      <div class="wms-modal-header">
+        <h2 id="wms-plan-transfer-record-title" class="wms-modal-title">转让记录</h2>
+        <button type="button" class="wms-modal-close" data-wms-plan-transfer-dialog-close aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="wms-modal-body">
+        ${filterTip}
+        <div class="wms-modal-table-wrap overflow-x-auto rounded-xl border border-slate-200">
+          <table class="min-w-full text-sm wms-data-table">
+            <thead class="bg-slate-50/90 sticky top-0">
+              <tr>
+                <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th>
+                <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">转让单号</th>
+                <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">方向</th>
+                <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划单号</th>
+                <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资编码</th>
+                <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">物资名称</th>
+                <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">转让数量</th>
+                <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">对方</th>
+                <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">状态</th>
+                <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">审核通过时间</th>
+                <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">原因说明</th>
+              </tr>
+            </thead>
+            <tbody>${bodyRows}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="wms-modal-footer">
+        <button type="button" class="wms-btn wms-btn-primary" data-wms-plan-transfer-dialog-close>关闭</button>
+      </div>
+    </div>
+  `;
+  backdrop.addEventListener('click', (e) => {
+    if (e.target === backdrop) closePlanTransferRecordDialog();
+  });
+  backdrop.querySelectorAll('[data-wms-plan-transfer-dialog-close]').forEach(btn => {
+    btn.addEventListener('click', closePlanTransferRecordDialog);
+  });
+  closePlanTransferRecordDialog._onEsc = (e) => {
+    if (e.key === 'Escape') closePlanTransferRecordDialog();
+  };
+  document.addEventListener('keydown', closePlanTransferRecordDialog._onEsc);
+  document.body.appendChild(backdrop);
+}
+
+function initPlanTransferRecord(root) {
+  if (root.dataset.title !== '转让记录') return;
+  const page = document.querySelector('[data-wms-plan-transfer-record]');
+  if (!page || page.dataset.wmsPlanTransferRecordInit) return;
+  page.dataset.wmsPlanTransferRecordInit = '1';
+
+  const planNo = new URLSearchParams(window.location.search).get('planNo');
+  if (planNo) {
+    const tip = document.createElement('p');
+    tip.className = 'mb-3 text-sm text-slate-600';
+    tip.innerHTML = `已按计划单号筛选：<span class="font-mono font-medium text-slate-900">${planNo}</span>`;
+    page.querySelector('[data-wms-list-tabs]')?.before(tip);
+  }
+
+  const tbody = page.querySelector('[data-wms-list-tbody]');
+  if (planNo && tbody) {
+    const applyPlan = () => {
+      [...tbody.querySelectorAll('[data-wms-list-row]')].forEach(row => {
+        if ((row.dataset.planNo || '') !== planNo) row.classList.add('hidden');
+      });
+    };
+    setTimeout(applyPlan, 0);
+    page.querySelectorAll('[data-wms-list-tab]').forEach(btn => {
+      btn.addEventListener('click', () => setTimeout(applyPlan, 0));
+    });
+    page.querySelector('[data-wms-list-search]')?.addEventListener('input', () => setTimeout(applyPlan, 0));
+    page.querySelector('[data-wms-list-reset]')?.addEventListener('click', () => setTimeout(applyPlan, 0));
+  }
+}
+
+function initPlanMaterialTransfer(root) {
+  const form = document.querySelector('[data-wms-plan-transfer-form]');
+  if (!form || form.dataset.wmsPlanTransferInit) return;
+  form.dataset.wmsPlanTransferInit = '1';
+
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get('mode');
+  const planNo = params.get('planNo');
+  const code = params.get('code');
+  const name = params.get('name');
+  const qtyMax = params.get('qty');
+  const unit = params.get('unit');
+  const spec = params.get('spec');
+  const locked = params.get('locked');
+  const transferNo = params.get('transferNo');
+
+  if (planNo) {
+    const el = form.querySelector('[data-field="planNo"]');
+    if (el) el.value = planNo;
+  }
+  if (code || name) {
+    const el = form.querySelector('[data-field="material"]');
+    if (el) el.value = [code, name].filter(Boolean).join(' · ');
+  }
+  if (spec) {
+    const el = form.querySelector('[data-field="spec"]');
+    if (el) el.value = spec;
+  }
+  if (unit) {
+    const el = form.querySelector('[data-field="unit"]');
+    if (el) el.value = unit;
+  }
+  if (qtyMax) {
+    const t = form.querySelector('[data-field="transferable"]');
+    if (t) t.value = qtyMax;
+    const q = form.querySelector('[data-field="qty"]');
+    if (q) {
+      q.max = qtyMax;
+      q.value = String(Math.min(Number(qtyMax) || 1, Number(q.value) || 1));
+    }
+  }
+
+  const submitBtn = form.querySelector('[data-wms-plan-transfer-submit]');
+  if (mode === 'view') {
+    const noEl = form.querySelector('[data-transfer-no]');
+    if (noEl) noEl.value = transferNo || 'JHZR20260510001';
+    const stEl = form.querySelector('[data-transfer-status]');
+    if (stEl) stEl.value = '待确认（已锁定）';
+    const q = form.querySelector('[data-field="qty"]');
+    if (q) {
+      q.value = locked || q.value;
+      q.readOnly = true;
+      q.classList.add('bg-slate-50');
+    }
+    form.querySelector('[data-field="assignee"]')?.setAttribute('disabled', 'disabled');
+    form.querySelector('[data-field="reason"]')?.setAttribute('readonly', 'readonly');
+    if (submitBtn) submitBtn.classList.add('hidden');
+  }
+
+  submitBtn?.addEventListener('click', () => {
+    const max = Number(form.querySelector('[data-field="transferable"]')?.value || 0);
+    const qty = Number(form.querySelector('[data-field="qty"]')?.value || 0);
+    const assignee = form.querySelector('[data-field="assignee"]')?.value;
+    const reason = (form.querySelector('[data-field="reason"]')?.value || '').trim();
+    if (!assignee) {
+      showSupplyCompleteToast('请选择受让人');
+      return;
+    }
+    if (!qty || qty < 1) {
+      showSupplyCompleteToast('请填写有效转让数量');
+      return;
+    }
+    if (qty > max) {
+      showSupplyCompleteToast(`转让数量不能超过可转让余量 ${max}`);
+      return;
+    }
+    if (!reason) {
+      showSupplyCompleteToast('请填写原因说明');
+      return;
+    }
+    showSupplyCompleteToast('已提交并锁定额度，等待受让人确认');
+    setTimeout(() => { window.location.href = 'mine_plan_material.html?tab=已转让'; }, 800);
+  });
+}
+
+function initPlanMaterialConfirm(root) {
+  const form = document.querySelector('[data-wms-plan-transfer-confirm]');
+  if (!form || form.dataset.wmsPlanConfirmInit) return;
+  form.dataset.wmsPlanConfirmInit = '1';
+
+  const params = new URLSearchParams(window.location.search);
+  const transferNo = params.get('transferNo');
+  if (transferNo) {
+    const el = form.querySelector('[data-field="transferNo"]');
+    if (el) el.value = transferNo;
+  }
+
+  form.querySelector('[data-wms-plan-transfer-accept]')?.addEventListener('click', () => {
+    showSupplyCompleteToast('已接受，额度已划入你的计划记录');
+    setTimeout(() => { window.location.href = 'mine_plan_material.html?tab=已接受'; }, 800);
+  });
+  form.querySelector('[data-wms-plan-transfer-reject]')?.addEventListener('click', () => {
+    const reason = (form.querySelector('[data-field="rejectReason"]')?.value || '').trim();
+    if (!reason) {
+      showSupplyCompleteToast('拒绝时请填写原因');
+      return;
+    }
+    showSupplyCompleteToast('已拒绝，锁定额度已退回转让人');
+    setTimeout(() => { window.location.href = 'mine_plan_material.html'; }, 800);
+  });
+}
+
+function initPurchasePendingGroup(root) {
+  if (root.dataset.page !== 'purchase_pending_list') return;
+  if (root.dataset.title !== '待采物资') return;
+  const list = document.querySelector('[data-wms-pending-list]');
+  if (!list || list.dataset.wmsPendingGroupInit) return;
+  list.dataset.wmsPendingGroupInit = '1';
+
+  const tbody = list.querySelector('[data-wms-list-tbody]');
+  const toggle = list.querySelector('[data-wms-pending-group-minor]');
+  if (!tbody || !toggle) return;
+
+  const clearGroupHeaders = () => {
+    tbody.querySelectorAll('[data-wms-pending-group-header]').forEach(el => el.remove());
+  };
+
+  const sortRows = (rows, byGroup) => rows.slice().sort((a, b) => {
+    if (byGroup) {
+      const ma = a.dataset.minor || '';
+      const mb = b.dataset.minor || '';
+      if (ma !== mb) return ma.localeCompare(mb, 'zh');
+    }
+    const ta = a.dataset.approveTime || '';
+    const tb = b.dataset.approveTime || '';
+    if (ta !== tb) return tb.localeCompare(ta);
+    const pa = a.dataset.planNo || '';
+    const pb = b.dataset.planNo || '';
+    return pa.localeCompare(pb);
+  });
+
+  const renumberVisible = () => {
+    let n = 0;
+    [...tbody.querySelectorAll('[data-wms-pending-row]')].forEach(row => {
+      if (row.classList.contains('hidden')) return;
+      n += 1;
+      const seq = row.children[1];
+      if (seq) seq.textContent = String(n);
+    });
+  };
+
+  const applyGroup = () => {
+    clearGroupHeaders();
+    const dataRows = [...tbody.querySelectorAll('[data-wms-pending-row]')];
+    const grouped = !!toggle.checked;
+    const sorted = sortRows(dataRows, grouped);
+    sorted.forEach(r => tbody.appendChild(r));
+
+    if (grouped) {
+      const colCount = list.querySelectorAll('thead th').length || 24;
+      let lastMinor = null;
+      sorted.forEach(row => {
+        if (row.classList.contains('hidden')) return;
+        const minor = row.dataset.minor || '未分类';
+        if (minor === lastMinor) return;
+        const count = sorted.filter(r => !r.classList.contains('hidden') && (r.dataset.minor || '未分类') === minor).length;
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-wms-pending-group-header', '');
+        tr.className = 'bg-slate-100/90 border-t border-slate-200';
+        tr.innerHTML = `<td colspan="${colCount}" class="px-3 py-2.5 text-sm font-semibold text-slate-800"><i class="fa-solid fa-layer-group mr-1.5 text-slate-400"></i>${minor}<span class="ml-2 text-xs font-normal text-slate-500">${count} 条</span></td>`;
+        tbody.insertBefore(tr, row);
+        lastMinor = minor;
+      });
+    }
+    renumberVisible();
+  };
+
+  const schedule = () => setTimeout(applyGroup, 0);
+  toggle.addEventListener('change', applyGroup);
+  list.querySelectorAll('[data-wms-list-tab]').forEach(btn => btn.addEventListener('click', schedule));
+  list.querySelector('[data-wms-list-search]')?.addEventListener('input', schedule);
+  list.querySelector('[data-wms-list-search-clear]')?.addEventListener('click', schedule);
+  list.querySelectorAll('[data-wms-list-filter]').forEach(sel => sel.addEventListener('change', schedule));
+  list.querySelector('[data-wms-list-reset]')?.addEventListener('click', schedule);
+
+  applyGroup();
+}
+
 function initPurchasePendingBatch(root) {
   if (root.dataset.page !== 'purchase_pending_list') return;
   if (root.dataset.title !== '待采物资') return;
@@ -1118,6 +1554,7 @@ function initPurchasePendingBatch(root) {
     sel.addEventListener('change', () => setTimeout(syncBatchUi, 0));
   });
   list.querySelector('[data-wms-list-reset]')?.addEventListener('click', () => setTimeout(syncBatchUi, 0));
+  list.querySelector('[data-wms-pending-group-minor]')?.addEventListener('change', () => setTimeout(syncBatchUi, 0));
 
   syncBatchUi();
 }
@@ -1852,7 +2289,7 @@ function initMaterialCatalog(root) {
     }
     if (enabledFilter?.value === 'true' && enabled !== 'true') return false;
     if (enabledFilter?.value === 'false' && enabled !== 'false') return false;
-    if (alertFilter?.value !== 'all' && alert !== alertFilter.value) return false;
+    if (alertFilter && alertFilter.value !== 'all' && alert !== alertFilter.value) return false;
     if (returnFilter?.value !== 'all') {
       const returnCell = row.querySelector('[data-material-col="returnNeed"]');
       if (!returnCell?.textContent.includes(returnFilter.value)) return false;
@@ -2310,13 +2747,32 @@ function initLedgerMaterial(root) {
   const listPage = ledger.querySelector('[data-wms-list-page]');
   const tabBtns = listPage ? [...listPage.querySelectorAll('[data-wms-list-tab]')] : [];
   const searchInput = listPage?.querySelector('[data-wms-list-search]');
+  const toolbar = listPage?.querySelector('[data-wms-list-toolbar]');
+  const stockPanel = ledger.querySelector('[data-wms-ledger-stock-panel]');
+  const alarmPanel = ledger.querySelector('[data-wms-ledger-alarm-panel]');
+
+  function syncAlarmMode() {
+    const activeTab = tabBtns.find(b => b.classList.contains('bg-slate-900'))?.getAttribute('data-wms-list-tab') || '';
+    const isAlarm = activeTab === '报警物资';
+    stockPanel?.classList.toggle('hidden', isAlarm);
+    alarmPanel?.classList.toggle('hidden', !isAlarm);
+    toolbar?.classList.toggle('hidden', isAlarm);
+  }
 
   function refreshList() {
     const activeTab = tabBtns.find(b => b.classList.contains('bg-slate-900'));
     activeTab?.click();
+    syncAlarmMode();
   }
 
   sidebar?.addEventListener('wms-category-filter', refreshList);
+
+  tabBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // after list toolbar handler updates styles
+      setTimeout(syncAlarmMode, 0);
+    });
+  });
 
   ledger.querySelectorAll('[data-ledger-stat-tab]').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -2332,6 +2788,16 @@ function initLedgerMaterial(root) {
       }
     });
   });
+
+  // URL: ?tab=报警物资&alert=库存下限
+  setTimeout(() => {
+    syncAlarmMode();
+    const alert = new URLSearchParams(window.location.search).get('alert');
+    if (alert && alarmPanel && !alarmPanel.classList.contains('hidden')) {
+      const aBtn = alarmPanel.querySelector(`[data-wms-dash-anomaly-tab="${alert}"]`);
+      aBtn?.click();
+    }
+  }, 0);
 }
 
 function initLedgerMaterialDetailFromQuery(root) {
@@ -2672,9 +3138,20 @@ function initTransactionPageFromQuery(root) {
   if (titleEl) titleEl.textContent = `流水 · ${tx.type} · ${tx.materialName}`;
 }
 
+function planLineThumbsHtml(count) {
+  const n = Number(count || 0);
+  if (n <= 0) return '<span class="text-slate-400">—</span>';
+  const thumbs = Array.from({ length: n }, (_, i) => {
+    const label = `图${i + 1}`;
+    return `<button type="button" class="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-slate-200 ring-1 ring-slate-200 hover:ring-sky-400 cursor-pointer" data-wms-plan-image-thumb data-preview-label="${label}" title="点击预览"><span class="flex h-full w-full items-center justify-center text-[10px] text-slate-500">${label}</span></button>`;
+  }).join('');
+  return `<div class="flex max-w-[240px] flex-row flex-nowrap items-center gap-1.5 overflow-x-auto" data-wms-plan-line-images data-readonly="1">${thumbs}</div>`;
+}
+
 function applyPlanLineRowsHtml(lines) {
-  return (lines || []).map((line, i) =>
-    `<tr class="border-t border-slate-100">
+  return (lines || []).map((line, i) => {
+    const remark = (line.lineRemark || '').trim() || '—';
+    return `<tr class="border-t border-slate-100">
       <td class="px-3 py-2.5 text-sm text-slate-700">${i + 1}</td>
       <td class="px-3 py-2.5 font-mono text-xs text-slate-800">${line.code}</td>
       <td class="px-3 py-2.5 text-sm text-slate-800">${line.name}</td>
@@ -2685,8 +3162,267 @@ function applyPlanLineRowsHtml(lines) {
       <td class="px-3 py-2.5 text-sm text-slate-700">${line.stock ?? '—'}</td>
       <td class="px-3 py-2.5 text-sm font-medium text-slate-900">${line.qty}</td>
       <td class="px-3 py-2.5 text-sm text-slate-700">${line.needDate || '—'}</td>
-    </tr>`
-  ).join('');
+      <td class="px-3 py-2.5">${planLineThumbsHtml(line.images)}</td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">${remark}</td>
+    </tr>`;
+  }).join('');
+}
+
+function openPlanImagePreview(labels, startIndex) {
+  const list = (labels || []).filter(Boolean);
+  if (!list.length) return;
+  let idx = Math.max(0, Math.min(startIndex || 0, list.length - 1));
+  let overlay = document.getElementById('wms-plan-image-preview');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'wms-plan-image-preview';
+    overlay.className = 'fixed inset-0 z-[80] hidden items-center justify-center bg-slate-900/70 p-4';
+    overlay.innerHTML = `
+      <div class="relative w-full max-w-lg rounded-2xl bg-white p-5 shadow-xl">
+        <button type="button" class="absolute right-3 top-3 rounded-lg px-2 py-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700" data-preview-close aria-label="关闭"><i class="fa-solid fa-xmark"></i></button>
+        <p class="mb-3 text-sm font-medium text-slate-800" data-preview-title>图片预览</p>
+        <div class="flex aspect-[4/3] items-center justify-center rounded-xl bg-slate-100 ring-1 ring-slate-200">
+          <div class="text-center">
+            <div class="mx-auto mb-3 flex h-28 w-28 items-center justify-center rounded-xl bg-slate-200 text-2xl font-semibold text-slate-500" data-preview-stage>图1</div>
+            <p class="text-xs text-slate-400">原型示意预览（非真实图片）</p>
+          </div>
+        </div>
+        <div class="mt-4 flex items-center justify-between gap-3">
+          <button type="button" class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50" data-preview-prev>上一张</button>
+          <span class="text-xs text-slate-500" data-preview-index>1 / 1</span>
+          <button type="button" class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50" data-preview-next>下一张</button>
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay || e.target.closest('[data-preview-close]')) {
+        overlay.classList.add('hidden');
+        overlay.classList.remove('flex');
+      }
+    });
+    overlay.querySelector('[data-preview-prev]')?.addEventListener('click', () => {
+      idx = (idx - 1 + list.length) % list.length;
+      render();
+    });
+    overlay.querySelector('[data-preview-next]')?.addEventListener('click', () => {
+      idx = (idx + 1) % list.length;
+      render();
+    });
+  }
+  const render = () => {
+    const stage = overlay.querySelector('[data-preview-stage]');
+    const title = overlay.querySelector('[data-preview-title]');
+    const indexEl = overlay.querySelector('[data-preview-index]');
+    if (stage) stage.textContent = list[idx];
+    if (title) title.textContent = `图片预览 · ${list[idx]}`;
+    if (indexEl) indexEl.textContent = `${idx + 1} / ${list.length}`;
+    overlay._previewLabels = list;
+    overlay._previewIdx = idx;
+  };
+  // rebind prev/next to current list via closure replace
+  const prev = overlay.querySelector('[data-preview-prev]');
+  const next = overlay.querySelector('[data-preview-next]');
+  const freshPrev = prev.cloneNode(true);
+  const freshNext = next.cloneNode(true);
+  prev.replaceWith(freshPrev);
+  next.replaceWith(freshNext);
+  freshPrev.addEventListener('click', () => {
+    idx = (idx - 1 + list.length) % list.length;
+    render();
+  });
+  freshNext.addEventListener('click', () => {
+    idx = (idx + 1) % list.length;
+    render();
+  });
+  render();
+  overlay.classList.remove('hidden');
+  overlay.classList.add('flex');
+}
+
+function initPlanImagePreview(root) {
+  if (document.documentElement.dataset.wmsPlanPreviewBound === '1') return;
+  document.documentElement.dataset.wmsPlanPreviewBound = '1';
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-wms-plan-image-remove]')) return;
+    const thumb = e.target.closest('[data-wms-plan-image-thumb], [data-wms-plan-image-preview]');
+    if (!thumb) return;
+    const wrap = thumb.closest('[data-wms-plan-line-images]');
+    if (!wrap) return;
+    const nodes = [...wrap.querySelectorAll('[data-wms-plan-image-thumb]')];
+    const labels = nodes.map((n, i) => n.dataset.previewLabel || `图${i + 1}`);
+    const host = thumb.closest('[data-wms-plan-image-thumb]') || thumb;
+    const start = Math.max(0, nodes.indexOf(host));
+    openPlanImagePreview(labels, start < 0 ? 0 : start);
+  });
+}
+
+function syncPlanLineImageUi(wrap) {
+  if (!wrap) return;
+  const max = Number(wrap.dataset.max || 9);
+  const thumbs = [...wrap.querySelectorAll('[data-wms-plan-image-thumb]')];
+  const count = thumbs.length;
+  wrap.dataset.count = String(count);
+  const countEl = wrap.querySelector('[data-wms-plan-image-count]');
+  if (countEl) countEl.textContent = `${count}/${max}`;
+  const addBtn = wrap.querySelector('[data-wms-plan-image-add]');
+  if (addBtn) {
+    const full = count >= max;
+    addBtn.classList.toggle('hidden', full);
+    addBtn.disabled = full;
+  }
+}
+
+function createPlanImageThumb(index) {
+  const label = `图${index}`;
+  const el = document.createElement('div');
+  el.className = 'relative h-10 w-10 shrink-0';
+  el.setAttribute('data-wms-plan-image-thumb', '');
+  el.dataset.previewLabel = label;
+  el.innerHTML = `<button type="button" class="flex h-10 w-10 overflow-hidden rounded-lg bg-slate-200 ring-1 ring-slate-200 hover:ring-sky-400 cursor-pointer" data-wms-plan-image-preview title="点击预览"><span class="flex h-full w-full items-center justify-center text-[10px] text-slate-500">${label}</span></button>
+    <button type="button" class="absolute -right-1 -top-1 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-rose-500 text-[9px] text-white" data-wms-plan-image-remove aria-label="删除图片"><i class="fa-solid fa-xmark"></i></button>`;
+  return el;
+}
+
+function initApplyPlanForm(root) {
+  if (!document.body.hasAttribute('data-wms-apply-plan-form')) return;
+  const params = new URLSearchParams(location.search);
+  const mode = params.get('mode') || 'create';
+  const isView = mode === 'view';
+  const scope = document.querySelector('[data-wms-apply-plan-lines]')?.closest('#main-content') || document.getElementById('main-content');
+  if (!scope) return;
+
+  const planTypeEl = scope.querySelector('[data-wms-plan-field="planType"]');
+  const descEl = scope.querySelector('[data-wms-plan-field="desc"]');
+  const descLabel = scope.querySelector('[data-wms-plan-desc-label]');
+  const amountEl = scope.querySelector('[data-wms-plan-field="estimateAmount"]');
+
+  const syncDescRequired = () => {
+    const urgent = (planTypeEl?.value || '') === '急件计划';
+    if (descLabel) {
+      descLabel.innerHTML = urgent
+        ? '<span class="text-rose-500">*</span> 需求说明'
+        : '需求说明';
+    }
+    if (descEl) {
+      descEl.required = urgent;
+      descEl.placeholder = urgent ? '急件计划必填，请说明紧急原因与用途' : '一般计划选填；急件计划必填';
+    }
+  };
+
+  if (params.get('guide') === 'urgent' && planTypeEl) {
+    planTypeEl.value = '急件计划';
+  } else if (params.get('guide') === 'general' && planTypeEl) {
+    planTypeEl.value = '一般计划';
+  }
+  planTypeEl?.addEventListener('change', syncDescRequired);
+  syncDescRequired();
+
+  if (amountEl && !amountEl.value) amountEl.value = '15800.00';
+  amountEl?.addEventListener('blur', () => {
+    const n = Number(amountEl.value);
+    if (amountEl.value === '' || Number.isNaN(n) || n < 0) return;
+    amountEl.value = n.toFixed(2);
+  });
+
+  const validatePlanForm = () => {
+    const amount = Number(amountEl?.value);
+    if (amountEl && (amountEl.value === '' || Number.isNaN(amount) || amount < 0)) {
+      showMaterialToast('请填写预估总金额（元），保留两位小数');
+      amountEl?.focus();
+      return false;
+    }
+    if ((planTypeEl?.value || '') === '急件计划' && !(descEl?.value || '').trim()) {
+      showMaterialToast('急件计划须填写需求说明');
+      descEl?.focus();
+      return false;
+    }
+    return true;
+  };
+
+  scope.querySelectorAll('[data-wms-plan-save], [data-wms-plan-submit]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      if (isView) return;
+      if (!validatePlanForm()) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+  });
+
+  if (isView) {
+    document.body.dataset.title = '查看物资计划';
+    document.body.dataset.breadcrumb = '物资申请 / 查看计划';
+    document.title = '查看物资计划 · 物资管理系统';
+    const titleEl = document.getElementById('wms-modal-title');
+    if (titleEl) titleEl.textContent = '查看物资计划';
+    scope.querySelectorAll('input:not([readonly]), textarea, select').forEach(el => {
+      el.disabled = true;
+      el.classList.add('bg-slate-50', 'text-slate-600');
+    });
+    scope.querySelectorAll('[data-wms-plan-image-add], [data-wms-plan-image-remove], [data-wms-plan-line-delete], [data-wms-plan-select-material], [data-wms-plan-save], [data-wms-plan-submit], [data-wms-plan-cancel]').forEach(el => {
+      el.classList.add('hidden');
+    });
+    scope.querySelectorAll('[data-wms-plan-op-col], [data-wms-plan-op-cell]').forEach(el => el.classList.add('hidden'));
+    const footer = scope.querySelector('[data-wms-plan-footer]');
+    if (footer && !footer.querySelector('[data-wms-plan-close]')) {
+      const close = document.createElement('a');
+      close.href = 'apply_plan_list.html';
+      close.className = 'wms-btn wms-btn-secondary';
+      close.setAttribute('data-wms-plan-close', '');
+      close.textContent = '关闭';
+      footer.appendChild(close);
+    }
+  }
+
+  scope.querySelectorAll('[data-wms-plan-line-images]').forEach(syncPlanLineImageUi);
+
+  scope.addEventListener('click', (e) => {
+    const addBtn = e.target.closest('[data-wms-plan-image-add]');
+    if (addBtn && !isView) {
+      const wrap = addBtn.closest('[data-wms-plan-line-images]');
+      const max = Number(wrap?.dataset.max || 9);
+      const count = wrap?.querySelectorAll('[data-wms-plan-image-thumb]').length || 0;
+      if (!wrap || count >= max) {
+        showMaterialToast(`每条物资最多上传 ${max} 张图片`);
+        return;
+      }
+      wrap.insertBefore(createPlanImageThumb(count + 1), addBtn);
+      syncPlanLineImageUi(wrap);
+      return;
+    }
+
+    const removeImg = e.target.closest('[data-wms-plan-image-remove]');
+    if (removeImg && !isView) {
+      const wrap = removeImg.closest('[data-wms-plan-line-images]');
+      removeImg.closest('[data-wms-plan-image-thumb]')?.remove();
+      syncPlanLineImageUi(wrap);
+      return;
+    }
+
+    const delRow = e.target.closest('[data-wms-plan-line-delete]');
+    if (delRow && !isView) {
+      const tbody = scope.querySelector('[data-wms-plan-lines-tbody]');
+      const rows = tbody?.querySelectorAll('[data-apply-plan-row]') || [];
+      if (rows.length <= 1) {
+        showMaterialToast('计划明细至少保留 1 行');
+        return;
+      }
+      delRow.closest('[data-apply-plan-row]')?.remove();
+    }
+  });
+
+  scope.querySelectorAll('[data-wms-plan-line-remark]').forEach(input => {
+    const syncLen = () => {
+      const len = (input.value || '').length;
+      if (!input.value) input.placeholder = '0/200';
+      else input.title = `${len}/200`;
+    };
+    input.addEventListener('input', () => {
+      if ((input.value || '').length > 200) input.value = input.value.slice(0, 200);
+      syncLen();
+    });
+    syncLen();
+  });
 }
 
 function initApplyPlanDetailFromQuery(root) {
@@ -2728,6 +3464,7 @@ function initApplyPlanDetailFromQuery(root) {
     needDate: plan.needDate,
     auditPassTime: plan.auditPassTime || '—',
     workflow: plan.workflow || 'WF-PLAN',
+    estimateAmount: plan.estimateAmount || '—',
     remark: plan.remark || '—',
   };
   document.querySelectorAll('[data-apply-plan-field]').forEach(el => {

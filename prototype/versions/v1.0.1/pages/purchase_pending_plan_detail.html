@@ -29,6 +29,7 @@
         <div><dt class="text-slate-500">最早需求日</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="needDate">2026-06-10</dd></div>
         <div><dt class="text-slate-500">审核通过时间</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="auditPassTime">2026-06-09 10:30</dd></div>
         <div><dt class="text-slate-500">审批流程</dt><dd class="mt-1 font-mono text-xs text-slate-700" data-apply-plan-field="workflow">WF-PLAN</dd></div>
+        <div><dt class="text-slate-500">预估总金额（元）</dt><dd class="mt-1 text-slate-800" data-apply-plan-field="estimateAmount">15,800.00</dd></div>
         <div class="sm:col-span-2 lg:col-span-4"><dt class="text-slate-500">需求说明</dt><dd class="mt-1 text-slate-700" data-apply-plan-field="remark">抓斗备件库存不足，申请补库。</dd></div>
       </dl>
       <h4 class="mb-3 text-sm font-semibold text-slate-900">计划明细</h4>
@@ -46,6 +47,8 @@
             <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">在库数量</th>
             <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划需求数量</th>
             <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">计划需要日期</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">图片</th>
+            <th class="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">备注</th>
           </tr></thead><tbody data-apply-plan-lines><tr class="border-t border-slate-100">
       <td class="px-3 py-2.5 text-sm text-slate-700">1</td>
       <td class="px-3 py-2.5 font-mono text-xs text-slate-800">XF-00102</td>
@@ -57,6 +60,8 @@
       <td class="px-3 py-2.5 text-sm text-slate-700">120</td>
       <td class="px-3 py-2.5 text-sm font-medium text-slate-900">500</td>
       <td class="px-3 py-2.5 text-sm text-slate-700">2026-06-12</td>
+      <td class="px-3 py-2.5"><div class="flex max-w-[240px] flex-row flex-nowrap items-center gap-1.5 overflow-x-auto" data-wms-plan-line-images data-max="9" data-count="2" data-readonly="1"><button type="button" class="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-slate-200 ring-1 ring-slate-200 hover:ring-sky-400 cursor-pointer" data-wms-plan-image-thumb data-preview-label="图1" title="点击预览"><span class="flex h-full w-full items-center justify-center text-[10px] text-slate-500">图1</span></button><button type="button" class="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-slate-200 ring-1 ring-slate-200 hover:ring-sky-400 cursor-pointer" data-wms-plan-image-thumb data-preview-label="图2" title="点击预览"><span class="flex h-full w-full items-center justify-center text-[10px] text-slate-500">图2</span></button></div></td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">汛期备货</td>
     </tr><tr class="border-t border-slate-100">
       <td class="px-3 py-2.5 text-sm text-slate-700">2</td>
       <td class="px-3 py-2.5 font-mono text-xs text-slate-800">XF-00105</td>
@@ -68,6 +73,8 @@
       <td class="px-3 py-2.5 text-sm text-slate-700">2</td>
       <td class="px-3 py-2.5 text-sm font-medium text-slate-900">5</td>
       <td class="px-3 py-2.5 text-sm text-slate-700">2026-06-10</td>
+      <td class="px-3 py-2.5"><span class="text-slate-400">—</span></td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">—</td>
     </tr><tr class="border-t border-slate-100">
       <td class="px-3 py-2.5 text-sm text-slate-700">3</td>
       <td class="px-3 py-2.5 font-mono text-xs text-slate-800">XF-00108</td>
@@ -79,6 +86,8 @@
       <td class="px-3 py-2.5 text-sm text-slate-700">80</td>
       <td class="px-3 py-2.5 text-sm font-medium text-slate-900">50</td>
       <td class="px-3 py-2.5 text-sm text-slate-700">2026-06-12</td>
+      <td class="px-3 py-2.5"><div class="flex max-w-[240px] flex-row flex-nowrap items-center gap-1.5 overflow-x-auto" data-wms-plan-line-images data-max="9" data-count="1" data-readonly="1"><button type="button" class="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg bg-slate-200 ring-1 ring-slate-200 hover:ring-sky-400 cursor-pointer" data-wms-plan-image-thumb data-preview-label="图1" title="点击预览"><span class="flex h-full w-full items-center justify-center text-[10px] text-slate-500">图1</span></button></div></td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">现场配发</td>
     </tr><tr class="border-t border-slate-100">
       <td class="px-3 py-2.5 text-sm text-slate-700">4</td>
       <td class="px-3 py-2.5 font-mono text-xs text-slate-800">XF-00112</td>
@@ -90,6 +99,8 @@
       <td class="px-3 py-2.5 text-sm text-slate-700">15</td>
       <td class="px-3 py-2.5 text-sm font-medium text-slate-900">30</td>
       <td class="px-3 py-2.5 text-sm text-slate-700">2026-06-14</td>
+      <td class="px-3 py-2.5"><span class="text-slate-400">—</span></td>
+      <td class="px-3 py-2.5 text-sm text-slate-700">—</td>
     </tr></tbody></table>
         </div>
       </div>
