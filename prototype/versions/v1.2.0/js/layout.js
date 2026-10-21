@@ -520,6 +520,7 @@ function initLayout() {
   initPurchasePendingBatch(root);
   initApplyPlanDetailFromQuery(root);
   initPurchaseRequestFromQuery(root);
+  wirePurchaseSupplyViewLinks();
   initRequisitionForm(root);
   initAcceptanceFormInteraction(root);
   initPurchaseExecuteQuoteForm(root);
@@ -1186,6 +1187,18 @@ function initPurchaseRequestFromQuery(root) {
   if (showSupply) {
     document.querySelector('[data-wms-purchase-supply-orders]')?.classList.remove('hidden');
   }
+}
+
+/** 已生成供货单「查看」→ 只读供货详情弹窗，关闭后回到当前申请页 */
+function wirePurchaseSupplyViewLinks() {
+  const scope = document.querySelector('[data-wms-purchase-supply-orders]');
+  if (!scope) return;
+  const back = window.location.pathname.split('/').pop() + (window.location.search || '');
+  scope.querySelectorAll('[data-wms-supply-view-link]').forEach(a => {
+    const no = a.dataset.supplyNo || '';
+    if (!no) return;
+    a.setAttribute('href', `warehouse_acceptance_detail.html?no=${encodeURIComponent(no)}&back=${encodeURIComponent(back)}`);
+  });
 }
 
 function getAcceptanceStandard(major, minor) {
@@ -2852,9 +2865,15 @@ function initAcceptanceFromQuery(root) {
 
   applyAcceptanceBackLinks(backHref);
 
-  if (title.includes('供货详情') && backHref.includes('purchase_supply_list')) {
+  if (title.includes('供货详情')) {
     const breadcrumbEl = document.querySelector('.wms-app-shell header .text-xs.text-slate-500');
-    if (breadcrumbEl) breadcrumbEl.textContent = '供应商管理 / 查看供货';
+    if (breadcrumbEl) {
+      if (backHref.includes('purchase_request_form') || backHref.includes('purchase_pending_apply')) {
+        breadcrumbEl.textContent = '采购管理 / 查看供货单';
+      } else if (backHref.includes('purchase_supply_list')) {
+        breadcrumbEl.textContent = '供应商管理 / 查看供货';
+      }
+    }
   }
 
   const supplyScope = document.querySelector('[data-wms-acceptance-supply]');
