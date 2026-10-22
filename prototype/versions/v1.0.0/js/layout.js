@@ -1184,16 +1184,44 @@ function initPurchaseRequestFromQuery(root) {
   }
 }
 
-/** 已生成供货单「查看」→ 只读供货详情弹窗，关闭后回到当前申请页 */
+/** 已生成供货单「查看」→ 只读供货详情弹窗，关闭后回到当前申请页 / 供货单列表弹窗 */
 function wirePurchaseSupplyViewLinks() {
-  const scope = document.querySelector('[data-wms-purchase-supply-orders]');
-  if (!scope) return;
+  const scopes = [
+    document.querySelector('[data-wms-purchase-supply-orders]'),
+    document.querySelector('[data-wms-request-supplies]'),
+  ].filter(Boolean);
+  if (!scopes.length) return;
   const back = window.location.pathname.split('/').pop() + (window.location.search || '');
-  scope.querySelectorAll('[data-wms-supply-view-link]').forEach(a => {
-    const no = a.dataset.supplyNo || '';
-    if (!no) return;
-    a.setAttribute('href', `warehouse_acceptance_detail.html?no=${encodeURIComponent(no)}&back=${encodeURIComponent(back)}`);
+  scopes.forEach(scope => {
+    scope.querySelectorAll('[data-wms-supply-view-link]').forEach(a => {
+      const no = a.dataset.supplyNo || '';
+      if (!no) return;
+      a.setAttribute('href', `warehouse_acceptance_detail.html?no=${encodeURIComponent(no)}&back=${encodeURIComponent(back)}`);
+    });
   });
+}
+
+function initPurchaseRequestSuppliesModal(root) {
+  if (root.dataset.page !== 'purchase_request_list') return;
+  if (!(root.dataset.title || '').includes('已生成供货单')) return;
+  const scope = document.querySelector('[data-wms-request-supplies]');
+  if (!scope) return;
+  const params = new URLSearchParams(window.location.search);
+  const requestNo = params.get('requestNo') || 'JJSQ202606050001';
+  const backHref = params.get('back') || 'purchase_request_list.html';
+  const noEl = scope.querySelector('[data-request-supplies-no]');
+  if (noEl) noEl.textContent = requestNo;
+  const titleEl = document.getElementById('wms-modal-title');
+  if (titleEl) titleEl.textContent = `已生成供货单 · ${requestNo}`;
+  scope.setAttribute('data-modal-back', backHref);
+  scope.querySelectorAll('[data-request-supplies-close], .wms-modal-close').forEach(a => {
+    if (a.tagName === 'A') a.setAttribute('href', backHref);
+  });
+  const backdrop = document.querySelector('.wms-modal-backdrop');
+  if (backdrop) {
+    backdrop.onclick = (e) => { if (e.target === backdrop) window.location.href = backHref; };
+  }
+  wirePurchaseSupplyViewLinks();
 }
 
 function getAcceptanceStandard(major, minor) {
@@ -2863,7 +2891,7 @@ function initAcceptanceFromQuery(root) {
   if (title.includes('供货详情')) {
     const breadcrumbEl = document.querySelector('.wms-app-shell header .text-xs.text-slate-500');
     if (breadcrumbEl) {
-      if (backHref.includes('purchase_request_form') || backHref.includes('purchase_pending_apply')) {
+      if (backHref.includes('purchase_request_form') || backHref.includes('purchase_pending_apply') || backHref.includes('purchase_request_supplies')) {
         breadcrumbEl.textContent = '采购管理 / 查看供货单';
       } else if (backHref.includes('purchase_supply_list')) {
         breadcrumbEl.textContent = '供应商管理 / 查看供货';

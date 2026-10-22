@@ -3390,7 +3390,7 @@ flowchart TD
 | 待采物资 | 已申请 | 查看申请 | 采购申请详情 |
 | 采购申请（急件） | 草稿/审核失败 | 查看、编辑、发起审核、删除 | 申请页 |
 | 采购申请（急件） | 审核中 | 查看、审核 | 审核弹窗 |
-| 采购申请（急件） | 审核通过 | 查看；已生成供货单·查看 | 申请详情；供货详情弹窗（只读） |
+| 采购申请（急件） | 审核通过 | 查看；供货单 | 申请详情；已生成供货单弹窗（只读，再进供货详情） |
 | 物资采购 | 待执行 | 查看、直采/询价/招标 | 对应采购页 |
 | 物资采购 | 审核中/已完成 | 查看 | — |
 | 供应商供货单 | 待供货 | 查看、完成供货 | 完成供货页 |
@@ -3898,6 +3898,7 @@ flowchart TD
 |--------|--------|----------|----------------|------|
 | 新增 | `wms:purchase:request:create` | 采购 | — | `purchase_request_form.html` |
 | 查看/编辑/提交/审核 | `wms:purchase:request:*` | 采购/审批 | 见 §16.3 | 申请表单 |
+| 供货单 | `wms:purchase:supply:view` | 采购/仓管 | 审核通过 | `purchase_request_supplies.html`（只读弹窗，列出本单供货单；行内「查看」→ `warehouse_acceptance_detail`） |
 | 已生成供货单·查看 | `wms:purchase:supply:view` | 采购/仓管 | 审核通过（详情内） | `warehouse_acceptance_detail.html`（只读弹窗，`no`+`back`） |
 
 #### 17.5.3 采购申请表单（purchase_request_form）
