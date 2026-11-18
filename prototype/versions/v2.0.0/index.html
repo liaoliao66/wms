@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>物资管理系统 · v2.0.0 原型门户</title>
+  <base id="wms-base" href="./" />
+  <script>
+    (function () {
+      var path = location.pathname;
+      var base = path.endsWith('/')
+        ? path
+        : (/\.[a-z0-9]+$/i.test((path.split('/').pop() || ''))
+          ? path.replace(/\/[^/]*$/, '/')
+          : path + '/');
+      document.getElementById('wms-base').href = base;
+    })();
+  </script>
+  <link rel="stylesheet" href="css/tailwind.css" />
+  <link rel="stylesheet" href="css/custom.css" />
+  <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css" />
+</head>
+<body class="wms-portal-body">
+  <div class="wms-portal">
+    <header class="wms-portal-header">
+      <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-lg font-bold text-white shadow-lg">W</div>
+      <div>
+        <h1 class="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">物资管理系统</h1>
+        <p class="mt-1 text-sm text-slate-500">
+          <span class="inline-flex rounded-lg bg-slate-900 px-2 py-0.5 text-xs font-medium text-white">v2.0.0</span>
+          <span class="ml-2">物资清单 · 物资清单 · 规格单独成列 · 固定单价（PC）</span>
+        </p>
+      </div>
+    </header>
+
+    <p class="wms-portal-desc">
+      本版原型聚焦<strong>物资清单</strong>：规格<strong>单独成列</strong>维护（不写入物资编码后缀），各规格独立固定单价；历史记录保留不动。
+      <a href="../../index.html" class="ml-1 font-medium text-slate-700 hover:underline">返回全局总入口</a>
+    </p>
+
+    <div class="wms-portal-grid">
+      <a id="pc" href="pages/config_material_catalog.html" class="wms-portal-card wms-portal-card--pc group">
+        <div class="wms-portal-card-icon">
+          <i class="fa-solid fa-desktop text-2xl"></i>
+        </div>
+        <div class="wms-portal-card-body">
+          <h2 class="text-xl font-semibold text-slate-900">PC 端 · 物资清单</h2>
+          <p class="mt-2 text-sm leading-relaxed text-slate-500">列表「规格」独立列展示；表单规格子表；详情查看多规格定价。</p>
+          <ul class="mt-4 space-y-1.5 text-xs text-slate-500">
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>列表 · 规格列 / 固定单价区间</li>
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>新增/编辑 · 规格子表校验</li>
+            <li><i class="fa-solid fa-check text-emerald-500 mr-1.5"></i>详情 · 规格明细与历史单据保留</li>
+          </ul>
+          <span class="mt-6 inline-flex items-center gap-2 text-sm font-medium text-slate-900 group-hover:gap-3 transition-all">
+            进入物资清单 <i class="fa-solid fa-arrow-right text-xs"></i>
+          </span>
+        </div>
+      </a>
+    </div>
+
+    <div class="wms-portal-links">
+      <a href="pages/config_material_catalog.html" class="wms-portal-link">
+        <i class="fa-solid fa-list"></i>
+        <span>物资清单列表</span>
+        <span class="text-slate-400">catalog</span>
+      </a>
+      <a href="pages/config_material_form.html" class="wms-portal-link">
+        <i class="fa-solid fa-plus"></i>
+        <span>新增物资</span>
+        <span class="text-slate-400">含规格子表</span>
+      </a>
+      <a href="pages/config_material_form.html?code=LA-00456&mode=edit" class="wms-portal-link">
+        <i class="fa-solid fa-pen"></i>
+        <span>编辑电钻（多规格样例）</span>
+        <span class="text-slate-400">edit</span>
+      </a>
+      <a href="pages/config_material_detail.html?code=LA-00456" class="wms-portal-link">
+        <i class="fa-solid fa-eye"></i>
+        <span>查看物资详情</span>
+        <span class="text-slate-400">detail</span>
+      </a>
+      <a href="pages/purchase_request_form.html" class="wms-portal-link">
+        <i class="fa-solid fa-file-circle-plus"></i>
+        <span>采购申请（新建）</span>
+        <span class="text-slate-400">供应商可选手动填写</span>
+      </a>
+      <a href="pages/apply_requisition_form.html" class="wms-portal-link">
+        <i class="fa-solid fa-file-signature"></i>
+        <span>领用申请（新建）</span>
+        <span class="text-slate-400">行级使用用途必填</span>
+      </a>
+      <a href="../../../docs/versions/v2.0.0/prd.html" class="wms-portal-link">
+        <i class="fa-solid fa-file-lines"></i>
+        <span>v2.0.0 PRD 阅读页</span>
+        <span class="text-slate-400">2026-11-18</span>
+      </a>
+      <a href="../../../docs/versions/v2.0.0/prd.md" class="wms-portal-link">
+        <i class="fa-solid fa-markdown"></i>
+        <span>v2.0.0 PRD 源文件</span>
+        <span class="text-slate-400">Markdown</span>
+      </a>
+    </div>
+  </div>
+</body>
+</html>

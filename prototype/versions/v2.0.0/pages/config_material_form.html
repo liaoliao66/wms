@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>新增物资 · 物资管理系统</title>
+  <link rel="stylesheet" href="../css/tailwind.css" />
+  <link rel="stylesheet" href="../css/custom.css" />
+  <link rel="stylesheet" href="../vendor/fontawesome/css/all.min.css" />
+</head>
+<body data-page="config_material_catalog" data-title="新增物资" data-breadcrumb="基础配置 / 新增物资">
+  <div id="main-content">
+    <div data-wms-modal data-modal-back="config_material_catalog.html" data-modal-size="xl">
+      <div class="wms-modal-form wms-warehouse-form" data-wms-material-form data-material-type="fixed">
+        <div class="md:col-span-2" data-wms-material-type-tabs>
+    <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 物资类型</label>
+    <div class="flex flex-wrap gap-2"><button type="button" class="wms-material-type-tab rounded-xl px-4 py-2 text-sm font-medium bg-slate-900 text-white" data-wms-material-type-tab="fixed">固定资产</button><button type="button" class="wms-material-type-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-material-type-tab="like">类资产</button><button type="button" class="wms-material-type-tab rounded-xl px-4 py-2 text-sm font-medium bg-white text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50" data-wms-material-type-tab="consumable">耗材</button></div>
+  </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">基础信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">物资编码</label><input type="text" value="系统自动生成" class="w-full rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-500" readonly readonly /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 物资名称</label><input type="text" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" placeholder="请输入" data-wms-material-name /></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 物资大类</label>
+    <select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-wms-material-major required><option value="" disabled selected>请选择</option><option value="资产-固定资产">资产-固定资产</option></select></div><div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 物资子类</label>
+    <select class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-wms-material-minor required><option value="" disabled selected>请选择</option><option value="办公电脑">办公电脑</option><option value="设备-配件">设备-配件</option></select></div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">规格与固定单价</h3></div>
+        <div class="md:col-span-2">
+          <div class="mb-3 flex justify-end">
+            <button type="button" id="btn-add-spec" class="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2.5 text-sm font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><i class="fa-solid fa-plus text-xs"></i>添加规格</button>
+          </div>
+          <div class="overflow-hidden rounded-xl ring-1 ring-slate-100">
+            <div class="overflow-x-auto wms-modal-table-wrap">
+              <table class="min-w-full text-sm wms-data-table" id="spec-table">
+                <thead class="bg-slate-50/80 sticky top-0">
+                  <tr>
+                    <th class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">序号</th>
+                    <th class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 规格</th>
+                    <th class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap"><span class="text-rose-500">*</span> 固定单价（元）</th>
+                    <th class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">启用</th>
+                    <th class="px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">备注</th>
+                    <th class="wms-col-actions px-3 py-3 text-right text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">操作</th>
+                  </tr>
+                </thead>
+                <tbody id="spec-tbody"></tbody>
+              </table>
+            </div>
+            <p id="spec-empty" class="hidden border-t border-slate-100 px-4 py-6 text-center text-sm text-slate-400">暂无规格，请添加至少 1 条</p>
+          </div>
+          <p id="spec-error" class="mt-2 hidden rounded-lg border border-rose-100 bg-rose-50/80 px-3 py-2 text-xs text-rose-700"></p>
+          <p class="mt-1.5 text-xs text-slate-400">规格单独成列维护，不写入物资编码后缀；不同规格各自填写固定单价。至少保留 1 条启用规格。</p>
+        </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">计量核算信息</h3></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 主计量单位</label>
+    <select data-wms-material-unit="主计量单位" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" required>
+      <option value="" disabled selected>请选择</option><option value="DW202606004" data-symbol="个">个（DW202606004）</option><option value="DW202606002" data-symbol="台">台（DW202606002）</option><option value="DW202606003" data-symbol="m">米（DW202606003）</option><option value="DW202606001" data-symbol="桶">桶（DW202606001）</option><option value="DW202606005" data-symbol="箱">箱（DW202606005）</option>
+      <option value="—" data-symbol="—">—</option>
+    </select></div>
+        <div><label class="mb-1.5 block text-sm font-medium text-slate-700">辅计量单位</label>
+    <select data-wms-material-unit="辅计量单位" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200">
+      <option value="" disabled selected>请选择</option><option value="DW202606004" data-symbol="个">个（DW202606004）</option><option value="DW202606002" data-symbol="台">台（DW202606002）</option><option value="DW202606003" data-symbol="m">米（DW202606003）</option><option value="DW202606001" data-symbol="桶">桶（DW202606001）</option><option value="DW202606005" data-symbol="箱">箱（DW202606005）</option>
+      <option value="—" data-symbol="—">—</option>
+    </select></div>
+        <div class="md:col-span-2">
+    <label class="mb-1.5 block text-sm font-medium text-slate-700">主辅单位换算</label>
+    <div class="flex flex-wrap items-center gap-2 text-sm text-slate-700">
+      <span class="text-slate-500">1</span>
+      <input type="text" placeholder="请输入主单位" class="w-28 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" value="" />
+      <span class="text-slate-400">：</span>
+      <input type="text" placeholder="请输入辅单位" class="w-28 rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" value="" />
+    </div>
+    <p class="mt-1.5 text-xs text-slate-400">注释：主单位即为 1，填写换算比</p>
+  </div>
+        <div class="md:col-span-2" data-wms-material-business-return>
+          <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">业务信息</h3></div>
+          <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 归还</label><div class="flex flex-wrap gap-4 pt-1"><label class="inline-flex items-center gap-2 text-sm text-slate-700">
+      <input type="radio" name="returnNeed" class="border-slate-300 text-slate-900" data-wms-material-return value="需要" checked />
+      <span>需要</span>
+    </label><label class="inline-flex items-center gap-2 text-sm text-slate-700">
+      <input type="radio" name="returnNeed" class="border-slate-300 text-slate-900" data-wms-material-return value="不需要" />
+      <span>不需要</span>
+    </label></div></div>
+        </div>
+        <div class="md:col-span-2" data-wms-material-business-inventory>
+          
+          <p class="md:col-span-2 rounded-lg border border-sky-100 bg-sky-50/80 px-3 py-2 text-xs text-sky-900 hidden" data-wms-material-inherit-banner>
+            <i class="fa-solid fa-link mr-1 opacity-70"></i><span data-wms-material-inherit-text>选择物资子类后，将回显分类默认的盘点与使用年限规则</span>
+          </p>
+          <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 是否需要盘点</label><div class="flex flex-wrap gap-4 pt-1"><label class="inline-flex items-center gap-2 text-sm text-slate-700">
+      <input type="radio" name="needInventory" class="border-slate-300 text-slate-900" data-wms-material-inventory value="是" checked />
+      <span>是</span>
+    </label><label class="inline-flex items-center gap-2 text-sm text-slate-700">
+      <input type="radio" name="needInventory" class="border-slate-300 text-slate-900" data-wms-material-inventory value="否" />
+      <span>否</span>
+    </label></div><p class="mt-1.5 text-xs text-slate-400" data-wms-material-inventory-hint>默认继承分类；纳入盘点计划时按此标识筛选，可覆盖</p></div>
+          <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 是否需要使用年限</label><div class="flex flex-wrap gap-4 pt-1"><label class="inline-flex items-center gap-2 text-sm text-slate-700">
+      <input type="radio" name="needServiceLife" class="border-slate-300 text-slate-900" data-wms-material-service-life value="是" checked />
+      <span>是</span>
+    </label><label class="inline-flex items-center gap-2 text-sm text-slate-700">
+      <input type="radio" name="needServiceLife" class="border-slate-300 text-slate-900" data-wms-material-service-life value="否" />
+      <span>否</span>
+    </label></div><p class="mt-1.5 text-xs text-slate-400" data-wms-material-service-life-hint>默认继承分类；选「是」时需填写使用年限（年）</p></div>
+          <div class="" data-wms-material-service-life-years-wrap>
+              <label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 使用年限（年）</label>
+              <input type="number" min="1" step="1" value="" placeholder="请输入" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-wms-material-service-life-years />
+              <p class="mt-1.5 text-xs text-amber-700"><i class="fa-solid fa-circle-info mr-1"></i>到达使用年限后仅入<strong>待报废池提醒</strong>（可延长年限或撤销出池），不自动生成作废单</p>
+            </div>
+        </div>
+        <div class="md:col-span-2 hidden" data-wms-material-business-stock>
+          
+          <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 安全库存</label><input type="number" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" placeholder="请输入" data-wms-material-safe /></div>
+          <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 库存下限</label><input type="number" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" placeholder="请输入" data-wms-material-min /></div>
+          <div><label class="mb-1.5 block text-sm font-medium text-slate-700"><span class="text-rose-500">*</span> 库存上限</label><input type="number" value="" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" placeholder="请输入" data-wms-material-max /></div>
+        </div>
+        <div class="wms-form-section md:col-span-2"><h3 class="wms-form-section-title">其他</h3></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">说明</label><textarea rows="3" placeholder="0/500" class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200"></textarea></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">资料</label><div class="wms-upload-zone">
+    <i class="fa-solid fa-cloud-arrow-up text-lg text-slate-400"></i>
+    <p class="mt-2 text-sm text-slate-600">上传文件</p>
+    <p class="mt-1 text-xs text-slate-400">支持 .rar .zip .doc .docx .pdf，单个文件不能超过 500MB</p>
+  </div></div>
+        <div class="md:col-span-2"><label class="mb-1.5 block text-sm font-medium text-slate-700">照片</label><div class="wms-photo-upload">
+    <button type="button" class="flex h-20 w-20 flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50">
+      <i class="fa-solid fa-plus text-lg"></i>
+      <span class="mt-1 text-xs">上传图片</span>
+    </button>
+    <p class="mt-2 text-xs text-slate-400">支持 .jpg .jpeg .png，单个文件不能超过 100MB</p>
+  </div></div>
+      </div>
+      <div class="wms-modal-footer">
+        <a href="config_material_catalog.html" class="wms-btn wms-btn-secondary">取消</a>
+        <button type="button" id="btn-save" class="wms-btn wms-btn-primary">确定</button>
+      </div>
+    </div></div>
+  <div id="save-toast" class="wms-qr-toast hidden" role="status"></div>
+  <script src="../js/layout.js" charset="UTF-8"></script>
+  <script>
+    (function () {
+      var tbody = document.getElementById('spec-tbody');
+      var empty = document.getElementById('spec-empty');
+      var err = document.getElementById('spec-error');
+      var params = new URLSearchParams(location.search);
+      var isEdit = params.get('mode') === 'edit';
+      var code = params.get('code') || '';
+
+      function renumber() {
+        var rows = tbody.querySelectorAll('[data-spec-row]');
+        for (var i = 0; i < rows.length; i++) {
+          var cell = rows[i].querySelector('[data-spec-seq]');
+          if (cell) cell.textContent = String(i + 1);
+        }
+      }
+
+      function rowHtml(row) {
+        return '<tr class="border-t border-slate-100 hover:bg-slate-50/80" data-spec-row>' +
+          '<td class="px-3 py-3.5 text-sm text-slate-700 whitespace-nowrap" data-spec-seq>1</td>' +
+          '<td class="px-3 py-3.5 text-sm text-slate-700 whitespace-nowrap"><input type="text" class="w-full min-w-[140px] rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-spec-name placeholder="请输入规格，如：工业级" value="' + (row.name || '') + '" /></td>' +
+          '<td class="px-3 py-3.5 text-sm text-slate-700 whitespace-nowrap"><input type="number" min="0" step="0.01" class="w-full min-w-[120px] rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-spec-price placeholder="请输入" value="' + (row.price || '') + '" /></td>' +
+          '<td class="px-3 py-3.5 text-sm text-slate-700 whitespace-nowrap"><label class="inline-flex items-center gap-2 text-sm text-slate-700"><input type="checkbox" class="rounded border-slate-300" data-spec-enabled ' + (row.enabled !== false ? 'checked' : '') + ' /><span>启用</span></label></td>' +
+          '<td class="px-3 py-3.5 text-sm text-slate-700 whitespace-nowrap"><input type="text" class="w-full min-w-[100px] rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-slate-400 focus:ring-2 focus:ring-slate-200" data-spec-remark placeholder="选填" value="' + (row.remark || '') + '" /></td>' +
+          '<td class="wms-col-actions px-3 py-3.5 text-right text-sm whitespace-nowrap"><button type="button" class="text-amber-600 hover:underline" data-spec-remove>删除</button></td>' +
+          '</tr>';
+      }
+
+      function refreshEmpty() {
+        empty.classList.toggle('hidden', tbody.querySelectorAll('[data-spec-row]').length > 0);
+        renumber();
+      }
+
+      function addRow(preset) {
+        var row = preset || { name: '', price: '', enabled: true, remark: '' };
+        tbody.insertAdjacentHTML('beforeend', rowHtml(row));
+        refreshEmpty();
+        err.classList.add('hidden');
+      }
+
+      document.getElementById('btn-add-spec').addEventListener('click', function () { addRow(); });
+      tbody.addEventListener('click', function (e) {
+        var btn = e.target.closest('[data-spec-remove]');
+        if (!btn) return;
+        btn.closest('[data-spec-row]').remove();
+        refreshEmpty();
+      });
+
+      function validateSpecs() {
+        var rows = tbody.querySelectorAll('[data-spec-row]');
+        if (!rows.length) { err.textContent = '请至少添加 1 条规格。'; err.classList.remove('hidden'); return false; }
+        var enabled = 0;
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          var name = (r.querySelector('[data-spec-name]').value || '').trim();
+          var price = r.querySelector('[data-spec-price]').value;
+          if (!name) { err.textContent = '第 ' + (i + 1) + ' 行：规格名称必填。'; err.classList.remove('hidden'); return false; }
+          if (price === '' || Number(price) < 0) { err.textContent = '第 ' + (i + 1) + ' 行：固定单价必填且不可为负。'; err.classList.remove('hidden'); return false; }
+          if (r.querySelector('[data-spec-enabled]').checked) enabled += 1;
+        }
+        if (enabled < 1) { err.textContent = '至少保留 1 条启用规格，否则无法保存。'; err.classList.remove('hidden'); return false; }
+        err.classList.add('hidden');
+        return true;
+      }
+
+      document.getElementById('btn-save').addEventListener('click', function () {
+        var nameEl = document.querySelector('[data-wms-material-name]');
+        if (nameEl && !(nameEl.value || '').trim()) { err.textContent = '请填写物资名称。'; err.classList.remove('hidden'); return; }
+        if (!validateSpecs()) return;
+        var toast = document.getElementById('save-toast');
+        toast.textContent = '已保存（原型演示）';
+        toast.classList.remove('hidden');
+        setTimeout(function () { location.href = 'config_material_catalog.html'; }, 700);
+      });
+
+      if (isEdit && code === 'LA-00456') {
+        document.title = '编辑物资 · 物资管理系统';
+        document.body.setAttribute('data-title', '编辑物资');
+        document.body.setAttribute('data-breadcrumb', '基础配置 / 编辑物资');
+        var nameInput = document.querySelector('[data-wms-material-name]');
+        if (nameInput) nameInput.value = '电钻';
+        addRow({ name: '家用级', price: '480.00', enabled: true, remark: '' });
+        addRow({ name: '工业级', price: '680.00', enabled: true, remark: '常用' });
+        addRow({ name: '重载级', price: '980.00', enabled: true, remark: '' });
+      } else {
+        addRow({ name: '', price: '', enabled: true, remark: '' });
+      }
+    })();
+  </script>
+</body></html>
